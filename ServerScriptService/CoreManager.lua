@@ -8,9 +8,6 @@ local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 
 local GameDataStore = DataStoreService:GetDataStore("JojoRPG_Alpha_V8")
 
--- =========================================================================
--- NETWORK & REMOTES INITIALIZATION
--- =========================================================================
 local RemotesFolder = ReplicatedStorage:FindFirstChild("Network")
 if not RemotesFolder then
 	RemotesFolder = Instance.new("Folder")
@@ -18,7 +15,6 @@ if not RemotesFolder then
 	RemotesFolder.Parent = ReplicatedStorage
 end
 
--- Safely generate all required RemoteEvents to prevent client infinite yields
 local requiredRemotes = {
 	"ToggleMute",
 	"TutorialAction",
@@ -37,7 +33,8 @@ local requiredRemotes = {
 	"GangUpdate",
 	"InventoryAction",
 	"TrainingAction",
-	"MultiplayerAction"
+	"MultiplayerAction",
+	"NotificationEvent"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
@@ -48,7 +45,6 @@ for _, remoteName in ipairs(requiredRemotes) do
 	end
 end
 
--- Bindable Events for Server-to-Server communication
 local saveEvent = ReplicatedStorage:FindFirstChild("ForcePlayerSave")
 if not saveEvent then
 	saveEvent = Instance.new("BindableEvent")
@@ -56,9 +52,6 @@ if not saveEvent then
 	saveEvent.Parent = ReplicatedStorage
 end
 
--- =========================================================================
--- CORE LOGIC
--- =========================================================================
 local ToggleMuteRemote = RemotesFolder:WaitForChild("ToggleMute")
 ToggleMuteRemote.OnServerEvent:Connect(function(player, state)
 	if type(state) == "boolean" then
@@ -333,9 +326,9 @@ task.spawn(function()
 			end
 			SavePlayerData(player)
 
-			local combatUpdate = RemotesFolder:FindFirstChild("CombatUpdate")
-			if combatUpdate then
-				combatUpdate:FireClient(player, "SystemMessage", "<b><font color='#55FF55'>Game Auto-Saved</font></b>")
+			local notifUpdate = RemotesFolder:FindFirstChild("NotificationEvent")
+			if notifUpdate then
+				notifUpdate:FireClient(player, "<b><font color='#55FF55'>Game Auto-Saved</font></b>")
 			end
 		end
 	end
