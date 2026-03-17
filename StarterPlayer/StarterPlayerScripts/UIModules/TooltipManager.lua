@@ -12,8 +12,9 @@ local tooltip, tooltipText
 function TooltipManager.Init(screenGui)
 	tooltip = Instance.new("Frame")
 	tooltip.Name = "TooltipFrame"
-	tooltip.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
+	tooltip.BackgroundColor3 = Color3.fromRGB(25, 15, 45)
 	tooltip.BackgroundTransparency = 0.05
+	tooltip.BorderSizePixel = 0
 	tooltip.AutomaticSize = Enum.AutomaticSize.XY
 	tooltip.ZIndex = 100
 	tooltip.Visible = false
@@ -26,6 +27,7 @@ function TooltipManager.Init(screenGui)
 	local stroke = Instance.new("UIStroke")
 	stroke.Color = Color3.fromRGB(255, 215, 50)
 	stroke.Thickness = 2
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	stroke.Parent = tooltip
 
 	local padding = Instance.new("UIPadding")
