@@ -10,8 +10,43 @@ local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local tooltip, tooltipText
 
 function TooltipManager.Init(screenGui)
-	tooltip = screenGui:WaitForChild("TooltipFrame")
-	tooltipText = tooltip:WaitForChild("TooltipText")
+	tooltip = Instance.new("Frame")
+	tooltip.Name = "TooltipFrame"
+	tooltip.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
+	tooltip.BackgroundTransparency = 0.05
+	tooltip.AutomaticSize = Enum.AutomaticSize.XY
+	tooltip.ZIndex = 100
+	tooltip.Visible = false
+	tooltip.Parent = screenGui
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = tooltip
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(255, 215, 50)
+	stroke.Thickness = 2
+	stroke.Parent = tooltip
+
+	local padding = Instance.new("UIPadding")
+	padding.PaddingTop = UDim.new(0, 10)
+	padding.PaddingBottom = UDim.new(0, 10)
+	padding.PaddingLeft = UDim.new(0, 12)
+	padding.PaddingRight = UDim.new(0, 12)
+	padding.Parent = tooltip
+
+	tooltipText = Instance.new("TextLabel")
+	tooltipText.Name = "TooltipText"
+	tooltipText.BackgroundTransparency = 1
+	tooltipText.RichText = true
+	tooltipText.Font = Enum.Font.GothamMedium
+	tooltipText.TextColor3 = Color3.fromRGB(220, 220, 220)
+	tooltipText.TextSize = 16
+	tooltipText.TextXAlignment = Enum.TextXAlignment.Left
+	tooltipText.TextYAlignment = Enum.TextYAlignment.Top
+	tooltipText.AutomaticSize = Enum.AutomaticSize.XY
+	tooltipText.ZIndex = 101
+	tooltipText.Parent = tooltip
 
 	game:GetService("RunService").RenderStepped:Connect(function()
 		if tooltip.Visible then
