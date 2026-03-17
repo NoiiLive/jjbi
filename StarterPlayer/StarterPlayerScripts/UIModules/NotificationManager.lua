@@ -40,7 +40,7 @@ function NotificationManager.Show(message)
 	if not notificationContainer then return end
 
 	local notifFrame = Instance.new("Frame")
-	notifFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
+	notifFrame.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
 	notifFrame.BackgroundTransparency = 1
 	notifFrame.Size = UDim2.new(1, 0, 0, 0)
 	notifFrame.ClipsDescendants = true
