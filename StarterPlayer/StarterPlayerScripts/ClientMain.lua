@@ -19,6 +19,22 @@ screenGui.IgnoreGuiInset = true
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
+local UIModules = script.Parent:WaitForChild("UIModules")
+local SFXManager = require(UIModules:WaitForChild("SFXManager"))
+local TooltipManager = require(UIModules:WaitForChild("TooltipManager"))
+local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
+
+SFXManager.Init()
+TooltipManager.Init(screenGui)
+NotificationManager.Init(screenGui)
+
+local Network = ReplicatedStorage:WaitForChild("Network")
+local NotificationEvent = Network:WaitForChild("NotificationEvent")
+
+NotificationEvent.OnClientEvent:Connect(function(msg)
+	NotificationManager.Show(msg)
+end)
+
 local function applyDoubleGoldBorder(parent)
 	local parentCorner = parent:FindFirstChildOfClass("UICorner")
 
@@ -233,7 +249,8 @@ boostBtn.ZIndex = 12
 boostBtn.Parent = topRightContainer
 
 local boostBtnUic = Instance.new("UITextSizeConstraint")
-boostBtnUic.MaxTextSize = 22
+boostBtnUic.MaxTextSize = 35
+boostBtnUic.MinTextSize = 1
 boostBtnUic.Parent = boostBtn
 
 local boostCorner = Instance.new("UICorner")
@@ -260,7 +277,8 @@ muteBtn.ZIndex = 12
 muteBtn.Parent = topRightContainer
 
 local muteBtnUic = Instance.new("UITextSizeConstraint")
-muteBtnUic.MaxTextSize = 22
+muteBtnUic.MaxTextSize = 35
+muteBtnUic.MinTextSize = 1
 muteBtnUic.Parent = muteBtn
 
 local muteCorner = Instance.new("UICorner")
@@ -287,7 +305,8 @@ navToggleBtn.ZIndex = 12
 navToggleBtn.Parent = topRightContainer
 
 local toggleBtnUic = Instance.new("UITextSizeConstraint")
-toggleBtnUic.MaxTextSize = 22
+toggleBtnUic.MaxTextSize = 35
+toggleBtnUic.MinTextSize = 1
 toggleBtnUic.Parent = navToggleBtn
 
 local toggleCorner = Instance.new("UICorner")
@@ -302,6 +321,7 @@ toggleBtnStroke.Parent = navToggleBtn
 
 local isMuted = false
 muteBtn.MouseButton1Click:Connect(function()
+	SFXManager.Play("Click")
 	isMuted = not isMuted
 	muteBtn.Text = isMuted and "🔇" or "🔊"
 	local bgm = SoundService:FindFirstChild("BizarreBGM")
@@ -310,16 +330,20 @@ muteBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
+boostBtn.MouseButton1Click:Connect(function()
+	SFXManager.Play("Click")
+end)
+
 local TabFrames = {}
 local tabs = {"Singleplayer", "Inventory", "Shop", "Multiplayer", "Training", "Updates"}
 
 local genericIcons = {
-	"rbxassetid://100709766417970",
-	"rbxassetid://76280788472844", 
-	"rbxassetid://116215526361894", 
-	"rbxassetid://121068501196280", 
-	"rbxassetid://129160804661942", 
-	"rbxassetid://87788524006138"
+	"rbxassetid://133872443057434",
+	"rbxassetid://131461796289216", 
+	"rbxassetid://124294007761753", 
+	"rbxassetid://84309428370700", 
+	"rbxassetid://122351196100525", 
+	"rbxassetid://119375458206372"
 }
 
 for i, tabName in ipairs(tabs) do
@@ -411,59 +435,111 @@ for i, tabName in ipairs(tabs) do
 	title.Text = tabName:upper()
 	title.Font = Enum.Font.GothamBold
 	title.TextColor3 = Color3.fromRGB(220, 220, 220)
-	title.TextScaled = true
+	title.TextScaled = false
 	title.TextWrapped = false
-	title.Size = UDim2.new(1, -50, 0.6, 0)
-	title.Position = UDim2.new(1, -10, 0.5, 0)
-	title.AnchorPoint = Vector2.new(1, 0.5)
+	title.Size = UDim2.new(1, -60, 0.85, 0)
+	title.Position = UDim2.new(0, 55, 0.5, 0)
+	title.AnchorPoint = Vector2.new(0, 0.5)
 	title.TextXAlignment = Enum.TextXAlignment.Center
 	title.ZIndex = 13
 	title.Parent = btn
-
-	local titleConstraint = Instance.new("UITextSizeConstraint")
-	titleConstraint.MaxTextSize = 28
-	titleConstraint.MinTextSize = 10
-	titleConstraint.Parent = title
 end
 
-local function SwitchTab(targetTabName)
-	for tName, f in pairs(TabFrames) do
-		f.Visible = (tName == targetTabName)
-	end
+local activeTab = "Singleplayer"
+local currentLayoutState = "Large"
+
+local function refreshButtons()
+	local vp = camera.ViewportSize
+	local btnCount = #tabs
+
+	local navWidthLarge = vp.X * 0.85
+	local btnWidthLarge = (navWidthLarge / btnCount) - 15
+	local textSpaceLarge = btnWidthLarge - 60
+	local uniformTextSize = math.clamp(math.floor(textSpaceLarge / 7.5), 10, 45)
+
+	local navWidthMed = vp.X * 0.95
+	local activeBtnWidthMed = navWidthMed * 0.40
+	local textSpaceMed = activeBtnWidthMed - 60
+	local mediumTextSize = math.clamp(math.floor(textSpaceMed / 7.5), 10, 35)
 
 	for _, btn in pairs(navContainer:GetChildren()) do
 		if btn:IsA("TextButton") then
+			local tabName = string.gsub(btn.Name, "Button", "")
+			local isActive = (tabName == activeTab)
+
 			local titleLbl = btn:FindFirstChild("Title")
 			local iconCont = btn:FindFirstChild("IconContainer")
 			local btnStroke = btn:FindFirstChildOfClass("UIStroke")
 			local icnStroke = iconCont and iconCont:FindFirstChildOfClass("UIStroke")
 
-			if btn.Name == targetTabName .. "Button" then
-				TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 30, 100)}):Play()
-				if titleLbl then titleLbl.TextColor3 = Color3.fromRGB(255, 235, 130) end
-				if iconCont then iconCont.BackgroundColor3 = Color3.fromRGB(45, 15, 65) end
-				if btnStroke then 
-					btnStroke.Color = Color3.fromRGB(255, 215, 50)
-					btnStroke.Thickness = 2
+			TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = isActive and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)}):Play()
+			if titleLbl then titleLbl.TextColor3 = isActive and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220) end
+			if iconCont then iconCont.BackgroundColor3 = isActive and Color3.fromRGB(45, 15, 65) or Color3.fromRGB(15, 5, 25) end
+			if btnStroke then 
+				btnStroke.Color = isActive and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120)
+				btnStroke.Thickness = isActive and 2 or 1
+			end
+			if icnStroke then icnStroke.Color = isActive and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120) end
+
+			if currentLayoutState == "Large" then
+				TweenService:Create(btn, TweenInfo.new(0.2), {Size = UDim2.new((1/#tabs) - 0.015, 0, 0.8, 0)}):Play()
+				if titleLbl then 
+					titleLbl.Visible = true 
+					titleLbl.TextSize = uniformTextSize
 				end
-				if icnStroke then icnStroke.Color = Color3.fromRGB(255, 215, 50) end
-			else
-				TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 20, 50)}):Play()
-				if titleLbl then titleLbl.TextColor3 = Color3.fromRGB(200, 200, 220) end
-				if iconCont then iconCont.BackgroundColor3 = Color3.fromRGB(15, 5, 25) end
-				if btnStroke then 
-					btnStroke.Color = Color3.fromRGB(90, 50, 120)
-					btnStroke.Thickness = 1
+				if iconCont then 
+					TweenService:Create(iconCont, TweenInfo.new(0.2), {Size = UDim2.new(0, 38, 0, 38), Position = UDim2.new(0, 10, 0.5, 0)}):Play()
+					iconCont.AnchorPoint = Vector2.new(0, 0.5)
 				end
-				if icnStroke then icnStroke.Color = Color3.fromRGB(90, 50, 120) end
+				btn.BackgroundTransparency = 0
+				if btnStroke then btnStroke.Enabled = true end
+
+			elseif currentLayoutState == "Medium" then
+				local targetWidth = isActive and 0.40 or ((0.60 / (#tabs - 1)) - 0.015)
+				TweenService:Create(btn, TweenInfo.new(0.2), {Size = UDim2.new(targetWidth, 0, 0.8, 0)}):Play()
+
+				if titleLbl then 
+					titleLbl.Visible = isActive 
+					titleLbl.TextSize = mediumTextSize
+				end
+				if iconCont then 
+					if isActive then
+						TweenService:Create(iconCont, TweenInfo.new(0.2), {Size = UDim2.new(0, 38, 0, 38), Position = UDim2.new(0, 10, 0.5, 0)}):Play()
+						iconCont.AnchorPoint = Vector2.new(0, 0.5)
+					else
+						TweenService:Create(iconCont, TweenInfo.new(0.2), {Size = UDim2.new(0.8, 0, 0.8, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+						iconCont.AnchorPoint = Vector2.new(0.5, 0.5)
+					end
+				end
+				btn.BackgroundTransparency = 0
+				if btnStroke then btnStroke.Enabled = true end
+
+			elseif currentLayoutState == "Small" then
+				TweenService:Create(btn, TweenInfo.new(0.2), {Size = UDim2.new((1/#tabs) - 0.015, 0, 0.8, 0)}):Play()
+				if titleLbl then titleLbl.Visible = false end
+				if iconCont then 
+					TweenService:Create(iconCont, TweenInfo.new(0.2), {Size = UDim2.new(0.85, 0, 0.85, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+					iconCont.AnchorPoint = Vector2.new(0.5, 0.5)
+				end
+				btn.BackgroundTransparency = 1
+				if btnStroke then btnStroke.Enabled = false end
 			end
 		end
 	end
 end
 
+local function SwitchTab(targetTabName)
+	activeTab = targetTabName
+	for tName, f in pairs(TabFrames) do
+		f.Visible = (tName == targetTabName)
+	end
+	refreshButtons()
+end
+
 for _, tabName in ipairs(tabs) do
 	local btn = navContainer:FindFirstChild(tabName .. "Button")
 	btn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
 		SwitchTab(tabName)
 	end)
 end
@@ -488,6 +564,7 @@ local function ToggleNav()
 end
 
 navToggleBtn.MouseButton1Click:Connect(function()
+	SFXManager.Play("Click")
 	ToggleNav()
 end)
 
@@ -496,70 +573,54 @@ local keyMap = { [Enum.KeyCode.One] = 1, [Enum.KeyCode.Two] = 2, [Enum.KeyCode.T
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed or UserInputService:GetFocusedTextBox() then return end
 	if input.KeyCode == Enum.KeyCode.Backquote then
+		SFXManager.Play("Click")
 		ToggleNav()
 	end
 	local tabIndex = keyMap[input.KeyCode]
 	if tabIndex and tabs[tabIndex] then
 		if not isNavOpen then ToggleNav() end 
+		SFXManager.Play("Click")
 		SwitchTab(tabs[tabIndex])
 	end
 end)
 
 local function UpdateLayoutForScreen()
 	local vp = camera.ViewportSize
-	local isSmall = vp.X < 950
 
-	navBar.Position = isNavOpen and UDim2.new(0.5, 0, 1, -25) or UDim2.new(0.5, 0, 1, 100)
-
-	if isSmall then
-		navBar.Size = UDim2.new(0.95, 0, 0, 65)
-		topRightFrame.Size = UDim2.new(0, 160, 0, 55)
-		topRightFrame.Position = UDim2.new(1, -10, 0, 10)
-		contentContainer.Size = isNavOpen and UDim2.new(0.95, 0, 0.75, 0) or UDim2.new(0.95, 0, 0.9, 0)
-		uiListLayout.Padding = UDim.new(0, 5)
-	else
+	if vp.X >= 1050 then
+		currentLayoutState = "Large"
 		navBar.Size = UDim2.new(0.85, 0, 0, 75)
 		topRightFrame.Size = UDim2.new(0, 180, 0, 65)
 		topRightFrame.Position = UDim2.new(1, -20, 0, 20)
 		contentContainer.Size = isNavOpen and UDim2.new(0.8, 0, 0.75, 0) or UDim2.new(0.8, 0, 0.9, 0)
 		uiListLayout.Padding = UDim.new(0, 10)
+		boostBtn.Size = UDim2.new(0, 45, 0, 45)
+		muteBtn.Size = UDim2.new(0, 45, 0, 45)
+		navToggleBtn.Size = UDim2.new(0, 45, 0, 45)
+	elseif vp.X >= 600 and vp.X < 1050 then
+		currentLayoutState = "Medium"
+		navBar.Size = UDim2.new(0.95, 0, 0, 70)
+		topRightFrame.Size = UDim2.new(0, 170, 0, 60)
+		topRightFrame.Position = UDim2.new(1, -15, 0, 15)
+		contentContainer.Size = isNavOpen and UDim2.new(0.85, 0, 0.75, 0) or UDim2.new(0.85, 0, 0.9, 0)
+		uiListLayout.Padding = UDim.new(0, 8)
+		boostBtn.Size = UDim2.new(0, 40, 0, 40)
+		muteBtn.Size = UDim2.new(0, 40, 0, 40)
+		navToggleBtn.Size = UDim2.new(0, 40, 0, 40)
+	else
+		currentLayoutState = "Small"
+		navBar.Size = UDim2.new(0.95, 0, 0, 65)
+		topRightFrame.Size = UDim2.new(0, 160, 0, 55)
+		topRightFrame.Position = UDim2.new(1, -10, 0, 10)
+		contentContainer.Size = isNavOpen and UDim2.new(0.95, 0, 0.75, 0) or UDim2.new(0.95, 0, 0.9, 0)
+		uiListLayout.Padding = UDim.new(0, 5)
+		boostBtn.Size = UDim2.new(0, 35, 0, 35)
+		muteBtn.Size = UDim2.new(0, 35, 0, 35)
+		navToggleBtn.Size = UDim2.new(0, 35, 0, 35)
 	end
 
-	local trBtnSize = isSmall and UDim2.new(0, 35, 0, 35) or UDim2.new(0, 45, 0, 45)
-	boostBtn.Size = trBtnSize
-	muteBtn.Size = trBtnSize
-	navToggleBtn.Size = trBtnSize
-
-	local btnCount = #tabs
-	for _, child in pairs(navContainer:GetChildren()) do
-		if child:IsA("TextButton") then
-			child.Size = UDim2.new((1/btnCount) - 0.015, 0, 0.8, 0)
-
-			local titleLbl = child:FindFirstChild("Title")
-			local iconCont = child:FindFirstChild("IconContainer")
-			local btnStroke = child:FindFirstChildOfClass("UIStroke")
-
-			if isSmall then
-				if titleLbl then titleLbl.Visible = false end
-				child.BackgroundTransparency = 1
-				if btnStroke then btnStroke.Enabled = false end
-				if iconCont then 
-					iconCont.Size = UDim2.new(0.85, 0, 0.85, 0)
-					iconCont.AnchorPoint = Vector2.new(0.5, 0.5)
-					iconCont.Position = UDim2.new(0.5, 0, 0.5, 0)
-				end
-			else
-				if titleLbl then titleLbl.Visible = true end
-				child.BackgroundTransparency = 0
-				if btnStroke then btnStroke.Enabled = true end
-				if iconCont then 
-					iconCont.Size = UDim2.new(0, 40, 0, 40)
-					iconCont.AnchorPoint = Vector2.new(0, 0.5)
-					iconCont.Position = UDim2.new(0, 15, 0.5, 0)
-				end
-			end
-		end
-	end
+	navBar.Position = isNavOpen and UDim2.new(0.5, 0, 1, -25) or UDim2.new(0.5, 0, 1, 100)
+	refreshButtons()
 end
 
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
