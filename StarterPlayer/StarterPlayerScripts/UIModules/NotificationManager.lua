@@ -5,14 +5,20 @@ local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local notificationContainer
-local notifTemplate
 
 function NotificationManager.Init(parentGui)
-	local playerGui = parentGui.Parent
-	local notifGui = playerGui:WaitForChild("NotificationGui")
+	notificationContainer = Instance.new("Frame")
+	notificationContainer.Name = "NotificationContainer"
+	notificationContainer.Size = UDim2.new(0, 300, 0.8, 0)
+	notificationContainer.BackgroundTransparency = 1
+	notificationContainer.ZIndex = 50
+	notificationContainer.Parent = parentGui
 
-	notificationContainer = notifGui:WaitForChild("NotificationContainer")
-	notifTemplate = ReplicatedStorage:WaitForChild("UITemplates"):WaitForChild("NotifTemplate")
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Padding = UDim.new(0, 10)
+	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	listLayout.Parent = notificationContainer
 
 	local camera = workspace.CurrentCamera
 	local function UpdateNotifLayout()
@@ -20,8 +26,10 @@ function NotificationManager.Init(parentGui)
 		local isPortrait = viewport.Y > viewport.X
 		if isPortrait then
 			notificationContainer.Position = UDim2.new(0.5, 0, 0.05, 0)
+			notificationContainer.AnchorPoint = Vector2.new(0.5, 0)
 		else
 			notificationContainer.Position = UDim2.new(0.61, 0, 0.05, 0)
+			notificationContainer.AnchorPoint = Vector2.new(0.5, 0)
 		end
 	end
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateNotifLayout)
@@ -29,15 +37,38 @@ function NotificationManager.Init(parentGui)
 end
 
 function NotificationManager.Show(message)
-	if not notificationContainer or not notifTemplate then return end
+	if not notificationContainer then return end
 
-	local notifFrame = notifTemplate:Clone()
+	local notifFrame = Instance.new("Frame")
+	notifFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
+	notifFrame.BackgroundTransparency = 1
+	notifFrame.Size = UDim2.new(1, 0, 0, 0)
+	notifFrame.ClipsDescendants = true
+	notifFrame.ZIndex = 51
 	notifFrame.Parent = notificationContainer
 
-	local textLabel = notifFrame:WaitForChild("TextLabel")
-	textLabel.Text = message
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = notifFrame
 
-	local stroke = notifFrame:WaitForChild("UIStroke")
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(255, 215, 50)
+	stroke.Thickness = 2
+	stroke.Transparency = 1
+	stroke.Parent = notifFrame
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Name = "TextLabel"
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.RichText = true
+	textLabel.Font = Enum.Font.GothamBold
+	textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	textLabel.TextSize = 18
+	textLabel.TextTransparency = 1
+	textLabel.Text = message
+	textLabel.ZIndex = 52
+	textLabel.Parent = notifFrame
 
 	local tweenIn = TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 		Size = UDim2.new(1, 0, 0, 55),
