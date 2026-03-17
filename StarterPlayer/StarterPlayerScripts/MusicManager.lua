@@ -3,7 +3,6 @@ local SoundService = game:GetService("SoundService")
 local ContentProvider = game:GetService("ContentProvider")
 
 local TRACK_IDS = {
-	94728403370695,
 	134094755226119,
 	1846749782,
 	1846749640,
