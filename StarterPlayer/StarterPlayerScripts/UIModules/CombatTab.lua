@@ -71,24 +71,49 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	CombatTab.UpdateCombat = StoryTab.UpdateCombat
 	CombatTab.SystemMessage = StoryTab.SystemMessage
 
+	local mainPanel = Instance.new("Frame")
+	mainPanel.Name = "MainPanel"
+	mainPanel.Size = UDim2.new(0.85, 0, 0.88, 0)
+	mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+	mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
+	mainPanel.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
+	mainPanel.BorderSizePixel = 0
+	mainPanel.ZIndex = 15
+	mainPanel.Parent = parentFrame
+
+	local mainCorner = Instance.new("UICorner")
+	mainCorner.CornerRadius = UDim.new(0, 12)
+	mainCorner.Parent = mainPanel
+
+	applyDoubleGoldBorder(mainPanel)
+
+	local bgPattern = Instance.new("ImageLabel")
+	bgPattern.Name = "OverlayPattern"
+	bgPattern.Image = "rbxassetid://79623015802180"
+	bgPattern.ImageColor3 = Color3.fromRGB(180, 130, 255)
+	bgPattern.ImageTransparency = 0.85
+	bgPattern.BackgroundTransparency = 1
+	bgPattern.ScaleType = Enum.ScaleType.Tile
+	bgPattern.TileSize = UDim2.new(0, 150, 0, 150) 
+	bgPattern.Size = UDim2.new(1, 0, 1, 0)
+	bgPattern.ZIndex = 16
+	bgPattern.ClipsDescendants = true
+	bgPattern.Parent = mainPanel
+
+	local contentCorner = Instance.new("UICorner")
+	contentCorner.CornerRadius = UDim.new(0, 12)
+	contentCorner.Parent = bgPattern
+
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(0.40, 0, 0, 60)
-	subNav.Position = UDim2.new(0.5, 0, 0.02, 0)
-	subNav.AnchorPoint = Vector2.new(0.5, 0)
-	subNav.BackgroundColor3 = Color3.fromRGB(25, 15, 45)
+	subNav.Size = UDim2.new(1, 0, 0, 50)
+	subNav.BackgroundTransparency = 1
 	subNav.ZIndex = 20
-	subNav.Parent = parentFrame
-
-	local subNavCorner = Instance.new("UICorner")
-	subNavCorner.CornerRadius = UDim.new(0, 12)
-	subNavCorner.Parent = subNav
-
-	applyDoubleGoldBorder(subNav)
+	subNav.Parent = mainPanel
 
 	local subNavContainer = Instance.new("Frame")
 	subNavContainer.Name = "SubNavContainer"
-	subNavContainer.Size = UDim2.new(1, -12, 1, -12)
+	subNavContainer.Size = UDim2.new(1, -20, 1, -10)
 	subNavContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
 	subNavContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	subNavContainer.BackgroundTransparency = 1
@@ -106,7 +131,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local function makeNavBtn(name, text, order)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.22, 0, 0.75, 0)
+		btn.Size = UDim2.new(0.20, 0, 0.85, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -144,19 +169,18 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local worldBossBtn = makeNavBtn("WorldBossBtn", "World Boss", 3)
 
 	local modifierBubble = makeNavBtn("ModifierBubble", "MODS", 4)
-	modifierBubble.Size = UDim2.new(0.15, 0, 0.75, 0)
+	modifierBubble.Size = UDim2.new(0.15, 0, 0.85, 0)
 	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
 	modifierBubble.TextColor3 = Color3.fromRGB(255, 215, 50)
 	modifierBubble:FindFirstChild("UIStroke").Color = Color3.fromRGB(255, 215, 50)
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Size = UDim2.new(1, 0, 0.86, 0)
-	contentArea.Position = UDim2.new(0.5, 0, 0.14, 0)
-	contentArea.AnchorPoint = Vector2.new(0.5, 0)
+	contentArea.Size = UDim2.new(1, 0, 1, -50)
+	contentArea.Position = UDim2.new(0, 0, 0, 50)
 	contentArea.BackgroundTransparency = 1
-	contentArea.ZIndex = 15
-	contentArea.Parent = parentFrame
+	contentArea.ZIndex = 17
+	contentArea.Parent = mainPanel
 
 	local storyFrame = Instance.new("Frame")
 	storyFrame.Name = "StoryFrame"
@@ -236,33 +260,27 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		end
 		local vp = camera.ViewportSize
 		if vp.X >= 1050 then
-			subNav.Size = UDim2.new(0.40, 0, 0, 60)
-			contentArea.Size = UDim2.new(1, 0, 0.86, 0)
-			contentArea.Position = UDim2.new(0.5, 0, 0.14, 0)
+			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 		elseif vp.X >= 600 and vp.X < 1050 then
-			subNav.Size = UDim2.new(0.60, 0, 0, 55)
-			contentArea.Size = UDim2.new(1, 0, 0.88, 0)
-			contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
+			mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 		else
-			subNav.Size = UDim2.new(0.95, 0, 0, 55)
-			contentArea.Size = UDim2.new(1, 0, 0.88, 0)
-			contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
+			mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 		end
 	end)
 
 	local vpInit = camera.ViewportSize
 	if vpInit.X >= 1050 then
-		subNav.Size = UDim2.new(0.40, 0, 0, 60)
-		contentArea.Size = UDim2.new(1, 0, 0.86, 0)
-		contentArea.Position = UDim2.new(0.5, 0, 0.14, 0)
+		mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 	elseif vpInit.X >= 600 and vpInit.X < 1050 then
-		subNav.Size = UDim2.new(0.60, 0, 0, 55)
-		contentArea.Size = UDim2.new(1, 0, 0.88, 0)
-		contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
+		mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 	else
-		subNav.Size = UDim2.new(0.95, 0, 0, 55)
-		contentArea.Size = UDim2.new(1, 0, 0.88, 0)
-		contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
+		mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 	end
 end
 
