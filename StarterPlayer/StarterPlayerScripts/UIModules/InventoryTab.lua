@@ -214,6 +214,20 @@ local function CreateTitle(parent, text)
 	return lbl
 end
 
+local function setUpgradeBtnState(btn, enabled)
+	if enabled then
+		btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+		btn.TextColor3 = Color3.new(1, 1, 1)
+		local stroke = btn:FindFirstChild("UIStroke")
+		if stroke then stroke.Color = Color3.fromRGB(120, 60, 180) end
+	else
+		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 30)
+		btn.TextColor3 = Color3.fromRGB(100, 100, 100)
+		local stroke = btn:FindFirstChild("UIStroke")
+		if stroke then stroke.Color = Color3.fromRGB(60, 40, 80) end
+	end
+end
+
 local function CreateStatRow(statName, parent, isStand)
 	local row = Instance.new("Frame", parent)
 	row.Size = UDim2.new(1, 0, 1/6, 0)
@@ -232,7 +246,7 @@ local function CreateStatRow(statName, parent, isStand)
 
 	local btnContainer = Instance.new("Frame", row)
 	btnContainer.Size = UDim2.new(0.62, 0, 1, 0)
-	btnContainer.Position = UDim2.new(0.98, 0, 0, 0)
+	btnContainer.Position = UDim2.new(1, -12, 0, 0) -- Hardcoded pixel offset to prevent clipping right edge
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
 	btnContainer.ZIndex = 22
@@ -332,28 +346,30 @@ end
 local function RefreshStatTexts()
 	local prestigeObj = player:WaitForChild("leaderstats", 5) and player.leaderstats:WaitForChild("Prestige", 5)
 	local prestige = prestigeObj and prestigeObj.Value or 0
+	local currentXP = player:GetAttribute("XP") or 0
 	local statCap = GameData.GetStatCap(prestige)
 
 	for statName, data in pairs(statLabels) do
 		local val = player:GetAttribute(statName) or 1
 		local cleanName = statName:gsub("_Val", "")
+		local base = (prestige == 0) and (GameData.BaseStats[cleanName] or 0) or (prestige * 5)
+		local cost1, cost5, cost10 = GetUpgradeCosts(val, base, prestige, statCap)
 		local bonusAmount = GetCombinedBonus(cleanName)
 		local bonusText = bonusAmount > 0 and " <font color='#55FF55'>(+" .. bonusAmount .. ")</font>" or ""
 
 		if val >= statCap then
 			data.Label.Text = cleanName:gsub("Stand_", "") .. ": " .. val .. bonusText .. " <font color='#FF5555'>[MAX]</font>"
-			data.Btn1.BackgroundColor3 = Color3.fromRGB(100, 100, 100); data.Btn5.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-			data.Btn10.BackgroundColor3 = Color3.fromRGB(100, 100, 100); data.BtnMax.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+			setUpgradeBtnState(data.Btn1, false)
+			setUpgradeBtnState(data.Btn5, false)
+			setUpgradeBtnState(data.Btn10, false)
+			setUpgradeBtnState(data.BtnMax, false)
 		else
 			data.Label.Text = cleanName:gsub("Stand_", "") .. ": " .. val .. bonusText
-			data.Btn1.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
-			data.Btn5.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
-			data.Btn10.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
-			data.BtnMax.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+			setUpgradeBtnState(data.Btn1, currentXP >= cost1)
+			setUpgradeBtnState(data.Btn5, currentXP >= cost5)
+			setUpgradeBtnState(data.Btn10, currentXP >= cost10)
+			setUpgradeBtnState(data.BtnMax, currentXP >= cost1)
 		end
-	end
-	if currentlyHoveredUpgrade and currentlyHoveredStat then
-		-- Keep tooltip refreshed dynamically
 	end
 end
 
@@ -542,7 +558,13 @@ local function RefreshInventoryList()
 				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
 				return
 			end
-			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide(); Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
+			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
+
+			Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
+
+			local iData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+			local sellVal = iData and (iData.SellPrice or math.floor((iData.Cost or 50) / 2)) or 25
+			NotificationManager.Show("<font color='#55FF55'>Sold " .. itemName .. " for ¥" .. sellVal .. "!</font>")
 		end)
 
 		itemFrame.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(itemName)) end)
@@ -668,9 +690,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	lLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	lLayout.Padding = UDim.new(0.02, 0)
 
-	local loadoutCard = CreateCard("LoadoutCard", leftContainer, UDim2.new(1, 0, 0.35, 0), 1)
-	local storageCard = CreateCard("StorageCard", leftContainer, UDim2.new(1, 0, 0.45, 0), 2)
-	local autoSellCard = CreateCard("AutoSellCard", leftContainer, UDim2.new(1, 0, 0.16, 0), 3)
+	local loadoutCard = CreateCard("LoadoutCard", leftContainer, UDim2.new(1, 0, 0.34, 0), 1)
+	local storageCard = CreateCard("StorageCard", leftContainer, UDim2.new(1, 0, 0.43, 0), 2)
+	local autoSellCard = CreateCard("AutoSellCard", leftContainer, UDim2.new(1, 0, 0.19, 0), 3)
 
 	-- Loadout
 	CreateTitle(loadoutCard, "LOADOUT")
@@ -787,8 +809,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local riTop = Instance.new("Frame", regItems)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
 	local riTitle = CreateTitle(riTop, "INVENTORY"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
+
 	capacityLabel = Instance.new("TextLabel", riTop)
-	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -5, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
+	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -15, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
 	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
 	Instance.new("UITextSizeConstraint", capacityLabel).MaxTextSize = 12
 
@@ -802,48 +825,45 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local rollSplit = Instance.new("Frame", autoRollCard)
 	rollSplit.Size = UDim2.new(1, 0, 1, -24); rollSplit.Position = UDim2.new(0,0,0,24); rollSplit.BackgroundTransparency = 1; rollSplit.LayoutOrder = 2
 	local rsL = Instance.new("UIListLayout", rollSplit)
-	rsL.FillDirection = Enum.FillDirection.Horizontal; rsL.Padding = UDim.new(0.02, 0)
+	rsL.FillDirection = Enum.FillDirection.Vertical; rsL.Padding = UDim.new(0, 0)
 
-	local arLeft = Instance.new("Frame", rollSplit)
-	arLeft.Size = UDim2.new(0.49, 0, 1, 0); arLeft.BackgroundTransparency = 1
-	local arLeftL = Instance.new("UIListLayout", arLeft)
-	arLeftL.FillDirection = Enum.FillDirection.Vertical; arLeftL.Padding = UDim.new(0, 4); arLeftL.VerticalAlignment = Enum.VerticalAlignment.Center
+	local arRow1 = Instance.new("Frame", rollSplit)
+	arRow1.Size = UDim2.new(1, 0, 0.48, 0); arRow1.BackgroundTransparency = 1
+	local arL1 = Instance.new("UIListLayout", arRow1)
+	arL1.FillDirection = Enum.FillDirection.Horizontal; arL1.Padding = UDim.new(0.02, 0); arL1.VerticalAlignment = Enum.VerticalAlignment.Center
 
-	local function createDrop(name, text, color)
-		local btn = Instance.new("TextButton", arLeft)
-		btn.Name = name; btn.Size = UDim2.new(1, 0, 0, 22); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
+	local function createDrop(name, text)
+		local btn = Instance.new("TextButton", arRow1)
+		btn.Name = name; btn.Size = UDim2.new(0.49, 0, 1, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
 		local list = Instance.new("ScrollingFrame", btn)
 		list.Name = "List"; list.Size = UDim2.new(1, 0, 0, 120); list.AnchorPoint = Vector2.new(0, 1); list.Position = UDim2.new(0, 0, 0, -2); list.BackgroundColor3 = Color3.fromRGB(30, 15, 50); list.ZIndex = 50; list.Visible = false; list.ScrollBarThickness = 4
 		Instance.new("UICorner", list).CornerRadius = UDim.new(0, 6)
-		local ls = Instance.new("UIStroke", list); ls.Color = color; ls.Thickness = 1
+		local ls = Instance.new("UIStroke", list); ls.Color = Color3.fromRGB(120, 60, 180); ls.Thickness = 1
 		return btn
 	end
 
-	local sDrop = createDrop("StandDropdown", "Target Stand: Any", Color3.fromRGB(120, 60, 180))
-	local tDrop = createDrop("TraitDropdown", "Target Trait: Any", Color3.fromRGB(120, 60, 180))
+	local sDrop = createDrop("StandDropdown", "Target Stand: Any")
+	local tDrop = createDrop("TraitDropdown", "Target Trait: Any")
 
-	local sSep3 = Instance.new("Frame", rollSplit)
-	sSep3.Size = UDim2.new(0, 2, 1, 0); sSep3.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep3.BorderSizePixel = 0; sSep3.ZIndex = 22
-
-	local arRight = Instance.new("Frame", rollSplit)
-	arRight.Size = UDim2.new(0.49, 0, 1, 0); arRight.BackgroundTransparency = 1
-	local arRL = Instance.new("UIListLayout", arRight)
-	arRL.FillDirection = Enum.FillDirection.Vertical; arRL.Padding = UDim.new(0, 4); arRL.VerticalAlignment = Enum.VerticalAlignment.Center
+	local arRow2 = Instance.new("Frame", rollSplit)
+	arRow2.Size = UDim2.new(1, 0, 0.48, 0); arRow2.BackgroundTransparency = 1
+	local arL2 = Instance.new("UIListLayout", arRow2)
+	arL2.FillDirection = Enum.FillDirection.Horizontal; arL2.Padding = UDim.new(0.02, 0); arL2.VerticalAlignment = Enum.VerticalAlignment.Center
 
 	local function createRollBtn(name, text, color)
-		local btn = Instance.new("TextButton", arRight)
+		local btn = Instance.new("TextButton", arRow2)
 		btn.Name = name; btn.Size = UDim2.new(0.32, 0, 1, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 		return btn
 	end
 
-	local btnRArrow = createRollBtn("RollArrowBtn", "Arrow", Color3.fromRGB(200, 150, 0))
-	local btnRCorpse = createRollBtn("RollCorpseBtn", "Corpse", Color3.fromRGB(200, 50, 150))
-	local btnRRoka = createRollBtn("RollRokaBtn", "Roka", Color3.fromRGB(200, 50, 50))
+	local btnRArrow = createRollBtn("RollArrowBtn", "Auto Arrow", Color3.fromRGB(200, 150, 0))
+	local btnRCorpse = createRollBtn("RollCorpseBtn", "Auto Corpse", Color3.fromRGB(200, 50, 150))
+	local btnRRoka = createRollBtn("RollRokaBtn", "Auto Roka", Color3.fromRGB(200, 50, 50))
 
 
 	-- ==========================================
