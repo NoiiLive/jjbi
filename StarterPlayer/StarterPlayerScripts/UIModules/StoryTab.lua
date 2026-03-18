@@ -119,7 +119,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	resourceLabel = Instance.new("TextLabel")
 	resourceLabel.Name = "ResourceLabel"
-	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
+	resourceLabel.Size = UDim2.new(1, 0, 0.04, 0)
 	resourceLabel.BackgroundTransparency = 1
 	resourceLabel.Font = Enum.Font.GothamBold
 	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
