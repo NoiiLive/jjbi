@@ -174,7 +174,7 @@ end
 
 local function CreateStatRow(statName, parent, isStand)
 	local row = Instance.new("Frame", parent)
-	row.Size = UDim2.new(1, 0, 0.16, -2) 
+	row.Size = UDim2.new(1, 0, 1/6, 0)
 	row.BackgroundTransparency = 1
 
 	local statLabel = Instance.new("TextLabel", row)
@@ -324,12 +324,12 @@ local function RefreshStorageList()
 
 	for visualNum, slotData in ipairs(sortedSlots) do
 		local row = Instance.new("Frame", storageContainer)
-		row.Size = UDim2.new(1, 0, 0.19, -2)
+		row.Size = UDim2.new(1, 0, 1/5, -4)
 		row.BackgroundTransparency = 1
 		row.ZIndex = 23
 
 		local nameLabel = Instance.new("TextLabel", row)
-		nameLabel.Size = UDim2.new(0.6, 0, 1, 0); nameLabel.Position = UDim2.new(0, 4, 0, 0)
+		nameLabel.Size = UDim2.new(0.65, 0, 1, 0); nameLabel.Position = UDim2.new(0, 4, 0, 0)
 		nameLabel.BackgroundTransparency = 1; nameLabel.Font = Enum.Font.GothamMedium; nameLabel.TextColor3 = Color3.new(1,1,1)
 		nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = false; nameLabel.TextSize = 12; nameLabel.RichText = true; nameLabel.ZIndex = 24
 
@@ -407,16 +407,16 @@ local function RefreshInventoryList()
 		itemFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
 		itemFrame.LayoutOrder = raritySortTiers[rarity] or raritySortTiers.Common
 		itemFrame.ZIndex = 23
-		Instance.new("UICorner", itemFrame).CornerRadius = UDim.new(0, 6)
+		Instance.new("UICorner", itemFrame).CornerRadius = UDim.new(0, 4)
 		local str = Instance.new("UIStroke", itemFrame); str.Color = rarityColors[rarity] or rarityColors.Common
 
 		local nameLabel = Instance.new("TextLabel", itemFrame)
-		nameLabel.Size = UDim2.new(0.45, 0, 1, 0); nameLabel.AnchorPoint = Vector2.new(0, 0.5); nameLabel.Position = UDim2.new(0, 8, 0.5, 0)
+		nameLabel.Size = UDim2.new(0.5, 0, 1, 0); nameLabel.Position = UDim2.new(0, 8, 0, 0)
 		nameLabel.BackgroundTransparency = 1; nameLabel.Font = Enum.Font.GothamMedium; nameLabel.TextColor3 = rarityColors[rarity] or rarityColors.Common
 		nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = false; nameLabel.TextSize = 12; nameLabel.Text = itemName .. " (x" .. count .. ")"; nameLabel.ZIndex = 24
 
 		local btnWrapper = Instance.new("Frame", itemFrame)
-		btnWrapper.Size = UDim2.new(0.55, 0, 1, 0); btnWrapper.Position = UDim2.new(1, -6, 0.5, 0); btnWrapper.AnchorPoint = Vector2.new(1, 0.5); btnWrapper.BackgroundTransparency = 1
+		btnWrapper.Size = UDim2.new(0.5, 0, 1, 0); btnWrapper.Position = UDim2.new(1, -6, 0.5, 0); btnWrapper.AnchorPoint = Vector2.new(1, 0.5); btnWrapper.BackgroundTransparency = 1
 		local bL = Instance.new("UIListLayout", btnWrapper); bL.FillDirection = Enum.FillDirection.Horizontal; bL.HorizontalAlignment = Enum.HorizontalAlignment.Right; bL.VerticalAlignment = Enum.VerticalAlignment.Center; bL.Padding = UDim.new(0, 4); bL.SortOrder = Enum.SortOrder.LayoutOrder
 
 		local function makeBtn(text, sizeX, color, order)
@@ -610,7 +610,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	Instance.new("UIListLayout", lContent).Padding = UDim.new(0, 2)
 
 	local function createLoadRow(name)
-		local r = Instance.new("Frame", lContent); r.Size = UDim2.new(1, 0, 0.16, -2); r.BackgroundTransparency = 1
+		local r = Instance.new("Frame", lContent); r.Size = UDim2.new(1, 0, 1/6, -4); r.BackgroundTransparency = 1
 		local lbl = Instance.new("TextLabel", r)
 		lbl.Size = UDim2.new(1, -35, 1, 0); lbl.BackgroundTransparency = 1; lbl.Font = Enum.Font.GothamMedium; lbl.TextColor3 = Color3.new(1,1,1)
 		lbl.TextScaled = false; lbl.TextSize = 12; lbl.RichText = true; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.ZIndex = 22
@@ -629,8 +629,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	styleBox, styleLabel, styleLockBtn = createLoadRow("Style")
 	weaponBox, weaponLabel, _ = createLoadRow("Wep")
 	accBox, accLabel, _ = createLoadRow("Acc")
-	_, xpLabel, _ = createLoadRow("XP")
-	_, yenLabel, _ = createLoadRow("Yen")
+	local _, xpLbl, _ = createLoadRow("XP"); xpLabel = xpLbl
+	local _, yenLbl, _ = createLoadRow("Yen"); yenLabel = yenLbl
 
 	-- Storage
 	local stTop = Instance.new("Frame", storageCard); stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
@@ -650,7 +650,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local asG = Instance.new("UIGridLayout", autoSellContainer)
 	asG.CellSize = UDim2.new(0.31, 0, 0.45, 0); asG.CellPadding = UDim2.new(0.03, 0, 0.08, 0); asG.HorizontalAlignment = Enum.HorizontalAlignment.Center; asG.VerticalAlignment = Enum.VerticalAlignment.Center
 
-	local raritiesToSell = {"Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythical"}
+	local raritiesToSell = {"Common", "Uncommon", "Rare", "Legendary", "Mythical", "Unique"}
 	for _, r in ipairs(raritiesToSell) do
 		local b = Instance.new("TextButton", autoSellContainer)
 		b.Name = "AutoSell_" .. r; b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = false; b.TextSize = 11; b.ZIndex = 22
