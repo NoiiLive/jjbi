@@ -141,10 +141,9 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	alliesContainer.ZIndex = 22
 	alliesContainer.Parent = healthbarArea
 
-	local alliesLayout = Instance.new("UIListLayout")
-	alliesLayout.FillDirection = Enum.FillDirection.Vertical
+	local alliesLayout = Instance.new("UIGridLayout")
 	alliesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	alliesLayout.Padding = UDim.new(0, 6)
+	alliesLayout.CellPadding = UDim2.new(0, 6, 0, 6)
 	alliesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	alliesLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	alliesLayout.Parent = alliesContainer
@@ -157,10 +156,9 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	enemiesContainer.ZIndex = 22
 	enemiesContainer.Parent = healthbarArea
 
-	local enemiesLayout = Instance.new("UIListLayout")
-	enemiesLayout.FillDirection = Enum.FillDirection.Vertical
+	local enemiesLayout = Instance.new("UIGridLayout")
 	enemiesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	enemiesLayout.Padding = UDim.new(0, 6)
+	enemiesLayout.CellPadding = UDim2.new(0, 6, 0, 6)
 	enemiesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	enemiesLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	enemiesLayout.Parent = enemiesContainer
@@ -322,9 +320,6 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 			alliesContainer.Size = UDim2.new(1, 0, 0.45, 0)
 			enemiesContainer.Size = UDim2.new(1, 0, 0.45, 0)
-
-			alliesLayout.FillDirection = Enum.FillDirection.Horizontal
-			enemiesLayout.FillDirection = Enum.FillDirection.Horizontal
 		else
 			healthbarArea.Size = UDim2.new(1, 0, 0.42, 0)
 			chatboxArea.Size = UDim2.new(1, 0, 0.18, 0)
@@ -338,9 +333,6 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 			alliesContainer.Size = UDim2.new(0.48, 0, 1, 0)
 			enemiesContainer.Size = UDim2.new(0.48, 0, 1, 0)
-
-			alliesLayout.FillDirection = Enum.FillDirection.Horizontal
-			enemiesLayout.FillDirection = Enum.FillDirection.Horizontal
 		end
 
 		updateAllGrids()
@@ -610,13 +602,14 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			}):Play()
 		end
 
-		function fighterObj:SetStatus(statusId, iconString, durationText, descText)
+		function fighterObj:SetStatus(statusId, iconString, durationText, descText, isImmunity)
 			local existing = self.StatusContainer:FindFirstChild(statusId)
 			if not existing then
 				existing = Instance.new("Frame")
 				existing.Name = statusId
-				existing.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-				existing.LayoutOrder = 2
+				existing.BackgroundColor3 = isImmunity and Color3.fromRGB(20, 10, 30) or Color3.fromRGB(30, 20, 50)
+				existing.BackgroundTransparency = isImmunity and 0.5 or 0
+				existing.LayoutOrder = isImmunity and 1 or 2
 				existing.ZIndex = 25
 				existing.Parent = self.StatusContainer
 
@@ -625,7 +618,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 				sCorner.Parent = existing
 
 				local sStroke = Instance.new("UIStroke")
-				sStroke.Color = Color3.fromRGB(255, 215, 50)
+				sStroke.Color = isImmunity and Color3.fromRGB(150, 150, 150) or Color3.fromRGB(255, 215, 50)
 				sStroke.Thickness = 1
 				sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 				sStroke.Parent = existing
@@ -636,7 +629,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 				sIcon.BackgroundTransparency = 1
 				sIcon.Text = iconString
 				sIcon.Font = Enum.Font.GothamBold
-				sIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+				sIcon.TextColor3 = isImmunity and Color3.fromRGB(150, 150, 150) or Color3.fromRGB(255, 255, 255)
 				sIcon.TextScaled = true
 				sIcon.ZIndex = 26
 				sIcon.Parent = existing
@@ -648,7 +641,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 				durLbl.BackgroundTransparency = 1
 				durLbl.Text = durationText or ""
 				durLbl.Font = Enum.Font.GothamBlack
-				durLbl.TextColor3 = Color3.fromRGB(255, 50, 50)
+				durLbl.TextColor3 = isImmunity and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(255, 50, 50)
 				durLbl.TextScaled = true
 				durLbl.ZIndex = 27
 				durLbl.Parent = existing
@@ -693,78 +686,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		end
 
 		function fighterObj:SetCooldown(cdId, iconString, durationText, descText)
-			local existing = self.StatusContainer:FindFirstChild(cdId)
-			if not existing then
-				existing = Instance.new("Frame")
-				existing.Name = cdId
-				existing.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-				existing.LayoutOrder = 1
-				existing.ZIndex = 25
-				existing.Parent = self.StatusContainer
-
-				local sCorner = Instance.new("UICorner")
-				sCorner.CornerRadius = UDim.new(0, 4)
-				sCorner.Parent = existing
-
-				local sStroke = Instance.new("UIStroke")
-				sStroke.Color = Color3.fromRGB(150, 150, 150)
-				sStroke.Thickness = 2
-				sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-				sStroke.Parent = existing
-
-				local sIcon = Instance.new("TextLabel")
-				sIcon.Name = "Icon"
-				sIcon.Size = UDim2.new(1, 0, 1, 0)
-				sIcon.BackgroundTransparency = 1
-				sIcon.Text = iconString
-				sIcon.Font = Enum.Font.GothamBold
-				sIcon.TextColor3 = Color3.fromRGB(150, 150, 150)
-				sIcon.TextScaled = true
-				sIcon.ZIndex = 26
-				sIcon.Parent = existing
-
-				local durLbl = Instance.new("TextLabel")
-				durLbl.Name = "Duration"
-				durLbl.Size = UDim2.new(1, 6, 0.5, 0)
-				durLbl.Position = UDim2.new(0, -3, 0.7, 0)
-				durLbl.BackgroundTransparency = 1
-				durLbl.Text = durationText or ""
-				durLbl.Font = Enum.Font.GothamBlack
-				durLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-				durLbl.TextScaled = true
-				durLbl.ZIndex = 27
-				durLbl.Parent = existing
-
-				local strokeTxt = Instance.new("UIStroke")
-				strokeTxt.Color = Color3.fromRGB(0, 0, 0)
-				strokeTxt.Thickness = 1
-				strokeTxt.Parent = durLbl
-
-				local hoverBtn = Instance.new("TextButton")
-				hoverBtn.Name = "TooltipHover"
-				hoverBtn.Size = UDim2.new(1, 0, 1, 0)
-				hoverBtn.BackgroundTransparency = 1
-				hoverBtn.Text = ""
-				hoverBtn.ZIndex = 30
-				hoverBtn.Parent = existing
-
-				hoverBtn.MouseEnter:Connect(function()
-					if tooltipMgr then
-						local t = existing:GetAttribute("TooltipTitle")
-						local d = existing:GetAttribute("TooltipDesc")
-						local dur = existing:GetAttribute("TooltipDur")
-						tooltipMgr.Show("<b><font color='#FFD700'>"..t.."</font></b>\n<font color='#AAAAAA'>"..d.."</font>\nDuration: <font color='#FF5555'>"..dur.."</font>")
-					end
-				end)
-				hoverBtn.MouseLeave:Connect(function() if tooltipMgr then tooltipMgr.Hide() end end)
-			end
-
-			existing:SetAttribute("TooltipTitle", cdId)
-			existing:SetAttribute("TooltipDesc", descText or "Active cooldown.")
-			existing:SetAttribute("TooltipDur", durationText)
-
-			local durLbl = existing:FindFirstChild("Duration")
-			if durLbl then durLbl.Text = durationText or "" end
+			self:SetStatus(cdId, iconString, durationText, descText, true)
 		end
 
 		function fighterObj:RemoveCooldown(cdId)
