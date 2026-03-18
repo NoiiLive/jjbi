@@ -113,7 +113,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	menuFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
 	menuFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	menuFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-	menuFrame.ZIndex = 16
+	menuFrame.ZIndex = 20
 	menuFrame.Parent = parentFrame
 
 	local listLayout = Instance.new("UIListLayout")
@@ -135,6 +135,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		row.Name = dInfo.Name
 		row.Size = UDim2.new(0.9, 0, 0, 100)
 		row.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
+		row.ZIndex = 21
 		row.Parent = menuFrame
 
 		local rowCorner = Instance.new("UICorner")
@@ -149,6 +150,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		local infoContainer = Instance.new("Frame")
 		infoContainer.Size = UDim2.new(0.75, 0, 1, 0)
 		infoContainer.BackgroundTransparency = 1
+		infoContainer.ZIndex = 22
 		infoContainer.Parent = row
 
 		local infoLayout = Instance.new("UIListLayout")
@@ -170,6 +172,8 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		title.TextColor3 = Color3.fromRGB(255, 215, 50)
 		title.TextScaled = true
 		title.TextXAlignment = Enum.TextXAlignment.Left
+		title.Text = dInfo.Name
+		title.ZIndex = 23
 		title.Parent = infoContainer
 
 		local titleUic = Instance.new("UITextSizeConstraint")
@@ -186,6 +190,8 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		status.RichText = true
 		status.TextScaled = true
 		status.TextXAlignment = Enum.TextXAlignment.Left
+		status.Text = "Status: Checking Requirements..."
+		status.ZIndex = 23
 		status.Parent = infoContainer
 
 		local statusUic = Instance.new("UITextSizeConstraint")
@@ -202,6 +208,8 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		reward.RichText = true
 		reward.TextScaled = true
 		reward.TextXAlignment = Enum.TextXAlignment.Left
+		reward.Text = "Rewards: Loading..."
+		reward.ZIndex = 23
 		reward.Parent = infoContainer
 
 		local rewardUic = Instance.new("UITextSizeConstraint")
@@ -219,6 +227,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		playBtn.TextColor3 = Color3.new(1, 1, 1)
 		playBtn.TextScaled = true
 		playBtn.Text = "PLAY"
+		playBtn.ZIndex = 23
 		playBtn.Parent = row
 
 		local btnCorner = Instance.new("UICorner")
@@ -251,7 +260,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		if pObj then
 			local prestige = pObj:WaitForChild("Prestige", 10)
 			local function updateLocks()
-				local pVal = prestige.Value
+				local pVal = prestige and prestige.Value or 0
 				for id, data in pairs(dungeonUIElements) do
 					data.Title.Text = data.Info.Name
 
@@ -287,7 +296,9 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 				end
 			end
 
-			prestige.Changed:Connect(updateLocks)
+			if prestige then
+				prestige.Changed:Connect(updateLocks)
+			end
 			player:GetAttributeChangedSignal("EndlessHighScore"):Connect(updateLocks)
 			for i = 1, 6 do player:GetAttributeChangedSignal("DungeonClear_Part" .. i):Connect(updateLocks) end
 			updateLocks()
@@ -296,13 +307,14 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
 	combatUI.MainFrame.Visible = false
+	combatUI.MainFrame.ZIndex = 30
 
 	local topInfo = Instance.new("Frame")
 	topInfo.Name = "TopInfo"
 	topInfo.Size = UDim2.new(1, 0, 0.05, 0)
 	topInfo.BackgroundTransparency = 1
 	topInfo.LayoutOrder = 0
-	topInfo.ZIndex = 22
+	topInfo.ZIndex = 32
 	topInfo.Parent = combatUI.ContentContainer
 
 	waveLabel = Instance.new("TextLabel")
@@ -316,7 +328,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	waveLabel.TextScaled = true
 	waveLabel.TextXAlignment = Enum.TextXAlignment.Left
 	waveLabel.Text = "Floor 1"
-	waveLabel.ZIndex = 22
+	waveLabel.ZIndex = 32
 	waveLabel.Parent = topInfo
 
 	local wUic = Instance.new("UITextSizeConstraint")
@@ -335,7 +347,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	resourceLabel.TextScaled = true
 	resourceLabel.TextXAlignment = Enum.TextXAlignment.Right
 	resourceLabel.Text = ""
-	resourceLabel.ZIndex = 22
+	resourceLabel.ZIndex = 32
 	resourceLabel.Parent = topInfo
 
 	local resUic = Instance.new("UITextSizeConstraint")
