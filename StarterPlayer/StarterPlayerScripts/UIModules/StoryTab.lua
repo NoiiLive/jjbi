@@ -356,6 +356,7 @@ function StoryTab.UpdateCombat(status, data)
 				for i = 1, 6 do 
 					local offsetX = math.random(-p, p)
 					local offsetY = math.random(-p, p)
+					-- Absolute pixel offset applied safely 
 					combatUI.MainFrame.Position = UDim2.new(0, offsetX, 0, offsetY)
 					task.wait(0.04) 
 				end
