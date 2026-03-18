@@ -150,7 +150,7 @@ RunService.RenderStepped:Connect(function()
 		local offsetX = (mouse.X / vp.X) - 0.5
 		local offsetY = (mouse.Y / vp.Y) - 0.5
 		local targetPos = UDim2.new(-0.1 - (offsetX * 0.05), 0, -0.1 - (offsetY * 0.05), 0)
-		bgPattern.Position = bgPattern.Position:Lerp(targetPos, 0.08)
+		bgPattern.Position = bgPattern.Position:Lerp(targetPos, 0.064)
 	end
 end)
 
