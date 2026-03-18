@@ -86,7 +86,7 @@ function CombatTemplate.Create(parentGui)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
 	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 800, 0, 800)
+	bgPattern.TileSize = UDim2.new(0, 400, 0, 400)
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 21
 	bgPattern.Parent = mainFrame
@@ -181,6 +181,7 @@ function CombatTemplate.Create(parentGui)
 	local cbStroke = Instance.new("UIStroke")
 	cbStroke.Color = Color3.fromRGB(90, 50, 120)
 	cbStroke.Thickness = 1
+	cbStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	cbStroke.Parent = chatboxArea
 
 	local chatPadding = Instance.new("UIPadding")
@@ -211,7 +212,7 @@ function CombatTemplate.Create(parentGui)
 
 	local abilitiesArea = Instance.new("Frame")
 	abilitiesArea.Name = "AbilitiesArea"
-	abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
+	abilitiesArea.Size = UDim2.new(1, 0, 0.25, 0)
 	abilitiesArea.BackgroundTransparency = 1
 	abilitiesArea.LayoutOrder = 4
 	abilitiesArea.ZIndex = 22
