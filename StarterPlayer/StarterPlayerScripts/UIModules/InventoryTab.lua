@@ -232,7 +232,7 @@ local function CreateStatRow(statName, parent, isStand)
 
 	local btnContainer = Instance.new("Frame", row)
 	btnContainer.Size = UDim2.new(0.62, 0, 1, 0)
-	btnContainer.Position = UDim2.new(1, 0, 0, 0)
+	btnContainer.Position = UDim2.new(0.98, 0, 0, 0)
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
 	btnContainer.ZIndex = 22
@@ -244,10 +244,10 @@ local function CreateStatRow(statName, parent, isStand)
 	blL.Padding = UDim.new(0, 4)
 	blL.SortOrder = Enum.SortOrder.LayoutOrder
 
-	local function makeBtn(text, order, scaleSize)
+	local function makeBtn(text, order, scaleW)
 		local b = Instance.new("TextButton", btnContainer)
 		b.LayoutOrder = order
-		b.Size = scaleSize
+		b.Size = UDim2.new(scaleW, 0, 0.85, 0)
 		b.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
 		b.Text = text
 		b.Font = Enum.Font.GothamBold
@@ -255,14 +255,15 @@ local function CreateStatRow(statName, parent, isStand)
 		b.TextScaled = true
 		b.ZIndex = 23
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(120, 60, 180)
 		Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
 		return b
 	end
 
-	local b1 = makeBtn("+1", 1, UDim2.new(0.20, -3, 0.85, 0))
-	local b5 = makeBtn("+5", 2, UDim2.new(0.20, -3, 0.85, 0))
-	local b10 = makeBtn("+10", 3, UDim2.new(0.25, -3, 0.85, 0))
-	local bMax = makeBtn("MAX", 4, UDim2.new(0.35, -3, 0.85, 0))
+	local b1 = makeBtn("+1", 1, 0.16)
+	local b5 = makeBtn("+5", 2, 0.16)
+	local b10 = makeBtn("+10", 3, 0.20)
+	local bMax = makeBtn("MAX", 4, 0.34)
 
 	local function hookUpgradeHover(btn, amt)
 		btn.MouseEnter:Connect(function() showUpgradeTooltip(statName, amt) end)
@@ -288,10 +289,10 @@ local function CreateStatRow(statName, parent, isStand)
 		end 
 	end)
 
-	b1.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.UpgradeStat:FireServer(statName, 1) end)
-	b5.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.UpgradeStat:FireServer(statName, 5) end)
-	b10.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.UpgradeStat:FireServer(statName, 10) end)
-	bMax.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.UpgradeStat:FireServer(statName, "MAX") end)
+	b1.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, 1) end)
+	b5.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, 5) end)
+	b10.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, 10) end)
+	bMax.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, "MAX") end)
 
 	return { Label = statLabel, Btn1 = b1, Btn5 = b5, Btn10 = b10, BtnMax = bMax }
 end
@@ -331,14 +332,11 @@ end
 local function RefreshStatTexts()
 	local prestigeObj = player:WaitForChild("leaderstats", 5) and player.leaderstats:WaitForChild("Prestige", 5)
 	local prestige = prestigeObj and prestigeObj.Value or 0
-	local currentXP = player:GetAttribute("XP") or 0
 	local statCap = GameData.GetStatCap(prestige)
 
 	for statName, data in pairs(statLabels) do
 		local val = player:GetAttribute(statName) or 1
 		local cleanName = statName:gsub("_Val", "")
-		local base = (prestige == 0) and (GameData.BaseStats[cleanName] or 0) or (prestige * 5)
-		local cost1, cost5, cost10 = GetUpgradeCosts(val, base, prestige, statCap)
 		local bonusAmount = GetCombinedBonus(cleanName)
 		local bonusText = bonusAmount > 0 and " <font color='#55FF55'>(+" .. bonusAmount .. ")</font>" or ""
 
@@ -348,14 +346,14 @@ local function RefreshStatTexts()
 			data.Btn10.BackgroundColor3 = Color3.fromRGB(100, 100, 100); data.BtnMax.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 		else
 			data.Label.Text = cleanName:gsub("Stand_", "") .. ": " .. val .. bonusText
-			data.Btn1.BackgroundColor3 = (currentXP >= cost1) and Color3.fromRGB(120, 20, 160) or Color3.fromRGB(100, 100, 100)
-			data.Btn5.BackgroundColor3 = (currentXP >= cost5) and Color3.fromRGB(120, 20, 160) or Color3.fromRGB(100, 100, 100)
-			data.Btn10.BackgroundColor3 = (currentXP >= cost10) and Color3.fromRGB(120, 20, 160) or Color3.fromRGB(100, 100, 100)
-			data.BtnMax.BackgroundColor3 = (currentXP >= cost1) and Color3.fromRGB(120, 20, 160) or Color3.fromRGB(100, 100, 100)
+			data.Btn1.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+			data.Btn5.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+			data.Btn10.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+			data.BtnMax.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
 		end
 	end
 	if currentlyHoveredUpgrade and currentlyHoveredStat then
-		-- Keeps tooltip refreshed if they gain/spend XP while hovering
+		-- Keep tooltip refreshed dynamically
 	end
 end
 
@@ -420,7 +418,7 @@ local function RefreshStorageList()
 					btn.Text = "Empty"; btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 				else
 					btn.Text = storedName == "None" and "Store" or "Swap"; btn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
-					btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.StandStorageAction:FireServer("Swap", slotData.Backend) end)
+					btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("StandStorageAction"):FireServer("Swap", slotData.Backend) end)
 				end
 			else
 				local storedName = player:GetAttribute("StoredStyle"..slotData.Backend) or "None"
@@ -429,7 +427,7 @@ local function RefreshStorageList()
 					btn.Text = "Empty"; btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 				else
 					btn.Text = storedName == "None" and "Store" or "Swap"; btn.BackgroundColor3 = Color3.fromRGB(180, 80, 20)
-					btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.StandStorageAction:FireServer("SwapStyle", slotData.Backend) end)
+					btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("StandStorageAction"):FireServer("SwapStyle", slotData.Backend) end)
 				end
 			end
 		else
@@ -515,11 +513,11 @@ local function RefreshInventoryList()
 
 		if isEquipped then
 			useBtn.Text = "Unequip"; useBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
-			useBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.UnequipItem:FireServer(ItemData.Equipment[itemName].Slot) end)
+			useBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UnequipItem"):FireServer(ItemData.Equipment[itemName].Slot) end)
 		else
 			useBtn.MouseButton1Click:Connect(function()
 				if useBtn.Text == "Equip" then
-					SFXManager.Play("Click"); Network.UseItem:FireServer(itemName)
+					SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName)
 				else
 					if itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Rokakaka" then
 						local currentStand = player:GetAttribute("Stand") or "None"
@@ -532,7 +530,7 @@ local function RefreshInventoryList()
 						task.delay(3, function() if isConfirmingUse and useBtn.Parent then isConfirmingUse = false; useBtn.Text = "Use"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0) end end)
 						return
 					end
-					isConfirmingUse = false; SFXManager.Play("Click"); Network.UseItem:FireServer(itemName)
+					isConfirmingUse = false; SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName)
 				end
 			end)
 		end
@@ -544,7 +542,7 @@ local function RefreshInventoryList()
 				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
 				return
 			end
-			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide(); Network.ShopAction:FireServer("Sell", itemName)
+			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide(); Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
 		end)
 
 		itemFrame.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(itemName)) end)
@@ -676,8 +674,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 	-- Loadout
 	CreateTitle(loadoutCard, "LOADOUT")
-	local lContent = Instance.new("Frame", loadoutCard)
-	lContent.Size = UDim2.new(1, 0, 1, -24); lContent.Position = UDim2.new(0,0,0,24); lContent.BackgroundTransparency = 1; lContent.LayoutOrder = 2
+	local lContent = Instance.new("Frame", loadoutCard); lContent.Size = UDim2.new(1, 0, 1, -24); lContent.Position = UDim2.new(0,0,0,24); lContent.BackgroundTransparency = 1; lContent.LayoutOrder = 2
 	Instance.new("UIListLayout", lContent).Padding = UDim.new(0, 0)
 
 	local function createLoadRow(name)
@@ -690,7 +687,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		local btn = nil
 		if name == "Stand" or name == "Style" then
 			btn = Instance.new("TextButton", r)
-			btn.Size = UDim2.new(0, 24, 0, 20); btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, -6, 0.5, 0)
+			btn.Size = UDim2.new(0.15, 0, 0.8, 0); btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, 0, 0.5, 0)
 			btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.ZIndex = 23
 			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 			Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
@@ -702,8 +699,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	styleBox, styleLabel, styleLockBtn = createLoadRow("Style")
 	weaponBox, weaponLabel, _ = createLoadRow("Wep")
 	accBox, accLabel, _ = createLoadRow("Acc")
-	local xpRow, xpLbl, _ = createLoadRow("XP"); xpLabel = xpLbl
-	local yenRow, yenLbl, _ = createLoadRow("Yen"); yenLabel = yenLbl
+	local xpRow; xpRow, xpLabel, _ = createLoadRow("XP")
+	local yenRow; yenRow, yenLabel, _ = createLoadRow("Yen")
 
 	-- Storage
 	local stTop = Instance.new("Frame", storageCard); stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
@@ -791,7 +788,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
 	local riTitle = CreateTitle(riTop, "INVENTORY"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
 	capacityLabel = Instance.new("TextLabel", riTop)
-	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -10, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
+	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -5, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
 	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
 	Instance.new("UITextSizeConstraint", capacityLabel).MaxTextSize = 12
 
@@ -805,16 +802,16 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local rollSplit = Instance.new("Frame", autoRollCard)
 	rollSplit.Size = UDim2.new(1, 0, 1, -24); rollSplit.Position = UDim2.new(0,0,0,24); rollSplit.BackgroundTransparency = 1; rollSplit.LayoutOrder = 2
 	local rsL = Instance.new("UIListLayout", rollSplit)
-	rsL.FillDirection = Enum.FillDirection.Vertical; rsL.Padding = UDim.new(0, 0)
+	rsL.FillDirection = Enum.FillDirection.Horizontal; rsL.Padding = UDim.new(0.02, 0)
 
-	local arRow1 = Instance.new("Frame", rollSplit)
-	arRow1.Size = UDim2.new(1, 0, 0.5, 0); arRow1.BackgroundTransparency = 1
-	local arL1 = Instance.new("UIListLayout", arRow1)
-	arL1.FillDirection = Enum.FillDirection.Horizontal; arL1.Padding = UDim.new(0.02, 0); arL1.VerticalAlignment = Enum.VerticalAlignment.Center
+	local arLeft = Instance.new("Frame", rollSplit)
+	arLeft.Size = UDim2.new(0.49, 0, 1, 0); arLeft.BackgroundTransparency = 1
+	local arLeftL = Instance.new("UIListLayout", arLeft)
+	arLeftL.FillDirection = Enum.FillDirection.Vertical; arLeftL.Padding = UDim.new(0, 4); arLeftL.VerticalAlignment = Enum.VerticalAlignment.Center
 
 	local function createDrop(name, text, color)
-		local btn = Instance.new("TextButton", arRow1)
-		btn.Name = name; btn.Size = UDim2.new(0.49, 0, 0.8, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
+		local btn = Instance.new("TextButton", arLeft)
+		btn.Name = name; btn.Size = UDim2.new(1, 0, 0, 22); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
@@ -828,22 +825,25 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local sDrop = createDrop("StandDropdown", "Target Stand: Any", Color3.fromRGB(120, 60, 180))
 	local tDrop = createDrop("TraitDropdown", "Target Trait: Any", Color3.fromRGB(120, 60, 180))
 
-	local arRow2 = Instance.new("Frame", rollSplit)
-	arRow2.Size = UDim2.new(1, 0, 0.5, 0); arRow2.BackgroundTransparency = 1
-	local arL2 = Instance.new("UIListLayout", arRow2)
-	arL2.FillDirection = Enum.FillDirection.Horizontal; arL2.Padding = UDim.new(0.02, 0); arL2.VerticalAlignment = Enum.VerticalAlignment.Center
+	local sSep3 = Instance.new("Frame", rollSplit)
+	sSep3.Size = UDim2.new(0, 2, 1, 0); sSep3.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep3.BorderSizePixel = 0; sSep3.ZIndex = 22
+
+	local arRight = Instance.new("Frame", rollSplit)
+	arRight.Size = UDim2.new(0.49, 0, 1, 0); arRight.BackgroundTransparency = 1
+	local arRL = Instance.new("UIListLayout", arRight)
+	arRL.FillDirection = Enum.FillDirection.Vertical; arRL.Padding = UDim.new(0, 4); arRL.VerticalAlignment = Enum.VerticalAlignment.Center
 
 	local function createRollBtn(name, text, color)
-		local btn = Instance.new("TextButton", arRow2)
-		btn.Name = name; btn.Size = UDim2.new(0.32, 0, 0.8, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
+		local btn = Instance.new("TextButton", arRight)
+		btn.Name = name; btn.Size = UDim2.new(0.32, 0, 1, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 		return btn
 	end
 
-	local btnRArrow = createRollBtn("RollArrowBtn", "Auto Arrow", Color3.fromRGB(200, 150, 0))
-	local btnRCorpse = createRollBtn("RollCorpseBtn", "Auto Corpse", Color3.fromRGB(200, 50, 150))
-	local btnRRoka = createRollBtn("RollRokaBtn", "Auto Roka", Color3.fromRGB(200, 50, 50))
+	local btnRArrow = createRollBtn("RollArrowBtn", "Arrow", Color3.fromRGB(200, 150, 0))
+	local btnRCorpse = createRollBtn("RollCorpseBtn", "Corpse", Color3.fromRGB(200, 50, 150))
+	local btnRRoka = createRollBtn("RollRokaBtn", "Roka", Color3.fromRGB(200, 50, 50))
 
 
 	-- ==========================================
@@ -884,7 +884,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 	for _, r in ipairs(raritiesToSell) do
 		local btn = autoSellContainer:WaitForChild("AutoSell_" .. r)
-		local baseCol = rarityColors[r] or Color3.new(1,1,1)
 
 		local function updateBtn()
 			if player:GetAttribute("AutoSell_" .. r) then
