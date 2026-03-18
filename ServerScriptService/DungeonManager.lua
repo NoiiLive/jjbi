@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -272,8 +273,9 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			if skill.Effect == "Flee" then
 				DungeonUpdate:FireClient(player, "TurnStrike", {Battle = dungeon, LogMsg = "<font color='#AAAAAA'>You fled the dungeon!</font>", DidHit = false, ShakeType = "None"})
 				task.wait(waitMultiplier)
-				combatant.HP = 0
-				continue
+				DungeonUpdate:FireClient(player, "Fled", {Battle = dungeon})
+				ActiveDungeons[player.UserId] = nil
+				return
 			end
 			DispatchStrike(dungeon.Player, dungeon.Enemy, skillName)
 		else
