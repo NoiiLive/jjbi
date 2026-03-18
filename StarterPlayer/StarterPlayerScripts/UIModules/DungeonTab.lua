@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local DungeonTab = {}
 
 local player = game.Players.LocalPlayer
@@ -6,14 +7,38 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local SFXManager = require(script.Parent:WaitForChild("SFXManager"))
+local CombatTemplate = require(script.Parent:WaitForChild("CombatTemplate"))
 
 local uiTemplates = ReplicatedStorage:WaitForChild("UITemplates")
 
-local menuFrame, combatScroll, combatView
-local pHPFill, pHPTxt, pName, pBg, pImmunity, pCImmunity, pStatus
-local eHPFill, eHPTxt, eName, eBg, eImmunity, eCImmunity, eStatus
-local resourceLabel, waveLabel, logScroll, skillsContainer
+local menuFrame
+local combatUI
+local activeFighters = {}
 local rootFrame, forceTabFocus, cachedTooltipMgr
+local resourceLabel, waveLabel
+
+local StatusIcons = {
+	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF",
+	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
+	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-"
+}
+
+local StatusDescs = {
+	Stun = "Cannot move or act.",
+	Poison = "Takes damage every turn.",
+	Burn = "Takes damage every turn.",
+	Bleed = "Takes damage every turn.",
+	Freeze = "Frozen solid. Cannot move, takes damage.",
+	Confusion = "May attack allies or self.",
+	Buff_Strength = "Increased damage dealt.",
+	Buff_Defense = "Reduced damage taken.",
+	Buff_Speed = "Increased evasion and turn priority.",
+	Buff_Willpower = "Increased crit and survival chance.",
+	Debuff_Strength = "Reduced damage dealt.",
+	Debuff_Defense = "Increased damage taken.",
+	Debuff_Speed = "Reduced evasion and turn priority.",
+	Debuff_Willpower = "Reduced crit and survival chance."
+}
 
 local dungeonList = {
 	{ Id = 1, Name = "Phantom Blood Dungeon", Req = 5 },
@@ -25,43 +50,87 @@ local dungeonList = {
 	{ Id = "Endless", Name = "Endless Dungeon", Req = 15 }
 }
 
-local function BuildStatusString(statuses)
-	if not statuses then return "" end
-	local active = {}
-	local colors = {
-		Stun = "#FFFF55", Poison = "#AA00AA", Burn = "#FF5500", Bleed = "#FF0000", Freeze = "#00FFFF", Confusion = "#FF55FF",
-		Buff_Strength = "#55FF55", Buff_Defense = "#55FF55", Buff_Speed = "#55FF55", Buff_Willpower = "#55FF55",
-		Debuff_Strength = "#FF5555", Debuff_Defense = "#FF5555", Debuff_Speed = "#FF5555", Debuff_Willpower = "#FF5555"
-	}
-	local names = {
-		Buff_Strength = "Str+", Buff_Defense = "Def+", Buff_Speed = "Spd+", Buff_Willpower = "Will+",
-		Debuff_Strength = "Str-", Debuff_Defense = "Def-", Debuff_Speed = "Spd-", Debuff_Willpower = "Will-"
-	}
-	local order = {"Stun", "Freeze", "Confusion", "Bleed", "Poison", "Burn", "Buff_Strength", "Buff_Defense", "Buff_Speed", "Buff_Willpower", "Debuff_Strength", "Debuff_Defense", "Debuff_Speed", "Debuff_Willpower"}
-
-	for _, eff in ipairs(order) do
-		local duration = statuses[eff]
-		if duration and duration > 0 then
-			local color = colors[eff] or "#FFFFFF"
-			local name = names[eff] or eff
-			table.insert(active, "<font color='" .. color .. "'>" .. name .. " (" .. duration .. ")</font>")
-		end
+local currentLog = ""
+local function AddLog(text, append)
+	if append then
+		currentLog = currentLog .. "\n" .. text
+	else
+		currentLog = text
 	end
-	return table.concat(active, " | ")
+	if combatUI then combatUI:Log(currentLog) end
 end
 
-local function AddLog(text)
-	local logTemplate = uiTemplates:WaitForChild("LogLineTemplate")
-	local line = logTemplate:Clone()
-	line.Text = text
-	line.Parent = logScroll
-	task.defer(function() logScroll.CanvasPosition = Vector2.new(0, logScroll.AbsoluteCanvasSize.Y) end)
+local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, immunities)
+	if not activeFighters[fKey] then
+		activeFighters[fKey] = combatUI:AddFighter(isAlly, id, name, iconId, hp, maxHp)
+	else
+		local f = activeFighters[fKey]
+		if f.InfoArea and f.InfoArea:FindFirstChild("NameLabel") then
+			f.InfoArea.NameLabel.Text = name
+		end
+	end
+	local f = activeFighters[fKey]
+	f:UpdateHealth(hp, maxHp)
+
+	local currentStatuses = {}
+	if statuses then
+		for eff, duration in pairs(statuses) do
+			if duration and duration > 0 then
+				currentStatuses[eff] = true
+				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.")
+			end
+		end
+	end
+	for eff, _ in pairs(StatusIcons) do
+		if not currentStatuses[eff] then
+			f:RemoveStatus(eff)
+		end
+	end
+
+	local hasStunImmunity = (immunities and immunities.Stun and immunities.Stun > 0)
+	if hasStunImmunity then
+		f:SetCooldown("StunImmunity", "STN", tostring(immunities.Stun), "Immune to Stun effects.")
+	else
+		f:RemoveCooldown("StunImmunity")
+	end
+
+	local hasConfImmunity = (immunities and immunities.Confusion and immunities.Confusion > 0)
+	if hasConfImmunity then
+		f:SetCooldown("ConfImmunity", "CNF", tostring(immunities.Confusion), "Immune to Confusion effects.")
+	else
+		f:RemoveCooldown("ConfImmunity")
+	end
 end
 
 function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	rootFrame = parentFrame; cachedTooltipMgr = tooltipMgr; forceTabFocus = focusFunc
 
-	menuFrame = parentFrame:WaitForChild("MenuFrame")
+	-- =========================================================
+	-- 1. LOBBY MENU INITIALIZATION
+	-- =========================================================
+	menuFrame = Instance.new("ScrollingFrame")
+	menuFrame.Name = "MenuFrame"
+	menuFrame.Size = UDim2.new(1, 0, 1, 0)
+	menuFrame.BackgroundTransparency = 1
+	menuFrame.BorderSizePixel = 0
+	menuFrame.ScrollBarThickness = 6
+	menuFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
+	menuFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	menuFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	menuFrame.ZIndex = 16
+	menuFrame.Parent = parentFrame
+
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.FillDirection = Enum.FillDirection.Vertical
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Padding = UDim.new(0, 15)
+	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	listLayout.Parent = menuFrame
+
+	local listPadding = Instance.new("UIPadding")
+	listPadding.PaddingTop = UDim.new(0, 15)
+	listPadding.PaddingBottom = UDim.new(0, 15)
+	listPadding.Parent = menuFrame
 
 	local dungeonUIElements = {}
 	local rowTemplate = uiTemplates:WaitForChild("DungeonRowTemplate")
@@ -130,43 +199,65 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 	end)
 
-	combatScroll = parentFrame:WaitForChild("CombatScroll")
+	-- =========================================================
+	-- 2. COMBAT TEMPLATE INITIALIZATION
+	-- =========================================================
+	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
+	combatUI.MainFrame.Visible = false
 
-	combatView = uiTemplates:WaitForChild("CombatViewTemplate"):Clone()
-	combatView.LayoutOrder = 1
-	combatView.Parent = combatScroll
+	local topInfo = Instance.new("Frame")
+	topInfo.Name = "TopInfo"
+	topInfo.Size = UDim2.new(1, 0, 0.05, 0)
+	topInfo.BackgroundTransparency = 1
+	topInfo.LayoutOrder = 0
+	topInfo.ZIndex = 22
+	topInfo.Parent = combatUI.ContentContainer
 
-	local topArea = combatView:WaitForChild("TopArea")
+	local infoLayout = Instance.new("UIListLayout")
+	infoLayout.FillDirection = Enum.FillDirection.Horizontal
+	infoLayout.HorizontalAlignment = Enum.HorizontalAlignment.SpaceBetween
+	infoLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	infoLayout.Padding = UDim.new(0, 10)
+	infoLayout.Parent = topInfo
 
-	waveLabel = topArea:WaitForChild("WaveLabel")
-	waveLabel.Visible = true 
-	resourceLabel = topArea:WaitForChild("ResourceLabel")
+	waveLabel = Instance.new("TextLabel")
+	waveLabel.Name = "WaveLabel"
+	waveLabel.Size = UDim2.new(0.48, 0, 1, 0)
+	waveLabel.BackgroundTransparency = 1
+	waveLabel.Font = Enum.Font.GothamBlack
+	waveLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
+	waveLabel.TextScaled = true
+	waveLabel.TextXAlignment = Enum.TextXAlignment.Left
+	waveLabel.Text = "Floor 1"
+	waveLabel.ZIndex = 22
+	waveLabel.Parent = topInfo
 
-	local pWrap = topArea:WaitForChild("PlayerHPWrapper")
-	pName = pWrap:WaitForChild("NameLabel")
-	pBg = pWrap:WaitForChild("Bg")
-	pHPFill = pBg:WaitForChild("Fill")
-	pHPTxt = pBg:WaitForChild("HpText")
-	pStatus = pWrap:WaitForChild("StatusLbl")
-	pImmunity = pWrap:WaitForChild("Immunity")
-	pCImmunity = pWrap:WaitForChild("CImmunity")
+	local wUic = Instance.new("UITextSizeConstraint")
+	wUic.MaxTextSize = 18
+	wUic.MinTextSize = 10
+	wUic.Parent = waveLabel
 
-	local eWrap = topArea:WaitForChild("EnemyHPWrapper")
-	eName = eWrap:WaitForChild("NameLabel")
-	eBg = eWrap:WaitForChild("Bg")
-	eHPFill = eBg:WaitForChild("Fill")
-	eHPTxt = eBg:WaitForChild("HpText")
-	eStatus = eWrap:WaitForChild("StatusLbl")
-	eImmunity = eWrap:WaitForChild("Immunity")
-	eCImmunity = eWrap:WaitForChild("CImmunity")
+	resourceLabel = Instance.new("TextLabel")
+	resourceLabel.Name = "ResourceLabel"
+	resourceLabel.Size = UDim2.new(0.48, 0, 1, 0)
+	resourceLabel.BackgroundTransparency = 1
+	resourceLabel.Font = Enum.Font.GothamBold
+	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
+	resourceLabel.TextScaled = true
+	resourceLabel.TextXAlignment = Enum.TextXAlignment.Right
+	resourceLabel.Text = ""
+	resourceLabel.ZIndex = 22
+	resourceLabel.Parent = topInfo
 
-	logScroll = combatView:WaitForChild("LogScroll")
-	skillsContainer = combatView:WaitForChild("SkillsContainer")
+	local resUic = Instance.new("UITextSizeConstraint")
+	resUic.MaxTextSize = 18
+	resUic.MinTextSize = 10
+	resUic.Parent = resourceLabel
 end
 
 function DungeonTab.RenderSkills(battleData)
 	if not battleData then return end
-	for _, child in pairs(skillsContainer:GetChildren()) do if child:IsA("TextButton") then child:Destroy() end end
+	combatUI:ClearAbilities()
 
 	local myStand, myStyle = battleData.Player.Stand or "None", battleData.Player.Style or "None"
 	local valid = {}
@@ -178,71 +269,73 @@ function DungeonTab.RenderSkills(battleData)
 	end
 	table.sort(valid, function(a, b) return (a.Data.Order or 99) < (b.Data.Order or 99) end)
 
-	local skillTemplate = uiTemplates:WaitForChild("SkillButtonTemplate")
-
 	for _, sk in ipairs(valid) do
-		local btn = skillTemplate:Clone()
-		btn.Text = sk.Name
-		btn.Parent = skillsContainer
-
 		local c = sk.Data.Type == "Stand" and Color3.fromRGB(120, 20, 160) or (sk.Data.Type == "Style" and Color3.fromRGB(180, 80, 20) or Color3.fromRGB(60, 60, 80))
-		btn.BackgroundColor3 = c
-
-		btn.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetSkillTooltip(sk.Name)) end)
-		btn.MouseLeave:Connect(cachedTooltipMgr.Hide)
 
 		local currentCooldown = battleData.Player.Cooldowns and battleData.Player.Cooldowns[sk.Name] or 0
+		local disabled = battleData.Player.Stamina < (sk.Data.StaminaCost or 0) or battleData.Player.StandEnergy < (sk.Data.EnergyCost or 0) or currentCooldown > 0
 
-		if battleData.Player.Stamina < (sk.Data.StaminaCost or 0) or battleData.Player.StandEnergy < (sk.Data.EnergyCost or 0) or currentCooldown > 0 then
-			btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45); btn.TextColor3 = Color3.new(0.5, 0.5, 0.5)
-			if currentCooldown > 0 then btn.Text = sk.Name .. " (" .. currentCooldown .. ")" end
+		local btnText = (currentCooldown > 0) and (sk.Name .. " (" .. currentCooldown .. ")") or sk.Name
+
+		local cb = function()
+			if disabled then return end
+			SFXManager.Play("Click")
+			cachedTooltipMgr.Hide()
+			Network:WaitForChild("DungeonAction"):FireServer("Attack", sk.Name)
+		end
+
+		if sk.Name == "Flee" then cb = nil end
+
+		local btn = combatUI:AddAbility(btnText, disabled and Color3.fromRGB(35, 25, 45) or c, cb)
+
+		if disabled then
+			btn.TextColor3 = Color3.new(0.5, 0.5, 0.5)
 		else
 			if sk.Name == "Flee" then
 				local isConfirmingFlee = false
 				btn.MouseButton1Click:Connect(function() 
-					SFXManager.Play("Click")
-					if not isConfirmingFlee then
-						isConfirmingFlee = true
-						btn.Text = "Confirm Flee?"
-						btn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-						task.delay(3, function()
-							if isConfirmingFlee then
-								isConfirmingFlee = false
-								if btn and btn.Parent then
+					if not disabled then
+						SFXManager.Play("Click")
+						if not isConfirmingFlee then
+							isConfirmingFlee = true
+							btn.Text = "Confirm Flee?"
+							btn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+							task.delay(3, function()
+								if isConfirmingFlee and btn and btn.Parent then
+									isConfirmingFlee = false
 									btn.Text = sk.Name
 									btn.BackgroundColor3 = c
 								end
-							end
-						end)
-					else
-						cachedTooltipMgr.Hide()
-						Network:WaitForChild("DungeonAction"):FireServer("Attack", sk.Name) 
+							end)
+						else
+							cachedTooltipMgr.Hide()
+							Network:WaitForChild("DungeonAction"):FireServer("Attack", sk.Name) 
+						end
 					end
-				end)
-			else
-				btn.MouseButton1Click:Connect(function() 
-					SFXManager.Play("Click")
-					cachedTooltipMgr.Hide()
-					Network:WaitForChild("DungeonAction"):FireServer("Attack", sk.Name) 
 				end)
 			end
 		end
+
+		btn.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetSkillTooltip(sk.Name)) end)
+		btn.MouseLeave:Connect(cachedTooltipMgr.Hide)
 	end
 end
 
 function DungeonTab.UpdateDungeon(status, data)
 	if status == "Start" then
 		if forceTabFocus then forceTabFocus() end 
-		for _, c in pairs(logScroll:GetChildren()) do if c:IsA("TextLabel") then c:Destroy() end end
-		menuFrame.Visible = false; combatScroll.Visible = true
-		skillsContainer.Visible = true; resourceLabel.Visible = true
+		combatUI.ChatText.Text = ""
+		menuFrame.Visible = false
+		combatUI.MainFrame.Visible = true
+		combatUI.AbilitiesArea.Visible = true
 
-		AddLog(data.LogMsg or "")
+		AddLog(data.LogMsg or "", false)
 		waveLabel.Text = data.WaveStr or "Floor 1"
 		DungeonTab.RenderSkills(data.Battle)
 
 	elseif status == "TurnStrike" then
-		skillsContainer.Visible = false; AddLog(data.LogMsg)
+		combatUI.AbilitiesArea.Visible = false
+		AddLog(data.LogMsg, true)
 
 		if string.find(data.LogMsg, "dodged!") then SFXManager.Play("CombatDodge")
 		elseif string.find(data.LogMsg, "Blocked") then SFXManager.Play("CombatBlock")
@@ -259,75 +352,88 @@ function DungeonTab.UpdateDungeon(status, data)
 		if data.DidHit then
 			task.spawn(function()
 				local p = data.ShakeType == "Heavy" and 18 or (data.ShakeType == "Light" and 3 or 8)
-				local orig = UDim2.new(0.025, 0, 0, 0) 
-				for i = 1, 6 do combatScroll.Position = orig + UDim2.new(0, math.random(-p, p), 0, math.random(-p, p)); task.wait(0.04) end
-				combatScroll.Position = orig
+				for i = 1, 6 do 
+					local offsetX = math.random(-p, p)
+					local offsetY = math.random(-p, p)
+					combatUI.MainFrame.Position = UDim2.new(0, offsetX, 0, offsetY)
+					task.wait(0.04) 
+				end
+				combatUI.MainFrame.Position = UDim2.new(0, 0, 0, 0)
 			end)
 		end
 
 	elseif status == "WaveComplete" then
-		skillsContainer.Visible = true
+		combatUI.AbilitiesArea.Visible = true
 		waveLabel.Text = data.WaveStr or "Floor ?"
-		AddLog("<font color='#55FF55'>Enemy Defeated!</font>\n" .. (data.LogMsg or ""))
+		AddLog("<font color='#55FF55'>Enemy Defeated!</font>\n" .. (data.LogMsg or ""), true)
 		DungeonTab.RenderSkills(data.Battle)
 
 	elseif status == "Update" then
-		skillsContainer.Visible = true; DungeonTab.RenderSkills(data.Battle)
+		combatUI.AbilitiesArea.Visible = true
+		DungeonTab.RenderSkills(data.Battle)
 
 	elseif status == "Victory" or status == "Defeat" or status == "Fled" then
-		skillsContainer.Visible = false; resourceLabel.Visible = false
-		pImmunity.Text = ""; eImmunity.Text = ""
-		pCImmunity.Text = ""; eCImmunity.Text = ""
-		pStatus.Text = ""; eStatus.Text = ""
+		combatUI.AbilitiesArea.Visible = false
+
+		for fKey, f in pairs(activeFighters) do
+			f.Frame:Destroy()
+		end
+		activeFighters = {}
 
 		if status == "Victory" then SFXManager.Play("CombatVictory") else SFXManager.Play("CombatDefeat") end
 
 		local color = status == "Victory" and "#00FFFF" or (status == "Defeat" and "#FF0055" or "#AAAAAA")
-		AddLog("<font color='" .. color .. "'>DUNGEON " .. status:upper() .. "!</font>")
+		AddLog("<font color='" .. color .. "'>DUNGEON " .. status:upper() .. "!</font>", true)
 
 		if status == "Victory" and data.Drops then
-			AddLog("<font color='#55FF55'>+" .. (data.Drops.XP or 0) .. " XP, +¥" .. (data.Drops.Yen or 0) .. ".</font>")
+			AddLog("<font color='#55FF55'>+" .. (data.Drops.XP or 0) .. " XP, +¥" .. (data.Drops.Yen or 0) .. ".</font>", true)
 			if data.Drops.Items and #data.Drops.Items > 0 then 
-				AddLog("<font color='#FFFF55'>Loot Secured: " .. table.concat(data.Drops.Items, ", ") .. "</font>") 
+				AddLog("<font color='#FFFF55'>Loot Secured: " .. table.concat(data.Drops.Items, ", ") .. "</font>", true) 
 			end
 		elseif status == "Fled" then
-			AddLog("<font color='#AAAAAA'>You fled the dungeon, forfeiting all progress.</font>")
+			AddLog("<font color='#AAAAAA'>You fled the dungeon, forfeiting all progress.</font>", true)
 		end
 
 		task.delay(4, function() 
-			combatScroll.Visible = false
+			combatUI.MainFrame.Visible = false
 			menuFrame.Visible = true
 		end)
 	end
 
 	if data and data.Battle then
-		pHPFill.Size = UDim2.new(math.clamp(data.Battle.Player.HP / data.Battle.Player.MaxHP, 0, 1), 0, 1, 0)
-		pHPTxt.Text = math.floor(data.Battle.Player.HP) .. "/" .. math.floor(data.Battle.Player.MaxHP)
-		pStatus.Text = BuildStatusString(data.Battle.Player.Statuses)
-
-		eName.Text = data.Battle.Enemy.Name
-		eHPFill.Size = UDim2.new(math.clamp(data.Battle.Enemy.HP / data.Battle.Enemy.MaxHP, 0, 1), 0, 1, 0)
-		eHPTxt.Text = math.floor(data.Battle.Enemy.HP) .. "/" .. math.floor(data.Battle.Enemy.MaxHP)
-		eStatus.Text = BuildStatusString(data.Battle.Enemy.Statuses)
-
 		resourceLabel.Text = "STAMINA: " .. math.floor(data.Battle.Player.Stamina) .. " | ENERGY: " .. math.floor(data.Battle.Player.StandEnergy)
 
-		if (data.Battle.Player.StunImmunity or 0) > 0 then
-			pImmunity.Text = "Stun Immune: " .. data.Battle.Player.StunImmunity .. " Turns"
-		else pImmunity.Text = "" end
+		SyncFighter("Player", true, "Player", data.Battle.Player.Name, player.UserId, data.Battle.Player.HP, data.Battle.Player.MaxHP, data.Battle.Player.Statuses, {Stun=data.Battle.Player.StunImmunity, Confusion=data.Battle.Player.ConfusionImmunity})
+		if data.Battle.Player.HP <= 0 and activeFighters["Player"] then
+			activeFighters["Player"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Player.Name .. " (KO)"
+		end
 
-		if (data.Battle.Player.ConfusionImmunity or 0) > 0 then
-			pCImmunity.Text = "Confuse Immune: " .. data.Battle.Player.ConfusionImmunity .. " Turns"
-		else pCImmunity.Text = "" end
+		if data.Battle.Enemy then
+			SyncFighter("Enemy", false, "Enemy", data.Battle.Enemy.Name, "", data.Battle.Enemy.HP, data.Battle.Enemy.MaxHP, data.Battle.Enemy.Statuses, {Stun=data.Battle.Enemy.StunImmunity, Confusion=data.Battle.Enemy.ConfusionImmunity})
+			if data.Battle.Enemy.HP <= 0 and activeFighters["Enemy"] then
+				activeFighters["Enemy"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Enemy.Name .. " (KO)"
+			end
+		else
+			if activeFighters["Enemy"] then
+				activeFighters["Enemy"].Frame:Destroy()
+				activeFighters["Enemy"] = nil
+			end
+		end
 
-		if (data.Battle.Enemy.StunImmunity or 0) > 0 then
-			eImmunity.Text = "Stun Immune: " .. data.Battle.Enemy.StunImmunity .. " Turns"
-		else eImmunity.Text = "" end
-
-		if (data.Battle.Enemy.ConfusionImmunity or 0) > 0 then
-			eCImmunity.Text = "Confuse Immune: " .. data.Battle.Enemy.ConfusionImmunity .. " Turns"
-		else eCImmunity.Text = "" end
+		if data.Battle.Ally then
+			SyncFighter("Ally", true, "Ally", data.Battle.Ally.Name, "", data.Battle.Ally.HP, data.Battle.Ally.MaxHP, data.Battle.Ally.Statuses, {Stun=data.Battle.Ally.StunImmunity, Confusion=data.Battle.Ally.ConfusionImmunity})
+			if data.Battle.Ally.HP <= 0 and activeFighters["Ally"] then
+				activeFighters["Ally"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Ally.Name .. " (KO)"
+			end
+		else
+			if activeFighters["Ally"] then
+				activeFighters["Ally"].Frame:Destroy()
+				activeFighters["Ally"] = nil
+			end
+		end
 	end
 end
+
+function DungeonTab.SystemMessage(msg) AddLog("" .. msg .. "", true) end
 
 return DungeonTab
