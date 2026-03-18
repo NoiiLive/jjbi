@@ -132,7 +132,7 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	infoCard = Instance.new("Frame")
 	infoCard.Name = "InfoCard"
-	infoCard.Size = UDim2.new(0.7, 0, 0.5, 0)
+	infoCard.Size = UDim2.new(0.8, 0, 0.6, 0)
 	infoCard.Position = UDim2.new(0.5, 0, 0.5, 0)
 	infoCard.AnchorPoint = Vector2.new(0.5, 0.5)
 	infoCard.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
@@ -140,43 +140,64 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 	infoCard.Parent = menuContainer
 
 	local icCorner = Instance.new("UICorner")
-	icCorner.CornerRadius = UDim.new(0, 12)
+	icCorner.CornerRadius = UDim.new(0, 16)
 	icCorner.Parent = infoCard
 
 	local icStroke = Instance.new("UIStroke")
 	icStroke.Color = Color3.fromRGB(255, 215, 50)
-	icStroke.Thickness = 2
+	icStroke.Thickness = 3
 	icStroke.Parent = infoCard
 
 	local icGrad = Instance.new("UIGradient")
 	icGrad.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 20, 65)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 10, 40))
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(55, 20, 75)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 5, 30))
 	}
-	icGrad.Rotation = 90
+	icGrad.Rotation = 45
 	icGrad.Parent = infoCard
+
+	local warningHeader = Instance.new("TextLabel")
+	warningHeader.Size = UDim2.new(1, 0, 0.15, 0)
+	warningHeader.Position = UDim2.new(0, 0, 0.05, 0)
+	warningHeader.BackgroundTransparency = 1
+	warningHeader.Font = Enum.Font.GothamBlack
+	warningHeader.TextColor3 = Color3.fromRGB(255, 50, 50)
+	warningHeader.TextScaled = true
+	warningHeader.Text = "⚠ GLOBAL RAID EVENT ⚠"
+	warningHeader.ZIndex = 32
+	warningHeader.Parent = infoCard
+
+	local whUic = Instance.new("UITextSizeConstraint")
+	whUic.MaxTextSize = 28
+	whUic.MinTextSize = 14
+	whUic.Parent = warningHeader
 
 	bossNameLabel = Instance.new("TextLabel")
 	bossNameLabel.Name = "BossNameLabel"
 	bossNameLabel.Size = UDim2.new(1, 0, 0.25, 0)
-	bossNameLabel.Position = UDim2.new(0, 0, 0.1, 0)
+	bossNameLabel.Position = UDim2.new(0, 0, 0.2, 0)
 	bossNameLabel.BackgroundTransparency = 1
 	bossNameLabel.Font = Enum.Font.GothamBlack
-	bossNameLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+	bossNameLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
 	bossNameLabel.TextScaled = true
 	bossNameLabel.Text = "UNKNOWN THREAT"
 	bossNameLabel.ZIndex = 32
 	bossNameLabel.Parent = infoCard
 
+	local bnStroke = Instance.new("UIStroke")
+	bnStroke.Color = Color3.fromRGB(0, 0, 0)
+	bnStroke.Thickness = 2
+	bnStroke.Parent = bossNameLabel
+
 	local bnUic = Instance.new("UITextSizeConstraint")
-	bnUic.MaxTextSize = 40
-	bnUic.MinTextSize = 14
+	bnUic.MaxTextSize = 50
+	bnUic.MinTextSize = 20
 	bnUic.Parent = bossNameLabel
 
 	timerLabel = Instance.new("TextLabel")
 	timerLabel.Name = "TimerLabel"
-	timerLabel.Size = UDim2.new(1, 0, 0.2, 0)
-	timerLabel.Position = UDim2.new(0, 0, 0.45, 0)
+	timerLabel.Size = UDim2.new(1, 0, 0.15, 0)
+	timerLabel.Position = UDim2.new(0, 0, 0.5, 0)
 	timerLabel.BackgroundTransparency = 1
 	timerLabel.Font = Enum.Font.GothamBold
 	timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -192,7 +213,7 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	engageBtn = Instance.new("TextButton")
 	engageBtn.Name = "EngageBtn"
-	engageBtn.Size = UDim2.new(0.5, 0, 0.2, 0)
+	engageBtn.Size = UDim2.new(0.6, 0, 0.2, 0)
 	engageBtn.Position = UDim2.new(0.5, 0, 0.8, 0)
 	engageBtn.AnchorPoint = Vector2.new(0.5, 0.5)
 	engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -214,8 +235,8 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 	ebStroke.Parent = engageBtn
 
 	local ebUic = Instance.new("UITextSizeConstraint")
-	ebUic.MaxTextSize = 24
-	ebUic.MinTextSize = 10
+	ebUic.MaxTextSize = 30
+	ebUic.MinTextSize = 14
 	ebUic.Parent = engageBtn
 
 	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
@@ -270,7 +291,6 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 	end)
 
 	task.spawn(function()
-		local RunService = game:GetService("RunService")
 		while task.wait(1) do
 			if inBattle then continue end
 
@@ -279,12 +299,11 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 			local secs = utc.sec
 			local currentHour = utc.hour
 			local lastFought = player:GetAttribute("LastWorldBossHour")
-			local isStudio = RunService:IsStudio()
 
 			local endTime = ReplicatedStorage:GetAttribute("WorldBossEndTime") or 0
 			local timeRemaining = endTime - os.time()
 
-			if lastFought == currentHour and not isStudio then
+			if lastFought == currentHour then
 				local secondsLeft = (60 * 60) - ((mins * 60) + secs)
 				timerLabel.Text = "NEXT IN: " .. FormatTime(secondsLeft)
 				timerLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -387,8 +406,6 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		menuContainer.Visible = false
 		combatUI.MainFrame.Visible = true
 		combatUI.AbilitiesArea.Visible = true
-		resourceLabel.Visible = true
-		turnLabel.Visible = true
 
 		AddLog(data.LogMsg or "", false)
 		WorldBossTab.RenderSkills(data.Battle)
@@ -428,8 +445,6 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 
 	elseif status == "Victory" or status == "Defeat" or status == "Fled" then
 		combatUI.AbilitiesArea.Visible = false
-		resourceLabel.Visible = false
-		turnLabel.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
 			f.Frame:Destroy()
