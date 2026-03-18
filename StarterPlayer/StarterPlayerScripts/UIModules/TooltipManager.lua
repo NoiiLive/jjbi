@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local TooltipManager = {}
 
 local player = game.Players.LocalPlayer
@@ -59,7 +58,6 @@ function TooltipManager.Init(screenGui)
 		if tooltip.Visible then
 			local viewport = workspace.CurrentCamera.ViewportSize
 
-			-- Cap width so it scales down on thin screens instead of pushing off bounds
 			local maxW = math.min(300, viewport.X * 0.85)
 			sizeConstraint.MaxSize = Vector2.new(maxW, viewport.Y * 0.9)
 
@@ -69,7 +67,6 @@ function TooltipManager.Init(screenGui)
 			local targetX = mouse.X + 15
 			local targetY = mouse.Y + 15
 
-			-- Mirror tooltip across the mouse cursor if hitting the right/bottom edge
 			if targetX + tWidth > viewport.X then
 				targetX = mouse.X - tWidth - 15
 			end
@@ -77,9 +74,11 @@ function TooltipManager.Init(screenGui)
 				targetY = mouse.Y - tHeight - 15
 			end
 
-			-- Strict mathematical clamp so it physically cannot leave the screen space
-			targetX = math.clamp(targetX, 5, viewport.X - tWidth - 5)
-			targetY = math.clamp(targetY, 5, viewport.Y - tHeight - 5)
+			local maxX = math.max(5, viewport.X - tWidth - 5)
+			local maxY = math.max(5, viewport.Y - tHeight - 5)
+
+			targetX = math.clamp(targetX, 5, maxX)
+			targetY = math.clamp(targetY, 5, maxY)
 
 			tooltip.Position = UDim2.new(0, targetX, 0, targetY)
 		end
