@@ -13,34 +13,9 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		end
 	end
 
-	local tabTitle = Instance.new("Frame")
-	tabTitle.Name = "TabTitle"
-	tabTitle.BackgroundTransparency = 1
-	tabTitle.Size = UDim2.new(1, 0, 0, 0)
-	tabTitle.Parent = parentFrame
-
-	local modifierBubble = Instance.new("TextButton")
-	modifierBubble.Name = "ModifierBubble"
-	modifierBubble.Size = UDim2.new(0, 40, 0, 40)
-	modifierBubble.Position = UDim2.new(0, 10, 0, 10)
-	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-	modifierBubble.Text = "🌌"
-	modifierBubble.TextScaled = true
-	modifierBubble.ZIndex = 30
-	modifierBubble.Parent = tabTitle
-
-	local modCorner = Instance.new("UICorner")
-	modCorner.CornerRadius = UDim.new(1, 0)
-	modCorner.Parent = modifierBubble
-
-	local modStroke = Instance.new("UIStroke")
-	modStroke.Color = Color3.fromRGB(255, 215, 50)
-	modStroke.Thickness = 1
-	modStroke.Parent = modifierBubble
-
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(0.6, 0, 0.08, 0)
+	subNav.Size = UDim2.new(0.85, 0, 0.08, 0)
 	subNav.Position = UDim2.new(0.5, 0, 0.02, 0)
 	subNav.AnchorPoint = Vector2.new(0.5, 0)
 	subNav.BackgroundTransparency = 1
@@ -57,7 +32,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local function makeNavBtn(name, text, order)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.3, 0, 1, 0)
+		btn.Size = UDim2.new(0.25, 0, 1, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -93,10 +68,31 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local dungeonBtn = makeNavBtn("DungeonBtn", "Dungeons", 2)
 	local worldBossBtn = makeNavBtn("WorldBossBtn", "World Boss", 3)
 
+	local modifierBubble = Instance.new("TextButton")
+	modifierBubble.Name = "ModifierBubble"
+	modifierBubble.Size = UDim2.new(0.15, 0, 1, 0)
+	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+	modifierBubble.Text = "Mods"
+	modifierBubble.Font = Enum.Font.GothamBold
+	modifierBubble.TextColor3 = Color3.fromRGB(255, 215, 50)
+	modifierBubble.TextScaled = true
+	modifierBubble.LayoutOrder = 4
+	modifierBubble.ZIndex = 30
+	modifierBubble.Parent = subNav
+
+	local modCorner = Instance.new("UICorner")
+	modCorner.CornerRadius = UDim.new(1, 0)
+	modCorner.Parent = modifierBubble
+
+	local modStroke = Instance.new("UIStroke")
+	modStroke.Color = Color3.fromRGB(255, 215, 50)
+	modStroke.Thickness = 1
+	modStroke.Parent = modifierBubble
+
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Size = UDim2.new(1, 0, 0.85, 0)
-	contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
+	contentArea.Size = UDim2.new(1, 0, 0.9, 0)
+	contentArea.Position = UDim2.new(0.5, 0, 0.1, 0)
 	contentArea.AnchorPoint = Vector2.new(0.5, 0)
 	contentArea.BackgroundTransparency = 1
 	contentArea.ZIndex = 15
@@ -145,18 +141,24 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	dungeonBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("Dungeon") end)
 	worldBossBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("WorldBoss") end)
 
-	StoryTab.Init(storyFrame, tooltipMgr, function() ForceSubTabFocus("Story") end, tabTitle)
+	StoryTab.Init(storyFrame, tooltipMgr, function() ForceSubTabFocus("Story") end, subNav)
 
-	local successD, DungeonTab = pcall(require, UIModules:WaitForChild("DungeonTab", 2))
-	if successD and type(DungeonTab) == "table" and DungeonTab.Init then
-		DungeonTab.Init(dungeonFrame, tooltipMgr, function() ForceSubTabFocus("Dungeon") end)
-		CombatTab.UpdateDungeon = DungeonTab.UpdateDungeon
+	local dMod = UIModules:FindFirstChild("DungeonTab")
+	if dMod then
+		local successD, DungeonTab = pcall(require, dMod)
+		if successD and type(DungeonTab) == "table" and DungeonTab.Init then
+			DungeonTab.Init(dungeonFrame, tooltipMgr, function() ForceSubTabFocus("Dungeon") end)
+			CombatTab.UpdateDungeon = DungeonTab.UpdateDungeon
+		end
 	end
 
-	local successW, WorldBossTab = pcall(require, UIModules:WaitForChild("WorldBossTab", 2))
-	if successW and type(WorldBossTab) == "table" and WorldBossTab.Init then
-		WorldBossTab.Init(worldBossFrame, tooltipMgr, function() ForceSubTabFocus("WorldBoss") end)
-		CombatTab.UpdateWorldBoss = WorldBossTab.UpdateWorldBoss
+	local wMod = UIModules:FindFirstChild("WorldBossTab")
+	if wMod then
+		local successW, WorldBossTab = pcall(require, wMod)
+		if successW and type(WorldBossTab) == "table" and WorldBossTab.Init then
+			WorldBossTab.Init(worldBossFrame, tooltipMgr, function() ForceSubTabFocus("WorldBoss") end)
+			CombatTab.UpdateWorldBoss = WorldBossTab.UpdateWorldBoss
+		end
 	end
 
 	CombatTab.UpdateCombat = StoryTab.UpdateCombat
