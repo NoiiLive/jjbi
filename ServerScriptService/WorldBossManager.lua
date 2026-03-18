@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -29,6 +30,7 @@ end
 local WorldBossAction = GetOrCreateEvent("WorldBossAction", false)
 local WorldBossUpdate = GetOrCreateEvent("WorldBossUpdate", false)
 local AdminForceSpawnWB = GetOrCreateEvent("AdminForceSpawnWB", true)
+local NotificationEvent = GetOrCreateEvent("NotificationEvent", false)
 
 local ActiveBossBattles = {}
 local CurrentActiveBoss = nil
@@ -66,6 +68,7 @@ pcall(function()
 
 			local spawnMsg = "<font color='#FF55FF'><b>[ADMIN EVENT] " .. CurrentActiveBoss .. " has been summoned! Cooldowns have been reset!</b></font>"
 			Network.CombatUpdate:FireAllClients("SystemMessage", spawnMsg)
+			NotificationEvent:FireAllClients("<font color='#FF55FF'><b>[ADMIN EVENT] " .. CurrentActiveBoss .. " has been summoned!</b></font>")
 			WorldBossUpdate:FireAllClients("SyncBoss", CurrentActiveBoss)
 		end
 	end)
@@ -95,6 +98,7 @@ task.spawn(function()
 
 					local spawnMsg = "<font color='#FF5555'><b>[WORLD BOSS] " .. CurrentActiveBoss .. " has spawned! You have " .. BOSS_ACTIVE_MINUTES .. " minutes to engage!</b></font>"
 					Network.CombatUpdate:FireAllClients("SystemMessage", spawnMsg)
+					NotificationEvent:FireAllClients("<font color='#FF5555'><b>[WORLD BOSS] " .. CurrentActiveBoss .. " has spawned!</b></font>")
 					WorldBossUpdate:FireAllClients("SyncBoss", CurrentActiveBoss)
 				end
 			end
