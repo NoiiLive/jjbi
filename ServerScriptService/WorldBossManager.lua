@@ -44,30 +44,32 @@ local function IsBossActive()
 	return utc.min < BOSS_ACTIVE_MINUTES
 end
 
-AdminForceSpawnWB.Event:Connect(function(specificBossName)
-	for _, p in ipairs(Players:GetPlayers()) do
-		p:SetAttribute("LastWorldBossHour", -1)
-	end
-
-	local bossList = {}
-	for bossName, _ in pairs(EnemyData.WorldBosses or {}) do
-		table.insert(bossList, bossName)
-	end
-
-	if #bossList > 0 then
-		if specificBossName and EnemyData.WorldBosses[specificBossName] then
-			CurrentActiveBoss = specificBossName
-		else
-			CurrentActiveBoss = bossList[math.random(1, #bossList)]
+pcall(function()
+	AdminForceSpawnWB.Event:Connect(function(specificBossName)
+		for _, p in ipairs(Players:GetPlayers()) do
+			p:SetAttribute("LastWorldBossHour", -1)
 		end
 
-		AdminForcedEndTime = os.time() + (BOSS_ACTIVE_MINUTES * 60)
-		ReplicatedStorage:SetAttribute("WorldBossEndTime", AdminForcedEndTime)
+		local bossList = {}
+		for bossName, _ in pairs(EnemyData.WorldBosses or {}) do
+			table.insert(bossList, bossName)
+		end
 
-		local spawnMsg = "<font color='#FF55FF'><b>[ADMIN EVENT] " .. CurrentActiveBoss .. " has been summoned! Cooldowns have been reset!</b></font>"
-		Network.CombatUpdate:FireAllClients("SystemMessage", spawnMsg)
-		WorldBossUpdate:FireAllClients("SyncBoss", CurrentActiveBoss)
-	end
+		if #bossList > 0 then
+			if specificBossName and EnemyData.WorldBosses[specificBossName] then
+				CurrentActiveBoss = specificBossName
+			else
+				CurrentActiveBoss = bossList[math.random(1, #bossList)]
+			end
+
+			AdminForcedEndTime = os.time() + (BOSS_ACTIVE_MINUTES * 60)
+			ReplicatedStorage:SetAttribute("WorldBossEndTime", AdminForcedEndTime)
+
+			local spawnMsg = "<font color='#FF55FF'><b>[ADMIN EVENT] " .. CurrentActiveBoss .. " has been summoned! Cooldowns have been reset!</b></font>"
+			Network.CombatUpdate:FireAllClients("SystemMessage", spawnMsg)
+			WorldBossUpdate:FireAllClients("SyncBoss", CurrentActiveBoss)
+		end
+	end)
 end)
 
 task.spawn(function()
@@ -115,8 +117,7 @@ local function StartBossBattle(player)
 		return
 	end
 
-	local isStudio = game:GetService("RunService"):IsStudio()
-	if player:GetAttribute("LastWorldBossHour") == utc.hour and not isStudio then
+	if player:GetAttribute("LastWorldBossHour") == utc.hour then
 		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this hour!</font>")
 		return
 	end
@@ -285,58 +286,67 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		local damageDealt = math.max(0, battle.Enemy.MaxHP - battle.Enemy.HP)
 		local dmgBonusDropPercent = math.floor(damageDealt / 100000)
 
-		if battle.Enemy.HP < 1 then
-			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
-			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Raids", 1) end
-		end
+		pcall(function()
+			if battle.Enemy.HP < 1 then
+				local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
+				if gangEvent and gangEvent:IsA("BindableEvent") then gangEvent:Fire(player:GetAttribute("Gang"), "Raids", 1) end
+			end
+		end)
 
 		local fXP = math.floor((damageDealt * 0.25) * battle.Boosts.XP)
 		local fYen = math.floor((damageDealt * 0.1) * battle.Boosts.Yen)
 
-		player:SetAttribute("XP", (player:GetAttribute("XP") or 0) + fXP)
-		player.leaderstats.Yen.Value += fYen
+		pcall(function()
+			player:SetAttribute("XP", (player:GetAttribute("XP") or 0) + fXP)
+			player.leaderstats.Yen.Value += fYen
+		end)
 
 		local dropMultiplier = player:GetAttribute("Has2xDropChance") and 2 or 1
-		local currentInv = GameData.GetInventoryCount(player, ItemData)
-		local maxInv = GameData.GetMaxInventory(player)
+		local currentInv = 0
+		local maxInv = 50
+		pcall(function() currentInv = GameData.GetInventoryCount(player) end)
+		pcall(function() maxInv = GameData.GetMaxInventory(player) end)
+
 		local droppedItems = {}
 
-		if not isDeath and battle.Drops and battle.Drops.ItemChance then
-			for itemName, baseChance in pairs(battle.Drops.ItemChance) do
-				local finalChance = (baseChance + dmgBonusDropPercent + battle.Boosts.Luck) * dropMultiplier
+		pcall(function()
+			if not isDeath and battle.Drops and battle.Drops.ItemChance then
+				for itemName, baseChance in pairs(battle.Drops.ItemChance) do
+					local finalChance = (baseChance + dmgBonusDropPercent + battle.Boosts.Luck) * dropMultiplier
 
-				if math.random(1, 100) <= finalChance then
-					local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
-					local itemRarity = itemData and itemData.Rarity or "Common"
-					local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka" or itemName == "Heavenly Stand Disc" or itemName == "Saint's Corpse Part")
+					if math.random(1, 100) <= finalChance then
+						local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+						local itemRarity = itemData and itemData.Rarity or "Common"
+						local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka" or itemName == "Heavenly Stand Disc" or itemName == "Saint's Corpse Part")
 
-					if player:GetAttribute("AutoSell_" .. itemRarity) and not isIgnored then
-						local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
-						player.leaderstats.Yen.Value += sellVal
-						table.insert(droppedItems, itemName .. " <font color='#AAAAAA'>(Auto-Sold: ¥" .. sellVal .. ")</font>")
-					else
-						if isIgnored then
-							local attrName = itemName:gsub("[^%w]", "") .. "Count"
-							player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
-							table.insert(droppedItems, itemName)
-						elseif currentInv < maxInv then
-							local attrName = itemName:gsub("[^%w]", "") .. "Count"
-							player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
-							table.insert(droppedItems, itemName)
-							currentInv += 1 
+						if player:GetAttribute("AutoSell_" .. itemRarity) and not isIgnored then
+							local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
+							player.leaderstats.Yen.Value += sellVal
+							table.insert(droppedItems, itemName .. " <font color='#AAAAAA'>(Auto-Sold: ¥" .. sellVal .. ")</font>")
 						else
-							Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Inventory Full! " .. itemName .. " was lost.</font>")
+							if isIgnored then
+								local attrName = itemName:gsub("[^%w]", "") .. "Count"
+								player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
+								table.insert(droppedItems, itemName)
+							elseif currentInv < maxInv then
+								local attrName = itemName:gsub("[^%w]", "") .. "Count"
+								player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
+								table.insert(droppedItems, itemName)
+								currentInv += 1 
+							else
+								Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Inventory Full! " .. itemName .. " was lost.</font>")
+							end
 						end
 					end
 				end
 			end
-		end
+		end)
 
 		local resultLog = isDeath and "<font color='#FF5555'>You were defeated by the World Boss!</font>" or "<font color='#55FF55'>Battle Finished! The boss flees.</font>"
 		resultLog = resultLog .. "\n<font color='#FFAA00'>Total Damage Dealt: " .. math.floor(damageDealt) .. "</font>"
 
 		local finalPack = { XP = fXP, Yen = fYen, Items = droppedItems }
-		WorldBossUpdate:FireClient(player, isDeath and "Defeat", {Battle = battle, Drops = finalPack, CustomLog = resultLog})
+		WorldBossUpdate:FireClient(player, isDeath and "Defeat" or "Victory", {Battle = battle, Drops = finalPack, CustomLog = resultLog})
 		ActiveBossBattles[player.UserId] = nil
 	else
 		if stamCost == 0 then battle.Player.Stamina = math.min(battle.Player.MaxStamina, battle.Player.Stamina + 5) end
