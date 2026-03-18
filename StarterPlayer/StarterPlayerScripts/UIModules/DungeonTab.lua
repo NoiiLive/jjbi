@@ -8,7 +8,7 @@ local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local SFXManager = require(script.Parent:WaitForChild("SFXManager"))
 local CombatTemplate = require(script.Parent:WaitForChild("CombatTemplate"))
 
-local menuFrame
+local menuContainer, menuFrame
 local combatUI
 local activeFighters = {}
 local rootFrame, forceTabFocus, cachedTooltipMgr
@@ -104,19 +104,35 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
 
+	menuContainer = Instance.new("Frame")
+	menuContainer.Name = "MenuContainer"
+	menuContainer.Size = UDim2.new(0.95, 0, 0.95, 0)
+	menuContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+	menuContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+	menuContainer.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
+	menuContainer.ZIndex = 16
+	menuContainer.Parent = parentFrame
+
+	local mcCorner = Instance.new("UICorner")
+	mcCorner.CornerRadius = UDim.new(0, 12)
+	mcCorner.Parent = menuContainer
+
+	local mcStroke = Instance.new("UIStroke")
+	mcStroke.Color = Color3.fromRGB(90, 50, 120)
+	mcStroke.Thickness = 2
+	mcStroke.Parent = menuContainer
+
 	menuFrame = Instance.new("ScrollingFrame")
 	menuFrame.Name = "MenuFrame"
-	menuFrame.Size = UDim2.new(1, -20, 1, -20)
-	menuFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	menuFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	menuFrame.Size = UDim2.new(1, 0, 1, 0)
 	menuFrame.BackgroundTransparency = 1
 	menuFrame.BorderSizePixel = 0
 	menuFrame.ScrollBarThickness = 6
 	menuFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
 	menuFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	menuFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-	menuFrame.ZIndex = 20
-	menuFrame.Parent = parentFrame
+	menuFrame.ZIndex = 17
+	menuFrame.Parent = menuContainer
 
 	local listLayout = Instance.new("UIListLayout")
 	listLayout.FillDirection = Enum.FillDirection.Vertical
@@ -135,15 +151,15 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	for _, dInfo in ipairs(dungeonList) do
 		local row = Instance.new("Frame")
 		row.Name = dInfo.Name
-		row.Size = UDim2.new(1, -20, 0, 100)
-		row.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
+		row.Size = UDim2.new(0.95, 0, 0, 100)
+		row.BackgroundColor3 = Color3.fromRGB(45, 25, 65)
 		row.ZIndex = 21
 		row.Parent = menuFrame
 
 		local rowGrad = Instance.new("UIGradient")
 		rowGrad.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 20, 50)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 10, 30))
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 30, 85)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 15, 50))
 		}
 		rowGrad.Rotation = 45
 		rowGrad.Parent = row
@@ -254,7 +270,8 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 		local btnStroke = Instance.new("UIStroke")
 		btnStroke.Color = Color3.fromRGB(255, 215, 50)
-		btnStroke.Thickness = 1
+		btnStroke.Thickness = 2
+		btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		btnStroke.Parent = playBtn
 
 		local btnUic = Instance.new("UITextSizeConstraint")
@@ -327,51 +344,42 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	combatUI.MainFrame.Visible = false
 	combatUI.MainFrame.ZIndex = 30
 
-	local topInfo = Instance.new("Frame")
-	topInfo.Name = "TopInfo"
-	topInfo.Size = UDim2.new(1, 0, 0.05, 0)
-	topInfo.BackgroundTransparency = 1
-	topInfo.LayoutOrder = 0
-	topInfo.ZIndex = 32
-	topInfo.Parent = combatUI.ContentContainer
-
-	waveLabel = Instance.new("TextLabel")
-	waveLabel.Name = "WaveLabel"
-	waveLabel.Size = UDim2.new(0.48, 0, 1, 0)
-	waveLabel.Position = UDim2.new(0, 10, 0.5, 0)
-	waveLabel.AnchorPoint = Vector2.new(0, 0.5)
-	waveLabel.BackgroundTransparency = 1
-	waveLabel.Font = Enum.Font.GothamBlack
-	waveLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
-	waveLabel.TextScaled = true
-	waveLabel.TextXAlignment = Enum.TextXAlignment.Left
-	waveLabel.Text = "Floor 1"
-	waveLabel.ZIndex = 32
-	waveLabel.Parent = topInfo
-
-	local wUic = Instance.new("UITextSizeConstraint")
-	wUic.MaxTextSize = 18
-	wUic.MinTextSize = 10
-	wUic.Parent = waveLabel
-
+	-- Restored exactly to StoryTab layout order for perfect scaling
 	resourceLabel = Instance.new("TextLabel")
 	resourceLabel.Name = "ResourceLabel"
-	resourceLabel.Size = UDim2.new(0.48, 0, 1, 0)
-	resourceLabel.Position = UDim2.new(1, -10, 0.5, 0)
-	resourceLabel.AnchorPoint = Vector2.new(1, 0.5)
+	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
 	resourceLabel.BackgroundTransparency = 1
 	resourceLabel.Font = Enum.Font.GothamBold
 	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
 	resourceLabel.TextScaled = true
-	resourceLabel.TextXAlignment = Enum.TextXAlignment.Right
 	resourceLabel.Text = ""
+	resourceLabel.LayoutOrder = 2 
 	resourceLabel.ZIndex = 32
-	resourceLabel.Parent = topInfo
+	resourceLabel.Parent = combatUI.ContentContainer
 
 	local resUic = Instance.new("UITextSizeConstraint")
 	resUic.MaxTextSize = 18
 	resUic.MinTextSize = 10
 	resUic.Parent = resourceLabel
+
+	-- Independent floating label so it does not affect layout scaling
+	waveLabel = Instance.new("TextLabel")
+	waveLabel.Name = "WaveLabel"
+	waveLabel.Size = UDim2.new(0.3, 0, 0, 20)
+	waveLabel.Position = UDim2.new(0.5, 0, 0, 6)
+	waveLabel.AnchorPoint = Vector2.new(0.5, 0)
+	waveLabel.BackgroundTransparency = 1
+	waveLabel.Font = Enum.Font.GothamBlack
+	waveLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
+	waveLabel.TextScaled = true
+	waveLabel.Text = "Floor 1"
+	waveLabel.ZIndex = 32
+	waveLabel.Parent = combatUI.MainFrame
+
+	local wUic = Instance.new("UITextSizeConstraint")
+	wUic.MaxTextSize = 18
+	wUic.MinTextSize = 10
+	wUic.Parent = waveLabel
 end
 
 function DungeonTab.RenderSkills(battleData)
@@ -444,9 +452,11 @@ function DungeonTab.UpdateDungeon(status, data)
 	if status == "Start" then
 		if forceTabFocus then forceTabFocus() end 
 		combatUI.ChatText.Text = ""
-		menuFrame.Visible = false
+		menuContainer.Visible = false
 		combatUI.MainFrame.Visible = true
 		combatUI.AbilitiesArea.Visible = true
+		resourceLabel.Visible = true
+		waveLabel.Visible = true
 
 		AddLog(data.LogMsg or "", false)
 		waveLabel.Text = data.WaveStr or "Floor 1"
@@ -493,6 +503,8 @@ function DungeonTab.UpdateDungeon(status, data)
 
 	elseif status == "Victory" or status == "Defeat" or status == "Fled" then
 		combatUI.AbilitiesArea.Visible = false
+		resourceLabel.Visible = false
+		waveLabel.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
 			f.Frame:Destroy()
@@ -515,7 +527,7 @@ function DungeonTab.UpdateDungeon(status, data)
 
 		task.delay(4, function() 
 			combatUI.MainFrame.Visible = false
-			menuFrame.Visible = true
+			menuContainer.Visible = true
 		end)
 	end
 
