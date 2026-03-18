@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -7,6 +8,14 @@ local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 
 local GameDataStore = DataStoreService:GetDataStore("JojoRPG_Alpha_V8")
+
+-- Prevent UI Infinite Yields from missing folders
+local UITemplates = ReplicatedStorage:FindFirstChild("UITemplates")
+if not UITemplates then
+	UITemplates = Instance.new("Folder")
+	UITemplates.Name = "UITemplates"
+	UITemplates.Parent = ReplicatedStorage
+end
 
 local RemotesFolder = ReplicatedStorage:FindFirstChild("Network")
 if not RemotesFolder then
@@ -35,7 +44,8 @@ local requiredRemotes = {
 	"TrainingAction",
 	"MultiplayerAction",
 	"NotificationEvent",
-	"AutoSellToggle"
+	"AutoSellToggle",
+	"PrestigeEvent"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
