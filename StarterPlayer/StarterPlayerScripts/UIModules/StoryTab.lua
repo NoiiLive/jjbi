@@ -121,7 +121,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	buttonContainer.Name = "ButtonContainer"
 	buttonContainer.Size = UDim2.new(1, 0, 0.25, 0)
 	buttonContainer.BackgroundTransparency = 1
-	buttonContainer.LayoutOrder = 4
+	buttonContainer.LayoutOrder = 4 
 	buttonContainer.ZIndex = 22
 	buttonContainer.Parent = combatUI.ContentContainer
 
@@ -149,6 +149,12 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 		uic.CornerRadius = UDim.new(0, 8)
 		uic.Parent = btn
 
+		local str = Instance.new("UIStroke")
+		str.Color = Color3.fromRGB(90, 50, 120)
+		str.Thickness = 2
+		str.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		str.Parent = btn
+
 		local ts = Instance.new("UITextSizeConstraint")
 		ts.MaxTextSize = 24
 		ts.MinTextSize = 10
@@ -157,10 +163,18 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 		return btn
 	end
 
-	randomEncounterBtn = makeBtn("RandomEncounterBtn", "Random Encounter")
-	storyEncounterBtn = makeBtn("StoryEncounterBtn", "Story Encounter")
 	prestigeBtn = makeBtn("PrestigeBtn", "Prestige")
+	prestigeBtn.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+	prestigeBtn.TextColor3 = Color3.fromRGB(255, 200, 200)
+	prestigeBtn:FindFirstChildOfClass("UIStroke").Color = Color3.fromRGB(200, 50, 50)
+	prestigeBtn.LayoutOrder = 1
 	prestigeBtn.Visible = false
+
+	randomEncounterBtn = makeBtn("RandomEncounterBtn", "Random Encounter")
+	randomEncounterBtn.LayoutOrder = 2
+
+	storyEncounterBtn = makeBtn("StoryEncounterBtn", "Story Encounter")
+	storyEncounterBtn.LayoutOrder = 3
 
 	randomEncounterBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.CombatAction:FireServer("EngageRandom") end)
 	storyEncounterBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.CombatAction:FireServer("EngageStory") end)
