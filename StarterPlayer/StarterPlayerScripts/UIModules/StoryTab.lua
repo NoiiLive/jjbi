@@ -181,7 +181,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	end
 
 	prestigeBtn = makeBtn("PrestigeBtn", "Prestige")
-	prestigeBtn.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+	prestigeBtn.BackgroundColor3 = Color3.fromRGB(120, 30, 30)
 	prestigeBtn.TextColor3 = Color3.fromRGB(255, 200, 200)
 	prestigeBtn:FindFirstChildOfClass("UIStroke").Color = Color3.fromRGB(200, 50, 50)
 	prestigeBtn.LayoutOrder = 0
