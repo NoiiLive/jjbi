@@ -1,10 +1,18 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Network = ReplicatedStorage:WaitForChild("Network")
+
+local NotificationEvent = Network:FindFirstChild("NotificationEvent")
+if not NotificationEvent then
+	NotificationEvent = Instance.new("RemoteEvent")
+	NotificationEvent.Name = "NotificationEvent"
+	NotificationEvent.Parent = Network
+end
 
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
@@ -136,6 +144,12 @@ local function GrantStand(playerObj, standName)
 	return true
 end
 
+local function SendAdminNotice(targetPlayer, message)
+	if not targetPlayer then return end
+	Network.CombatUpdate:FireClient(targetPlayer, "SystemMessage", message)
+	NotificationEvent:FireClient(targetPlayer, message)
+end
+
 local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer, senderName)
 	local targetStr = string.lower(parts[2] or "")
 	local targets = {}
@@ -164,7 +178,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		end
 
 		if #targets == 0 then
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Player not found.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Player not found.</font>") end
 			return
 		end
 	end
@@ -175,9 +189,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 	if cmd == "!announcement" then
 		local announcementText = table.concat(parts, " ", 2)
 		for _, p in ipairs(Players:GetPlayers()) do
-			Network.CombatUpdate:FireClient(p, "SystemMessage", "\n<font color='#FF55FF' size='16'><b>[GLOBAL ANNOUNCEMENT - " .. actualSenderName .. "]</b></font>\n<font color='#FFFFFF'>" .. announcementText .. "</font>\n")
+			SendAdminNotice(p, "\n<font color='#FF55FF' size='16'><b>[GLOBAL ANNOUNCEMENT - " .. actualSenderName .. "]</b></font>\n<font color='#FFFFFF'>" .. announcementText .. "</font>\n")
 		end
-		if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Global announcement broadcasted!</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Global announcement broadcasted!</font>") end
 
 	elseif cmd == "!spawnwb" then
 		local forceEvent = Network:FindFirstChild("AdminForceSpawnWB")
@@ -189,9 +203,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 
 			if adminPlayer then 
 				if properBossName then
-					Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Force-spawned specific World Boss ("..properBossName..") globally!</font>") 
+					SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Force-spawned specific World Boss ("..properBossName..") globally!</font>") 
 				else
-					Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Force-spawned a random World Boss globally!</font>") 
+					SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Force-spawned a random World Boss globally!</font>") 
 				end
 			end
 		end
@@ -208,12 +222,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 				local attrName = properName:gsub("[^%w]", "") .. "Count"
 				target:SetAttribute(attrName, (target:GetAttribute(attrName) or 0) + amount)
 				if isMassEvent and target ~= adminPlayer then
-					Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FFD700'><b>" .. eventTag .. ":</b> You received " .. amount .. "x " .. properName .. "!</font>")
+					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> You received " .. amount .. "x " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Gave " .. amount .. "x " .. properName .. " to " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Gave " .. amount .. "x " .. properName .. " to " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Item '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Item '" .. rawName .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!addpass" then
@@ -223,11 +237,11 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		if properAttr then
 			for _, target in ipairs(targets) do
 				target:SetAttribute(properAttr, true)
-				Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#55FF55'>🎁 An Admin has granted you the " .. properAttr .. " GamePass!</font>")
+				SendAdminNotice(target, "<font color='#55FF55'>🎁 An Admin has granted you the " .. properAttr .. " GamePass!</font>")
 			end
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Gave GamePass '" .. properAttr .. "' to " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Gave GamePass '" .. properAttr .. "' to " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Invalid Pass. Try: speed, inventory, drops, autotrain, slot2, slot3.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Invalid Pass. Try: speed, inventory, drops, autotrain, slot2, slot3.</font>") end
 		end
 
 	elseif cmd == "!setstand" then
@@ -238,12 +252,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 			for _, target in ipairs(targets) do
 				GrantStand(target, properName)
 				if isMassEvent and target ~= adminPlayer then
-					Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Stand was set to: " .. properName .. "!</font>")
+					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Stand was set to: " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Set Stand " .. properName .. " for " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Set Stand " .. properName .. " for " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Stand '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Stand '" .. rawName .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!setstyle" then
@@ -254,12 +268,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 			for _, target in ipairs(targets) do
 				target:SetAttribute("FightingStyle", properName)
 				if isMassEvent and target ~= adminPlayer then
-					Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Fighting Style was set to: " .. properName .. "!</font>")
+					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Fighting Style was set to: " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Set Fighting Style " .. properName .. " for " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Set Fighting Style " .. properName .. " for " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Fighting Style '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Fighting Style '" .. rawName .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!settrait" then
@@ -270,12 +284,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 			for _, target in ipairs(targets) do
 				target:SetAttribute("StandTrait", properName)
 				if isMassEvent and target ~= adminPlayer then
-					Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Stand Trait was set to: " .. properName .. "!</font>")
+					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Stand Trait was set to: " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Set Stand Trait " .. properName .. " for " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Set Stand Trait " .. properName .. " for " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Trait '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Trait '" .. rawName .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!addstat" then
@@ -296,12 +310,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 				end
 
 				if isMassEvent and target ~= adminPlayer then
-					Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FFD700'><b>" .. eventTag .. ":</b> You received " .. amount .. " " .. properStat .. "!</font>")
+					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> You received " .. amount .. " " .. properStat .. "!</font>")
 				end
 			end
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Added " .. amount .. " " .. properStat .. " to " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Added " .. amount .. " " .. properStat .. " to " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Stat '" .. rawStat .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Stat '" .. rawStat .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!joingang" then
@@ -335,11 +349,11 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 
 				target:SetAttribute("Gang", gangKey)
 				target:SetAttribute("GangRole", "Grunt")
-				Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FFD700'>Admin force-joined you to " .. gangData.Name .. "!</font>")
+				SendAdminNotice(target, "<font color='#FFD700'>Admin force-joined you to " .. gangData.Name .. "!</font>")
 			end
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Force-joined " .. displayTarget .. " to " .. gangData.Name .. ".</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Force-joined " .. displayTarget .. " to " .. gangData.Name .. ".</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Gang '" .. rawGangName .. "' not found in DataStore.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Gang '" .. rawGangName .. "' not found in DataStore.</font>") end
 		end
 
 	elseif cmd == "!addrep" then
@@ -348,7 +362,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		local gangKey = string.lower(rawGangName)
 
 		if not amount or not gangKey then
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Usage: !addrep [Amount] [GangName]</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Usage: !addrep [Amount] [GangName]</font>") end
 			return
 		end
 
@@ -360,9 +374,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					return oldData
 				end)
 			end)
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Added " .. amount .. " Rep to " .. d.Name .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Added " .. amount .. " Rep to " .. d.Name .. "!</font>") end
 		else
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Gang '" .. rawGangName .. "' not found.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Gang '" .. rawGangName .. "' not found.</font>") end
 		end
 
 	elseif cmd == "!promote" then
@@ -371,7 +385,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		local newRole = roles[rankNum]
 
 		if not newRole then
-			if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#FF5555'>Admin Error: Rank must be 1-4.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Rank must be 1-4.</font>") end
 			return
 		end
 
@@ -389,7 +403,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 									local oldMember = Players:GetPlayerByUserId(tonumber(u))
 									if oldMember then 
 										oldMember:SetAttribute("GangRole", "Grunt")
-										Network.CombatUpdate:FireClient(oldMember, "SystemMessage", "<font color='#FF5555'>Admin demoted your Gang Rank.</font>")
+										SendAdminNotice(oldMember, "<font color='#FF5555'>Admin demoted your Gang Rank.</font>")
 									end
 								end
 							end
@@ -401,12 +415,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 							end) end)
 
 						target:SetAttribute("GangRole", newRole)
-						Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FFD700'>Admin set your Gang Rank to " .. newRole .. "!</font>")
+						SendAdminNotice(target, "<font color='#FFD700'>Admin set your Gang Rank to " .. newRole .. "!</font>")
 					end
 				end
 			end
 		end
-		if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Promoted " .. displayTarget .. " to " .. newRole .. ".</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Promoted " .. displayTarget .. " to " .. newRole .. ".</font>") end
 
 	elseif cmd == "!kickgang" then
 		for _, target in ipairs(targets) do
@@ -423,10 +437,10 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 				end)
 				target:SetAttribute("Gang", "None")
 				target:SetAttribute("GangRole", "None")
-				Network.CombatUpdate:FireClient(target, "SystemMessage", "<font color='#FF5555'>Admin forcefully kicked you from your gang.</font>")
+				SendAdminNotice(target, "<font color='#FF5555'>Admin forcefully kicked you from your gang.</font>")
 			end
 		end
-		if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Kicked " .. displayTarget .. " from their gang.</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Kicked " .. displayTarget .. " from their gang.</font>") end
 
 	elseif cmd == "!deletegang" then
 		local rawGangName = table.concat(parts, " ", 2)
@@ -437,7 +451,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 			wipeEvent:Fire(gangKey)
 		end
 
-		if adminPlayer then Network.CombatUpdate:FireClient(adminPlayer, "SystemMessage", "<font color='#55FF55'>Admin: Obliterated gang '" .. rawGangName .. "' from all servers and leaderboards.</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Obliterated gang '" .. rawGangName .. "' from all servers and leaderboards.</font>") end
 	end
 end
 
