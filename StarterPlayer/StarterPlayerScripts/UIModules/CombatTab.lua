@@ -73,7 +73,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local mainPanel = Instance.new("Frame")
 	mainPanel.Name = "MainPanel"
-	mainPanel.Size = UDim2.new(0.85, 0, 0.88, 0)
+	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
 	mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 	mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 	mainPanel.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
@@ -95,25 +95,23 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
 	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 220, 0, 180) 
+	bgPattern.TileSize = UDim2.new(0, 120, 0, 120) 
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(0.40, 0, 0, 55)
-	subNav.Position = UDim2.new(0.5, 0, 0.02, 0)
-	subNav.AnchorPoint = Vector2.new(0.5, 0)
+	subNav.Size = UDim2.new(1, 0, 0, 50)
 	subNav.BackgroundTransparency = 1
 	subNav.ZIndex = 20
 	subNav.Parent = mainPanel
 
 	local subNavContainer = Instance.new("Frame")
 	subNavContainer.Name = "SubNavContainer"
-	subNavContainer.Size = UDim2.new(1, 0, 1, 0)
-	subNavContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-	subNavContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+	subNavContainer.Size = UDim2.new(1, -90, 1, -10)
+	subNavContainer.Position = UDim2.new(0, 10, 0.5, 0)
+	subNavContainer.AnchorPoint = Vector2.new(0, 0.5)
 	subNavContainer.BackgroundTransparency = 1
 	subNavContainer.ZIndex = 21
 	subNavContainer.Parent = subNav
@@ -282,33 +280,27 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		end
 		local vp = camera.ViewportSize
 		if vp.X >= 1050 then
-			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+			mainPanel.Size = UDim2.new(0.80, 0, 0.85, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-			subNav.Size = UDim2.new(0.40, 0, 0, 55)
 		elseif vp.X >= 600 and vp.X < 1050 then
-			mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-			subNav.Size = UDim2.new(0.55, 0, 0, 50)
+			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 		else
-			mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-			subNav.Size = UDim2.new(0.75, 0, 0, 50)
+			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 		end
 	end)
 
 	local vpInit = camera.ViewportSize
 	if vpInit.X >= 1050 then
-		mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+		mainPanel.Size = UDim2.new(0.80, 0, 0.85, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		subNav.Size = UDim2.new(0.40, 0, 0, 55)
 	elseif vpInit.X >= 600 and vpInit.X < 1050 then
-		mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		subNav.Size = UDim2.new(0.55, 0, 0, 50)
+		mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 	else
-		mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		subNav.Size = UDim2.new(0.75, 0, 0, 50)
+		mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 	end
 end
 
