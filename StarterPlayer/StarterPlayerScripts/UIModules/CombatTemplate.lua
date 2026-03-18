@@ -95,27 +95,34 @@ function CombatTemplate.Create(parentGui)
 	contentCorner.CornerRadius = UDim.new(0, 12)
 	contentCorner.Parent = bgPattern
 
+	local contentContainer = Instance.new("Frame")
+	contentContainer.Name = "ContentContainer"
+	contentContainer.Size = UDim2.new(1, 0, 1, 0)
+	contentContainer.BackgroundTransparency = 1
+	contentContainer.ZIndex = 22
+	contentContainer.Parent = mainFrame
+
 	local uiLayout = Instance.new("UIListLayout")
 	uiLayout.FillDirection = Enum.FillDirection.Vertical
 	uiLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	uiLayout.Padding = UDim.new(0, 10)
 	uiLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	uiLayout.Parent = mainFrame
+	uiLayout.Parent = contentContainer
 
 	local uiPadding = Instance.new("UIPadding")
 	uiPadding.PaddingTop = UDim.new(0, 15)
 	uiPadding.PaddingBottom = UDim.new(0, 15)
 	uiPadding.PaddingLeft = UDim.new(0, 15)
 	uiPadding.PaddingRight = UDim.new(0, 15)
-	uiPadding.Parent = mainFrame
+	uiPadding.Parent = contentContainer
 
 	local healthbarArea = Instance.new("Frame")
 	healthbarArea.Name = "HealthbarArea"
-	healthbarArea.Size = UDim2.new(1, 0, 0.55, 0)
+	healthbarArea.Size = UDim2.new(1, 0, 0.50, 0)
 	healthbarArea.BackgroundTransparency = 1
 	healthbarArea.LayoutOrder = 1
 	healthbarArea.ZIndex = 22
-	healthbarArea.Parent = mainFrame
+	healthbarArea.Parent = contentContainer
 
 	local hbLayout = Instance.new("UIListLayout")
 	hbLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -163,9 +170,9 @@ function CombatTemplate.Create(parentGui)
 	chatboxArea.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 	chatboxArea.BackgroundTransparency = 0.2
 	chatboxArea.BorderSizePixel = 0
-	chatboxArea.LayoutOrder = 2
+	chatboxArea.LayoutOrder = 3
 	chatboxArea.ZIndex = 22
-	chatboxArea.Parent = mainFrame
+	chatboxArea.Parent = contentContainer
 
 	local cbCorner = Instance.new("UICorner")
 	cbCorner.CornerRadius = UDim.new(0, 8)
@@ -205,9 +212,9 @@ function CombatTemplate.Create(parentGui)
 	abilitiesArea.Name = "AbilitiesArea"
 	abilitiesArea.Size = UDim2.new(1, 0, 0.25, 0)
 	abilitiesArea.BackgroundTransparency = 1
-	abilitiesArea.LayoutOrder = 3
+	abilitiesArea.LayoutOrder = 4
 	abilitiesArea.ZIndex = 22
-	abilitiesArea.Parent = mainFrame
+	abilitiesArea.Parent = contentContainer
 
 	local abLayout = Instance.new("UIGridLayout")
 	abLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -274,6 +281,7 @@ function CombatTemplate.Create(parentGui)
 	end
 
 	combatUI.MainFrame = mainFrame
+	combatUI.ContentContainer = contentContainer
 	combatUI.AlliesContainer = alliesContainer
 	combatUI.EnemiesContainer = enemiesContainer
 	combatUI.ChatText = chatText
