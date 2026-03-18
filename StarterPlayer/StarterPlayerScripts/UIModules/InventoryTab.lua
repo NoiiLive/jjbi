@@ -168,28 +168,29 @@ end
 
 local function CreateTitle(parent, text)
 	local lbl = Instance.new("TextLabel", parent)
-	lbl.Size = UDim2.new(1, 0, 0, 20); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.Font = Enum.Font.GothamBlack; lbl.TextColor3 = Color3.fromRGB(255, 215, 50); lbl.TextScaled = false; lbl.TextSize = 14; lbl.LayoutOrder = 1; lbl.ZIndex = 22; lbl.TextXAlignment = Enum.TextXAlignment.Center
+	lbl.Size = UDim2.new(1, 0, 0, 20); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.Font = Enum.Font.GothamBlack; lbl.TextColor3 = Color3.fromRGB(255, 215, 50); lbl.TextScaled = true; lbl.LayoutOrder = 1; lbl.ZIndex = 22; lbl.TextXAlignment = Enum.TextXAlignment.Center
+	Instance.new("UITextSizeConstraint", lbl).MaxTextSize = 14
 	return lbl
 end
 
 local function CreateStatRow(statName, parent, isStand)
 	local row = Instance.new("Frame", parent)
-	row.Size = UDim2.new(1, 0, 1/6, 0)
+	row.Size = UDim2.new(1, 0, 1/6, 0) -- Mathematically exact fit for 6 rows with 0 padding
 	row.BackgroundTransparency = 1
 
 	local statLabel = Instance.new("TextLabel", row)
-	statLabel.Size = UDim2.new(0.40, 0, 1, 0)
+	statLabel.Size = UDim2.new(0.42, 0, 1, 0) -- Bounded to left 42%
 	statLabel.BackgroundTransparency = 1
 	statLabel.Font = Enum.Font.GothamBold
 	statLabel.TextColor3 = isStand and Color3.fromRGB(200, 150, 255) or Color3.fromRGB(220, 220, 220)
 	statLabel.TextXAlignment = Enum.TextXAlignment.Left
-	statLabel.TextScaled = false
-	statLabel.TextSize = 12
+	statLabel.TextScaled = true
 	statLabel.RichText = true
 	statLabel.ZIndex = 22
+	Instance.new("UITextSizeConstraint", statLabel).MaxTextSize = 12
 
 	local btnContainer = Instance.new("Frame", row)
-	btnContainer.Size = UDim2.new(0.60, 0, 1, 0)
+	btnContainer.Size = UDim2.new(0.56, 0, 1, 0) -- Bounded to right 56% (No Overlap)
 	btnContainer.Position = UDim2.new(1, 0, 0, 0)
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
@@ -199,29 +200,30 @@ local function CreateStatRow(statName, parent, isStand)
 	blL.FillDirection = Enum.FillDirection.Horizontal
 	blL.HorizontalAlignment = Enum.HorizontalAlignment.Right
 	blL.VerticalAlignment = Enum.VerticalAlignment.Center
-	blL.Padding = UDim.new(0, 4)
+	blL.Padding = UDim.new(0.02, 0)
 	blL.SortOrder = Enum.SortOrder.LayoutOrder
 
-	local function makeBtn(text, order, sizeOffset)
+	local function makeBtn(text, order, scaleWidth)
 		local b = Instance.new("TextButton", btnContainer)
 		b.LayoutOrder = order
-		b.Size = UDim2.new(0, sizeOffset, 0, 18)
+		b.Size = UDim2.new(scaleWidth, 0, 0.8, 0)
 		b.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
 		b.Text = text
 		b.Font = Enum.Font.GothamBold
 		b.TextColor3 = Color3.new(1,1,1)
-		b.TextScaled = false
-		b.TextSize = 11
+		b.TextScaled = true
 		b.ZIndex = 23
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
 		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(120, 60, 180)
+		Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
 		return b
 	end
 
-	local b1 = makeBtn("+1", 1, 24)
-	local b5 = makeBtn("+5", 2, 24)
-	local b10 = makeBtn("+10", 3, 30)
-	local bMax = makeBtn("MAX", 4, 36)
+	-- Total widths = 0.23 * 4 = 0.92. Remaining room for padding = 0.08. Perfect fit.
+	local b1 = makeBtn("+1", 1, 0.23)
+	local b5 = makeBtn("+5", 2, 0.23)
+	local b10 = makeBtn("+10", 3, 0.23)
+	local bMax = makeBtn("MAX", 4, 0.23)
 
 	row.MouseEnter:Connect(function() currentlyHoveredStat = statName; UpdateStatTooltip() end)
 	row.MouseLeave:Connect(function() if currentlyHoveredStat == statName then currentlyHoveredStat = nil; cachedTooltipMgr.Hide() end end)
@@ -253,7 +255,8 @@ local function BuildDropdownList(parentBtn, listFrame, dataTable, isStand)
 		b.Size = UDim2.new(1, -8, 0, 25)
 		b.BackgroundTransparency = 1
 		b.TextColor3 = Color3.new(1,1,1)
-		b.Text = opt; b.Font = Enum.Font.GothamMedium; b.TextSize = 12; b.ZIndex = 51
+		b.Text = opt; b.Font = Enum.Font.GothamMedium; b.TextScaled = true; b.ZIndex = 51
+		Instance.new("UITextSizeConstraint", b).MaxTextSize = 12
 		b.MouseButton1Click:Connect(function()
 			SFXManager.Play("Click")
 			if isStand then targetAutoStand = opt; parentBtn.Text = "Target Stand: " .. opt
@@ -324,19 +327,22 @@ local function RefreshStorageList()
 
 	for visualNum, slotData in ipairs(sortedSlots) do
 		local row = Instance.new("Frame", storageContainer)
-		row.Size = UDim2.new(1, 0, 1/5, -4)
+		row.Size = UDim2.new(1, 0, 1/5, 0) -- Exactly 5 rows with 0 padding
 		row.BackgroundTransparency = 1
 		row.ZIndex = 23
 
 		local nameLabel = Instance.new("TextLabel", row)
-		nameLabel.Size = UDim2.new(0.65, 0, 1, 0); nameLabel.Position = UDim2.new(0, 4, 0, 0)
+		nameLabel.Size = UDim2.new(0.68, 0, 1, 0) -- Bound to left 68%
 		nameLabel.BackgroundTransparency = 1; nameLabel.Font = Enum.Font.GothamMedium; nameLabel.TextColor3 = Color3.new(1,1,1)
-		nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = false; nameLabel.TextSize = 12; nameLabel.RichText = true; nameLabel.ZIndex = 24
+		nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = true; nameLabel.RichText = true; nameLabel.ZIndex = 24
+		Instance.new("UITextSizeConstraint", nameLabel).MaxTextSize = 13
 
 		local btn = Instance.new("TextButton", row)
-		btn.Size = UDim2.new(0, 50, 0, 20); btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, -4, 0.5, 0)
-		btn.Font = Enum.Font.GothamBold; btn.TextColor3 = Color3.new(1,1,1); btn.TextScaled = false; btn.TextSize = 11; btn.ZIndex = 24
+		btn.Size = UDim2.new(0.30, 0, 0.8, 0) -- Bound to right 30%
+		btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, 0, 0.5, 0)
+		btn.Font = Enum.Font.GothamBold; btn.TextColor3 = Color3.new(1,1,1); btn.TextScaled = true; btn.ZIndex = 24
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
 		if slotData.IsUnlocked then
 			if currentStorageMode == "Stand" then
@@ -403,7 +409,7 @@ local function RefreshInventoryList()
 		local container = isSpecial and keyItemsContainer or regItemsContainer
 
 		local itemFrame = Instance.new("Frame", container)
-		itemFrame.Size = UDim2.new(1, 0, 0, 30)
+		itemFrame.Size = UDim2.new(1, 0, 0, 32)
 		itemFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
 		itemFrame.LayoutOrder = raritySortTiers[rarity] or raritySortTiers.Common
 		itemFrame.ZIndex = 23
@@ -411,26 +417,28 @@ local function RefreshInventoryList()
 		local str = Instance.new("UIStroke", itemFrame); str.Color = rarityColors[rarity] or rarityColors.Common
 
 		local nameLabel = Instance.new("TextLabel", itemFrame)
-		nameLabel.Size = UDim2.new(0.5, 0, 1, 0); nameLabel.Position = UDim2.new(0, 8, 0, 0)
+		nameLabel.Size = UDim2.new(0.48, 0, 1, 0); nameLabel.AnchorPoint = Vector2.new(0, 0.5); nameLabel.Position = UDim2.new(0, 4, 0.5, 0)
 		nameLabel.BackgroundTransparency = 1; nameLabel.Font = Enum.Font.GothamMedium; nameLabel.TextColor3 = rarityColors[rarity] or rarityColors.Common
-		nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = false; nameLabel.TextSize = 12; nameLabel.Text = itemName .. " (x" .. count .. ")"; nameLabel.ZIndex = 24
+		nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = true; nameLabel.Text = itemName .. " (x" .. count .. ")"; nameLabel.ZIndex = 24
+		Instance.new("UITextSizeConstraint", nameLabel).MaxTextSize = 12
 
 		local btnWrapper = Instance.new("Frame", itemFrame)
-		btnWrapper.Size = UDim2.new(0.5, 0, 1, 0); btnWrapper.Position = UDim2.new(1, -6, 0.5, 0); btnWrapper.AnchorPoint = Vector2.new(1, 0.5); btnWrapper.BackgroundTransparency = 1
-		local bL = Instance.new("UIListLayout", btnWrapper); bL.FillDirection = Enum.FillDirection.Horizontal; bL.HorizontalAlignment = Enum.HorizontalAlignment.Right; bL.VerticalAlignment = Enum.VerticalAlignment.Center; bL.Padding = UDim.new(0, 4); bL.SortOrder = Enum.SortOrder.LayoutOrder
+		btnWrapper.Size = UDim2.new(0.50, 0, 1, 0); btnWrapper.Position = UDim2.new(1, -2, 0.5, 0); btnWrapper.AnchorPoint = Vector2.new(1, 0.5); btnWrapper.BackgroundTransparency = 1
+		local bL = Instance.new("UIListLayout", btnWrapper); bL.FillDirection = Enum.FillDirection.Horizontal; bL.HorizontalAlignment = Enum.HorizontalAlignment.Right; bL.VerticalAlignment = Enum.VerticalAlignment.Center; bL.Padding = UDim.new(0.02, 0); bL.SortOrder = Enum.SortOrder.LayoutOrder
 
-		local function makeBtn(text, sizeX, color, order)
+		local function makeBtn(text, scaleW, color, order)
 			local b = Instance.new("TextButton", btnWrapper)
-			b.Size = UDim2.new(0, sizeX, 0, 22); b.LayoutOrder = order
+			b.Size = UDim2.new(scaleW, 0, 0.8, 0); b.LayoutOrder = order
 			b.BackgroundColor3 = color; b.Text = text; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1)
-			b.TextScaled = false; b.TextSize = 11; b.ZIndex = 24
+			b.TextScaled = true; b.ZIndex = 24
 			Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+			Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
 			return b
 		end
 
-		local useBtn = makeBtn(ItemData.Equipment[itemName] and "Equip" or "Use", 45, Color3.fromRGB(200, 120, 0), 1)
-		local sellBtn = makeBtn("Sell", 40, Color3.fromRGB(140, 40, 40), 2)
-		local lockBtn = makeBtn("🔓", 24, Color3.fromRGB(40, 40, 40), 3)
+		local useBtn = makeBtn(ItemData.Equipment[itemName] and "Equip" or "Use", 0.42, Color3.fromRGB(200, 120, 0), 1)
+		local sellBtn = makeBtn("Sell", 0.35, Color3.fromRGB(140, 40, 40), 2)
+		local lockBtn = makeBtn("🔓", 0.18, Color3.fromRGB(40, 40, 40), 3)
 
 		local lockedItems = player:GetAttribute("LockedItems") or ""
 		if table.find(string.split(lockedItems, ","), itemName) ~= nil then
@@ -458,7 +466,7 @@ local function RefreshInventoryList()
 						if targetAutoTrait ~= "Any" and currentTrait == targetAutoTrait then NotificationManager.Show("<font color='#FF5555'>Blocked! You already have your target Trait.</font>"); return end
 					end
 					if ItemData.Consumables[itemName] and not isConfirmingUse then
-						isConfirmingUse = true; useBtn.Text = "Confirm?"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+						isConfirmingUse = true; useBtn.Text = "Sure?"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
 						task.delay(3, function() if isConfirmingUse and useBtn.Parent then isConfirmingUse = false; useBtn.Text = "Use"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0) end end)
 						return
 					end
@@ -484,8 +492,8 @@ local function RefreshInventoryList()
 	for _, item in ipairs(specialItems) do RenderItem(item.Name, item.Count, true) end
 	for _, item in ipairs(normalItems) do RenderItem(item.Name, item.Count, false) end
 
-	keyItemsContainer.CanvasSize = UDim2.new(0, 0, 0, (#specialItems * 34) + 10)
-	regItemsContainer.CanvasSize = UDim2.new(0, 0, 0, (#normalItems * 34) + 10)
+	keyItemsContainer.CanvasSize = UDim2.new(0, 0, 0, (#specialItems * 36) + 10)
+	regItemsContainer.CanvasSize = UDim2.new(0, 0, 0, (#normalItems * 36) + 10)
 end
 
 local function UpdateTopDisplays()
@@ -600,27 +608,30 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	lLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	lLayout.Padding = UDim.new(0.02, 0)
 
-	local loadoutCard = CreateCard("LoadoutCard", leftContainer, UDim2.new(1, 0, 0.34, 0), 1)
-	local storageCard = CreateCard("StorageCard", leftContainer, UDim2.new(1, 0, 0.43, 0), 2)
-	local autoSellCard = CreateCard("AutoSellCard", leftContainer, UDim2.new(1, 0, 0.19, 0), 3)
+	local loadoutCard = CreateCard("LoadoutCard", leftContainer, UDim2.new(1, 0, 0.35, 0), 1)
+	local storageCard = CreateCard("StorageCard", leftContainer, UDim2.new(1, 0, 0.45, 0), 2)
+	local autoSellCard = CreateCard("AutoSellCard", leftContainer, UDim2.new(1, 0, 0.16, 0), 3)
 
 	-- Loadout
 	CreateTitle(loadoutCard, "LOADOUT")
-	local lContent = Instance.new("Frame", loadoutCard); lContent.Size = UDim2.new(1, 0, 1, -24); lContent.Position = UDim2.new(0,0,0,24); lContent.BackgroundTransparency = 1; lContent.LayoutOrder = 2
-	Instance.new("UIListLayout", lContent).Padding = UDim.new(0, 2)
+	local lContent = Instance.new("Frame", loadoutCard)
+	lContent.Size = UDim2.new(1, 0, 1, -24); lContent.Position = UDim2.new(0,0,0,24); lContent.BackgroundTransparency = 1; lContent.LayoutOrder = 2
+	local lcL = Instance.new("UIListLayout", lContent); lcL.Padding = UDim.new(0, 0)
 
 	local function createLoadRow(name)
-		local r = Instance.new("Frame", lContent); r.Size = UDim2.new(1, 0, 1/6, -4); r.BackgroundTransparency = 1
+		local r = Instance.new("Frame", lContent); r.Size = UDim2.new(1, 0, 1/6, 0); r.BackgroundTransparency = 1
 		local lbl = Instance.new("TextLabel", r)
-		lbl.Size = UDim2.new(1, -35, 1, 0); lbl.BackgroundTransparency = 1; lbl.Font = Enum.Font.GothamMedium; lbl.TextColor3 = Color3.new(1,1,1)
-		lbl.TextScaled = false; lbl.TextSize = 12; lbl.RichText = true; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.ZIndex = 22
+		lbl.Size = UDim2.new(0.8, 0, 1, 0); lbl.BackgroundTransparency = 1; lbl.Font = Enum.Font.GothamMedium; lbl.TextColor3 = Color3.new(1,1,1)
+		lbl.TextScaled = true; lbl.RichText = true; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.ZIndex = 22
+		Instance.new("UITextSizeConstraint", lbl).MaxTextSize = 12
 
 		local btn = nil
 		if name == "Stand" or name == "Style" then
 			btn = Instance.new("TextButton", r)
-			btn.Size = UDim2.new(0, 24, 0, 20); btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, 0, 0.5, 0)
-			btn.Font = Enum.Font.GothamBold; btn.TextScaled = false; btn.TextSize = 12; btn.ZIndex = 23
+			btn.Size = UDim2.new(0.18, 0, 0.8, 0); btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, 0, 0.5, 0)
+			btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.ZIndex = 23
 			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+			Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 		end
 		return r, lbl, btn
 	end
@@ -629,19 +640,22 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	styleBox, styleLabel, styleLockBtn = createLoadRow("Style")
 	weaponBox, weaponLabel, _ = createLoadRow("Wep")
 	accBox, accLabel, _ = createLoadRow("Acc")
-	local _, xpLbl, _ = createLoadRow("XP"); xpLabel = xpLbl
-	local _, yenLbl, _ = createLoadRow("Yen"); yenLabel = yenLbl
+	_, xpLabel, _ = createLoadRow("XP")
+	_, yenLabel, _ = createLoadRow("Yen")
 
 	-- Storage
-	local stTop = Instance.new("Frame", storageCard); stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
+	local stTop = Instance.new("Frame", storageCard)
+	stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
 	local stTitle = CreateTitle(stTop, "STAND STORAGE"); stTitle.Size = UDim2.new(0.5, 0, 1, 0); stTitle.TextXAlignment = Enum.TextXAlignment.Left
 	local toggleStorageBtn = Instance.new("TextButton", stTop)
-	toggleStorageBtn.Size = UDim2.new(0.45, 0, 1, 0); toggleStorageBtn.AnchorPoint = Vector2.new(1, 0); toggleStorageBtn.Position = UDim2.new(1, 0, 0, 0)
-	toggleStorageBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); toggleStorageBtn.Text = "Styles"; toggleStorageBtn.Font = Enum.Font.GothamBold; toggleStorageBtn.TextColor3 = Color3.new(1,1,1); toggleStorageBtn.TextScaled = false; toggleStorageBtn.TextSize = 12; toggleStorageBtn.ZIndex = 23
+	toggleStorageBtn.Size = UDim2.new(0.40, 0, 1, 0); toggleStorageBtn.AnchorPoint = Vector2.new(1, 0); toggleStorageBtn.Position = UDim2.new(1, 0, 0, 0)
+	toggleStorageBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); toggleStorageBtn.Text = "Styles"; toggleStorageBtn.Font = Enum.Font.GothamBold; toggleStorageBtn.TextColor3 = Color3.new(1,1,1); toggleStorageBtn.TextScaled = true; toggleStorageBtn.ZIndex = 23
 	Instance.new("UICorner", toggleStorageBtn).CornerRadius = UDim.new(0, 4)
+	Instance.new("UITextSizeConstraint", toggleStorageBtn).MaxTextSize = 12
 
-	storageContainer = Instance.new("Frame", storageCard); storageContainer.Size = UDim2.new(1, 0, 1, -24); storageContainer.Position = UDim2.new(0,0,0,24); storageContainer.BackgroundTransparency = 1; storageContainer.LayoutOrder = 2
-	Instance.new("UIListLayout", storageContainer).Padding = UDim.new(0, 4)
+	storageContainer = Instance.new("Frame", storageCard)
+	storageContainer.Size = UDim2.new(1, 0, 1, -24); storageContainer.Position = UDim2.new(0,0,0,24); storageContainer.BackgroundTransparency = 1; storageContainer.LayoutOrder = 2
+	Instance.new("UIListLayout", storageContainer).Padding = UDim.new(0, 0)
 
 	-- Auto Sell
 	CreateTitle(autoSellCard, "AUTO SELL")
@@ -653,9 +667,10 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local raritiesToSell = {"Common", "Uncommon", "Rare", "Legendary", "Mythical", "Unique"}
 	for _, r in ipairs(raritiesToSell) do
 		local b = Instance.new("TextButton", autoSellContainer)
-		b.Name = "AutoSell_" .. r; b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = false; b.TextSize = 11; b.ZIndex = 22
+		b.Name = "AutoSell_" .. r; b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.ZIndex = 22
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
 		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(100, 100, 100)
+		Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
 	end
 
 
@@ -667,9 +682,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	rLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	rLayout.Padding = UDim.new(0.02, 0)
 
-	local statsAreaCard = CreateCard("StatsAreaCard", rightContainer, UDim2.new(1, 0, 0.34, 0), 1)
-	local itemsAreaCard = CreateCard("ItemsAreaCard", rightContainer, UDim2.new(1, 0, 0.47, 0), 2)
-	autoRollCard = CreateCard("AutoRollCard", rightContainer, UDim2.new(1, 0, 0.15, 0), 3)
+	local statsAreaCard = CreateCard("StatsAreaCard", rightContainer, UDim2.new(1, 0, 0.35, 0), 1)
+	local itemsAreaCard = CreateCard("ItemsAreaCard", rightContainer, UDim2.new(1, 0, 0.45, 0), 2)
+	autoRollCard = CreateCard("AutoRollCard", rightContainer, UDim2.new(1, 0, 0.16, 0), 3)
 
 	-- Stats
 	local sacL = Instance.new("UIListLayout", statsAreaCard)
@@ -680,7 +695,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	CreateTitle(pStats, "PLAYER STATS")
 	pStatsContainer = Instance.new("Frame", pStats)
 	pStatsContainer.Size = UDim2.new(1, 0, 1, -24); pStatsContainer.Position = UDim2.new(0,0,0,24); pStatsContainer.BackgroundTransparency = 1; pStatsContainer.ZIndex = 21; pStatsContainer.LayoutOrder = 2
-	Instance.new("UIListLayout", pStatsContainer).Padding = UDim.new(0, 4)
+	Instance.new("UIListLayout", pStatsContainer).Padding = UDim.new(0, 0)
 
 	local sSep1 = Instance.new("Frame", statsAreaCard)
 	sSep1.Size = UDim2.new(0, 2, 1, 0); sSep1.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep1.BorderSizePixel = 0; sSep1.LayoutOrder = 2; sSep1.ZIndex = 22
@@ -690,7 +705,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	CreateTitle(sStats, "STAND STATS")
 	sStatsContainer = Instance.new("Frame", sStats)
 	sStatsContainer.Size = UDim2.new(1, 0, 1, -24); sStatsContainer.Position = UDim2.new(0,0,0,24); sStatsContainer.BackgroundTransparency = 1; sStatsContainer.ZIndex = 21; sStatsContainer.LayoutOrder = 2
-	Instance.new("UIListLayout", sStatsContainer).Padding = UDim.new(0, 4)
+	Instance.new("UIListLayout", sStatsContainer).Padding = UDim.new(0, 0)
 
 	for _, stat in ipairs(playerStatsList) do statLabels[stat] = CreateStatRow(stat, pStatsContainer, false) end
 	for _, stat in ipairs(standStatsList) do statLabels[stat] = CreateStatRow(stat, sStatsContainer, true) end
@@ -718,7 +733,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local riTitle = CreateTitle(riTop, "INVENTORY"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
 	capacityLabel = Instance.new("TextLabel", riTop)
 	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -5, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
-	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = false; capacityLabel.TextSize = 12; capacityLabel.ZIndex = 22
+	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
+	Instance.new("UITextSizeConstraint", capacityLabel).MaxTextSize = 12
 
 	regItemsContainer = Instance.new("ScrollingFrame", regItems)
 	regItemsContainer.Size = UDim2.new(1, 0, 1, -24); regItemsContainer.Position = UDim2.new(0,0,0,24); regItemsContainer.BackgroundTransparency = 1; regItemsContainer.ScrollBarThickness = 4; regItemsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); regItemsContainer.LayoutOrder = 2; regItemsContainer.ZIndex = 21
@@ -730,18 +746,19 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local rollSplit = Instance.new("Frame", autoRollCard)
 	rollSplit.Size = UDim2.new(1, 0, 1, -24); rollSplit.Position = UDim2.new(0,0,0,24); rollSplit.BackgroundTransparency = 1; rollSplit.LayoutOrder = 2
 	local rsL = Instance.new("UIListLayout", rollSplit)
-	rsL.FillDirection = Enum.FillDirection.Horizontal; rsL.Padding = UDim.new(0.02, 0)
+	rsL.FillDirection = Enum.FillDirection.Vertical; rsL.Padding = UDim.new(0, 0)
 
-	local arLeft = Instance.new("Frame", rollSplit)
-	arLeft.Size = UDim2.new(0.49, 0, 1, 0); arLeft.BackgroundTransparency = 1
-	local arLeftL = Instance.new("UIListLayout", arLeft)
-	arLeftL.FillDirection = Enum.FillDirection.Vertical; arLeftL.Padding = UDim.new(0, 4); arLeftL.VerticalAlignment = Enum.VerticalAlignment.Center
+	local arRow1 = Instance.new("Frame", rollSplit)
+	arRow1.Size = UDim2.new(1, 0, 0.5, 0); arRow1.BackgroundTransparency = 1
+	local arL1 = Instance.new("UIListLayout", arRow1)
+	arL1.FillDirection = Enum.FillDirection.Horizontal; arL1.Padding = UDim.new(0.02, 0); arL1.VerticalAlignment = Enum.VerticalAlignment.Center
 
 	local function createDrop(name, text, color)
-		local btn = Instance.new("TextButton", arLeft)
-		btn.Name = name; btn.Size = UDim2.new(1, 0, 0, 22); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = false; btn.TextSize = 12; btn.Text = text; btn.ZIndex = 25
+		local btn = Instance.new("TextButton", arRow1)
+		btn.Name = name; btn.Size = UDim2.new(0.49, 0, 0.8, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		local s = Instance.new("UIStroke", btn); s.Color = color; s.Thickness = 1
+		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
 		local list = Instance.new("ScrollingFrame", btn)
 		list.Name = "List"; list.Size = UDim2.new(1, 0, 0, 120); list.AnchorPoint = Vector2.new(0, 1); list.Position = UDim2.new(0, 0, 0, -2); list.BackgroundColor3 = Color3.fromRGB(30, 15, 50); list.ZIndex = 50; list.Visible = false; list.ScrollBarThickness = 4
@@ -753,25 +770,23 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local sDrop = createDrop("StandDropdown", "Target Stand: Any", Color3.fromRGB(120, 60, 180))
 	local tDrop = createDrop("TraitDropdown", "Target Trait: Any", Color3.fromRGB(120, 60, 180))
 
-	local sSep3 = Instance.new("Frame", rollSplit)
-	sSep3.Size = UDim2.new(0, 2, 1, 0); sSep3.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep3.BorderSizePixel = 0; sSep3.ZIndex = 22
-
-	local arRight = Instance.new("Frame", rollSplit)
-	arRight.Size = UDim2.new(0.49, 0, 1, 0); arRight.BackgroundTransparency = 1
-	local arRL = Instance.new("UIListLayout", arRight)
-	arRL.FillDirection = Enum.FillDirection.Vertical; arRL.Padding = UDim.new(0, 4); arRL.VerticalAlignment = Enum.VerticalAlignment.Center
+	local arRow2 = Instance.new("Frame", rollSplit)
+	arRow2.Size = UDim2.new(1, 0, 0.5, 0); arRow2.BackgroundTransparency = 1
+	local arL2 = Instance.new("UIListLayout", arRow2)
+	arL2.FillDirection = Enum.FillDirection.Horizontal; arL2.Padding = UDim.new(0.02, 0); arL2.VerticalAlignment = Enum.VerticalAlignment.Center
 
 	local function createRollBtn(name, text, color)
-		local btn = Instance.new("TextButton", arRight)
-		btn.Name = name; btn.Size = UDim2.new(1, 0, 0, 24); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = false; btn.TextSize = 12; btn.Text = text; btn.ZIndex = 25
+		local btn = Instance.new("TextButton", arRow2)
+		btn.Name = name; btn.Size = UDim2.new(0.32, 0, 0.8, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		local s = Instance.new("UIStroke", btn); s.Color = Color3.new(1,1,1); s.Thickness = 1
+		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 		return btn
 	end
 
-	local btnRArrow = createRollBtn("RollArrowBtn", "Arrow", Color3.fromRGB(200, 150, 0))
-	local btnRCorpse = createRollBtn("RollCorpseBtn", "Corpse", Color3.fromRGB(200, 50, 150))
-	local btnRRoka = createRollBtn("RollRokaBtn", "Roka", Color3.fromRGB(200, 50, 50))
+	local btnRArrow = createRollBtn("RollArrowBtn", "Auto Arrow", Color3.fromRGB(200, 150, 0))
+	local btnRCorpse = createRollBtn("RollCorpseBtn", "Auto Corpse", Color3.fromRGB(200, 50, 150))
+	local btnRRoka = createRollBtn("RollRokaBtn", "Auto Roka", Color3.fromRGB(200, 50, 50))
 
 
 	-- ==========================================
