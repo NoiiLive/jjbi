@@ -70,7 +70,7 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 		for eff, duration in pairs(statuses) do
 			if duration and duration > 0 then
 				currentStatuses[eff] = true
-				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.", false)
+				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.")
 			end
 		end
 	end
@@ -99,24 +99,26 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	rootFrame = parentFrame; cachedTooltipMgr = tooltipMgr; forceTabFocus = focusFunc
 	modifierBubble = passedModifierBubble
 
-	modifierBubble.MouseEnter:Connect(function()
-		local modStr = player:GetAttribute("UniverseModifier") or "None"
-		local tooltipStr = "<b><font color='#FFFFFF'>Active Modifiers</font></b>\n____________________\n\n"
+	if modifierBubble then
+		modifierBubble.MouseEnter:Connect(function()
+			local modStr = player:GetAttribute("UniverseModifier") or "None"
+			local tooltipStr = "<b><font color='#FFFFFF'>Active Modifiers</font></b>\n____________________\n\n"
 
-		if modStr == "None" or modStr == "" then
-			tooltipStr = tooltipStr .. "<b><font color='#FFFFFF'>None</font></b>\nThe universe is normal.\n"
-		else
-			local mods = string.split(modStr, ",")
-			for _, m in ipairs(mods) do
-				local mData = GameData.UniverseModifiers[m]
-				if mData then
-					tooltipStr = tooltipStr .. "<b><font color='"..(mData.Color or "#FFFFFF").."'>"..m.."</font></b>\n" .. mData.Description .. "\n\n"
+			if modStr == "None" or modStr == "" then
+				tooltipStr = tooltipStr .. "<b><font color='#FFFFFF'>None</font></b>\nThe universe is normal.\n"
+			else
+				local mods = string.split(modStr, ",")
+				for _, m in ipairs(mods) do
+					local mData = GameData.UniverseModifiers[m]
+					if mData then
+						tooltipStr = tooltipStr .. "<b><font color='"..(mData.Color or "#FFFFFF").."'>"..m.."</font></b>\n" .. mData.Description .. "\n\n"
+					end
 				end
 			end
-		end
-		cachedTooltipMgr.Show(tooltipStr)
-	end)
-	modifierBubble.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+			cachedTooltipMgr.Show(tooltipStr)
+		end)
+		modifierBubble.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+	end
 
 	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
 	combatUI.MainFrame.LayoutOrder = 1
@@ -141,7 +143,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	buttonContainer = Instance.new("Frame")
 	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.35, 0)
+	buttonContainer.Size = UDim2.new(1, 0, 0.32, 0)
 	buttonContainer.BackgroundTransparency = 1
 	buttonContainer.LayoutOrder = 4 
 	buttonContainer.ZIndex = 22
@@ -209,7 +211,9 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 		local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
 		local prestige = prestigeObj and prestigeObj.Value or 0
 
-		if prestige > 0 and parentFrame.Visible then modifierBubble.Visible = true else modifierBubble.Visible = false end
+		if modifierBubble then
+			if prestige > 0 and parentFrame.Visible then modifierBubble.Visible = true else modifierBubble.Visible = false end
+		end
 
 		if currentPart >= 8 then
 			randomEncounterBtn.Visible = false
@@ -349,9 +353,13 @@ function StoryTab.UpdateCombat(status, data)
 		if data.DidHit then
 			task.spawn(function()
 				local p = data.ShakeType == "Heavy" and 18 or (data.ShakeType == "Light" and 3 or 8)
-				local orig = UDim2.new(0.5, 0, 0.5, 0)
-				for i = 1, 6 do combatUI.MainFrame.Position = orig + UDim2.new(0, math.random(-p, p), 0, math.random(-p, p)); task.wait(0.04) end
-				combatUI.MainFrame.Position = orig
+				for i = 1, 6 do 
+					local offsetX = math.random(-p, p)
+					local offsetY = math.random(-p, p)
+					combatUI.MainFrame.Position = UDim2.new(0.5, offsetX, 0.5, offsetY)
+					task.wait(0.04) 
+				end
+				combatUI.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 			end)
 		end
 
