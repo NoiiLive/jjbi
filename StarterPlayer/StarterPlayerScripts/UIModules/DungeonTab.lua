@@ -110,7 +110,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	menuContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
 	menuContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	menuContainer.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	menuContainer.ZIndex = 16
+	menuContainer.ZIndex = 30
 	menuContainer.Parent = parentFrame
 
 	local mcCorner = Instance.new("UICorner")
@@ -131,7 +131,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	menuFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
 	menuFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	menuFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-	menuFrame.ZIndex = 17
+	menuFrame.ZIndex = 31
 	menuFrame.Parent = menuContainer
 
 	local listLayout = Instance.new("UIListLayout")
@@ -153,7 +153,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		row.Name = dInfo.Name
 		row.Size = UDim2.new(0.95, 0, 0, 100)
 		row.BackgroundColor3 = Color3.fromRGB(45, 25, 65)
-		row.ZIndex = 21
+		row.ZIndex = 32
 		row.Parent = menuFrame
 
 		local rowGrad = Instance.new("UIGradient")
@@ -184,7 +184,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		local infoContainer = Instance.new("Frame")
 		infoContainer.Size = UDim2.new(0.7, 0, 1, 0)
 		infoContainer.BackgroundTransparency = 1
-		infoContainer.ZIndex = 22
+		infoContainer.ZIndex = 33
 		infoContainer.Parent = row
 
 		local infoLayout = Instance.new("UIListLayout")
@@ -207,7 +207,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		title.TextScaled = true
 		title.TextXAlignment = Enum.TextXAlignment.Left
 		title.Text = dInfo.Name
-		title.ZIndex = 23
+		title.ZIndex = 34
 		title.Parent = infoContainer
 
 		local titleUic = Instance.new("UITextSizeConstraint")
@@ -225,7 +225,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		status.TextScaled = true
 		status.TextXAlignment = Enum.TextXAlignment.Left
 		status.Text = "<font color='#AAAAAA'>Status:</font> Checking Requirements..."
-		status.ZIndex = 23
+		status.ZIndex = 34
 		status.Parent = infoContainer
 
 		local statusUic = Instance.new("UITextSizeConstraint")
@@ -243,7 +243,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		reward.TextScaled = true
 		reward.TextXAlignment = Enum.TextXAlignment.Left
 		reward.Text = "<font color='#AAAAAA'>Rewards:</font> Loading..."
-		reward.ZIndex = 23
+		reward.ZIndex = 34
 		reward.Parent = infoContainer
 
 		local rewardUic = Instance.new("UITextSizeConstraint")
@@ -261,7 +261,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		playBtn.TextColor3 = Color3.new(1, 1, 1)
 		playBtn.TextScaled = true
 		playBtn.Text = "PLAY"
-		playBtn.ZIndex = 23
+		playBtn.ZIndex = 34
 		playBtn.Parent = row
 
 		local btnCorner = Instance.new("UICorner")
@@ -342,9 +342,27 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
 	combatUI.MainFrame.Visible = false
-	combatUI.MainFrame.ZIndex = 30
+	combatUI.MainFrame.ZIndex = 40
 
-	-- Restored exactly to StoryTab layout order for perfect scaling
+	waveLabel = Instance.new("TextLabel")
+	waveLabel.Name = "WaveLabel"
+	waveLabel.Size = UDim2.new(0.3, 0, 0, 20)
+	waveLabel.Position = UDim2.new(0.5, 0, 0, -22)
+	waveLabel.AnchorPoint = Vector2.new(0.5, 0)
+	waveLabel.BackgroundTransparency = 1
+	waveLabel.Font = Enum.Font.GothamBlack
+	waveLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
+	waveLabel.TextScaled = true
+	waveLabel.TextXAlignment = Enum.TextXAlignment.Center
+	waveLabel.Text = "Floor 1"
+	waveLabel.ZIndex = 42
+	waveLabel.Parent = combatUI.MainFrame
+
+	local wUic = Instance.new("UITextSizeConstraint")
+	wUic.MaxTextSize = 18
+	wUic.MinTextSize = 10
+	wUic.Parent = waveLabel
+
 	resourceLabel = Instance.new("TextLabel")
 	resourceLabel.Name = "ResourceLabel"
 	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
@@ -353,33 +371,14 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
 	resourceLabel.TextScaled = true
 	resourceLabel.Text = ""
-	resourceLabel.LayoutOrder = 2 
-	resourceLabel.ZIndex = 32
+	resourceLabel.LayoutOrder = 2
+	resourceLabel.ZIndex = 42
 	resourceLabel.Parent = combatUI.ContentContainer
 
 	local resUic = Instance.new("UITextSizeConstraint")
 	resUic.MaxTextSize = 18
 	resUic.MinTextSize = 10
 	resUic.Parent = resourceLabel
-
-	-- Independent floating label so it does not affect layout scaling
-	waveLabel = Instance.new("TextLabel")
-	waveLabel.Name = "WaveLabel"
-	waveLabel.Size = UDim2.new(0.3, 0, 0, 20)
-	waveLabel.Position = UDim2.new(0.5, 0, 0, 6)
-	waveLabel.AnchorPoint = Vector2.new(0.5, 0)
-	waveLabel.BackgroundTransparency = 1
-	waveLabel.Font = Enum.Font.GothamBlack
-	waveLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
-	waveLabel.TextScaled = true
-	waveLabel.Text = "Floor 1"
-	waveLabel.ZIndex = 32
-	waveLabel.Parent = combatUI.MainFrame
-
-	local wUic = Instance.new("UITextSizeConstraint")
-	wUic.MaxTextSize = 18
-	wUic.MinTextSize = 10
-	wUic.Parent = waveLabel
 end
 
 function DungeonTab.RenderSkills(battleData)
@@ -455,8 +454,6 @@ function DungeonTab.UpdateDungeon(status, data)
 		menuContainer.Visible = false
 		combatUI.MainFrame.Visible = true
 		combatUI.AbilitiesArea.Visible = true
-		resourceLabel.Visible = true
-		waveLabel.Visible = true
 
 		AddLog(data.LogMsg or "", false)
 		waveLabel.Text = data.WaveStr or "Floor 1"
@@ -503,8 +500,6 @@ function DungeonTab.UpdateDungeon(status, data)
 
 	elseif status == "Victory" or status == "Defeat" or status == "Fled" then
 		combatUI.AbilitiesArea.Visible = false
-		resourceLabel.Visible = false
-		waveLabel.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
 			f.Frame:Destroy()
