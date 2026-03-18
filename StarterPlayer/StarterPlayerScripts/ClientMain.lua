@@ -574,8 +574,16 @@ local function ToggleNav()
 		Position = targetY
 	}):Play()
 
-	local targetSize = isNavOpen and UDim2.new(0.8, 0, 0.75, 0) or UDim2.new(0.8, 0, 0.9, 0)
+	local currentWidth = 0.8
+	if currentLayoutState == "Medium" then
+		currentWidth = 0.85
+	elseif currentLayoutState == "Small" then
+		currentWidth = 0.95
+	end
+
+	local targetSize = isNavOpen and UDim2.new(currentWidth, 0, 0.75, 0) or UDim2.new(currentWidth, 0, 0.9, 0)
 	local targetPos = isNavOpen and UDim2.new(0.5, 0, 0.45, 0) or UDim2.new(0.5, 0, 0.5, 0)
+
 	TweenService:Create(contentContainer, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		Size = targetSize,
 		Position = targetPos
