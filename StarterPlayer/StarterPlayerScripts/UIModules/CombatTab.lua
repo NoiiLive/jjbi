@@ -106,14 +106,16 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(1, 0, 0, 50)
+	subNav.Size = UDim2.new(0.35, 0, 0, 55)
+	subNav.Position = UDim2.new(0.5, 0, 0.02, 0)
+	subNav.AnchorPoint = Vector2.new(0.5, 0)
 	subNav.BackgroundTransparency = 1
 	subNav.ZIndex = 20
 	subNav.Parent = mainPanel
 
 	local subNavContainer = Instance.new("Frame")
 	subNavContainer.Name = "SubNavContainer"
-	subNavContainer.Size = UDim2.new(1, -20, 1, -10)
+	subNavContainer.Size = UDim2.new(1, 0, 1, 0)
 	subNavContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
 	subNavContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	subNavContainer.BackgroundTransparency = 1
@@ -131,7 +133,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local function makeNavBtn(name, text, order)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.20, 0, 0.85, 0)
+		btn.Size = UDim2.new(0.30, 0, 0.85, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -168,16 +170,40 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local dungeonBtn = makeNavBtn("DungeonBtn", "Dungeons", 2)
 	local worldBossBtn = makeNavBtn("WorldBossBtn", "World Boss", 3)
 
-	local modifierBubble = makeNavBtn("ModifierBubble", "MODS", 4)
-	modifierBubble.Size = UDim2.new(0.15, 0, 0.85, 0)
+	local modifierBubble = Instance.new("TextButton")
+	modifierBubble.Name = "ModifierBubble"
+	modifierBubble.Size = UDim2.new(0, 40, 0, 40)
+	modifierBubble.Position = UDim2.new(1, -12, 0, 12)
+	modifierBubble.AnchorPoint = Vector2.new(1, 0)
 	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+	modifierBubble.Text = "MODS"
+	modifierBubble.Font = Enum.Font.GothamBold
 	modifierBubble.TextColor3 = Color3.fromRGB(255, 215, 50)
-	modifierBubble:FindFirstChild("UIStroke").Color = Color3.fromRGB(255, 215, 50)
+	modifierBubble.TextScaled = true
+	modifierBubble.ZIndex = 30
+	modifierBubble.Parent = mainPanel
+
+	local modCorner = Instance.new("UICorner")
+	modCorner.CornerRadius = UDim.new(0, 6)
+	modCorner.Parent = modifierBubble
+
+	local modStroke = Instance.new("UIStroke")
+	modStroke.Color = Color3.fromRGB(255, 215, 50)
+	modStroke.Thickness = 2
+	modStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	modStroke.Parent = modifierBubble
+
+	local modPad = Instance.new("UIPadding")
+	modPad.PaddingTop = UDim.new(0, 5)
+	modPad.PaddingBottom = UDim.new(0, 5)
+	modPad.PaddingLeft = UDim.new(0, 2)
+	modPad.PaddingRight = UDim.new(0, 2)
+	modPad.Parent = modifierBubble
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Size = UDim2.new(1, 0, 1, -50)
-	contentArea.Position = UDim2.new(0, 0, 0, 50)
+	contentArea.Size = UDim2.new(1, 0, 1, -55)
+	contentArea.Position = UDim2.new(0, 0, 0, 55)
 	contentArea.BackgroundTransparency = 1
 	contentArea.ZIndex = 17
 	contentArea.Parent = mainPanel
@@ -262,12 +288,15 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		if vp.X >= 1050 then
 			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+			subNav.Size = UDim2.new(0.35, 0, 0, 55)
 		elseif vp.X >= 600 and vp.X < 1050 then
 			mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+			subNav.Size = UDim2.new(0.45, 0, 0, 50)
 		else
 			mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+			subNav.Size = UDim2.new(0.70, 0, 0, 50)
 		end
 	end)
 
@@ -275,12 +304,15 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	if vpInit.X >= 1050 then
 		mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		subNav.Size = UDim2.new(0.35, 0, 0, 55)
 	elseif vpInit.X >= 600 and vpInit.X < 1050 then
 		mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		subNav.Size = UDim2.new(0.45, 0, 0, 50)
 	else
 		mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		subNav.Size = UDim2.new(0.70, 0, 0, 50)
 	end
 end
 
