@@ -79,6 +79,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	mainPanel.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
 	mainPanel.BorderSizePixel = 0
 	mainPanel.ZIndex = 15
+	mainPanel.ClipsDescendants = true
 	mainPanel.Parent = parentFrame
 
 	local mainCorner = Instance.new("UICorner")
@@ -94,19 +95,14 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
 	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 150, 0, 150) 
+	bgPattern.TileSize = UDim2.new(0, 220, 0, 180) 
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 16
-	bgPattern.ClipsDescendants = true
 	bgPattern.Parent = mainPanel
-
-	local contentCorner = Instance.new("UICorner")
-	contentCorner.CornerRadius = UDim.new(0, 12)
-	contentCorner.Parent = bgPattern
 
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(0.35, 0, 0, 55)
+	subNav.Size = UDim2.new(0.40, 0, 0, 55)
 	subNav.Position = UDim2.new(0.5, 0, 0.02, 0)
 	subNav.AnchorPoint = Vector2.new(0.5, 0)
 	subNav.BackgroundTransparency = 1
@@ -133,7 +129,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local function makeNavBtn(name, text, order)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.30, 0, 0.85, 0)
+		btn.Size = UDim2.new(0.28, 0, 0.85, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -202,8 +198,8 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Size = UDim2.new(1, 0, 1, -55)
-	contentArea.Position = UDim2.new(0, 0, 0, 55)
+	contentArea.Size = UDim2.new(1, 0, 1, -50)
+	contentArea.Position = UDim2.new(0, 0, 0, 50)
 	contentArea.BackgroundTransparency = 1
 	contentArea.ZIndex = 17
 	contentArea.Parent = mainPanel
@@ -288,15 +284,15 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		if vp.X >= 1050 then
 			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-			subNav.Size = UDim2.new(0.35, 0, 0, 55)
+			subNav.Size = UDim2.new(0.40, 0, 0, 55)
 		elseif vp.X >= 600 and vp.X < 1050 then
 			mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-			subNav.Size = UDim2.new(0.45, 0, 0, 50)
+			subNav.Size = UDim2.new(0.55, 0, 0, 50)
 		else
 			mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-			subNav.Size = UDim2.new(0.70, 0, 0, 50)
+			subNav.Size = UDim2.new(0.75, 0, 0, 50)
 		end
 	end)
 
@@ -304,15 +300,15 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	if vpInit.X >= 1050 then
 		mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		subNav.Size = UDim2.new(0.35, 0, 0, 55)
+		subNav.Size = UDim2.new(0.40, 0, 0, 55)
 	elseif vpInit.X >= 600 and vpInit.X < 1050 then
 		mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		subNav.Size = UDim2.new(0.45, 0, 0, 50)
+		subNav.Size = UDim2.new(0.55, 0, 0, 50)
 	else
 		mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		subNav.Size = UDim2.new(0.70, 0, 0, 50)
+		subNav.Size = UDim2.new(0.75, 0, 0, 50)
 	end
 end
 
