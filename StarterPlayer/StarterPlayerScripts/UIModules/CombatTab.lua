@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatTab = {}
 
 local UIModules = script.Parent
@@ -284,12 +283,12 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 			subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
 		elseif vp.X >= 600 and vp.X < 1050 then
-			mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 			subNavCenter.Size = UDim2.new(0.65, 0, 1, -10)
 		else
-			mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 			subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
 		end
 	end)
@@ -300,12 +299,12 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 		subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
 	elseif vpInit.X >= 600 and vpInit.X < 1050 then
-		mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 		subNavCenter.Size = UDim2.new(0.65, 0, 1, -10)
 	else
-		mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 		subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
 	end
 end
