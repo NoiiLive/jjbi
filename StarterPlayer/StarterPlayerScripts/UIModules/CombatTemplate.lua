@@ -218,10 +218,11 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local totalPaddingX = 6 * (columns - 1)
 		local totalPaddingY = 6 * (rows - 1)
 
-		local cellW = math.floor((abilitiesArea.AbsoluteSize.X - totalPaddingX) / columns)
-		local cellH = math.floor((abilitiesArea.AbsoluteSize.Y - totalPaddingY) / rows) - 2
+		local cellW = math.floor((abilitiesArea.AbsoluteSize.X - totalPaddingX - 12) / columns)
+		local maxCellH = math.floor((abilitiesArea.AbsoluteSize.Y - totalPaddingY - 16) / rows)
 
-		cellW = math.min(cellW, 180)
+		cellW = math.max(10, math.min(cellW, 180))
+		local cellH = math.max(10, math.min(maxCellH, 50))
 
 		abLayout.CellSize = UDim2.new(0, cellW, 0, cellH)
 	end
@@ -229,7 +230,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	local function formatGrid(layout, container, count)
 		if count <= 0 then count = 1 end
 
-		-- Force a clean 2x2 grid when more than 2 fighters are present
+		-- Forces 2 columns if there are 2 or more fighters, scales down gracefully
 		local cols = math.min(count, 2)
 		local rows = math.ceil(count / cols)
 
@@ -242,10 +243,18 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		layout.CellSize = UDim2.new(0, w, 0, h)
 
 		for _, f in pairs(container:GetChildren()) do
-			if f:IsA("Frame") and f:FindFirstChild("IconBox") and f:FindFirstChild("InfoArea") then
-				local desiredIconSize = math.min(h - 4, w * 0.3)
-				f.IconBox.Size = UDim2.new(0, desiredIconSize, 0, desiredIconSize)
-				f.InfoArea.Size = UDim2.new(1, -(desiredIconSize + 6), 1, 0)
+			if f:IsA("Frame") and f:FindFirstChild("IconBox") then
+				local availableH = h - 12 
+
+				local iconSize = math.clamp(availableH * 0.45, 30, 80)
+				local nameH = math.clamp(availableH * 0.15, 12, 20)
+				local hpH = math.clamp(availableH * 0.12, 10, 16)
+				local statH = availableH - iconSize - nameH - hpH
+
+				f.IconBox.Size = UDim2.new(0, iconSize, 0, iconSize)
+				if f:FindFirstChild("NameLabel") then f.NameLabel.Size = UDim2.new(0.95, 0, 0, nameH) end
+				if f:FindFirstChild("HpContainer") then f.HpContainer.Size = UDim2.new(0.95, 0, 0, hpH) end
+				if f:FindFirstChild("StatusContainer") then f.StatusContainer.Size = UDim2.new(0.95, 0, 0, statH) end
 			end
 		end
 	end
@@ -273,28 +282,26 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local isPortrait = vp.Y > vp.X
 
 		if isPortrait then
-			healthbarArea.Size = UDim2.new(1, 0, 0.55, 0)
+			healthbarArea.Size = UDim2.new(1, 0, 0.48, 0)
 			chatboxArea.Size = UDim2.new(1, 0, 0.15, 0)
 			abilitiesArea.Size = UDim2.new(1, 0, 0.28, 0)
 
 			hbLayout.FillDirection = Enum.FillDirection.Vertical
-			hbLayout.Padding = UDim.new(0, 10) 
+			hbLayout.Padding = UDim.new(0, 8) 
 
-			-- Ensure Player/Ally is completely on top in vertical
-			alliesContainer.LayoutOrder = 1
-			enemiesContainer.LayoutOrder = 2
+			enemiesContainer.LayoutOrder = 1
+			alliesContainer.LayoutOrder = 2
 
-			alliesContainer.Size = UDim2.new(1, 0, 0.48, 0)
-			enemiesContainer.Size = UDim2.new(1, 0, 0.48, 0)
+			alliesContainer.Size = UDim2.new(1, 0, 0.45, 0)
+			enemiesContainer.Size = UDim2.new(1, 0, 0.45, 0)
 		else
-			healthbarArea.Size = UDim2.new(1, 0, 0.45, 0)
+			healthbarArea.Size = UDim2.new(1, 0, 0.42, 0)
 			chatboxArea.Size = UDim2.new(1, 0, 0.18, 0)
-			abilitiesArea.Size = UDim2.new(1, 0, 0.35, 0)
+			abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
 
 			hbLayout.FillDirection = Enum.FillDirection.Horizontal
-			hbLayout.Padding = UDim.new(0, 15)
+			hbLayout.Padding = UDim.new(0, 10)
 
-			-- Keep Player on left, Enemy on right
 			alliesContainer.LayoutOrder = 1
 			enemiesContainer.LayoutOrder = 2
 
@@ -394,10 +401,10 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		fFrame.Parent = container
 
 		local fLayout = Instance.new("UIListLayout")
-		fLayout.FillDirection = Enum.FillDirection.Horizontal
+		fLayout.FillDirection = Enum.FillDirection.Vertical
 		fLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		fLayout.Padding = UDim.new(0, 6) 
-		fLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		fLayout.Padding = UDim.new(0, 4) 
+		fLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		fLayout.Parent = fFrame
 
 		local iconBox = Instance.new("Frame")
@@ -446,32 +453,17 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			txt.Parent = iconBox
 		end
 
-		local infoArea = Instance.new("Frame")
-		infoArea.Name = "InfoArea"
-		infoArea.BackgroundTransparency = 1
-		infoArea.LayoutOrder = 2
-		infoArea.ZIndex = 24
-		infoArea.Parent = fFrame
-
-		local infoLayout = Instance.new("UIListLayout")
-		infoLayout.FillDirection = Enum.FillDirection.Vertical
-		infoLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		infoLayout.Padding = UDim.new(0, 2)
-		infoLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-		infoLayout.Parent = infoArea
-
 		local nameLbl = Instance.new("TextLabel")
 		nameLbl.Name = "NameLabel"
-		nameLbl.Size = UDim2.new(1, 0, 0.28, 0)
 		nameLbl.BackgroundTransparency = 1
 		nameLbl.Text = name
 		nameLbl.Font = Enum.Font.GothamBold
 		nameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 		nameLbl.TextScaled = true
-		nameLbl.TextXAlignment = Enum.TextXAlignment.Left
-		nameLbl.LayoutOrder = 1
+		nameLbl.TextXAlignment = Enum.TextXAlignment.Center
+		nameLbl.LayoutOrder = 2
 		nameLbl.ZIndex = 24
-		nameLbl.Parent = infoArea
+		nameLbl.Parent = fFrame
 
 		local nameUic = Instance.new("UITextSizeConstraint")
 		nameUic.MaxTextSize = 16
@@ -480,11 +472,10 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 		local hpContainer = Instance.new("Frame")
 		hpContainer.Name = "HpContainer"
-		hpContainer.Size = UDim2.new(0.95, 0, 0.25, 0)
 		hpContainer.BackgroundColor3 = Color3.fromRGB(40, 10, 10)
-		hpContainer.LayoutOrder = 2
+		hpContainer.LayoutOrder = 3
 		hpContainer.ZIndex = 24
-		hpContainer.Parent = infoArea
+		hpContainer.Parent = fFrame
 
 		local hpCorner = Instance.new("UICorner")
 		hpCorner.CornerRadius = UDim.new(1, 0)
@@ -525,26 +516,31 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 		local statusContainer = Instance.new("ScrollingFrame")
 		statusContainer.Name = "StatusContainer"
-		statusContainer.Size = UDim2.new(1, 0, 0.40, 0)
 		statusContainer.BackgroundTransparency = 1
 		statusContainer.ScrollBarThickness = 0
 		statusContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
 		statusContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		statusContainer.LayoutOrder = 3
+		statusContainer.LayoutOrder = 4
 		statusContainer.ZIndex = 24
-		statusContainer.Parent = infoArea
+		statusContainer.Parent = fFrame
+
+		local statusPadding = Instance.new("UIPadding")
+		statusPadding.PaddingTop = UDim.new(0, 2)
+		statusPadding.PaddingLeft = UDim.new(0, 2)
+		statusPadding.PaddingRight = UDim.new(0, 2)
+		statusPadding.PaddingBottom = UDim.new(0, 2)
+		statusPadding.Parent = statusContainer
 
 		local statusLayout = Instance.new("UIGridLayout")
 		statusLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		statusLayout.CellPadding = UDim2.new(0, 4, 0, 4)
-		statusLayout.CellSize = UDim2.new(0, 16, 0, 16)
-		statusLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+		statusLayout.CellSize = UDim2.new(0, 20, 0, 20)
+		statusLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		statusLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 		statusLayout.Parent = statusContainer
 
 		local fighterObj = {
 			Frame = fFrame,
-			InfoArea = infoArea,
 			HpFill = hpFill,
 			HpText = hpText,
 			StatusContainer = statusContainer,
