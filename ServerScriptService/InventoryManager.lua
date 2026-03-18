@@ -14,6 +14,20 @@ UnequipItemRemote.Name = "UnequipItem"
 local ToggleLockRemote = Network:FindFirstChild("ToggleLock") or Instance.new("RemoteEvent", Network)
 ToggleLockRemote.Name = "ToggleLock"
 
+local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
+NotificationEvent.Name = "NotificationEvent"
+
+UnequipItemRemote.OnServerEvent:Connect(function(player, slot)
+	if slot == "Weapon" or slot == "Accessory" or slot == "Head" or slot == "Torso" or slot == "Legs" then
+		local currentEq = player:GetAttribute("Equipped" .. slot)
+		if currentEq and currentEq ~= "None" then
+			player:SetAttribute("Equipped" .. slot, "None")
+			local notif = Network:FindFirstChild("NotificationEvent")
+			if notif then notif:FireClient(player, "<font color='#FF5555'>Unequipped " .. currentEq .. "!</font>") end
+		end
+	end
+end)
+
 ToggleLockRemote.OnServerEvent:Connect(function(player, lockType, extraData)
 	if lockType == "Stand" then
 		player:SetAttribute("StandLocked", not player:GetAttribute("StandLocked"))
@@ -69,7 +83,7 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 	local count = player:GetAttribute(attr) or 0
 
 	if count <= 0 then 
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You do not have any " .. itemReq .. "s!</font>")
+		NotificationEvent:FireClient(player, "<font color='#FF5555'>You do not have any " .. itemReq .. "s!</font>")
 		player:SetAttribute("IsAutoRolling", false)
 		return 
 	end
@@ -78,13 +92,13 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		local sData = StandData.Stands[targetStand]
 		if sData then
 			if sData.Rarity == "Evolution" or sData.Rarity == "Unique" or sData.Rarity == "Mythical" then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>" .. targetStand .. " cannot be rolled from items!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. targetStand .. " cannot be rolled from items!</font>")
 				player:SetAttribute("IsAutoRolling", false)
 				return
 			end
 			local reqPool = sData.Pool or "Arrow"
 			if reqPool ~= expectedPool then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You cannot get " .. targetStand .. " from a " .. itemReq .. "!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot get " .. targetStand .. " from a " .. itemReq .. "!</font>")
 				player:SetAttribute("IsAutoRolling", false)
 				return
 			end
@@ -95,13 +109,13 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 	local newTrait = player:GetAttribute("StandTrait") or "None"
 
 	if player:GetAttribute("StandLocked") then
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Your Stand is locked! Unlock it before Auto-Rolling.</font>")
+		NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Stand is locked! Unlock it before Auto-Rolling.</font>")
 		player:SetAttribute("IsAutoRolling", false)
 		return
 	end
 
 	if rollType == "Roka" and newStand == "None" then
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You don't have a Stand to reroll!</font>")
+		NotificationEvent:FireClient(player, "<font color='#FF5555'>You don't have a Stand to reroll!</font>")
 		player:SetAttribute("IsAutoRolling", false)
 		return
 	end
@@ -157,9 +171,9 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 
 	local traitTag = newTrait ~= "None" and " ("..newTrait..")" or ""
 	if hit then
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>Auto-Roll successful! Used " .. rollsDone .. "x " .. itemReq .. ".\nGot: " .. newStand .. traitTag .. "</font>")
+		NotificationEvent:FireClient(player, "<font color='#55FF55'>Auto-Roll successful! Used " .. rollsDone .. "x " .. itemReq .. ".\nGot: " .. newStand .. traitTag .. "</font>")
 	else
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Ran out of " .. itemReq .. "s! Used " .. rollsDone .. ".\nEnded with: " .. newStand .. traitTag .. "</font>")
+		NotificationEvent:FireClient(player, "<font color='#FF5555'>Ran out of " .. itemReq .. "s! Used " .. rollsDone .. ".\nEnded with: " .. newStand .. traitTag .. "</font>")
 	end
 
 	player:SetAttribute("IsAutoRolling", false)
@@ -235,7 +249,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			local equipSlot = ItemData.Equipment[itemName].Slot
 			player:SetAttribute("Equipped" .. equipSlot, itemName)
 			message = "Equipped " .. itemName .. " as " .. equipSlot .. "!"
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>" .. message .. "</font>")
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>" .. message .. "</font>")
 			return
 		end
 
@@ -243,12 +257,12 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 		local isStyleItem = (itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" or itemName == "Golden Spin Scroll")
 
 		if isStandItem and player:GetAttribute("StandLocked") then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Your Stand is locked! Unlock it to use this item.</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Stand is locked! Unlock it to use this item.</font>")
 			return
 		end
 
 		if isStyleItem and player:GetAttribute("StyleLocked") then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Your Fighting Style is locked! Unlock it to use this item.</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Fighting Style is locked! Unlock it to use this item.</font>")
 			return
 		end
 
@@ -407,60 +421,35 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			end
 
 		elseif itemName == "Weather Report Disc" then
-			player:SetAttribute("Stand", "Weather Report")
-			player:SetAttribute("StandTrait", "None")
-			message = "You insert the disc into your head and awaken Weather Report!"
+			player:SetAttribute("Stand", "Weather Report"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken Weather Report!"
 		elseif itemName == "Heaven's Door Disc" then
-			player:SetAttribute("Stand", "Heaven's Door")
-			player:SetAttribute("StandTrait", "None")
-			message = "You insert the disc into your head and awaken Heaven's Door!"
+			player:SetAttribute("Stand", "Heaven's Door"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken Heaven's Door!"
 		elseif itemName == "The Hand Disc" then
-			player:SetAttribute("Stand", "The Hand")
-			player:SetAttribute("StandTrait", "None")
-			message = "You insert the disc into your head and awaken The Hand!"
+			player:SetAttribute("Stand", "The Hand"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken The Hand!"
 		elseif itemName == "Metallica Disc" then
-			player:SetAttribute("Stand", "Metallica")
-			player:SetAttribute("StandTrait", "None")
-			message = "You insert the disc into your head and awaken Metallica!"
+			player:SetAttribute("Stand", "Metallica"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken Metallica!"
 		elseif itemName == "The World Disc" then
-			player:SetAttribute("Stand", "The World")
-			player:SetAttribute("StandTrait", "None")
-			message = "You insert the disc into your head and awaken The World!"
+			player:SetAttribute("Stand", "The World"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken The World!"
 		elseif itemName == "Star Platinum Disc" then
-			player:SetAttribute("Stand", "Star Platinum")
-			player:SetAttribute("StandTrait", "None")
-			message = "You insert the disc into your head and awaken Star Platinum!"
-
+			player:SetAttribute("Stand", "Star Platinum"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken Star Platinum!"
 
 		elseif itemName == "Requiem Arrow" then
-
 			if prestige >= 5 then
-				if myStand == "Gold Experience" then
-					EvolveStand("Gold Experience Requiem");
-					message = "The arrow accepts you, the world grows silent and Gold Experience begins to crumble! Your stand evolved into Gold Experience Requiem!"
-				elseif myStand == "Silver Chariot" then
-					EvolveStand("Chariot Requiem");
-					message = "The arrow accepts you, the world grows silent and Silver Chariot goes out of control! Your stand evolved into Chariot Requiem!"
-				elseif myStand == "King Crimson" then
-					EvolveStand("King Crimson Requiem");
-					message = "The arrow accepts you, the world grows silent and Silver Chariot goes out of control! Your stand evolved into King Crimson Requiem!"
+				if myStand == "Gold Experience" then EvolveStand("Gold Experience Requiem"); message = "Your stand evolved into Gold Experience Requiem!"
+				elseif myStand == "Silver Chariot" then EvolveStand("Chariot Requiem"); message = "Your stand evolved into Chariot Requiem!"
+				elseif myStand == "King Crimson" then EvolveStand("King Crimson Requiem"); message = "Your stand evolved into King Crimson Requiem!"
 				elseif (myStand ~= "Chariot Requiem" and myStand ~= "Gold Experience Requiem" and myStand ~= "King Crimson Requiem" and myStand ~= "None") then
-					player:SetAttribute("StandTrait", "Requiem")
-					message = "The arrow accepts you, greedily worming it's way into your stand's body..."
+					player:SetAttribute("StandTrait", "Requiem"); message = "The arrow accepts you, greedily worming it's way into your stand's body..."
 				else	
-					message = "The arrow falls through your graps, rejecting you."
-					itemConsumed = false
+					message = "The arrow falls through your graps, rejecting you."; itemConsumed = false
 				end
 			else
-				message = "You must be at least Prestige 5 to use this!"
-				itemConsumed = false
+				message = "You must be at least Prestige 5 to use this!"; itemConsumed = false
 			end
 
 		elseif itemName == "Dio's Diary" then
-			if myStand == "Star Platinum" then
-				EvolveStand("Star Platinum: The World"); message = "Your Stand evolved into Star Platinum: The World!"
-			elseif myStand == "C-Moon" then
-				EvolveStand("Made in Heaven"); message = "Your Stand evolved into Made in Heaven!"
+			if myStand == "Star Platinum" then EvolveStand("Star Platinum: The World"); message = "Your Stand evolved into Star Platinum: The World!"
+			elseif myStand == "C-Moon" then EvolveStand("Made in Heaven"); message = "Your Stand evolved into Made in Heaven!"
 			else
 				local bonusXP = math.floor((3000 * (1 + prestige)))
 				player:SetAttribute("XP", (player:GetAttribute("XP") or 0) + bonusXP)
@@ -474,69 +463,39 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			end
 
 		elseif itemName == "Saint's Left Arm" then
-			if myStand == "Tusk Act 1" then
-				EvolveStand("Tusk Act 2"); message = "You fuse with the Left Arm! Your Stand evolved into Tusk Act 2!"
-			else
-				message = "The Corpse Part has no reaction to this stand."
-				itemConsumed = false
-			end
+			if myStand == "Tusk Act 1" then EvolveStand("Tusk Act 2"); message = "You fuse with the Left Arm! Your Stand evolved into Tusk Act 2!"
+			else message = "The Corpse Part has no reaction to this stand."; itemConsumed = false end
 
 		elseif itemName == "Saint's Right Eye" then
-			if myStand == "Tusk Act 2" then
-				EvolveStand("Tusk Act 3"); message = "You fuse with the Right Eye! Your Stand evolved into Tusk Act 3!"
-			elseif myStand == "The World" then
-				EvolveStand("The World: High Voltage"); message = "You fuse with the Right Eye! Your Stand evolved into The World: High Voltage!"
-			else
-				message = "The Corpse Part has no reaction to this stand."
-				itemConsumed = false
-			end
+			if myStand == "Tusk Act 2" then EvolveStand("Tusk Act 3"); message = "You fuse with the Right Eye! Your Stand evolved into Tusk Act 3!"
+			elseif myStand == "The World" then EvolveStand("The World: High Voltage"); message = "You fuse with the Right Eye! Your Stand evolved into The World: High Voltage!"
+			else message = "The Corpse Part has no reaction to this stand."; itemConsumed = false end
 
 		elseif itemName == "Saint's Pelvis" then
-			if myStand == "Tusk Act 3" then
-				EvolveStand("Tusk Act 4"); message = "You fuse with the Pelvis and master the infinite rotation! Your Stand evolved into Tusk Act 4!"
-			else
-				message = "The Corpse Part has no reaction to this stand."
-				itemConsumed = false
-			end
+			if myStand == "Tusk Act 3" then EvolveStand("Tusk Act 4"); message = "You fuse with the Pelvis and master the infinite rotation! Your Stand evolved into Tusk Act 4!"
+			else message = "The Corpse Part has no reaction to this stand."; itemConsumed = false end
 
 		elseif itemName == "Saint's Heart" then
-			if myStand == "Dirty Deeds Done Dirt Cheap" then
-				EvolveStand("D4C Love Train"); message = "The holy light of the Heart protects you! Your Stand evolved into D4C Love Train!"
-			else
-				message = "The Corpse Part has no reaction to this stand."
-				itemConsumed = false
-			end
+			if myStand == "Dirty Deeds Done Dirt Cheap" then EvolveStand("D4C Love Train"); message = "The holy light of the Heart protects you! Your Stand evolved into D4C Love Train!"
+			else message = "The Corpse Part has no reaction to this stand."; itemConsumed = false end
 
 		elseif itemName == "Saint's Spine" then
-			if myStand == "The World" then
-				EvolveStand("The World: Over Heaven");
-				message = "You feel the heavenly energy warm your insides, and divine knowledge floods your mind... Your stand has evolved into The World: Over Heaven!"
-			elseif myStand == "Star Platinum: The World" then
-				EvolveStand("Star Platinum: Over Heaven");
-				message = "You feel the heavenly energy warm your insides, and divine knowledge floods your mind... Your stand has evolved into Star Platinum: Over Heaven!"
-			else
-				message = "The Corpse Part has no reaction to this stand."
-				itemConsumed = false
-			end
+			if myStand == "The World" then EvolveStand("The World: Over Heaven"); message = "Your stand has evolved into The World: Over Heaven!"
+			elseif myStand == "Star Platinum: The World" then EvolveStand("Star Platinum: Over Heaven"); message = "Your stand has evolved into Star Platinum: Over Heaven!"
+			else message = "The Corpse Part has no reaction to this stand."; itemConsumed = false end
 
 		elseif itemName == "Strange Arrow" then
-			if myStand == "Killer Queen" then
-				EvolveStand("Killer Queen BTD"); message = "Your Stand evolved into Killer Queen BTD!"
-			elseif myStand == "Echoes Act 1" then
-				EvolveStand("Echoes Act 2"); message = "Your Stand evolved into Echoes Act 2!"
-			elseif myStand == "Echoes Act 2" then
-				EvolveStand("Echoes Act 3"); message = "Your Stand evolved into Echoes Act 3!"
+			if myStand == "Killer Queen" then EvolveStand("Killer Queen BTD"); message = "Your Stand evolved into Killer Queen BTD!"
+			elseif myStand == "Echoes Act 1" then EvolveStand("Echoes Act 2"); message = "Your Stand evolved into Echoes Act 2!"
+			elseif myStand == "Echoes Act 2" then EvolveStand("Echoes Act 3"); message = "Your Stand evolved into Echoes Act 3!"
 			else
-				player:SetAttribute("Stand_Power", "S")
-				player:SetAttribute("Stand_Power_Val", math.min(statCap, (player:GetAttribute("Stand_Power_Val") or 0) + 30))
-				player:SetAttribute("Stand_Potential", "S")
-				player:SetAttribute("Stand_Potential_Val", math.min(statCap, (player:GetAttribute("Stand_Potential_Val") or 0) + 30))
+				player:SetAttribute("Stand_Power", "S"); player:SetAttribute("Stand_Power_Val", math.min(statCap, (player:GetAttribute("Stand_Power_Val") or 0) + 30))
+				player:SetAttribute("Stand_Potential", "S"); player:SetAttribute("Stand_Potential_Val", math.min(statCap, (player:GetAttribute("Stand_Potential_Val") or 0) + 30))
 				message = "Your Stand's Power and Potential evolved to Rank S!"
 			end
 
 		elseif itemName == "Green Baby" then
-			if myStand == "Whitesnake" then
-				EvolveStand("C-Moon"); message = "Your Stand evolved into C-Moon!"
+			if myStand == "Whitesnake" then EvolveStand("C-Moon"); message = "Your Stand evolved into C-Moon!"
 			else
 				player:SetAttribute("Speed", math.min(statCap, (player:GetAttribute("Speed") or 5) + 25))
 				player:SetAttribute("Defense", math.min(statCap, (player:GetAttribute("Defense") or 5) + 25))
@@ -545,8 +504,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 
 		elseif itemName == "Rokakaka" then
 			if myStand == "None" then
-				message = "You don't have a Stand to reroll!"
-				itemConsumed = false
+				message = "You don't have a Stand to reroll!"; itemConsumed = false
 			else
 				local pBoosts = GetPlayerBoosts(player)
 				local currentTraitPity = player:GetAttribute("TraitPity") or 0
@@ -555,11 +513,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 				player:SetAttribute("StandTrait", newTrait)
 
 				local traitData = StandData.Traits[newTrait]
-				if traitData and (traitData.Rarity == "Mythical" or traitData.Rarity == "Legendary") then
-					player:SetAttribute("TraitPity", 0)
-				else
-					player:SetAttribute("TraitPity", currentTraitPity + 1)
-				end
+				if traitData and (traitData.Rarity == "Mythical" or traitData.Rarity == "Legendary") then player:SetAttribute("TraitPity", 0) else player:SetAttribute("TraitPity", currentTraitPity + 1) end
 
 				local traitColor = StandData.Traits[newTrait] and StandData.Traits[newTrait].Color or "#FFFFFF"
 				local traitDisplay = newTrait ~= "None" and "<font color='"..traitColor.."'>["..newTrait.."]</font>" or "None"
@@ -571,7 +525,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 
 		if itemConsumed then
 			player:SetAttribute(attrName, itemCount - 1)
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF55FF'>" .. message .. "</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF55FF'>" .. message .. "</font>")
 		end
 	end
 end)
