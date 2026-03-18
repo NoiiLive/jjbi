@@ -56,6 +56,11 @@ end
 local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, immunities)
 	if not activeFighters[fKey] then
 		activeFighters[fKey] = combatUI:AddFighter(isAlly, id, name, iconId, hp, maxHp)
+	else
+		local f = activeFighters[fKey]
+		if f.InfoArea and f.InfoArea:FindFirstChild("NameLabel") then
+			f.InfoArea.NameLabel.Text = name
+		end
 	end
 	local f = activeFighters[fKey]
 	f:UpdateHealth(hp, maxHp)
@@ -65,7 +70,7 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 		for eff, duration in pairs(statuses) do
 			if duration and duration > 0 then
 				currentStatuses[eff] = true
-				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.")
+				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.", false)
 			end
 		end
 	end
@@ -136,7 +141,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	buttonContainer = Instance.new("Frame")
 	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.32, 0)
+	buttonContainer.Size = UDim2.new(1, 0, 0.35, 0)
 	buttonContainer.BackgroundTransparency = 1
 	buttonContainer.LayoutOrder = 4 
 	buttonContainer.ZIndex = 22
