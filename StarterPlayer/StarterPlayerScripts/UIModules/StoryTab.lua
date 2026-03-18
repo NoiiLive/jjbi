@@ -119,7 +119,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	resourceLabel = Instance.new("TextLabel")
 	resourceLabel.Name = "ResourceLabel"
-	resourceLabel.Size = UDim2.new(1, 0, 0.04, 0)
+	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
 	resourceLabel.BackgroundTransparency = 1
 	resourceLabel.Font = Enum.Font.GothamBold
 	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
@@ -136,7 +136,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	buttonContainer = Instance.new("Frame")
 	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.30, 0)
+	buttonContainer.Size = UDim2.new(1, 0, 0.32, 0)
 	buttonContainer.BackgroundTransparency = 1
 	buttonContainer.LayoutOrder = 4 
 	buttonContainer.ZIndex = 22
@@ -181,7 +181,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	end
 
 	prestigeBtn = makeBtn("PrestigeBtn", "Prestige")
-	prestigeBtn.BackgroundColor3 = Color3.fromRGB(120, 30, 30)
+	prestigeBtn.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
 	prestigeBtn.TextColor3 = Color3.fromRGB(255, 200, 200)
 	prestigeBtn:FindFirstChildOfClass("UIStroke").Color = Color3.fromRGB(200, 50, 50)
 	prestigeBtn.LayoutOrder = 0
@@ -392,7 +392,7 @@ function StoryTab.UpdateCombat(status, data)
 
 		SyncFighter("Player", true, "Player", data.Battle.Player.Name, player.UserId, data.Battle.Player.HP, data.Battle.Player.MaxHP, data.Battle.Player.Statuses, {Stun=data.Battle.Player.StunImmunity, Confusion=data.Battle.Player.ConfusionImmunity})
 		if data.Battle.Player.HP <= 0 and activeFighters["Player"] then
-			activeFighters["Player"].Frame:FindFirstChild("NameLabel").Text = data.Battle.Player.Name .. " (KO)"
+			activeFighters["Player"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Player.Name .. " (KO)"
 		end
 
 		SyncFighter("Enemy", false, "Enemy", data.Battle.Enemy.Name, "", data.Battle.Enemy.HP, data.Battle.Enemy.MaxHP, data.Battle.Enemy.Statuses, {Stun=data.Battle.Enemy.StunImmunity, Confusion=data.Battle.Enemy.ConfusionImmunity})
@@ -400,7 +400,7 @@ function StoryTab.UpdateCombat(status, data)
 		if data.Battle.Ally then
 			SyncFighter("Ally", true, "Ally", data.Battle.Ally.Name, "", data.Battle.Ally.HP, data.Battle.Ally.MaxHP, data.Battle.Ally.Statuses, {Stun=data.Battle.Ally.StunImmunity, Confusion=data.Battle.Ally.ConfusionImmunity})
 			if data.Battle.Ally.HP <= 0 and activeFighters["Ally"] then
-				activeFighters["Ally"].Frame:FindFirstChild("NameLabel").Text = data.Battle.Ally.Name .. " (KO)"
+				activeFighters["Ally"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Ally.Name .. " (KO)"
 			end
 		else
 			if activeFighters["Ally"] then
