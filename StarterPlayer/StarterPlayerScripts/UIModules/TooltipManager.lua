@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local TooltipManager = {}
 
 local player = game.Players.LocalPlayer
@@ -7,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 
-local tooltip, tooltipText
+local tooltip, tooltipText, sizeConstraint
 
 function TooltipManager.Init(screenGui)
 	tooltip = Instance.new("Frame")
@@ -37,13 +38,17 @@ function TooltipManager.Init(screenGui)
 	padding.PaddingRight = UDim.new(0, 12)
 	padding.Parent = tooltip
 
+	sizeConstraint = Instance.new("UISizeConstraint")
+	sizeConstraint.Parent = tooltip
+
 	tooltipText = Instance.new("TextLabel")
 	tooltipText.Name = "TooltipText"
 	tooltipText.BackgroundTransparency = 1
 	tooltipText.RichText = true
 	tooltipText.Font = Enum.Font.GothamMedium
 	tooltipText.TextColor3 = Color3.fromRGB(220, 220, 220)
-	tooltipText.TextSize = 16
+	tooltipText.TextSize = 14 
+	tooltipText.TextWrapped = true
 	tooltipText.TextXAlignment = Enum.TextXAlignment.Left
 	tooltipText.TextYAlignment = Enum.TextYAlignment.Top
 	tooltipText.AutomaticSize = Enum.AutomaticSize.XY
@@ -53,15 +58,28 @@ function TooltipManager.Init(screenGui)
 	game:GetService("RunService").RenderStepped:Connect(function()
 		if tooltip.Visible then
 			local viewport = workspace.CurrentCamera.ViewportSize
+
+			-- Cap width so it scales down on thin screens instead of pushing off bounds
+			local maxW = math.min(300, viewport.X * 0.85)
+			sizeConstraint.MaxSize = Vector2.new(maxW, viewport.Y * 0.9)
+
+			local tWidth = tooltip.AbsoluteSize.X
+			local tHeight = tooltip.AbsoluteSize.Y
+
 			local targetX = mouse.X + 15
 			local targetY = mouse.Y + 15
 
-			if targetX + tooltip.AbsoluteSize.X > viewport.X then
-				targetX = mouse.X - tooltip.AbsoluteSize.X - 15
+			-- Mirror tooltip across the mouse cursor if hitting the right/bottom edge
+			if targetX + tWidth > viewport.X then
+				targetX = mouse.X - tWidth - 15
 			end
-			if targetY + tooltip.AbsoluteSize.Y > viewport.Y then
-				targetY = mouse.Y - tooltip.AbsoluteSize.Y - 15
+			if targetY + tHeight > viewport.Y then
+				targetY = mouse.Y - tHeight - 15
 			end
+
+			-- Strict mathematical clamp so it physically cannot leave the screen space
+			targetX = math.clamp(targetX, 5, viewport.X - tWidth - 5)
+			targetY = math.clamp(targetY, 5, viewport.Y - tHeight - 5)
 
 			tooltip.Position = UDim2.new(0, targetX, 0, targetY)
 		end
