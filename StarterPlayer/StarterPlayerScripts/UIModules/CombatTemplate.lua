@@ -85,7 +85,8 @@ function CombatTemplate.Create(parentGui)
 	bgPattern.ImageColor3 = Color3.fromRGB(180, 130, 255)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
-	bgPattern.ScaleType = Enum.ScaleType.Crop
+	bgPattern.ScaleType = Enum.ScaleType.Tile
+	bgPattern.TileSize = UDim2.new(0, 800, 0, 800)
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 21
 	bgPattern.Parent = mainFrame
