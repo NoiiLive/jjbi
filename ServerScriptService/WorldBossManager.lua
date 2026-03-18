@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -117,7 +116,8 @@ local function StartBossBattle(player)
 		return
 	end
 
-	if player:GetAttribute("LastWorldBossHour") == utc.hour then
+	local isStudio = game:GetService("RunService"):IsStudio()
+	if player:GetAttribute("LastWorldBossHour") == utc.hour and not isStudio then
 		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this hour!</font>")
 		return
 	end
@@ -339,6 +339,11 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 						end
 					end
 				end
+			end
+
+			if isDeath then
+				player:SetAttribute("StandArrowCount", (player:GetAttribute("StandArrowCount") or 0) + 1)
+				table.insert(droppedItems, "<font color='#55FFFF'>1x Stand Arrow (Participation)</font>")
 			end
 		end)
 
