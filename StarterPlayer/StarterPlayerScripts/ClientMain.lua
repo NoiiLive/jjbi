@@ -1,4 +1,5 @@
 -- @ScriptType: LocalScript
+-- @ScriptType: LocalScript
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -32,6 +33,7 @@ NotificationManager.Init(screenGui)
 local Network = ReplicatedStorage:WaitForChild("Network")
 local NotificationEvent = Network:WaitForChild("NotificationEvent")
 local CombatUpdate = Network:WaitForChild("CombatUpdate")
+local DungeonUpdate = Network:WaitForChild("DungeonUpdate")
 
 NotificationEvent.OnClientEvent:Connect(function(msg)
 	NotificationManager.Show(msg)
@@ -41,13 +43,15 @@ CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
 	else
-		if action == "UpdateDungeon" and CombatTab.UpdateDungeon then
-			CombatTab.UpdateDungeon("Update", data)
-		elseif action == "UpdateWorldBoss" and CombatTab.UpdateWorldBoss then
-			CombatTab.UpdateWorldBoss("Update", data)
-		else
-			CombatTab.UpdateCombat(action, data)
-		end
+		-- Routes standard story/random encounters
+		CombatTab.UpdateCombat(action, data)
+	end
+end)
+
+DungeonUpdate.OnClientEvent:Connect(function(action, data)
+	-- Specifically routes dungeon events to the Dungeon UI logic
+	if CombatTab.UpdateDungeon then
+		CombatTab.UpdateDungeon(action, data)
 	end
 end)
 
@@ -254,7 +258,7 @@ topRightLayout.Parent = topRightContainer
 local boostBtn = Instance.new("TextButton")
 boostBtn.Name = "BoostBtn"
 boostBtn.Size = UDim2.new(0, 40, 0, 40)
-boostBtn.Text = "⭐"
+boostBtn.Text = "⚡"
 boostBtn.TextScaled = true
 boostBtn.Font = Enum.Font.GothamBold
 boostBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
@@ -339,7 +343,7 @@ local isMuted = false
 muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
 	isMuted = not isMuted
-	muteBtn.Text = isMuted and "🔇" or "🔊"
+	muteBtn.Text = isMuted and "🔈" or "🔊"
 	local bgm = SoundService:FindFirstChild("BizarreBGM")
 	if bgm then
 		bgm.Volume = isMuted and 0 or 0.4
