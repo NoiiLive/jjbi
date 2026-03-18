@@ -5,8 +5,11 @@ local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
 
-local UseItemRemote = Network:WaitForChild("UseItem")
-local UnequipItemRemote = Network:WaitForChild("UnequipItem")
+local UseItemRemote = Network:FindFirstChild("UseItem") or Instance.new("RemoteEvent", Network)
+UseItemRemote.Name = "UseItem"
+
+local UnequipItemRemote = Network:FindFirstChild("UnequipItem") or Instance.new("RemoteEvent", Network)
+UnequipItemRemote.Name = "UnequipItem"
 
 local ToggleLockRemote = Network:FindFirstChild("ToggleLock") or Instance.new("RemoteEvent", Network)
 ToggleLockRemote.Name = "ToggleLock"
