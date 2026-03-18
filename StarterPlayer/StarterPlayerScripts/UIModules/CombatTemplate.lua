@@ -5,96 +5,15 @@ local RunService = game:GetService("RunService")
 
 local CombatTemplate = {}
 
-local function applyDoubleGoldBorder(parent)
-	local parentCorner = parent:FindFirstChildOfClass("UICorner")
-
-	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3
-	outerStroke.Color = Color3.fromRGB(255, 210, 60)
-	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradOut = Instance.new("UIGradient")
-	gradOut.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
-	}
-	gradOut.Rotation = -45
-	gradOut.Parent = outerStroke
-	outerStroke.Parent = parent
-
-	local innerFrame = Instance.new("Frame")
-	innerFrame.Name = "InnerGoldBorder"
-	innerFrame.Size = UDim2.new(1, -6, 1, -6)
-	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	innerFrame.BackgroundTransparency = 1
-	innerFrame.ZIndex = parent.ZIndex
-
-	if parentCorner then
-		local innerCorner = Instance.new("UICorner")
-		if parentCorner.CornerRadius.Scale > 0 then
-			innerCorner.CornerRadius = parentCorner.CornerRadius
-		else
-			local offset = math.max(0, parentCorner.CornerRadius.Offset - 3)
-			innerCorner.CornerRadius = UDim.new(0, offset)
-		end
-		innerCorner.Parent = innerFrame
-	end
-	innerFrame.Parent = parent
-
-	local innerStroke = Instance.new("UIStroke")
-	innerStroke.Thickness = 1
-	innerStroke.Color = Color3.fromRGB(255, 230, 100)
-	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradIn = Instance.new("UIGradient")
-	gradIn.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
-	}
-	gradIn.Rotation = 45
-	gradIn.Parent = innerStroke
-	innerStroke.Parent = innerFrame
-end
-
 function CombatTemplate.Create(parentGui, tooltipMgr)
 	local combatUI = {}
 
 	local mainFrame = Instance.new("Frame")
 	mainFrame.Name = "CombatMainFrame"
-	mainFrame.Size = UDim2.new(0.85, 0, 0.85, 0)
-	mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	mainFrame.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	mainFrame.BorderSizePixel = 0
+	mainFrame.Size = UDim2.new(1, 0, 1, 0)
+	mainFrame.BackgroundTransparency = 1
 	mainFrame.ZIndex = 20
 	mainFrame.Parent = parentGui
-
-	local mainCorner = Instance.new("UICorner")
-	mainCorner.CornerRadius = UDim.new(0, 12)
-	mainCorner.Parent = mainFrame
-
-	applyDoubleGoldBorder(mainFrame)
-
-	local bgPattern = Instance.new("ImageLabel")
-	bgPattern.Name = "OverlayPattern"
-	bgPattern.Image = "rbxassetid://79623015802180"
-	bgPattern.ImageColor3 = Color3.fromRGB(180, 130, 255)
-	bgPattern.ImageTransparency = 0.85
-	bgPattern.BackgroundTransparency = 1
-	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 800, 0, 800)
-	bgPattern.Size = UDim2.new(1, 0, 1, 0)
-	bgPattern.ZIndex = 21
-	bgPattern.ClipsDescendants = true
-	bgPattern.Parent = mainFrame
-
-	local contentCorner = Instance.new("UICorner")
-	contentCorner.CornerRadius = UDim.new(0, 12)
-	contentCorner.Parent = bgPattern
 
 	local contentContainer = Instance.new("Frame")
 	contentContainer.Name = "ContentContainer"
@@ -111,15 +30,15 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	uiLayout.Parent = contentContainer
 
 	local uiPadding = Instance.new("UIPadding")
-	uiPadding.PaddingTop = UDim.new(0, 12)
-	uiPadding.PaddingBottom = UDim.new(0, 18)
-	uiPadding.PaddingLeft = UDim.new(0, 18)
-	uiPadding.PaddingRight = UDim.new(0, 18)
+	uiPadding.PaddingTop = UDim.new(0, 10)
+	uiPadding.PaddingBottom = UDim.new(0, 10)
+	uiPadding.PaddingLeft = UDim.new(0, 15)
+	uiPadding.PaddingRight = UDim.new(0, 15)
 	uiPadding.Parent = contentContainer
 
 	local healthbarArea = Instance.new("Frame")
 	healthbarArea.Name = "HealthbarArea"
-	healthbarArea.Size = UDim2.new(1, 0, 0.44, 0)
+	healthbarArea.Size = UDim2.new(1, 0, 0.42, 0)
 	healthbarArea.BackgroundTransparency = 1
 	healthbarArea.LayoutOrder = 1
 	healthbarArea.ZIndex = 22
@@ -130,7 +49,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	hbLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	hbLayout.Padding = UDim.new(0, 15)
 	hbLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	hbLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	hbLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	hbLayout.Parent = healthbarArea
 
 	local alliesContainer = Instance.new("Frame")
@@ -165,7 +84,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 	local chatboxArea = Instance.new("Frame")
 	chatboxArea.Name = "ChatboxArea"
-	chatboxArea.Size = UDim2.new(1, 0, 0.18, 0)
+	chatboxArea.Size = UDim2.new(1, 0, 0.16, 0)
 	chatboxArea.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 	chatboxArea.BackgroundTransparency = 0.2
 	chatboxArea.BorderSizePixel = 0
@@ -219,7 +138,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 	local abilitiesArea = Instance.new("Frame")
 	abilitiesArea.Name = "AbilitiesArea"
-	abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
+	abilitiesArea.Size = UDim2.new(1, 0, 0.35, 0)
 	abilitiesArea.BackgroundTransparency = 1
 	abilitiesArea.LayoutOrder = 4
 	abilitiesArea.ZIndex = 22
@@ -245,7 +164,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local totalPaddingY = 6 * (rows - 1)
 
 		local cellW = math.floor((abilitiesArea.AbsoluteSize.X - totalPaddingX - 12) / columns)
-		local maxCellH = math.floor((abilitiesArea.AbsoluteSize.Y - totalPaddingY - 14) / rows)
+		local maxCellH = math.floor((abilitiesArea.AbsoluteSize.Y - totalPaddingY - 16) / rows)
 
 		cellW = math.max(10, math.min(cellW, 180))
 		local cellH = math.max(10, math.min(maxCellH, 50))
@@ -308,9 +227,9 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local isPortrait = vp.Y > vp.X
 
 		if isPortrait then
-			healthbarArea.Size = UDim2.new(1, 0, 0.48, 0)
+			healthbarArea.Size = UDim2.new(1, 0, 0.45, 0)
 			chatboxArea.Size = UDim2.new(1, 0, 0.15, 0)
-			abilitiesArea.Size = UDim2.new(1, 0, 0.28, 0)
+			abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
 
 			hbLayout.FillDirection = Enum.FillDirection.Vertical
 			hbLayout.Padding = UDim.new(0, 8) 
@@ -322,8 +241,8 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			enemiesContainer.Size = UDim2.new(1, 0, 0.45, 0)
 		else
 			healthbarArea.Size = UDim2.new(1, 0, 0.42, 0)
-			chatboxArea.Size = UDim2.new(1, 0, 0.18, 0)
-			abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
+			chatboxArea.Size = UDim2.new(1, 0, 0.16, 0)
+			abilitiesArea.Size = UDim2.new(1, 0, 0.35, 0)
 
 			hbLayout.FillDirection = Enum.FillDirection.Horizontal
 			hbLayout.Padding = UDim.new(0, 10)
