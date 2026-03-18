@@ -387,6 +387,8 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		menuContainer.Visible = false
 		combatUI.MainFrame.Visible = true
 		combatUI.AbilitiesArea.Visible = true
+		resourceLabel.Visible = true
+		turnLabel.Visible = true
 
 		AddLog(data.LogMsg or "", false)
 		WorldBossTab.RenderSkills(data.Battle)
@@ -426,6 +428,8 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 
 	elseif status == "Victory" or status == "Defeat" or status == "Fled" then
 		combatUI.AbilitiesArea.Visible = false
+		resourceLabel.Visible = false
+		turnLabel.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
 			f.Frame:Destroy()
@@ -433,9 +437,20 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		activeFighters = {}
 
 		if status == "Victory" then SFXManager.Play("CombatVictory") else SFXManager.Play("CombatDefeat") end
-		AddLog("<font color='#00FFFF'>COMBAT FINISHED!</font>", true)
+
+		local color = status == "Victory" and "#00FFFF" or (status == "Defeat" and "#FF0055" or "#AAAAAA")
+		AddLog("<font color='" .. color .. "'>WORLD BOSS " .. status:upper() .. "!</font>", true)
+
 		if data.CustomLog then AddLog(data.CustomLog, true) end
-		if data.Drops and data.Drops.Items and #data.Drops.Items > 0 then AddLog("<font color='#FFFF55'>Rewards: " .. table.concat(data.Drops.Items, ", ") .. "</font>", true) end
+
+		if status == "Victory" and data.Drops then
+			AddLog("<font color='#55FF55'>+" .. (data.Drops.XP or 0) .. " XP, +¥" .. (data.Drops.Yen or 0) .. ".</font>", true)
+			if data.Drops.Items and #data.Drops.Items > 0 then 
+				AddLog("<font color='#FFFF55'>Loot Secured: " .. table.concat(data.Drops.Items, ", ") .. "</font>", true) 
+			end
+		elseif status == "Fled" then
+			AddLog("<font color='#AAAAAA'>You fled the battle.</font>", true)
+		end
 
 		task.delay(4, function() 
 			inBattle = false
