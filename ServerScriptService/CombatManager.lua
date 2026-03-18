@@ -37,6 +37,20 @@ local function GetEnemyTemplate(partIndex, templateName)
 	return { Name = "Glitch Entity", Health = 10, Strength = 1, Defense = 0, Speed = 1, Willpower = 1, StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, Skills = {"Basic Attack"}, Drops = { Yen = 0, XP = 0 } }
 end
 
+local function GetAllyTemplate(allyName)
+	if EnemyData.Allies and EnemyData.Allies[allyName] then return EnemyData.Allies[allyName] end
+	for _, partData in pairs(EnemyData.Parts) do
+		if partData.Allies and partData.Allies[allyName] then return partData.Allies[allyName] end
+		if partData.Templates and partData.Templates[allyName] then return partData.Templates[allyName] end
+		if partData.Mobs then
+			for _, mob in ipairs(partData.Mobs) do
+				if mob.Name == allyName then return mob end
+			end
+		end
+	end
+	return { Name = allyName, Health = 150, Strength = 5, Defense = 5, Speed = 5, Willpower = 5, StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, Skills = {"Basic Attack"}, Drops = { Yen = 0, XP = 0 } }
+end
+
 local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentPart)
 	local scaleHP, scaleStr, scaleDef, scaleSpd, scaleWill, xpScale = 1, 1, 1, 1, 1, 1
 
@@ -132,7 +146,7 @@ local function StartBattle(player, encounterType)
 
 		local firstWave = missionData.Waves[1]
 		enemyTemplate = GetEnemyTemplate(currentPart, firstWave.Template)
-		if firstWave.Ally then allyTemplate = EnemyData.Allies[firstWave.Ally] end
+		if firstWave.Ally then allyTemplate = GetAllyTemplate(firstWave.Ally) end
 
 		initialLogMsg = "<font color='#FFD700'>[Mission: " .. missionData.Name .. " - Wave 1]</font>\n" .. firstWave.Flavor
 	end
@@ -350,7 +364,7 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				local nextWaveData = battle.Context.MissionData.Waves[battle.Context.CurrentWave]
 				local currentPart = player:GetAttribute("CurrentPart") or 1
 				local nextTemplate = GetEnemyTemplate(currentPart, nextWaveData.Template)
-				local nextAllyTemplate = nextWaveData.Ally and EnemyData.Allies[nextWaveData.Ally] or nil
+				local nextAllyTemplate = nextWaveData.Ally and GetAllyTemplate(nextWaveData.Ally) or nil
 
 				local prestigeObj = player:WaitForChild("leaderstats", 5) and player.leaderstats:WaitForChild("Prestige", 5)
 				local prestige = prestigeObj and prestigeObj.Value or 0
