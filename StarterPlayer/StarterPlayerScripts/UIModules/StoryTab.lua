@@ -73,9 +73,9 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 	end
 end
 
-function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, mainTitleNode)
+function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	rootFrame = parentFrame; cachedTooltipMgr = tooltipMgr; forceTabFocus = focusFunc
-	modifierBubble = mainTitleNode:WaitForChild("ModifierBubble")
+	modifierBubble = passedModifierBubble
 
 	modifierBubble.MouseEnter:Connect(function()
 		local modStr = player:GetAttribute("UniverseModifier") or "None"
@@ -118,7 +118,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, mainTitleNode)
 
 	buttonContainer = Instance.new("Frame")
 	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.25, 0)
+	buttonContainer.Size = UDim2.new(1, 0, 0.30, 0)
 	buttonContainer.BackgroundTransparency = 1
 	buttonContainer.LayoutOrder = 4
 	buttonContainer.ZIndex = 22
@@ -135,7 +135,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, mainTitleNode)
 	local function makeBtn(name, text)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.3, 0, 0.6, 0)
+		btn.Size = UDim2.new(0.3, 0, 0.5, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
