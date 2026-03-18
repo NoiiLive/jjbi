@@ -143,7 +143,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	buttonContainer = Instance.new("Frame")
 	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.32, 0)
+	buttonContainer.Size = UDim2.new(1, 0, 0.31, 0)
 	buttonContainer.BackgroundTransparency = 1
 	buttonContainer.LayoutOrder = 4 
 	buttonContainer.ZIndex = 22
@@ -356,10 +356,10 @@ function StoryTab.UpdateCombat(status, data)
 				for i = 1, 6 do 
 					local offsetX = math.random(-p, p)
 					local offsetY = math.random(-p, p)
-					combatUI.MainFrame.Position = UDim2.new(0.5, offsetX, 0.5, offsetY)
+					combatUI.MainFrame.Position = UDim2.new(0, offsetX, 0, offsetY)
 					task.wait(0.04) 
 				end
-				combatUI.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+				combatUI.MainFrame.Position = UDim2.new(0, 0, 0, 0)
 			end)
 		end
 
