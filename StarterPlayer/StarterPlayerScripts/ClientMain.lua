@@ -25,6 +25,7 @@ local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local TooltipManager = require(UIModules:WaitForChild("TooltipManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
 local CombatTab = require(UIModules:WaitForChild("CombatTab"))
+local InventoryTab = require(UIModules:WaitForChild("InventoryTab"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
@@ -43,13 +44,11 @@ CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
 	else
-		-- Routes standard story/random encounters
 		CombatTab.UpdateCombat(action, data)
 	end
 end)
 
 DungeonUpdate.OnClientEvent:Connect(function(action, data)
-	-- Specifically routes dungeon events to the Dungeon UI logic
 	if CombatTab.UpdateDungeon then
 		CombatTab.UpdateDungeon(action, data)
 	end
@@ -647,5 +646,6 @@ camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
 CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
+InventoryTab.Init(TabFrames["Inventory"], TooltipManager)
 
 SwitchTab("Updates")
