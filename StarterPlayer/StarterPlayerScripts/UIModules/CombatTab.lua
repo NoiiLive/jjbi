@@ -25,7 +25,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local navLayout = Instance.new("UIListLayout")
 	navLayout.FillDirection = Enum.FillDirection.Horizontal
 	navLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	navLayout.Padding = UDim.new(0, 10)
+	navLayout.Padding = UDim.new(0, 5)
 	navLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	navLayout.Parent = subNav
 
@@ -57,7 +57,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		uip.Parent = btn
 
 		local ts = Instance.new("UITextSizeConstraint")
-		ts.MaxTextSize = 20
+		ts.MaxTextSize = 18
 		ts.MinTextSize = 10
 		ts.Parent = btn
 
@@ -72,7 +72,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	modifierBubble.Name = "ModifierBubble"
 	modifierBubble.Size = UDim2.new(0.15, 0, 1, 0)
 	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-	modifierBubble.Text = "Mods"
+	modifierBubble.Text = "MODS"
 	modifierBubble.Font = Enum.Font.GothamBold
 	modifierBubble.TextColor3 = Color3.fromRGB(255, 215, 50)
 	modifierBubble.TextScaled = true
@@ -81,13 +81,23 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	modifierBubble.Parent = subNav
 
 	local modCorner = Instance.new("UICorner")
-	modCorner.CornerRadius = UDim.new(1, 0)
+	modCorner.CornerRadius = UDim.new(0, 8)
 	modCorner.Parent = modifierBubble
 
 	local modStroke = Instance.new("UIStroke")
 	modStroke.Color = Color3.fromRGB(255, 215, 50)
-	modStroke.Thickness = 1
+	modStroke.Thickness = 2
 	modStroke.Parent = modifierBubble
+
+	local modPad = Instance.new("UIPadding")
+	modPad.PaddingTop = UDim.new(0, 5)
+	modPad.PaddingBottom = UDim.new(0, 5)
+	modPad.Parent = modifierBubble
+
+	local modTs = Instance.new("UITextSizeConstraint")
+	modTs.MaxTextSize = 18
+	modTs.MinTextSize = 10
+	modTs.Parent = modifierBubble
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
@@ -141,7 +151,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	dungeonBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("Dungeon") end)
 	worldBossBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("WorldBoss") end)
 
-	StoryTab.Init(storyFrame, tooltipMgr, function() ForceSubTabFocus("Story") end, subNav)
+	StoryTab.Init(storyFrame, tooltipMgr, function() ForceSubTabFocus("Story") end, modifierBubble)
 
 	local dMod = UIModules:FindFirstChild("DungeonTab")
 	if dMod then
