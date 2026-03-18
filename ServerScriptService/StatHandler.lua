@@ -4,7 +4,12 @@ local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
 
-local UpgradeRemote = Network:WaitForChild("UpgradeStat")
+local UpgradeRemote = Network:FindFirstChild("UpgradeStat")
+if not UpgradeRemote then
+	UpgradeRemote = Instance.new("RemoteEvent")
+	UpgradeRemote.Name = "UpgradeStat"
+	UpgradeRemote.Parent = Network
+end
 
 UpgradeRemote.OnServerEvent:Connect(function(player, statToUpgrade, amount)
 	local isBaseStat = GameData.BaseStats[statToUpgrade] ~= nil
