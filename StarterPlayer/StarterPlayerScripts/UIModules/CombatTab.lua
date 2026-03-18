@@ -95,26 +95,26 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
 	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 120, 0, 120) 
+	bgPattern.TileSize = UDim2.new(0, 500, 0, 250) 
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(1, 0, 0, 50)
+	subNav.Size = UDim2.new(1, 0, 0, 55)
 	subNav.BackgroundTransparency = 1
 	subNav.ZIndex = 20
 	subNav.Parent = mainPanel
 
-	local subNavContainer = Instance.new("Frame")
-	subNavContainer.Name = "SubNavContainer"
-	subNavContainer.Size = UDim2.new(1, -90, 1, -10)
-	subNavContainer.Position = UDim2.new(0, 10, 0.5, 0)
-	subNavContainer.AnchorPoint = Vector2.new(0, 0.5)
-	subNavContainer.BackgroundTransparency = 1
-	subNavContainer.ZIndex = 21
-	subNavContainer.Parent = subNav
+	local subNavCenter = Instance.new("Frame")
+	subNavCenter.Name = "CenterContainer"
+	subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
+	subNavCenter.Position = UDim2.new(0.5, 0, 0.5, 0)
+	subNavCenter.AnchorPoint = Vector2.new(0.5, 0.5)
+	subNavCenter.BackgroundTransparency = 1
+	subNavCenter.ZIndex = 21
+	subNavCenter.Parent = subNav
 
 	local navLayout = Instance.new("UIListLayout")
 	navLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -122,12 +122,12 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	navLayout.Padding = UDim.new(0, 10)
 	navLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	navLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	navLayout.Parent = subNavContainer
+	navLayout.Parent = subNavCenter
 
 	local function makeNavBtn(name, text, order)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.28, 0, 0.85, 0)
+		btn.Size = UDim2.new(0.30, 0, 0.85, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -135,7 +135,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		btn.TextScaled = true
 		btn.LayoutOrder = order
 		btn.ZIndex = 22
-		btn.Parent = subNavContainer
+		btn.Parent = subNavCenter
 
 		local uic = Instance.new("UICorner")
 		uic.CornerRadius = UDim.new(0, 6)
@@ -196,8 +196,8 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Size = UDim2.new(1, 0, 1, -50)
-	contentArea.Position = UDim2.new(0, 0, 0, 50)
+	contentArea.Size = UDim2.new(1, 0, 1, -55)
+	contentArea.Position = UDim2.new(0, 0, 0, 55)
 	contentArea.BackgroundTransparency = 1
 	contentArea.ZIndex = 17
 	contentArea.Parent = mainPanel
@@ -282,12 +282,15 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		if vp.X >= 1050 then
 			mainPanel.Size = UDim2.new(0.80, 0, 0.85, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+			subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
 		elseif vp.X >= 600 and vp.X < 1050 then
 			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+			subNavCenter.Size = UDim2.new(0.65, 0, 1, -10)
 		else
 			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+			subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
 		end
 	end)
 
@@ -295,12 +298,15 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	if vpInit.X >= 1050 then
 		mainPanel.Size = UDim2.new(0.80, 0, 0.85, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
 	elseif vpInit.X >= 600 and vpInit.X < 1050 then
 		mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		subNavCenter.Size = UDim2.new(0.65, 0, 1, -10)
 	else
 		mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
 	end
 end
 
