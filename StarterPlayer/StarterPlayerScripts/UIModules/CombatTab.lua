@@ -166,11 +166,11 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local modifierBubble = Instance.new("TextButton")
 	modifierBubble.Name = "ModifierBubble"
-	modifierBubble.Size = UDim2.new(0, 40, 0, 40)
-	modifierBubble.Position = UDim2.new(1, -12, 0, 12)
-	modifierBubble.AnchorPoint = Vector2.new(1, 0)
+	modifierBubble.Size = UDim2.new(0.35, 0, 0, 18)
+	modifierBubble.Position = UDim2.new(0.5, 0, 0, 53)
+	modifierBubble.AnchorPoint = Vector2.new(0.5, 0)
 	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-	modifierBubble.Text = "MODS"
+	modifierBubble.Text = "ACTIVE MODIFIERS"
 	modifierBubble.Font = Enum.Font.GothamBold
 	modifierBubble.TextColor3 = Color3.fromRGB(255, 215, 50)
 	modifierBubble.TextScaled = true
@@ -178,26 +178,26 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	modifierBubble.Parent = mainPanel
 
 	local modCorner = Instance.new("UICorner")
-	modCorner.CornerRadius = UDim.new(0, 6)
+	modCorner.CornerRadius = UDim.new(1, 0)
 	modCorner.Parent = modifierBubble
 
 	local modStroke = Instance.new("UIStroke")
 	modStroke.Color = Color3.fromRGB(255, 215, 50)
-	modStroke.Thickness = 2
+	modStroke.Thickness = 1
 	modStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	modStroke.Parent = modifierBubble
 
 	local modPad = Instance.new("UIPadding")
-	modPad.PaddingTop = UDim.new(0, 5)
-	modPad.PaddingBottom = UDim.new(0, 5)
-	modPad.PaddingLeft = UDim.new(0, 2)
-	modPad.PaddingRight = UDim.new(0, 2)
+	modPad.PaddingTop = UDim.new(0, 2)
+	modPad.PaddingBottom = UDim.new(0, 2)
+	modPad.PaddingLeft = UDim.new(0, 8)
+	modPad.PaddingRight = UDim.new(0, 8)
 	modPad.Parent = modifierBubble
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Size = UDim2.new(1, 0, 1, -55)
-	contentArea.Position = UDim2.new(0, 0, 0, 55)
+	contentArea.Size = UDim2.new(1, 0, 1, -75)
+	contentArea.Position = UDim2.new(0, 0, 0, 75)
 	contentArea.BackgroundTransparency = 1
 	contentArea.ZIndex = 17
 	contentArea.Parent = mainPanel
@@ -280,32 +280,32 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		end
 		local vp = camera.ViewportSize
 		if vp.X >= 1050 then
-			mainPanel.Size = UDim2.new(0.80, 0, 0.85, 0)
+			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 			subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
 		elseif vp.X >= 600 and vp.X < 1050 then
-			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+			mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 			subNavCenter.Size = UDim2.new(0.65, 0, 1, -10)
 		else
-			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+			mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 			subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
 		end
 	end)
 
 	local vpInit = camera.ViewportSize
 	if vpInit.X >= 1050 then
-		mainPanel.Size = UDim2.new(0.80, 0, 0.85, 0)
+		mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
 		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 		subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
 	elseif vpInit.X >= 600 and vpInit.X < 1050 then
-		mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		mainPanel.Size = UDim2.new(0.92, 0, 0.90, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 		subNavCenter.Size = UDim2.new(0.65, 0, 1, -10)
 	else
-		mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		mainPanel.Size = UDim2.new(0.96, 0, 0.92, 0)
+		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
 		subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
 	end
 end
