@@ -98,6 +98,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	combatUI = CombatTemplate.Create(parentFrame)
 	combatUI.MainFrame.LayoutOrder = 1
+	combatUI.AbilitiesArea.Visible = false
 
 	resourceLabel = Instance.new("TextLabel")
 	resourceLabel.Name = "ResourceLabel"
@@ -118,7 +119,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	buttonContainer = Instance.new("Frame")
 	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.30, 0)
+	buttonContainer.Size = UDim2.new(1, 0, 0.25, 0)
 	buttonContainer.BackgroundTransparency = 1
 	buttonContainer.LayoutOrder = 4
 	buttonContainer.ZIndex = 22
@@ -147,11 +148,6 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 		local uic = Instance.new("UICorner")
 		uic.CornerRadius = UDim.new(0, 8)
 		uic.Parent = btn
-
-		local str = Instance.new("UIStroke")
-		str.Color = Color3.fromRGB(90, 50, 120)
-		str.Thickness = 2
-		str.Parent = btn
 
 		local ts = Instance.new("UITextSizeConstraint")
 		ts.MaxTextSize = 24
