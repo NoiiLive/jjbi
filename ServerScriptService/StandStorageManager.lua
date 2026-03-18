@@ -11,6 +11,13 @@ if not StandStorageAction then
 	StandStorageAction.Parent = Network
 end
 
+local NotificationEvent = Network:FindFirstChild("NotificationEvent")
+if not NotificationEvent then
+	NotificationEvent = Instance.new("RemoteEvent")
+	NotificationEvent.Name = "NotificationEvent"
+	NotificationEvent.Parent = Network
+end
+
 StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 	if action == "Swap" then
 		if slotNum == 2 and not player:GetAttribute("HasStandSlot2") then return end
@@ -52,7 +59,7 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 		player:SetAttribute("StoredStand"..slotNum, currentStand)
 		player:SetAttribute("StoredStand"..slotNum.."_Trait", currentTrait)
 
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FFD700'>Swapped Stand in Slot "..slotNum.."!</font>")
+		NotificationEvent:FireClient(player, "<font color='#FFD700'>Swapped Stand with Storage Slot "..slotNum.."!</font>")
 
 	elseif action == "SwapStyle" then
 		if slotNum == 2 and not player:GetAttribute("HasStyleSlot2") then return end
@@ -66,6 +73,6 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 		player:SetAttribute("FightingStyle", storedStyle)
 		player:SetAttribute("StoredStyle"..slotNum, currentStyle)
 
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF8C00'>Swapped Style in Slot "..slotNum.."!</font>")
+		NotificationEvent:FireClient(player, "<font color='#FF8C00'>Swapped Style with Storage Slot "..slotNum.."!</font>")
 	end
 end)
