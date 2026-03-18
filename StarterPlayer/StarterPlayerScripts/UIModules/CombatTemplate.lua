@@ -85,8 +85,7 @@ function CombatTemplate.Create(parentGui)
 	bgPattern.ImageColor3 = Color3.fromRGB(180, 130, 255)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
-	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 256, 0, 256)
+	bgPattern.ScaleType = Enum.ScaleType.Crop
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 21
 	bgPattern.Parent = mainFrame
@@ -105,20 +104,20 @@ function CombatTemplate.Create(parentGui)
 	local uiLayout = Instance.new("UIListLayout")
 	uiLayout.FillDirection = Enum.FillDirection.Vertical
 	uiLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	uiLayout.Padding = UDim.new(0, 10)
+	uiLayout.Padding = UDim.new(0, 8)
 	uiLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	uiLayout.Parent = contentContainer
 
 	local uiPadding = Instance.new("UIPadding")
-	uiPadding.PaddingTop = UDim.new(0, 15)
-	uiPadding.PaddingBottom = UDim.new(0, 15)
-	uiPadding.PaddingLeft = UDim.new(0, 15)
-	uiPadding.PaddingRight = UDim.new(0, 15)
+	uiPadding.PaddingTop = UDim.new(0, 12)
+	uiPadding.PaddingBottom = UDim.new(0, 12)
+	uiPadding.PaddingLeft = UDim.new(0, 12)
+	uiPadding.PaddingRight = UDim.new(0, 12)
 	uiPadding.Parent = contentContainer
 
 	local healthbarArea = Instance.new("Frame")
 	healthbarArea.Name = "HealthbarArea"
-	healthbarArea.Size = UDim2.new(1, 0, 0.50, 0)
+	healthbarArea.Size = UDim2.new(1, 0, 0.45, 0)
 	healthbarArea.BackgroundTransparency = 1
 	healthbarArea.LayoutOrder = 1
 	healthbarArea.ZIndex = 22
@@ -127,7 +126,7 @@ function CombatTemplate.Create(parentGui)
 	local hbLayout = Instance.new("UIListLayout")
 	hbLayout.FillDirection = Enum.FillDirection.Horizontal
 	hbLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	hbLayout.Padding = UDim.new(0, 20)
+	hbLayout.Padding = UDim.new(0, 10)
 	hbLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	hbLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	hbLayout.Parent = healthbarArea
@@ -143,7 +142,7 @@ function CombatTemplate.Create(parentGui)
 	local alliesLayout = Instance.new("UIListLayout")
 	alliesLayout.FillDirection = Enum.FillDirection.Vertical
 	alliesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	alliesLayout.Padding = UDim.new(0, 10)
+	alliesLayout.Padding = UDim.new(0, 6)
 	alliesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	alliesLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	alliesLayout.Parent = alliesContainer
@@ -159,14 +158,14 @@ function CombatTemplate.Create(parentGui)
 	local enemiesLayout = Instance.new("UIListLayout")
 	enemiesLayout.FillDirection = Enum.FillDirection.Vertical
 	enemiesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	enemiesLayout.Padding = UDim.new(0, 10)
+	enemiesLayout.Padding = UDim.new(0, 6)
 	enemiesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	enemiesLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	enemiesLayout.Parent = enemiesContainer
 
 	local chatboxArea = Instance.new("Frame")
 	chatboxArea.Name = "ChatboxArea"
-	chatboxArea.Size = UDim2.new(1, 0, 0.15, 0)
+	chatboxArea.Size = UDim2.new(1, 0, 0.20, 0)
 	chatboxArea.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 	chatboxArea.BackgroundTransparency = 0.2
 	chatboxArea.BorderSizePixel = 0
@@ -198,6 +197,7 @@ function CombatTemplate.Create(parentGui)
 	chatText.TextColor3 = Color3.fromRGB(220, 220, 220)
 	chatText.TextScaled = true
 	chatText.RichText = true
+	chatText.Text = ""
 	chatText.TextXAlignment = Enum.TextXAlignment.Left
 	chatText.TextYAlignment = Enum.TextYAlignment.Top
 	chatText.ZIndex = 23
@@ -210,7 +210,7 @@ function CombatTemplate.Create(parentGui)
 
 	local abilitiesArea = Instance.new("Frame")
 	abilitiesArea.Name = "AbilitiesArea"
-	abilitiesArea.Size = UDim2.new(1, 0, 0.25, 0)
+	abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
 	abilitiesArea.BackgroundTransparency = 1
 	abilitiesArea.LayoutOrder = 4
 	abilitiesArea.ZIndex = 22
@@ -218,7 +218,7 @@ function CombatTemplate.Create(parentGui)
 
 	local abLayout = Instance.new("UIGridLayout")
 	abLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	abLayout.CellPadding = UDim2.new(0, 10, 0, 10)
+	abLayout.CellPadding = UDim2.new(0, 8, 0, 8)
 	abLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	abLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	abLayout.Parent = abilitiesArea
@@ -235,8 +235,8 @@ function CombatTemplate.Create(parentGui)
 		local columns = math.min(count, 4)
 		local rows = math.ceil(count / 4)
 
-		local totalPaddingX = 10 * (columns - 1)
-		local totalPaddingY = 10 * (rows - 1)
+		local totalPaddingX = 8 * (columns - 1)
+		local totalPaddingY = 8 * (rows - 1)
 
 		local cellW = (abilitiesArea.AbsoluteSize.X - totalPaddingX) / columns
 		local cellH = (abilitiesArea.AbsoluteSize.Y - totalPaddingY) / rows
