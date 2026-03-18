@@ -26,6 +26,23 @@ local StatusIcons = {
 	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-"
 }
 
+local StatusDescs = {
+	Stun = "Cannot move or act.",
+	Poison = "Takes damage every turn.",
+	Burn = "Takes damage every turn.",
+	Bleed = "Takes damage every turn.",
+	Freeze = "Frozen solid. Cannot move, takes damage.",
+	Confusion = "May attack allies or self.",
+	Buff_Strength = "Increased damage dealt.",
+	Buff_Defense = "Reduced damage taken.",
+	Buff_Speed = "Increased evasion and turn priority.",
+	Buff_Willpower = "Increased crit and survival chance.",
+	Debuff_Strength = "Reduced damage dealt.",
+	Debuff_Defense = "Increased damage taken.",
+	Debuff_Speed = "Reduced evasion and turn priority.",
+	Debuff_Willpower = "Reduced crit and survival chance."
+}
+
 local currentLog = ""
 local function AddLog(text, append)
 	if append then
@@ -48,7 +65,7 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 		for eff, duration in pairs(statuses) do
 			if duration and duration > 0 then
 				currentStatuses[eff] = true
-				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration))
+				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.")
 			end
 		end
 	end
@@ -60,14 +77,14 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 
 	local hasStunImmunity = (immunities and immunities.Stun and immunities.Stun > 0)
 	if hasStunImmunity then
-		f:SetCooldown("StunImmunity", "STN", tostring(immunities.Stun))
+		f:SetCooldown("StunImmunity", "STN", tostring(immunities.Stun), "Immune to Stun effects.")
 	else
 		f:RemoveCooldown("StunImmunity")
 	end
 
 	local hasConfImmunity = (immunities and immunities.Confusion and immunities.Confusion > 0)
 	if hasConfImmunity then
-		f:SetCooldown("ConfImmunity", "CNF", tostring(immunities.Confusion))
+		f:SetCooldown("ConfImmunity", "CNF", tostring(immunities.Confusion), "Immune to Confusion effects.")
 	else
 		f:RemoveCooldown("ConfImmunity")
 	end
@@ -96,7 +113,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	end)
 	modifierBubble.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
 
-	combatUI = CombatTemplate.Create(parentFrame)
+	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
 	combatUI.MainFrame.LayoutOrder = 1
 	combatUI.AbilitiesArea.Visible = false
 
@@ -119,7 +136,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	buttonContainer = Instance.new("Frame")
 	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.25, 0)
+	buttonContainer.Size = UDim2.new(1, 0, 0.30, 0)
 	buttonContainer.BackgroundTransparency = 1
 	buttonContainer.LayoutOrder = 4 
 	buttonContainer.ZIndex = 22
@@ -151,12 +168,12 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 		local str = Instance.new("UIStroke")
 		str.Color = Color3.fromRGB(90, 50, 120)
-		str.Thickness = 2
+		str.Thickness = 1
 		str.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		str.Parent = btn
 
 		local ts = Instance.new("UITextSizeConstraint")
-		ts.MaxTextSize = 24
+		ts.MaxTextSize = 22
 		ts.MinTextSize = 10
 		ts.Parent = btn
 
@@ -373,7 +390,7 @@ function StoryTab.UpdateCombat(status, data)
 	if data and data.Battle then
 		resourceLabel.Text = "STAMINA: " .. math.floor(data.Battle.Player.Stamina) .. " | ENERGY: " .. math.floor(data.Battle.Player.StandEnergy)
 
-		SyncFighter("Player", true, "Player", data.Battle.Player.Name, "", data.Battle.Player.HP, data.Battle.Player.MaxHP, data.Battle.Player.Statuses, {Stun=data.Battle.Player.StunImmunity, Confusion=data.Battle.Player.ConfusionImmunity})
+		SyncFighter("Player", true, "Player", data.Battle.Player.Name, player.UserId, data.Battle.Player.HP, data.Battle.Player.MaxHP, data.Battle.Player.Statuses, {Stun=data.Battle.Player.StunImmunity, Confusion=data.Battle.Player.ConfusionImmunity})
 		if data.Battle.Player.HP <= 0 and activeFighters["Player"] then
 			activeFighters["Player"].Frame:FindFirstChild("NameLabel").Text = data.Battle.Player.Name .. " (KO)"
 		end
