@@ -34,7 +34,8 @@ local requiredRemotes = {
 	"InventoryAction",
 	"TrainingAction",
 	"MultiplayerAction",
-	"NotificationEvent"
+	"NotificationEvent",
+	"AutoSellToggle"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
