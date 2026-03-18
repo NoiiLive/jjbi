@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local NotificationManager = {}
 
 local TweenService = game:GetService("TweenService")
@@ -9,31 +10,22 @@ local notificationContainer
 function NotificationManager.Init(parentGui)
 	notificationContainer = Instance.new("Frame")
 	notificationContainer.Name = "NotificationContainer"
-	notificationContainer.Size = UDim2.new(0, 300, 0.8, 0)
+	notificationContainer.Size = UDim2.new(0.8, 0, 0.8, 0)
+	notificationContainer.Position = UDim2.new(0.5, 0, 0.05, 0)
+	notificationContainer.AnchorPoint = Vector2.new(0.5, 0)
 	notificationContainer.BackgroundTransparency = 1
 	notificationContainer.ZIndex = 50
 	notificationContainer.Parent = parentGui
+
+	local sizeConstraint = Instance.new("UISizeConstraint")
+	sizeConstraint.MaxSize = Vector2.new(350, math.huge)
+	sizeConstraint.Parent = notificationContainer
 
 	local listLayout = Instance.new("UIListLayout")
 	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	listLayout.Padding = UDim.new(0, 10)
 	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	listLayout.Parent = notificationContainer
-
-	local camera = workspace.CurrentCamera
-	local function UpdateNotifLayout()
-		local viewport = camera.ViewportSize
-		local isPortrait = viewport.Y > viewport.X
-		if isPortrait then
-			notificationContainer.Position = UDim2.new(0.5, 0, 0.05, 0)
-			notificationContainer.AnchorPoint = Vector2.new(0.5, 0)
-		else
-			notificationContainer.Position = UDim2.new(0.61, 0, 0.05, 0)
-			notificationContainer.AnchorPoint = Vector2.new(0.5, 0)
-		end
-	end
-	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateNotifLayout)
-	UpdateNotifLayout()
 end
 
 function NotificationManager.Show(message)
@@ -64,11 +56,17 @@ function NotificationManager.Show(message)
 	textLabel.RichText = true
 	textLabel.Font = Enum.Font.GothamBold
 	textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	textLabel.TextSize = 18
+	textLabel.TextSize = 16
+	textLabel.TextWrapped = true
 	textLabel.TextTransparency = 1
 	textLabel.Text = message
 	textLabel.ZIndex = 52
 	textLabel.Parent = notifFrame
+
+	local textPad = Instance.new("UIPadding")
+	textPad.PaddingLeft = UDim.new(0, 8)
+	textPad.PaddingRight = UDim.new(0, 8)
+	textPad.Parent = textLabel
 
 	local tweenIn = TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 		Size = UDim2.new(1, 0, 0, 55),
