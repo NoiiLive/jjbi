@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -8,9 +9,27 @@ local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local CombatCore = require(game:GetService("ServerScriptService"):WaitForChild("CombatCore"))
 
-local WorldBossAction = Network:WaitForChild("WorldBossAction")
-local WorldBossUpdate = Network:WaitForChild("WorldBossUpdate")
-local AdminForceSpawnWB = Network:WaitForChild("AdminForceSpawnWB")
+local function GetOrCreateEvent(name, isBindable)
+	local className = isBindable and "BindableEvent" or "RemoteEvent"
+	local remote = Network:FindFirstChild(name)
+
+	if not remote then
+		remote = Instance.new(className)
+		remote.Name = name
+		remote.Parent = Network
+	elseif remote.ClassName ~= className then
+		remote:Destroy()
+		remote = Instance.new(className)
+		remote.Name = name
+		remote.Parent = Network
+	end
+
+	return remote
+end
+
+local WorldBossAction = GetOrCreateEvent("WorldBossAction", false)
+local WorldBossUpdate = GetOrCreateEvent("WorldBossUpdate", false)
+local AdminForceSpawnWB = GetOrCreateEvent("AdminForceSpawnWB", true)
 
 local ActiveBossBattles = {}
 local CurrentActiveBoss = nil
@@ -282,7 +301,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		local maxInv = GameData.GetMaxInventory(player)
 		local droppedItems = {}
 
-		if not isDeath and battle.Drops.ItemChance then
+		if not isDeath and battle.Drops and battle.Drops.ItemChance then
 			for itemName, baseChance in pairs(battle.Drops.ItemChance) do
 				local finalChance = (baseChance + dmgBonusDropPercent + battle.Boosts.Luck) * dropMultiplier
 
@@ -317,7 +336,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		resultLog = resultLog .. "\n<font color='#FFAA00'>Total Damage Dealt: " .. math.floor(damageDealt) .. "</font>"
 
 		local finalPack = { XP = fXP, Yen = fYen, Items = droppedItems }
-		WorldBossUpdate:FireClient(player, isDeath and "Defeat" or "Victory", {Battle = battle, Drops = finalPack, CustomLog = resultLog})
+		WorldBossUpdate:FireClient(player, isDeath and "Defeat", {Battle = battle, Drops = finalPack, CustomLog = resultLog})
 		ActiveBossBattles[player.UserId] = nil
 	else
 		if stamCost == 0 then battle.Player.Stamina = math.min(battle.Player.MaxStamina, battle.Player.Stamina + 5) end
