@@ -60,7 +60,7 @@ local function applyDoubleGoldBorder(parent)
 	innerStroke.Parent = innerFrame
 end
 
-function CombatTemplate.Create(parentGui)
+function CombatTemplate.Create(parentGui, tooltipMgr)
 	local combatUI = {}
 
 	local mainFrame = Instance.new("Frame")
@@ -86,7 +86,7 @@ function CombatTemplate.Create(parentGui)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
 	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 400, 0, 400)
+	bgPattern.TileSize = UDim2.new(0, 300, 0, 300)
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 21
 	bgPattern.Parent = mainFrame
@@ -110,7 +110,7 @@ function CombatTemplate.Create(parentGui)
 	uiLayout.Parent = contentContainer
 
 	local uiPadding = Instance.new("UIPadding")
-	uiPadding.PaddingTop = UDim.new(0, 12)
+	uiPadding.PaddingTop = UDim.new(0, 18)
 	uiPadding.PaddingBottom = UDim.new(0, 12)
 	uiPadding.PaddingLeft = UDim.new(0, 12)
 	uiPadding.PaddingRight = UDim.new(0, 12)
@@ -118,7 +118,7 @@ function CombatTemplate.Create(parentGui)
 
 	local healthbarArea = Instance.new("Frame")
 	healthbarArea.Name = "HealthbarArea"
-	healthbarArea.Size = UDim2.new(1, 0, 0.45, 0)
+	healthbarArea.Size = UDim2.new(1, 0, 0.40, 0)
 	healthbarArea.BackgroundTransparency = 1
 	healthbarArea.LayoutOrder = 1
 	healthbarArea.ZIndex = 22
@@ -181,7 +181,6 @@ function CombatTemplate.Create(parentGui)
 	local cbStroke = Instance.new("UIStroke")
 	cbStroke.Color = Color3.fromRGB(90, 50, 120)
 	cbStroke.Thickness = 1
-	cbStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	cbStroke.Parent = chatboxArea
 
 	local chatPadding = Instance.new("UIPadding")
@@ -191,28 +190,37 @@ function CombatTemplate.Create(parentGui)
 	chatPadding.PaddingRight = UDim.new(0, 12)
 	chatPadding.Parent = chatboxArea
 
+	local chatScroll = Instance.new("ScrollingFrame")
+	chatScroll.Name = "ChatScroll"
+	chatScroll.Size = UDim2.new(1, 0, 1, 0)
+	chatScroll.BackgroundTransparency = 1
+	chatScroll.BorderSizePixel = 0
+	chatScroll.ScrollBarThickness = 4
+	chatScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
+	chatScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+	chatScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	chatScroll.ZIndex = 23
+	chatScroll.Parent = chatboxArea
+
 	local chatText = Instance.new("TextLabel")
 	chatText.Name = "LogText"
-	chatText.Size = UDim2.new(1, 0, 1, 0)
+	chatText.Size = UDim2.new(1, -8, 0, 0)
+	chatText.AutomaticSize = Enum.AutomaticSize.Y
 	chatText.BackgroundTransparency = 1
 	chatText.Font = Enum.Font.GothamMedium
 	chatText.TextColor3 = Color3.fromRGB(220, 220, 220)
-	chatText.TextScaled = true
+	chatText.TextSize = 15
 	chatText.RichText = true
+	chatText.TextWrapped = true
 	chatText.Text = ""
 	chatText.TextXAlignment = Enum.TextXAlignment.Left
-	chatText.TextYAlignment = Enum.TextYAlignment.Top
-	chatText.ZIndex = 23
-	chatText.Parent = chatboxArea
-
-	local cbConstraint = Instance.new("UITextSizeConstraint")
-	cbConstraint.MaxTextSize = 24
-	cbConstraint.MinTextSize = 10
-	cbConstraint.Parent = chatText
+	chatText.TextYAlignment = Enum.TextYAlignment.Bottom
+	chatText.ZIndex = 24
+	chatText.Parent = chatScroll
 
 	local abilitiesArea = Instance.new("Frame")
 	abilitiesArea.Name = "AbilitiesArea"
-	abilitiesArea.Size = UDim2.new(1, 0, 0.25, 0)
+	abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
 	abilitiesArea.BackgroundTransparency = 1
 	abilitiesArea.LayoutOrder = 4
 	abilitiesArea.ZIndex = 22
@@ -241,7 +249,9 @@ function CombatTemplate.Create(parentGui)
 		local totalPaddingY = 8 * (rows - 1)
 
 		local cellW = (abilitiesArea.AbsoluteSize.X - totalPaddingX) / columns
-		local cellH = (abilitiesArea.AbsoluteSize.Y - totalPaddingY) / rows
+		local maxCellH = (abilitiesArea.AbsoluteSize.Y - totalPaddingY) / rows
+
+		local cellH = math.min(maxCellH, 55)
 
 		abLayout.CellSize = UDim2.new(0, cellW, 0, cellH)
 	end
@@ -287,10 +297,14 @@ function CombatTemplate.Create(parentGui)
 	combatUI.AlliesContainer = alliesContainer
 	combatUI.EnemiesContainer = enemiesContainer
 	combatUI.ChatText = chatText
+	combatUI.ChatScroll = chatScroll
 	combatUI.AbilitiesArea = abilitiesArea
 
 	function combatUI:Log(message)
 		self.ChatText.Text = message
+		task.defer(function()
+			self.ChatScroll.CanvasPosition = Vector2.new(0, self.ChatText.AbsoluteSize.Y + 100)
+		end)
 	end
 
 	function combatUI:ClearAbilities()
@@ -330,7 +344,7 @@ function CombatTemplate.Create(parentGui)
 		btnPad.Parent = btn
 
 		local uic = Instance.new("UITextSizeConstraint")
-		uic.MaxTextSize = 28
+		uic.MaxTextSize = 22
 		uic.MinTextSize = 8
 		uic.Parent = btn
 
@@ -356,13 +370,13 @@ function CombatTemplate.Create(parentGui)
 		local fLayout = Instance.new("UIListLayout")
 		fLayout.FillDirection = Enum.FillDirection.Vertical
 		fLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		fLayout.Padding = UDim.new(0, 6)
+		fLayout.Padding = UDim.new(0, 4)
 		fLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		fLayout.Parent = fFrame
 
 		local iconBox = Instance.new("Frame")
 		iconBox.Name = "IconBox"
-		local iconSize = math.clamp(camera.ViewportSize.Y * 0.08, 40, 80)
+		local iconSize = math.clamp(camera.ViewportSize.Y * 0.07, 35, 65)
 		iconBox.Size = UDim2.new(0, iconSize, 0, iconSize)
 		iconBox.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 		iconBox.LayoutOrder = 1
@@ -405,7 +419,7 @@ function CombatTemplate.Create(parentGui)
 
 		local nameLbl = Instance.new("TextLabel")
 		nameLbl.Name = "NameLabel"
-		nameLbl.Size = UDim2.new(1, 0, 0, 20)
+		nameLbl.Size = UDim2.new(1, 0, 0, 16)
 		nameLbl.BackgroundTransparency = 1
 		nameLbl.Text = name
 		nameLbl.Font = Enum.Font.GothamBold
@@ -416,7 +430,7 @@ function CombatTemplate.Create(parentGui)
 		nameLbl.Parent = fFrame
 
 		local nameUic = Instance.new("UITextSizeConstraint")
-		nameUic.MaxTextSize = 20
+		nameUic.MaxTextSize = 16
 		nameUic.MinTextSize = 10
 		nameUic.Parent = nameLbl
 
@@ -448,6 +462,22 @@ function CombatTemplate.Create(parentGui)
 		local fillCorner = Instance.new("UICorner")
 		fillCorner.CornerRadius = UDim.new(1, 0)
 		fillCorner.Parent = hpFill
+
+		local hpText = Instance.new("TextLabel")
+		hpText.Name = "HpText"
+		hpText.Size = UDim2.new(1, 0, 1, 0)
+		hpText.BackgroundTransparency = 1
+		hpText.Text = math.floor(initialHp) .. " / " .. math.floor(maxHp)
+		hpText.Font = Enum.Font.GothamBold
+		hpText.TextColor3 = Color3.fromRGB(255, 255, 255)
+		hpText.TextSize = 12
+		hpText.ZIndex = 26
+		hpText.Parent = hpContainer
+
+		local hpTextStroke = Instance.new("UIStroke")
+		hpTextStroke.Thickness = 1
+		hpTextStroke.Color = Color3.fromRGB(0, 0, 0)
+		hpTextStroke.Parent = hpText
 
 		local statusContainer = Instance.new("Frame")
 		statusContainer.Name = "StatusContainer"
@@ -484,6 +514,7 @@ function CombatTemplate.Create(parentGui)
 		local fighterObj = {
 			Frame = fFrame,
 			HpFill = hpFill,
+			HpText = hpText,
 			StatusContainer = statusContainer,
 			CooldownContainer = cooldownContainer,
 			MaxHp = maxHp
@@ -492,12 +523,13 @@ function CombatTemplate.Create(parentGui)
 		function fighterObj:UpdateHealth(newHp, newMax)
 			if newMax then self.MaxHp = newMax end
 			local newPct = math.clamp(newHp / self.MaxHp, 0, 1)
+			self.HpText.Text = math.floor(newHp) .. " / " .. math.floor(self.MaxHp)
 			TweenService:Create(self.HpFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				Size = UDim2.new(newPct, 0, 1, 0)
 			}):Play()
 		end
 
-		function fighterObj:SetStatus(statusId, iconString, durationText)
+		function fighterObj:SetStatus(statusId, iconString, durationText, descText)
 			local existing = self.StatusContainer:FindFirstChild(statusId)
 			if not existing then
 				existing = Instance.new("Frame")
@@ -544,10 +576,32 @@ function CombatTemplate.Create(parentGui)
 				strokeTxt.Color = Color3.fromRGB(0, 0, 0)
 				strokeTxt.Thickness = 1
 				strokeTxt.Parent = durLbl
-			else
-				local durLbl = existing:FindFirstChild("Duration")
-				if durLbl then durLbl.Text = durationText or "" end
+
+				local hoverBtn = Instance.new("TextButton")
+				hoverBtn.Name = "TooltipHover"
+				hoverBtn.Size = UDim2.new(1, 0, 1, 0)
+				hoverBtn.BackgroundTransparency = 1
+				hoverBtn.Text = ""
+				hoverBtn.ZIndex = 30
+				hoverBtn.Parent = existing
+
+				hoverBtn.MouseEnter:Connect(function()
+					if tooltipMgr then
+						local t = existing:GetAttribute("TooltipTitle")
+						local d = existing:GetAttribute("TooltipDesc")
+						local dur = existing:GetAttribute("TooltipDur")
+						tooltipMgr.Show("<b><font color='#FFD700'>"..t.."</font></b>\n<font color='#AAAAAA'>"..d.."</font>\nDuration: <font color='#FF5555'>"..dur.."</font>")
+					end
+				end)
+				hoverBtn.MouseLeave:Connect(function() if tooltipMgr then tooltipMgr.Hide() end end)
 			end
+
+			existing:SetAttribute("TooltipTitle", statusId)
+			existing:SetAttribute("TooltipDesc", descText or "Active effect.")
+			existing:SetAttribute("TooltipDur", durationText)
+
+			local durLbl = existing:FindFirstChild("Duration")
+			if durLbl then durLbl.Text = durationText or "" end
 		end
 
 		function fighterObj:RemoveStatus(statusId)
@@ -557,7 +611,7 @@ function CombatTemplate.Create(parentGui)
 			end
 		end
 
-		function fighterObj:SetCooldown(cdId, iconString, durationText)
+		function fighterObj:SetCooldown(cdId, iconString, durationText, descText)
 			local existing = self.CooldownContainer:FindFirstChild(cdId)
 			if not existing then
 				existing = Instance.new("Frame")
@@ -605,10 +659,32 @@ function CombatTemplate.Create(parentGui)
 				strokeTxt.Color = Color3.fromRGB(0, 0, 0)
 				strokeTxt.Thickness = 1
 				strokeTxt.Parent = durLbl
-			else
-				local durLbl = existing:FindFirstChild("Duration")
-				if durLbl then durLbl.Text = durationText or "" end
+
+				local hoverBtn = Instance.new("TextButton")
+				hoverBtn.Name = "TooltipHover"
+				hoverBtn.Size = UDim2.new(1, 0, 1, 0)
+				hoverBtn.BackgroundTransparency = 1
+				hoverBtn.Text = ""
+				hoverBtn.ZIndex = 30
+				hoverBtn.Parent = existing
+
+				hoverBtn.MouseEnter:Connect(function()
+					if tooltipMgr then
+						local t = existing:GetAttribute("TooltipTitle")
+						local d = existing:GetAttribute("TooltipDesc")
+						local dur = existing:GetAttribute("TooltipDur")
+						tooltipMgr.Show("<b><font color='#FFD700'>"..t.."</font></b>\n<font color='#AAAAAA'>"..d.."</font>\nDuration: <font color='#FF5555'>"..dur.."</font>")
+					end
+				end)
+				hoverBtn.MouseLeave:Connect(function() if tooltipMgr then tooltipMgr.Hide() end end)
 			end
+
+			existing:SetAttribute("TooltipTitle", cdId)
+			existing:SetAttribute("TooltipDesc", descText or "Active cooldown.")
+			existing:SetAttribute("TooltipDur", durationText)
+
+			local durLbl = existing:FindFirstChild("Duration")
+			if durLbl then durLbl.Text = durationText or "" end
 		end
 
 		function fighterObj:RemoveCooldown(cdId)
