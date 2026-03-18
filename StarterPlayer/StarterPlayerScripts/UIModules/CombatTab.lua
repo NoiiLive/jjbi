@@ -73,7 +73,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(0.55, 0, 0, 55)
+	subNav.Size = UDim2.new(0.45, 0, 0, 60)
 	subNav.Position = UDim2.new(0.5, 0, 0.02, 0)
 	subNav.AnchorPoint = Vector2.new(0.5, 0)
 	subNav.BackgroundColor3 = Color3.fromRGB(25, 15, 45)
@@ -88,7 +88,9 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local subNavContainer = Instance.new("Frame")
 	subNavContainer.Name = "SubNavContainer"
-	subNavContainer.Size = UDim2.new(1, 0, 1, 0)
+	subNavContainer.Size = UDim2.new(1, -12, 1, -12)
+	subNavContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+	subNavContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	subNavContainer.BackgroundTransparency = 1
 	subNavContainer.ZIndex = 21
 	subNavContainer.Parent = subNav
@@ -96,7 +98,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local navLayout = Instance.new("UIListLayout")
 	navLayout.FillDirection = Enum.FillDirection.Horizontal
 	navLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	navLayout.Padding = UDim.new(0, 12)
+	navLayout.Padding = UDim.new(0, 10)
 	navLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	navLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	navLayout.Parent = subNavContainer
@@ -104,7 +106,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local function makeNavBtn(name, text, order)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.20, 0, 0.70, 0)
+		btn.Size = UDim2.new(0.22, 0, 0.9, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -115,12 +117,12 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		btn.Parent = subNavContainer
 
 		local uic = Instance.new("UICorner")
-		uic.CornerRadius = UDim.new(0, 8)
+		uic.CornerRadius = UDim.new(0, 6)
 		uic.Parent = btn
 
 		local stroke = Instance.new("UIStroke")
 		stroke.Color = Color3.fromRGB(120, 60, 180)
-		stroke.Thickness = 2
+		stroke.Thickness = 1
 		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		stroke.Parent = btn
 
@@ -142,15 +144,15 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local worldBossBtn = makeNavBtn("WorldBossBtn", "World Boss", 3)
 
 	local modifierBubble = makeNavBtn("ModifierBubble", "MODS", 4)
-	modifierBubble.Size = UDim2.new(0.15, 0, 0.70, 0)
+	modifierBubble.Size = UDim2.new(0.15, 0, 0.9, 0)
 	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
 	modifierBubble.TextColor3 = Color3.fromRGB(255, 215, 50)
 	modifierBubble:FindFirstChild("UIStroke").Color = Color3.fromRGB(255, 215, 50)
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "ContentArea"
-	contentArea.Size = UDim2.new(1, 0, 0.88, 0)
-	contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
+	contentArea.Size = UDim2.new(1, 0, 0.86, 0)
+	contentArea.Position = UDim2.new(0.5, 0, 0.14, 0)
 	contentArea.AnchorPoint = Vector2.new(0.5, 0)
 	contentArea.BackgroundTransparency = 1
 	contentArea.ZIndex = 15
@@ -234,33 +236,33 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		end
 		local vp = camera.ViewportSize
 		if vp.X >= 1050 then
-			subNav.Size = UDim2.new(0.55, 0, 0, 55)
+			subNav.Size = UDim2.new(0.45, 0, 0, 65)
+			contentArea.Size = UDim2.new(1, 0, 0.86, 0)
+			contentArea.Position = UDim2.new(0.5, 0, 0.14, 0)
+		elseif vp.X >= 600 and vp.X < 1050 then
+			subNav.Size = UDim2.new(0.65, 0, 0, 60)
 			contentArea.Size = UDim2.new(1, 0, 0.88, 0)
 			contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
-		elseif vp.X >= 600 and vp.X < 1050 then
-			subNav.Size = UDim2.new(0.65, 0, 0, 50)
-			contentArea.Size = UDim2.new(1, 0, 0.90, 0)
-			contentArea.Position = UDim2.new(0.5, 0, 0.10, 0)
 		else
-			subNav.Size = UDim2.new(0.95, 0, 0, 50)
-			contentArea.Size = UDim2.new(1, 0, 0.90, 0)
-			contentArea.Position = UDim2.new(0.5, 0, 0.10, 0)
+			subNav.Size = UDim2.new(0.95, 0, 0, 60)
+			contentArea.Size = UDim2.new(1, 0, 0.88, 0)
+			contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
 		end
 	end)
 
 	local vpInit = camera.ViewportSize
 	if vpInit.X >= 1050 then
-		subNav.Size = UDim2.new(0.55, 0, 0, 55)
+		subNav.Size = UDim2.new(0.45, 0, 0, 65)
+		contentArea.Size = UDim2.new(1, 0, 0.86, 0)
+		contentArea.Position = UDim2.new(0.5, 0, 0.14, 0)
+	elseif vpInit.X >= 600 and vpInit.X < 1050 then
+		subNav.Size = UDim2.new(0.65, 0, 0, 60)
 		contentArea.Size = UDim2.new(1, 0, 0.88, 0)
 		contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
-	elseif vpInit.X >= 600 and vpInit.X < 1050 then
-		subNav.Size = UDim2.new(0.65, 0, 0, 50)
-		contentArea.Size = UDim2.new(1, 0, 0.90, 0)
-		contentArea.Position = UDim2.new(0.5, 0, 0.10, 0)
 	else
-		subNav.Size = UDim2.new(0.95, 0, 0, 50)
-		contentArea.Size = UDim2.new(1, 0, 0.90, 0)
-		contentArea.Position = UDim2.new(0.5, 0, 0.10, 0)
+		subNav.Size = UDim2.new(0.95, 0, 0, 60)
+		contentArea.Size = UDim2.new(1, 0, 0.88, 0)
+		contentArea.Position = UDim2.new(0.5, 0, 0.12, 0)
 	end
 end
 
