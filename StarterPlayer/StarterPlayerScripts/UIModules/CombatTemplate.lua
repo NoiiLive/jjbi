@@ -86,9 +86,10 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	bgPattern.ImageTransparency = 0.85
 	bgPattern.BackgroundTransparency = 1
 	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 300, 0, 300)
+	bgPattern.TileSize = UDim2.new(0, 1600, 0, 900)
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
 	bgPattern.ZIndex = 21
+	bgPattern.ClipsDescendants = true
 	bgPattern.Parent = mainFrame
 
 	local contentCorner = Instance.new("UICorner")
@@ -118,7 +119,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 	local healthbarArea = Instance.new("Frame")
 	healthbarArea.Name = "HealthbarArea"
-	healthbarArea.Size = UDim2.new(1, 0, 0.40, 0)
+	healthbarArea.Size = UDim2.new(1, 0, 0.45, 0)
 	healthbarArea.BackgroundTransparency = 1
 	healthbarArea.LayoutOrder = 1
 	healthbarArea.ZIndex = 22
@@ -127,7 +128,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	local hbLayout = Instance.new("UIListLayout")
 	hbLayout.FillDirection = Enum.FillDirection.Horizontal
 	hbLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	hbLayout.Padding = UDim.new(0, 10)
+	hbLayout.Padding = UDim.new(0, 15)
 	hbLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	hbLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	hbLayout.Parent = healthbarArea
@@ -143,7 +144,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	local alliesLayout = Instance.new("UIListLayout")
 	alliesLayout.FillDirection = Enum.FillDirection.Vertical
 	alliesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	alliesLayout.Padding = UDim.new(0, 6)
+	alliesLayout.Padding = UDim.new(0, 8)
 	alliesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	alliesLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	alliesLayout.Parent = alliesContainer
@@ -159,7 +160,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	local enemiesLayout = Instance.new("UIListLayout")
 	enemiesLayout.FillDirection = Enum.FillDirection.Vertical
 	enemiesLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	enemiesLayout.Padding = UDim.new(0, 6)
+	enemiesLayout.Padding = UDim.new(0, 8)
 	enemiesLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	enemiesLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	enemiesLayout.Parent = enemiesContainer
@@ -195,7 +196,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	chatScroll.Size = UDim2.new(1, 0, 1, 0)
 	chatScroll.BackgroundTransparency = 1
 	chatScroll.BorderSizePixel = 0
-	chatScroll.ScrollBarThickness = 4
+	chatScroll.ScrollBarThickness = 6
 	chatScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
 	chatScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 	chatScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -209,7 +210,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	chatText.BackgroundTransparency = 1
 	chatText.Font = Enum.Font.GothamMedium
 	chatText.TextColor3 = Color3.fromRGB(220, 220, 220)
-	chatText.TextSize = 15
+	chatText.TextSize = 16
 	chatText.RichText = true
 	chatText.TextWrapped = true
 	chatText.Text = ""
@@ -220,7 +221,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 	local abilitiesArea = Instance.new("Frame")
 	abilitiesArea.Name = "AbilitiesArea"
-	abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
+	abilitiesArea.Size = UDim2.new(1, 0, 0.28, 0)
 	abilitiesArea.BackgroundTransparency = 1
 	abilitiesArea.LayoutOrder = 4
 	abilitiesArea.ZIndex = 22
@@ -234,26 +235,14 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	abLayout.Parent = abilitiesArea
 
 	local function updateAbilitiesGrid()
-		local count = 0
-		for _, child in pairs(abilitiesArea:GetChildren()) do
-			if child:IsA("GuiObject") then
-				count = count + 1
-			end
-		end
-		if count <= 0 then count = 1 end
-
-		local columns = math.min(count, 4)
-		local rows = math.ceil(count / 4)
+		local columns = 7
+		local rows = 2
 
 		local totalPaddingX = 8 * (columns - 1)
 		local totalPaddingY = 8 * (rows - 1)
 
 		local cellW = (abilitiesArea.AbsoluteSize.X - totalPaddingX) / columns
-		local maxCellH = (abilitiesArea.AbsoluteSize.Y - totalPaddingY) / rows
-
-		-- Cap width and height so they aren't thin lines
-		cellW = math.min(cellW, 220)
-		local cellH = math.clamp(maxCellH, 45, 80)
+		local cellH = (abilitiesArea.AbsoluteSize.Y - totalPaddingY) / rows
 
 		abLayout.CellSize = UDim2.new(0, cellW, 0, cellH)
 	end
@@ -286,7 +275,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		else
 			healthbarArea.Size = UDim2.new(1, 0, 0.45, 0)
 			chatboxArea.Size = UDim2.new(1, 0, 0.20, 0)
-			abilitiesArea.Size = UDim2.new(1, 0, 0.30, 0)
+			abilitiesArea.Size = UDim2.new(1, 0, 0.28, 0)
 
 			hbLayout.FillDirection = Enum.FillDirection.Horizontal
 			alliesContainer.Size = UDim2.new(0.48, 0, 1, 0)
@@ -299,14 +288,18 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			enemiesLayout.FillDirection = Enum.FillDirection.Vertical
 		end
 
+		local iconSize = isPortrait and math.clamp(vp.X * 0.1, 35, 55) or math.clamp(vp.Y * 0.08, 40, 70)
+
 		for _, c in pairs(alliesContainer:GetChildren()) do
 			if c:IsA("Frame") and c.Name:match("Fighter") then
 				c.Size = isPortrait and UDim2.new(0.48, 0, 0, 0) or UDim2.new(1, 0, 0, 0)
+				if c:FindFirstChild("IconBox") then c.IconBox.Size = UDim2.new(0, iconSize, 0, iconSize) end
 			end
 		end
 		for _, c in pairs(enemiesContainer:GetChildren()) do
 			if c:IsA("Frame") and c.Name:match("Fighter") then
 				c.Size = isPortrait and UDim2.new(0.48, 0, 0, 0) or UDim2.new(1, 0, 0, 0)
+				if c:FindFirstChild("IconBox") then c.IconBox.Size = UDim2.new(0, iconSize, 0, iconSize) end
 			end
 		end
 
@@ -333,7 +326,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 	function combatUI:Log(message)
 		self.ChatText.Text = message
 		task.defer(function()
-			self.ChatScroll.CanvasPosition = Vector2.new(0, self.ChatText.AbsoluteSize.Y + 100)
+			self.ChatScroll.CanvasPosition = Vector2.new(0, self.ChatText.AbsoluteSize.Y + 200)
 		end)
 	end
 
@@ -388,13 +381,11 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 	function combatUI:AddFighter(isAlly, id, name, iconId, initialHp, maxHp)
 		local container = isAlly and self.AlliesContainer or self.EnemiesContainer
+		local isPortrait = workspace.CurrentCamera.ViewportSize.Y > workspace.CurrentCamera.ViewportSize.X
 
 		local fFrame = Instance.new("Frame")
 		fFrame.Name = "Fighter_" .. id
-
-		local isPortrait = workspace.CurrentCamera.ViewportSize.Y > workspace.CurrentCamera.ViewportSize.X
 		fFrame.Size = isPortrait and UDim2.new(0.48, 0, 0, 0) or UDim2.new(1, 0, 0, 0)
-
 		fFrame.AutomaticSize = Enum.AutomaticSize.Y
 		fFrame.BackgroundTransparency = 1
 		fFrame.ZIndex = 23
@@ -409,7 +400,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 		local iconBox = Instance.new("Frame")
 		iconBox.Name = "IconBox"
-		local iconSize = math.clamp(camera.ViewportSize.Y * 0.06, 35, 60)
+		local iconSize = isPortrait and math.clamp(camera.ViewportSize.X * 0.1, 35, 55) or math.clamp(camera.ViewportSize.Y * 0.08, 40, 70)
 		iconBox.Size = UDim2.new(0, iconSize, 0, iconSize)
 		iconBox.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 		iconBox.LayoutOrder = 1
@@ -452,7 +443,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 
 		local nameLbl = Instance.new("TextLabel")
 		nameLbl.Name = "NameLabel"
-		nameLbl.Size = UDim2.new(1, 0, 0, 16)
+		nameLbl.Size = UDim2.new(1, 0, 0, 18)
 		nameLbl.BackgroundTransparency = 1
 		nameLbl.Text = name
 		nameLbl.Font = Enum.Font.GothamBold
@@ -503,7 +494,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		hpText.Text = math.floor(initialHp) .. " / " .. math.floor(maxHp)
 		hpText.Font = Enum.Font.GothamBold
 		hpText.TextColor3 = Color3.fromRGB(255, 255, 255)
-		hpText.TextSize = 12
+		hpText.TextSize = 11
 		hpText.ZIndex = 26
 		hpText.Parent = hpContainer
 
