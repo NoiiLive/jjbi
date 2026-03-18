@@ -21,9 +21,9 @@ local cachedTooltipMgr = nil
 local resourceLabel
 
 local StatusIcons = {
-	Stun = "⚡", Poison = "☠", Burn = "🔥", Bleed = "🩸", Freeze = "❄", Confusion = "🌀",
-	Buff_Strength = "💪+", Buff_Defense = "🛡+", Buff_Speed = "💨+", Buff_Willpower = "🧠+",
-	Debuff_Strength = "💪-", Debuff_Defense = "🛡-", Debuff_Speed = "💨-", Debuff_Willpower = "🧠-"
+	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF",
+	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
+	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-"
 }
 
 local currentLog = ""
@@ -48,7 +48,7 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 		for eff, duration in pairs(statuses) do
 			if duration and duration > 0 then
 				currentStatuses[eff] = true
-				f:SetStatus(eff, StatusIcons[eff] or "•", tostring(duration))
+				f:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration))
 			end
 		end
 	end
@@ -60,14 +60,14 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 
 	local hasStunImmunity = (immunities and immunities.Stun and immunities.Stun > 0)
 	if hasStunImmunity then
-		f:SetCooldown("StunImmunity", "🛡", tostring(immunities.Stun))
+		f:SetCooldown("StunImmunity", "STN", tostring(immunities.Stun))
 	else
 		f:RemoveCooldown("StunImmunity")
 	end
 
 	local hasConfImmunity = (immunities and immunities.Confusion and immunities.Confusion > 0)
 	if hasConfImmunity then
-		f:SetCooldown("ConfImmunity", "🌀", tostring(immunities.Confusion))
+		f:SetCooldown("ConfImmunity", "CNF", tostring(immunities.Confusion))
 	else
 		f:RemoveCooldown("ConfImmunity")
 	end
@@ -107,9 +107,9 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, mainTitleNode)
 	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
 	resourceLabel.TextScaled = true
 	resourceLabel.Text = ""
-	resourceLabel.LayoutOrder = 1 
+	resourceLabel.LayoutOrder = 2 
 	resourceLabel.ZIndex = 22
-	resourceLabel.Parent = combatUI.MainFrame
+	resourceLabel.Parent = combatUI.ContentContainer
 
 	local resUic = Instance.new("UITextSizeConstraint")
 	resUic.MaxTextSize = 18
@@ -120,9 +120,9 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, mainTitleNode)
 	buttonContainer.Name = "ButtonContainer"
 	buttonContainer.Size = UDim2.new(1, 0, 0.25, 0)
 	buttonContainer.BackgroundTransparency = 1
-	buttonContainer.LayoutOrder = 3
+	buttonContainer.LayoutOrder = 4
 	buttonContainer.ZIndex = 22
-	buttonContainer.Parent = combatUI.MainFrame
+	buttonContainer.Parent = combatUI.ContentContainer
 
 	local btnLayout = Instance.new("UIListLayout")
 	btnLayout.FillDirection = Enum.FillDirection.Horizontal
