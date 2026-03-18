@@ -106,7 +106,9 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	menuFrame = Instance.new("ScrollingFrame")
 	menuFrame.Name = "MenuFrame"
-	menuFrame.Size = UDim2.new(1, 0, 1, 0)
+	menuFrame.Size = UDim2.new(1, -20, 1, -20)
+	menuFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	menuFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	menuFrame.BackgroundTransparency = 1
 	menuFrame.BorderSizePixel = 0
 	menuFrame.ScrollBarThickness = 6
@@ -133,22 +135,38 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	for _, dInfo in ipairs(dungeonList) do
 		local row = Instance.new("Frame")
 		row.Name = dInfo.Name
-		row.Size = UDim2.new(0.9, 0, 0, 100)
-		row.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
+		row.Size = UDim2.new(1, -20, 0, 100)
+		row.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
 		row.ZIndex = 21
 		row.Parent = menuFrame
+
+		local rowGrad = Instance.new("UIGradient")
+		rowGrad.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 20, 50)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 10, 30))
+		}
+		rowGrad.Rotation = 45
+		rowGrad.Parent = row
 
 		local rowCorner = Instance.new("UICorner")
 		rowCorner.CornerRadius = UDim.new(0, 8)
 		rowCorner.Parent = row
 
 		local rowStroke = Instance.new("UIStroke")
-		rowStroke.Color = Color3.fromRGB(90, 50, 120)
+		rowStroke.Color = Color3.fromRGB(255, 215, 50)
 		rowStroke.Thickness = 2
 		rowStroke.Parent = row
 
+		local strokeGrad = Instance.new("UIGradient")
+		strokeGrad.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
+		}
+		strokeGrad.Rotation = 45
+		strokeGrad.Parent = rowStroke
+
 		local infoContainer = Instance.new("Frame")
-		infoContainer.Size = UDim2.new(0.75, 0, 1, 0)
+		infoContainer.Size = UDim2.new(0.7, 0, 1, 0)
 		infoContainer.BackgroundTransparency = 1
 		infoContainer.ZIndex = 22
 		infoContainer.Parent = row
@@ -169,7 +187,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		title.Size = UDim2.new(1, 0, 0.35, 0)
 		title.BackgroundTransparency = 1
 		title.Font = Enum.Font.GothamBold
-		title.TextColor3 = Color3.fromRGB(255, 215, 50)
+		title.TextColor3 = Color3.fromRGB(255, 220, 80)
 		title.TextScaled = true
 		title.TextXAlignment = Enum.TextXAlignment.Left
 		title.Text = dInfo.Name
@@ -190,7 +208,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		status.RichText = true
 		status.TextScaled = true
 		status.TextXAlignment = Enum.TextXAlignment.Left
-		status.Text = "Status: Checking Requirements..."
+		status.Text = "<font color='#AAAAAA'>Status:</font> Checking Requirements..."
 		status.ZIndex = 23
 		status.Parent = infoContainer
 
@@ -208,7 +226,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		reward.RichText = true
 		reward.TextScaled = true
 		reward.TextXAlignment = Enum.TextXAlignment.Left
-		reward.Text = "Rewards: Loading..."
+		reward.Text = "<font color='#AAAAAA'>Rewards:</font> Loading..."
 		reward.ZIndex = 23
 		reward.Parent = infoContainer
 
@@ -219,10 +237,10 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 		local playBtn = Instance.new("TextButton")
 		playBtn.Name = "PlayBtn"
-		playBtn.Size = UDim2.new(0.2, 0, 0.6, 0)
-		playBtn.Position = UDim2.new(0.97, 0, 0.5, 0)
+		playBtn.Size = UDim2.new(0.25, 0, 0.6, 0)
+		playBtn.Position = UDim2.new(0.96, 0, 0.5, 0)
 		playBtn.AnchorPoint = Vector2.new(1, 0.5)
-		playBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		playBtn.BackgroundColor3 = Color3.fromRGB(70, 20, 100)
 		playBtn.Font = Enum.Font.GothamBold
 		playBtn.TextColor3 = Color3.new(1, 1, 1)
 		playBtn.TextScaled = true
@@ -235,7 +253,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 		btnCorner.Parent = playBtn
 
 		local btnStroke = Instance.new("UIStroke")
-		btnStroke.Color = Color3.fromRGB(150, 80, 220)
+		btnStroke.Color = Color3.fromRGB(255, 215, 50)
 		btnStroke.Thickness = 1
 		btnStroke.Parent = playBtn
 
@@ -266,21 +284,21 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 					if data.Info.Id == "Endless" then
 						local hs = player:GetAttribute("EndlessHighScore") or 0
-						data.Status.Text = "High Score: <font color='#55FF55'>Floor " .. hs .. "</font>"
-						data.Reward.Text = "Milestone Reward: <font color='#FF55FF'>Rokakaka</font> every 10 floors."
+						data.Status.Text = "<font color='#AAAAAA'>High Score:</font> <font color='#55FF55'>Floor " .. hs .. "</font>"
+						data.Reward.Text = "<font color='#AAAAAA'>Milestone Reward:</font> <font color='#FF55FF'>Rokakaka</font> every 10 floors."
 					else
 						local cleared = player:GetAttribute("DungeonClear_Part" .. data.Info.Id)
 						if cleared then
-							data.Status.Text = "Status: <font color='#55FF55'>Cleared</font>"
-							data.Reward.Text = "Rewards: Massive Item Pool & XP/Yen"
+							data.Status.Text = "<font color='#AAAAAA'>Status:</font> <font color='#55FF55'>Cleared</font>"
+							data.Reward.Text = "<font color='#AAAAAA'>Rewards:</font> Massive Item Pool & XP/Yen"
 						else
-							data.Status.Text = "Status: <font color='#FF5555'>Uncleared</font>"
-							data.Reward.Text = "First Time Clear Reward: <font color='#FF55FF'>Rokakaka</font>"
+							data.Status.Text = "<font color='#AAAAAA'>Status:</font> <font color='#FF5555'>Uncleared</font>"
+							data.Reward.Text = "<font color='#AAAAAA'>First Time Clear:</font> <font color='#FF55FF'>Rokakaka</font>"
 						end
 					end
 
 					if pVal >= data.Info.Req then
-						data.Btn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+						data.Btn.BackgroundColor3 = Color3.fromRGB(70, 20, 100)
 						data.Btn.Text = "PLAY"
 						data.Btn.TextColor3 = Color3.new(1,1,1)
 						data.Btn.Active = true
@@ -291,7 +309,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 						data.Btn.TextColor3 = Color3.fromRGB(150, 150, 150)
 						data.Btn.Active = false
 						data.Btn.AutoButtonColor = false
-						data.Status.Text = "Status: <font color='#FF5555'>Requires Prestige " .. data.Info.Req .. "</font>"
+						data.Status.Text = "<font color='#AAAAAA'>Status:</font> <font color='#FF5555'>Requires Prestige " .. data.Info.Req .. "</font>"
 					end
 				end
 			end
