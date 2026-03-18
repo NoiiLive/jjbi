@@ -6,6 +6,61 @@ local UIModules = script.Parent
 local StoryTab = require(UIModules:WaitForChild("StoryTab"))
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 
+local function applyDoubleGoldBorder(parent)
+	local parentCorner = parent:FindFirstChildOfClass("UICorner")
+
+	local outerStroke = Instance.new("UIStroke")
+	outerStroke.Thickness = 3
+	outerStroke.Color = Color3.fromRGB(255, 210, 60)
+	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
+	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	local gradOut = Instance.new("UIGradient")
+	gradOut.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
+	}
+	gradOut.Rotation = -45
+	gradOut.Parent = outerStroke
+	outerStroke.Parent = parent
+
+	local innerFrame = Instance.new("Frame")
+	innerFrame.Name = "InnerGoldBorder"
+	innerFrame.Size = UDim2.new(1, -6, 1, -6)
+	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	innerFrame.BackgroundTransparency = 1
+	innerFrame.ZIndex = parent.ZIndex
+
+	if parentCorner then
+		local innerCorner = Instance.new("UICorner")
+		if parentCorner.CornerRadius.Scale > 0 then
+			innerCorner.CornerRadius = parentCorner.CornerRadius
+		else
+			local offset = math.max(0, parentCorner.CornerRadius.Offset - 3)
+			innerCorner.CornerRadius = UDim.new(0, offset)
+		end
+		innerCorner.Parent = innerFrame
+	end
+	innerFrame.Parent = parent
+
+	local innerStroke = Instance.new("UIStroke")
+	innerStroke.Thickness = 1
+	innerStroke.Color = Color3.fromRGB(255, 230, 100)
+	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
+	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	local gradIn = Instance.new("UIGradient")
+	gradIn.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
+	}
+	gradIn.Rotation = 45
+	gradIn.Parent = innerStroke
+	innerStroke.Parent = innerFrame
+end
+
 function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	for _, child in pairs(parentFrame:GetChildren()) do
 		if child:IsA("TextLabel") and string.find(child.Text, "View") then
@@ -18,21 +73,28 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	subNav.Size = UDim2.new(0.85, 0, 0.08, 0)
 	subNav.Position = UDim2.new(0.5, 0, 0.02, 0)
 	subNav.AnchorPoint = Vector2.new(0.5, 0)
-	subNav.BackgroundTransparency = 1
+	subNav.BackgroundColor3 = Color3.fromRGB(25, 15, 45)
 	subNav.ZIndex = 20
 	subNav.Parent = parentFrame
+
+	local subNavCorner = Instance.new("UICorner")
+	subNavCorner.CornerRadius = UDim.new(0, 12)
+	subNavCorner.Parent = subNav
+
+	applyDoubleGoldBorder(subNav)
 
 	local navLayout = Instance.new("UIListLayout")
 	navLayout.FillDirection = Enum.FillDirection.Horizontal
 	navLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	navLayout.Padding = UDim.new(0, 5)
+	navLayout.Padding = UDim.new(0, 10)
 	navLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	navLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	navLayout.Parent = subNav
 
 	local function makeNavBtn(name, text, order)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0.25, 0, 1, 0)
+		btn.Size = UDim2.new(0.25, 0, 0.8, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -46,18 +108,13 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		uic.CornerRadius = UDim.new(0, 8)
 		uic.Parent = btn
 
-		local stroke = Instance.new("UIStroke")
-		stroke.Color = Color3.fromRGB(120, 60, 180)
-		stroke.Thickness = 2
-		stroke.Parent = btn
-
 		local uip = Instance.new("UIPadding")
 		uip.PaddingTop = UDim.new(0, 5)
 		uip.PaddingBottom = UDim.new(0, 5)
 		uip.Parent = btn
 
 		local ts = Instance.new("UITextSizeConstraint")
-		ts.MaxTextSize = 18
+		ts.MaxTextSize = 20
 		ts.MinTextSize = 10
 		ts.Parent = btn
 
@@ -70,7 +127,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local modifierBubble = Instance.new("TextButton")
 	modifierBubble.Name = "ModifierBubble"
-	modifierBubble.Size = UDim2.new(0.15, 0, 1, 0)
+	modifierBubble.Size = UDim2.new(0.15, 0, 0.8, 0)
 	modifierBubble.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
 	modifierBubble.Text = "MODS"
 	modifierBubble.Font = Enum.Font.GothamBold
@@ -83,11 +140,6 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local modCorner = Instance.new("UICorner")
 	modCorner.CornerRadius = UDim.new(0, 8)
 	modCorner.Parent = modifierBubble
-
-	local modStroke = Instance.new("UIStroke")
-	modStroke.Color = Color3.fromRGB(255, 215, 50)
-	modStroke.Thickness = 2
-	modStroke.Parent = modifierBubble
 
 	local modPad = Instance.new("UIPadding")
 	modPad.PaddingTop = UDim.new(0, 5)
@@ -134,17 +186,14 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		dungeonFrame.Visible = (target == "Dungeon")
 		worldBossFrame.Visible = (target == "WorldBoss")
 
-		storyBtn.BackgroundColor3 = (target == "Story") and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
+		storyBtn.BackgroundColor3 = (target == "Story") and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(35, 25, 45)
 		storyBtn.TextColor3 = (target == "Story") and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
-		storyBtn:FindFirstChild("UIStroke").Color = (target == "Story") and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(120, 60, 180)
 
-		dungeonBtn.BackgroundColor3 = (target == "Dungeon") and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
+		dungeonBtn.BackgroundColor3 = (target == "Dungeon") and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(35, 25, 45)
 		dungeonBtn.TextColor3 = (target == "Dungeon") and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
-		dungeonBtn:FindFirstChild("UIStroke").Color = (target == "Dungeon") and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(120, 60, 180)
 
 		worldBossBtn.BackgroundColor3 = (target == "WorldBoss") and Color3.fromRGB(140, 40, 40) or Color3.fromRGB(45, 25, 25)
 		worldBossBtn.TextColor3 = (target == "WorldBoss") and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
-		worldBossBtn:FindFirstChild("UIStroke").Color = (target == "WorldBoss") and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(180, 60, 60)
 	end
 
 	storyBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("Story") end)
