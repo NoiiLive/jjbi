@@ -4,7 +4,12 @@ local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local Players = game:GetService("Players")
 local Network = ReplicatedStorage:WaitForChild("Network")
 
-local StandStorageAction = Network:WaitForChild("StandStorageAction")
+local StandStorageAction = Network:FindFirstChild("StandStorageAction")
+if not StandStorageAction then
+	StandStorageAction = Instance.new("RemoteEvent")
+	StandStorageAction.Name = "StandStorageAction"
+	StandStorageAction.Parent = Network
+end
 
 StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 	if action == "Swap" then
