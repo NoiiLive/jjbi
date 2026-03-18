@@ -10,7 +10,13 @@ local CombatCore = require(game:GetService("ServerScriptService"):WaitForChild("
 local Network = ReplicatedStorage:WaitForChild("Network")
 local CombatAction = Network:WaitForChild("CombatAction")
 local CombatUpdate = Network:WaitForChild("CombatUpdate")
-local AutoSellToggle = Network:WaitForChild("AutoSellToggle")
+
+local AutoSellToggle = Network:FindFirstChild("AutoSellToggle")
+if not AutoSellToggle then
+	AutoSellToggle = Instance.new("RemoteEvent")
+	AutoSellToggle.Name = "AutoSellToggle"
+	AutoSellToggle.Parent = Network
+end
 
 local ActiveBattles = {}
 
@@ -59,16 +65,18 @@ local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentP
 		ItemChance = template.Drops and template.Drops.ItemChance or {}
 	}
 
+	local sStats = template.StandStats or {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}
+
 	return {
 		IsPlayer = false, IsAlly = isAlly, Name = template.Name, Trait = "None",
 		IsBoss = template.IsBoss or false,
 		HP = template.Health * scaleHP, MaxHP = template.Health * scaleHP,
-		TotalStrength = (template.Strength + (GameData.StandRanks[template.StandStats.Power] or 0)) * scaleStr,
-		TotalDefense = (template.Defense + (GameData.StandRanks[template.StandStats.Durability] or 0)) * scaleDef,
-		TotalSpeed = (template.Speed + (GameData.StandRanks[template.StandStats.Speed] or 0)) * scaleSpd,
+		TotalStrength = (template.Strength + (GameData.StandRanks[sStats.Power] or 0)) * scaleStr,
+		TotalDefense = (template.Defense + (GameData.StandRanks[sStats.Durability] or 0)) * scaleDef,
+		TotalSpeed = (template.Speed + (GameData.StandRanks[sStats.Speed] or 0)) * scaleSpd,
 		TotalWillpower = (template.Willpower or 1) * scaleWill,
-		TotalRange = (GameData.StandRanks[template.StandStats.Range] or 0),
-		TotalPrecision = (GameData.StandRanks[template.StandStats.Precision] or 0),
+		TotalRange = (GameData.StandRanks[sStats.Range] or 0),
+		TotalPrecision = (GameData.StandRanks[sStats.Precision] or 0),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
 		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
 		Cooldowns = {},
