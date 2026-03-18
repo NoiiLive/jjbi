@@ -23,6 +23,7 @@ local UIModules = script.Parent:WaitForChild("UIModules")
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local TooltipManager = require(UIModules:WaitForChild("TooltipManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
+local CombatTab = require(UIModules:WaitForChild("CombatTab"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
@@ -30,9 +31,18 @@ NotificationManager.Init(screenGui)
 
 local Network = ReplicatedStorage:WaitForChild("Network")
 local NotificationEvent = Network:WaitForChild("NotificationEvent")
+local CombatUpdate = Network:WaitForChild("CombatUpdate")
 
 NotificationEvent.OnClientEvent:Connect(function(msg)
 	NotificationManager.Show(msg)
+end)
+
+CombatUpdate.OnClientEvent:Connect(function(action, data)
+	if action == "SystemMessage" then
+		CombatTab.SystemMessage(data)
+	else
+		CombatTab.UpdateCombat(action, data)
+	end
 end)
 
 local function applyDoubleGoldBorder(parent)
@@ -625,5 +635,7 @@ end
 
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
+
+CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
 
 SwitchTab("Singleplayer")
