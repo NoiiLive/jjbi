@@ -65,12 +65,12 @@ function CombatTemplate.Create(parentGui)
 
 	local mainFrame = Instance.new("Frame")
 	mainFrame.Name = "CombatMainFrame"
-	mainFrame.Size = UDim2.new(0.9, 0, 0.85, 0)
+	mainFrame.Size = UDim2.new(0.85, 0, 0.85, 0)
 	mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	mainFrame.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
 	mainFrame.BorderSizePixel = 0
-	mainFrame.ZIndex = 10
+	mainFrame.ZIndex = 20
 	mainFrame.Parent = parentGui
 
 	local mainCorner = Instance.new("UICorner")
@@ -88,7 +88,7 @@ function CombatTemplate.Create(parentGui)
 	bgPattern.ScaleType = Enum.ScaleType.Tile
 	bgPattern.TileSize = UDim2.new(0, 256, 0, 256)
 	bgPattern.Size = UDim2.new(1, 0, 1, 0)
-	bgPattern.ZIndex = 11
+	bgPattern.ZIndex = 21
 	bgPattern.Parent = mainFrame
 
 	local contentCorner = Instance.new("UICorner")
@@ -114,7 +114,7 @@ function CombatTemplate.Create(parentGui)
 	healthbarArea.Size = UDim2.new(1, 0, 0.55, 0)
 	healthbarArea.BackgroundTransparency = 1
 	healthbarArea.LayoutOrder = 1
-	healthbarArea.ZIndex = 12
+	healthbarArea.ZIndex = 22
 	healthbarArea.Parent = mainFrame
 
 	local hbLayout = Instance.new("UIListLayout")
@@ -130,7 +130,7 @@ function CombatTemplate.Create(parentGui)
 	alliesContainer.Size = UDim2.new(0.48, 0, 1, 0)
 	alliesContainer.BackgroundTransparency = 1
 	alliesContainer.LayoutOrder = 1
-	alliesContainer.ZIndex = 12
+	alliesContainer.ZIndex = 22
 	alliesContainer.Parent = healthbarArea
 
 	local alliesLayout = Instance.new("UIListLayout")
@@ -146,7 +146,7 @@ function CombatTemplate.Create(parentGui)
 	enemiesContainer.Size = UDim2.new(0.48, 0, 1, 0)
 	enemiesContainer.BackgroundTransparency = 1
 	enemiesContainer.LayoutOrder = 2
-	enemiesContainer.ZIndex = 12
+	enemiesContainer.ZIndex = 22
 	enemiesContainer.Parent = healthbarArea
 
 	local enemiesLayout = Instance.new("UIListLayout")
@@ -162,8 +162,9 @@ function CombatTemplate.Create(parentGui)
 	chatboxArea.Size = UDim2.new(1, 0, 0.15, 0)
 	chatboxArea.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 	chatboxArea.BackgroundTransparency = 0.2
+	chatboxArea.BorderSizePixel = 0
 	chatboxArea.LayoutOrder = 2
-	chatboxArea.ZIndex = 12
+	chatboxArea.ZIndex = 22
 	chatboxArea.Parent = mainFrame
 
 	local cbCorner = Instance.new("UICorner")
@@ -192,7 +193,7 @@ function CombatTemplate.Create(parentGui)
 	chatText.RichText = true
 	chatText.TextXAlignment = Enum.TextXAlignment.Left
 	chatText.TextYAlignment = Enum.TextYAlignment.Top
-	chatText.ZIndex = 13
+	chatText.ZIndex = 23
 	chatText.Parent = chatboxArea
 
 	local cbConstraint = Instance.new("UITextSizeConstraint")
@@ -205,7 +206,7 @@ function CombatTemplate.Create(parentGui)
 	abilitiesArea.Size = UDim2.new(1, 0, 0.25, 0)
 	abilitiesArea.BackgroundTransparency = 1
 	abilitiesArea.LayoutOrder = 3
-	abilitiesArea.ZIndex = 12
+	abilitiesArea.ZIndex = 22
 	abilitiesArea.Parent = mainFrame
 
 	local abLayout = Instance.new("UIGridLayout")
@@ -216,20 +217,26 @@ function CombatTemplate.Create(parentGui)
 	abLayout.Parent = abilitiesArea
 
 	local function updateAbilitiesGrid()
-		local count = #abilitiesArea:GetChildren() - 1
+		local count = 0
+		for _, child in pairs(abilitiesArea:GetChildren()) do
+			if child:IsA("GuiObject") then
+				count = count + 1
+			end
+		end
 		if count <= 0 then count = 1 end
 
-		local totalPaddingX = 10 * (math.min(count, 5) - 1)
-		local totalPaddingY = 10 * (math.ceil(count / 5) - 1)
+		local columns = math.min(count, 4)
+		local rows = math.ceil(count / 4)
 
-		local columns = math.min(count, 5)
-		local rows = math.ceil(count / 5)
+		local totalPaddingX = 10 * (columns - 1)
+		local totalPaddingY = 10 * (rows - 1)
 
 		local cellW = (abilitiesArea.AbsoluteSize.X - totalPaddingX) / columns
 		local cellH = (abilitiesArea.AbsoluteSize.Y - totalPaddingY) / rows
 
 		abLayout.CellSize = UDim2.new(0, cellW, 0, cellH)
 	end
+
 	abilitiesArea:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateAbilitiesGrid)
 	abilitiesArea.ChildAdded:Connect(updateAbilitiesGrid)
 	abilitiesArea.ChildRemoved:Connect(updateAbilitiesGrid)
@@ -257,6 +264,15 @@ function CombatTemplate.Create(parentGui)
 		end
 	end)
 
+	local vpInit = camera.ViewportSize
+	if vpInit.Y > vpInit.X then
+		hbLayout.FillDirection = Enum.FillDirection.Vertical
+		alliesContainer.Size = UDim2.new(1, 0, 0.48, 0)
+		enemiesContainer.Size = UDim2.new(1, 0, 0.48, 0)
+		alliesLayout.FillDirection = Enum.FillDirection.Horizontal
+		enemiesLayout.FillDirection = Enum.FillDirection.Horizontal
+	end
+
 	combatUI.MainFrame = mainFrame
 	combatUI.AlliesContainer = alliesContainer
 	combatUI.EnemiesContainer = enemiesContainer
@@ -283,7 +299,7 @@ function CombatTemplate.Create(parentGui)
 		btn.Font = Enum.Font.GothamBold
 		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 		btn.TextScaled = true
-		btn.ZIndex = 14
+		btn.ZIndex = 24
 		btn.Parent = self.AbilitiesArea
 
 		local btnCorner = Instance.new("UICorner")
@@ -293,15 +309,18 @@ function CombatTemplate.Create(parentGui)
 		local btnStroke = Instance.new("UIStroke")
 		btnStroke.Color = Color3.fromRGB(90, 50, 120)
 		btnStroke.Thickness = 2
+		btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		btnStroke.Parent = btn
 
 		local btnPad = Instance.new("UIPadding")
 		btnPad.PaddingTop = UDim.new(0, 5)
 		btnPad.PaddingBottom = UDim.new(0, 5)
+		btnPad.PaddingLeft = UDim.new(0, 5)
+		btnPad.PaddingRight = UDim.new(0, 5)
 		btnPad.Parent = btn
 
 		local uic = Instance.new("UITextSizeConstraint")
-		uic.MaxTextSize = 24
+		uic.MaxTextSize = 28
 		uic.MinTextSize = 8
 		uic.Parent = btn
 
@@ -309,6 +328,7 @@ function CombatTemplate.Create(parentGui)
 			if callback then callback() end
 		end)
 
+		updateAbilitiesGrid()
 		return btn
 	end
 
@@ -320,22 +340,23 @@ function CombatTemplate.Create(parentGui)
 		fFrame.Size = UDim2.new(1, 0, 0, 0)
 		fFrame.AutomaticSize = Enum.AutomaticSize.Y
 		fFrame.BackgroundTransparency = 1
-		fFrame.ZIndex = 13
+		fFrame.ZIndex = 23
 		fFrame.Parent = container
 
 		local fLayout = Instance.new("UIListLayout")
 		fLayout.FillDirection = Enum.FillDirection.Vertical
 		fLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		fLayout.Padding = UDim.new(0, 4)
+		fLayout.Padding = UDim.new(0, 6)
 		fLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		fLayout.Parent = fFrame
 
 		local iconBox = Instance.new("Frame")
 		iconBox.Name = "IconBox"
-		iconBox.Size = UDim2.new(0, 60, 0, 60)
+		local iconSize = math.clamp(camera.ViewportSize.Y * 0.08, 40, 80)
+		iconBox.Size = UDim2.new(0, iconSize, 0, iconSize)
 		iconBox.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 		iconBox.LayoutOrder = 1
-		iconBox.ZIndex = 14
+		iconBox.ZIndex = 24
 		iconBox.Parent = fFrame
 
 		local icCorner = Instance.new("UICorner")
@@ -345,15 +366,16 @@ function CombatTemplate.Create(parentGui)
 		local icStroke = Instance.new("UIStroke")
 		icStroke.Color = Color3.fromRGB(255, 215, 50)
 		icStroke.Thickness = 2
+		icStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		icStroke.Parent = iconBox
 
-		if iconId and iconId ~= "" then
+		if isAlly and iconId and iconId ~= "" then
 			local img = Instance.new("ImageLabel")
 			img.Size = UDim2.new(1, 0, 1, 0)
 			img.BackgroundTransparency = 1
-			img.Image = iconId
+			img.Image = "rbxthumb://type=AvatarHeadShot&id=" .. iconId .. "&w=150&h=150"
 			img.ScaleType = Enum.ScaleType.Crop
-			img.ZIndex = 15
+			img.ZIndex = 25
 			img.Parent = iconBox
 
 			local imgCorner = Instance.new("UICorner")
@@ -367,7 +389,7 @@ function CombatTemplate.Create(parentGui)
 			txt.Font = Enum.Font.GothamBold
 			txt.TextColor3 = Color3.fromRGB(255, 215, 50)
 			txt.TextScaled = true
-			txt.ZIndex = 15
+			txt.ZIndex = 25
 			txt.Parent = iconBox
 		end
 
@@ -380,20 +402,20 @@ function CombatTemplate.Create(parentGui)
 		nameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 		nameLbl.TextScaled = true
 		nameLbl.LayoutOrder = 2
-		nameLbl.ZIndex = 14
+		nameLbl.ZIndex = 24
 		nameLbl.Parent = fFrame
 
 		local nameUic = Instance.new("UITextSizeConstraint")
-		nameUic.MaxTextSize = 18
+		nameUic.MaxTextSize = 20
 		nameUic.MinTextSize = 10
 		nameUic.Parent = nameLbl
 
 		local hpContainer = Instance.new("Frame")
 		hpContainer.Name = "HpContainer"
-		hpContainer.Size = UDim2.new(0.8, 0, 0, 14)
+		hpContainer.Size = UDim2.new(0.8, 0, 0, 16)
 		hpContainer.BackgroundColor3 = Color3.fromRGB(40, 10, 10)
 		hpContainer.LayoutOrder = 3
-		hpContainer.ZIndex = 14
+		hpContainer.ZIndex = 24
 		hpContainer.Parent = fFrame
 
 		local hpCorner = Instance.new("UICorner")
@@ -410,7 +432,7 @@ function CombatTemplate.Create(parentGui)
 		local pct = math.clamp(initialHp / maxHp, 0, 1)
 		hpFill.Size = UDim2.new(pct, 0, 1, 0)
 		hpFill.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-		hpFill.ZIndex = 15
+		hpFill.ZIndex = 25
 		hpFill.Parent = hpContainer
 
 		local fillCorner = Instance.new("UICorner")
@@ -422,7 +444,7 @@ function CombatTemplate.Create(parentGui)
 		statusContainer.Size = UDim2.new(1, 0, 0, 24)
 		statusContainer.BackgroundTransparency = 1
 		statusContainer.LayoutOrder = 4
-		statusContainer.ZIndex = 14
+		statusContainer.ZIndex = 24
 		statusContainer.Parent = fFrame
 
 		local statusLayout = Instance.new("UIListLayout")
@@ -433,10 +455,27 @@ function CombatTemplate.Create(parentGui)
 		statusLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 		statusLayout.Parent = statusContainer
 
+		local cooldownContainer = Instance.new("Frame")
+		cooldownContainer.Name = "CooldownContainer"
+		cooldownContainer.Size = UDim2.new(1, 0, 0, 20)
+		cooldownContainer.BackgroundTransparency = 1
+		cooldownContainer.LayoutOrder = 5
+		cooldownContainer.ZIndex = 24
+		cooldownContainer.Parent = fFrame
+
+		local cdLayout = Instance.new("UIListLayout")
+		cdLayout.FillDirection = Enum.FillDirection.Horizontal
+		cdLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		cdLayout.Padding = UDim.new(0, 4)
+		cdLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		cdLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		cdLayout.Parent = cooldownContainer
+
 		local fighterObj = {
 			Frame = fFrame,
 			HpFill = hpFill,
 			StatusContainer = statusContainer,
+			CooldownContainer = cooldownContainer,
 			MaxHp = maxHp
 		}
 
@@ -455,7 +494,7 @@ function CombatTemplate.Create(parentGui)
 				existing.Name = statusId
 				existing.Size = UDim2.new(0, 24, 0, 24)
 				existing.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-				existing.ZIndex = 15
+				existing.ZIndex = 25
 				existing.Parent = self.StatusContainer
 
 				local sCorner = Instance.new("UICorner")
@@ -465,6 +504,7 @@ function CombatTemplate.Create(parentGui)
 				local sStroke = Instance.new("UIStroke")
 				sStroke.Color = Color3.fromRGB(255, 215, 50)
 				sStroke.Thickness = 1
+				sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 				sStroke.Parent = existing
 
 				local sIcon = Instance.new("TextLabel")
@@ -475,7 +515,7 @@ function CombatTemplate.Create(parentGui)
 				sIcon.Font = Enum.Font.GothamBold
 				sIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
 				sIcon.TextScaled = true
-				sIcon.ZIndex = 16
+				sIcon.ZIndex = 26
 				sIcon.Parent = existing
 
 				local durLbl = Instance.new("TextLabel")
@@ -487,7 +527,7 @@ function CombatTemplate.Create(parentGui)
 				durLbl.Font = Enum.Font.GothamBold
 				durLbl.TextColor3 = Color3.fromRGB(255, 50, 50)
 				durLbl.TextScaled = true
-				durLbl.ZIndex = 17
+				durLbl.ZIndex = 27
 				durLbl.Parent = existing
 
 				local strokeTxt = Instance.new("UIStroke")
@@ -507,21 +547,73 @@ function CombatTemplate.Create(parentGui)
 			end
 		end
 
+		function fighterObj:SetCooldown(cdId, iconString, durationText)
+			local existing = self.CooldownContainer:FindFirstChild(cdId)
+			if not existing then
+				existing = Instance.new("Frame")
+				existing.Name = cdId
+				existing.Size = UDim2.new(0, 20, 0, 20)
+				existing.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
+				existing.BackgroundTransparency = 0.5
+				existing.ZIndex = 25
+				existing.Parent = self.CooldownContainer
+
+				local sCorner = Instance.new("UICorner")
+				sCorner.CornerRadius = UDim.new(0, 4)
+				sCorner.Parent = existing
+
+				local sStroke = Instance.new("UIStroke")
+				sStroke.Color = Color3.fromRGB(150, 150, 150)
+				sStroke.Thickness = 1
+				sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				sStroke.Parent = existing
+
+				local sIcon = Instance.new("TextLabel")
+				sIcon.Name = "Icon"
+				sIcon.Size = UDim2.new(1, 0, 1, 0)
+				sIcon.BackgroundTransparency = 1
+				sIcon.Text = iconString
+				sIcon.Font = Enum.Font.GothamBold
+				sIcon.TextColor3 = Color3.fromRGB(150, 150, 150)
+				sIcon.TextScaled = true
+				sIcon.ZIndex = 26
+				sIcon.Parent = existing
+
+				local durLbl = Instance.new("TextLabel")
+				durLbl.Name = "Duration"
+				durLbl.Size = UDim2.new(1, 0, 0.4, 0)
+				durLbl.Position = UDim2.new(0, 0, 0.8, 0)
+				durLbl.BackgroundTransparency = 1
+				durLbl.Text = durationText or ""
+				durLbl.Font = Enum.Font.GothamBold
+				durLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+				durLbl.TextScaled = true
+				durLbl.ZIndex = 27
+				durLbl.Parent = existing
+
+				local strokeTxt = Instance.new("UIStroke")
+				strokeTxt.Color = Color3.fromRGB(0, 0, 0)
+				strokeTxt.Thickness = 1
+				strokeTxt.Parent = durLbl
+			else
+				local durLbl = existing:FindFirstChild("Duration")
+				if durLbl then durLbl.Text = durationText or "" end
+			end
+		end
+
+		function fighterObj:RemoveCooldown(cdId)
+			local existing = self.CooldownContainer:FindFirstChild(cdId)
+			if existing then
+				existing:Destroy()
+			end
+		end
+
 		return fighterObj
 	end
 
 	function combatUI:Destroy()
 		if resizeConn then resizeConn:Disconnect() end
 		self.MainFrame:Destroy()
-	end
-
-	local vpInit = camera.ViewportSize
-	if vpInit.Y > vpInit.X then
-		hbLayout.FillDirection = Enum.FillDirection.Vertical
-		alliesContainer.Size = UDim2.new(1, 0, 0.48, 0)
-		enemiesContainer.Size = UDim2.new(1, 0, 0.48, 0)
-		alliesLayout.FillDirection = Enum.FillDirection.Horizontal
-		enemiesLayout.FillDirection = Enum.FillDirection.Horizontal
 	end
 
 	return combatUI
