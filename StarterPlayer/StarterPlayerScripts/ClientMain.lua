@@ -41,7 +41,13 @@ CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
 	else
-		CombatTab.UpdateCombat(action, data)
+		if action == "UpdateDungeon" and CombatTab.UpdateDungeon then
+			CombatTab.UpdateDungeon("Update", data)
+		elseif action == "UpdateWorldBoss" and CombatTab.UpdateWorldBoss then
+			CombatTab.UpdateWorldBoss("Update", data)
+		else
+			CombatTab.UpdateCombat(action, data)
+		end
 	end
 end)
 
@@ -455,7 +461,7 @@ for i, tabName in ipairs(tabs) do
 	title.Parent = btn
 end
 
-local activeTab = "Singleplayer"
+local activeTab = "Updates"
 local currentLayoutState = "Large"
 
 local function refreshButtons()
@@ -638,4 +644,4 @@ UpdateLayoutForScreen()
 
 CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
 
-SwitchTab("Singleplayer")
+SwitchTab("Updates")
