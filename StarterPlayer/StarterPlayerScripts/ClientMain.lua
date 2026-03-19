@@ -45,6 +45,23 @@ NotificationEvent.OnClientEvent:Connect(function(msg)
 	NotificationManager.Show(msg)
 end)
 
+-- CATCH-ALL FOR SHOP/CODE NOTIFICATIONS
+Network:WaitForChild("RedeemCode").OnClientEvent:Connect(function(msg)
+	if type(msg) == "string" then
+		NotificationManager.Show(msg)
+	end
+end)
+
+Network:WaitForChild("ShopAction").OnClientEvent:Connect(function(action, data)
+	if type(action) == "string" and data == nil then
+		if action ~= "Refresh" and not string.match(action, "Prompt") then
+			NotificationManager.Show(action)
+		end
+	elseif type(data) == "string" and (action == "Notify" or action == "Notification" or action == "Message" or action == "Error" or action == "Success") then
+		NotificationManager.Show(data)
+	end
+end)
+
 CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
@@ -345,9 +362,6 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
--- ========================================================
--- REACTIVE MUTE STATE
--- ========================================================
 local function applyMuteState()
 	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
 	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
@@ -676,10 +690,10 @@ end
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
-CombatTab.Init(TabFrames["Singleplayer"], TooltipManager)
-InventoryTab.Init(TabFrames["Inventory"], TooltipManager)
+CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
+InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
 UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
-TrainingTab.Init(TabFrames["Training"], TooltipManager)
+TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
 ShopTab.Init(TabFrames["Shop"], TooltipManager)
 
 SwitchTab("Updates")
