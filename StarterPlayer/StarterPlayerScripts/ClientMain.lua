@@ -1,5 +1,4 @@
 -- @ScriptType: LocalScript
--- @ScriptType: LocalScript
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -338,27 +337,30 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
-local isMuted = player:GetAttribute("IsMuted") or false
-muteBtn.Text = isMuted and "🔈" or "🔊"
+local function applyMuteState()
+	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
+	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
+	local bgm = SoundService:FindFirstChild("BizarreBGM")
+	if bgm then
+		bgm.Volume = isCurrentlyMuted and 0 or 0.4
+	end
+end
+
+player:GetAttributeChangedSignal("IsMuted"):Connect(applyMuteState)
 
 task.spawn(function()
-	local bgm = SoundService:WaitForChild("BizarreBGM", 5)
-	if bgm then
-		bgm.Volume = isMuted and 0 or 0.4
-	end
+	SoundService:WaitForChild("BizarreBGM", 5)
+	applyMuteState()
 end)
 
 muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
-	isMuted = not isMuted
-	muteBtn.Text = isMuted and "🔈" or "🔊"
+	local currentState = player:GetAttribute("IsMuted") or false
+	local newState = not currentState
 
-	local bgm = SoundService:FindFirstChild("BizarreBGM")
-	if bgm then
-		bgm.Volume = isMuted and 0 or 0.4
-	end
+	player:SetAttribute("IsMuted", newState)
 
-	Network:WaitForChild("ToggleMute"):FireServer(isMuted)
+	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
 
 boostBtn.MouseButton1Click:Connect(function()
