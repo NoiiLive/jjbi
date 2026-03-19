@@ -234,19 +234,20 @@ local function CreateStatRow(statName, parent, isStand)
 	row.BackgroundTransparency = 1
 
 	local statLabel = Instance.new("TextLabel", row)
-	statLabel.Size = UDim2.new(0.38, 0, 1, 0)
+	statLabel.Size = UDim2.new(0.40, -4, 1, 0)
 	statLabel.BackgroundTransparency = 1
 	statLabel.Font = Enum.Font.GothamBold
 	statLabel.TextColor3 = isStand and Color3.fromRGB(200, 150, 255) or Color3.fromRGB(220, 220, 220)
 	statLabel.TextXAlignment = Enum.TextXAlignment.Left
 	statLabel.TextScaled = true
+	statLabel.TextWrapped = true
 	statLabel.RichText = true
 	statLabel.ZIndex = 22
 	Instance.new("UITextSizeConstraint", statLabel).MaxTextSize = 13
 
 	local btnContainer = Instance.new("Frame", row)
-	btnContainer.Size = UDim2.new(0.62, 0, 1, 0)
-	btnContainer.Position = UDim2.new(1, -12, 0, 0) 
+	btnContainer.Size = UDim2.new(0.60, -12, 1, 0) 
+	btnContainer.Position = UDim2.new(1, -12, 0, 0)
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
 	btnContainer.ZIndex = 22
@@ -255,7 +256,7 @@ local function CreateStatRow(statName, parent, isStand)
 	blL.FillDirection = Enum.FillDirection.Horizontal
 	blL.HorizontalAlignment = Enum.HorizontalAlignment.Right
 	blL.VerticalAlignment = Enum.VerticalAlignment.Center
-	blL.Padding = UDim.new(0, 4)
+	blL.Padding = UDim.new(0.02, 0)
 	blL.SortOrder = Enum.SortOrder.LayoutOrder
 
 	local function makeBtn(text, order, scaleW)
@@ -267,6 +268,7 @@ local function CreateStatRow(statName, parent, isStand)
 		b.Font = Enum.Font.GothamBold
 		b.TextColor3 = Color3.new(1,1,1)
 		b.TextScaled = true
+		b.TextWrapped = true
 		b.ZIndex = 23
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
 		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(120, 60, 180)
@@ -274,10 +276,10 @@ local function CreateStatRow(statName, parent, isStand)
 		return b
 	end
 
-	local b1 = makeBtn("+1", 1, 0.16)
-	local b5 = makeBtn("+5", 2, 0.16)
-	local b10 = makeBtn("+10", 3, 0.20)
-	local bMax = makeBtn("MAX", 4, 0.34)
+	local b1 = makeBtn("+1", 1, 0.15)
+	local b5 = makeBtn("+5", 2, 0.15)
+	local b10 = makeBtn("+10", 3, 0.22)
+	local bMax = makeBtn("MAX", 4, 0.30)
 
 	local function hookUpgradeHover(btn, amt)
 		btn.MouseEnter:Connect(function() showUpgradeTooltip(statName, amt) end)
@@ -681,41 +683,58 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	mainPad.PaddingLeft = UDim.new(0.02, 0); mainPad.PaddingRight = UDim.new(0.02, 0)
 
 	local mainLayout = Instance.new("UIListLayout", innerContent)
-	mainLayout.FillDirection = Enum.FillDirection.Horizontal
+	mainLayout.FillDirection = Enum.FillDirection.Vertical
 	mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	mainLayout.Padding = UDim.new(0.02, 0)
 
-	local leftContainer = Instance.new("Frame", innerContent)
-	leftContainer.Name = "LeftContainer"
-	leftContainer.Size = UDim2.new(0.38, 0, 1, 0)
-	leftContainer.BackgroundTransparency = 1
-	leftContainer.LayoutOrder = 1
+	-- ==========================================
+	-- SUB NAVIGATION
+	-- ==========================================
+	local subNavFrame = Instance.new("Frame", innerContent)
+	subNavFrame.Name = "SubNavFrame"
+	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
+	subNavFrame.BackgroundTransparency = 1
+	subNavFrame.LayoutOrder = 1
 
-	local rightContainer = Instance.new("Frame", innerContent)
-	rightContainer.Name = "RightContainer"
-	rightContainer.Size = UDim2.new(0.60, 0, 1, 0)
-	rightContainer.BackgroundTransparency = 1
-	rightContainer.LayoutOrder = 2
+	local subNavL = Instance.new("UIListLayout", subNavFrame)
+	subNavL.FillDirection = Enum.FillDirection.Horizontal
+	subNavL.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	subNavL.Padding = UDim.new(0.02, 0)
+
+	local invTabBtn = Instance.new("TextButton", subNavFrame)
+	invTabBtn.Size = UDim2.new(0.49, 0, 1, 0)
+	invTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100)
+	invTabBtn.Text = "INVENTORY"
+	invTabBtn.Font = Enum.Font.GothamBold
+	invTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
+	invTabBtn.TextScaled = true
+	invTabBtn.ZIndex = 20
+	Instance.new("UICorner", invTabBtn).CornerRadius = UDim.new(0, 6)
+	local invStr = Instance.new("UIStroke", invTabBtn); invStr.Color = Color3.fromRGB(255, 215, 50); invStr.Thickness = 2
+	Instance.new("UITextSizeConstraint", invTabBtn).MaxTextSize = 16
+
+	local standTabBtn = Instance.new("TextButton", subNavFrame)
+	standTabBtn.Size = UDim2.new(0.49, 0, 1, 0)
+	standTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+	standTabBtn.Text = "STAND & STYLE"
+	standTabBtn.Font = Enum.Font.GothamBold
+	standTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+	standTabBtn.TextScaled = true
+	standTabBtn.ZIndex = 20
+	Instance.new("UICorner", standTabBtn).CornerRadius = UDim.new(0, 6)
+	local standStr = Instance.new("UIStroke", standTabBtn); standStr.Color = Color3.fromRGB(90, 50, 120); standStr.Thickness = 1
+	Instance.new("UITextSizeConstraint", standTabBtn).MaxTextSize = 16
 
 	-- ==========================================
-	-- LEFT CONTAINER (38%)
+	-- SHARED LOADOUT
 	-- ==========================================
-	local lLayout = Instance.new("UIListLayout", leftContainer)
-	lLayout.FillDirection = Enum.FillDirection.Vertical
-	lLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	lLayout.Padding = UDim.new(0.02, 0)
-
-	local loadoutCard = CreateCard("LoadoutCard", leftContainer, UDim2.new(1, 0, 0.35, 0), 1)
-	local storageCard = CreateCard("StorageCard", leftContainer, UDim2.new(1, 0, 0.44, 0), 2)
-	local autoSellCard = CreateCard("AutoSellCard", leftContainer, UDim2.new(1, 0, 0.17, 0), 3)
-
-	-- Loadout
+	local loadoutCard = CreateCard("LoadoutCard", innerContent, UDim2.new(1, 0, 0.16, 0), 2)
 	CreateTitle(loadoutCard, "LOADOUT")
-	local lContent = Instance.new("Frame", loadoutCard); lContent.Size = UDim2.new(1, 0, 1, -24); lContent.Position = UDim2.new(0,0,0,24); lContent.BackgroundTransparency = 1; lContent.LayoutOrder = 2
-	Instance.new("UIListLayout", lContent).Padding = UDim.new(0, 0)
+	local lContent = Instance.new("Frame", loadoutCard); lContent.Size = UDim2.new(1, 0, 1, -20); lContent.Position = UDim2.new(0,0,0,20); lContent.BackgroundTransparency = 1; lContent.LayoutOrder = 2
+	local lcL = Instance.new("UIListLayout", lContent); lcL.FillDirection = Enum.FillDirection.Vertical; lcL.Padding = UDim.new(0, 2); lcL.VerticalAlignment = Enum.VerticalAlignment.Center
 
-	local function createLoadRow(name)
-		local r = Instance.new("Frame", lContent); r.Size = UDim2.new(1, 0, 1/6, 0); r.BackgroundTransparency = 1
+	local function createLoadRow(name, parentFrame)
+		local r = Instance.new("Frame", parentFrame); r.Size = UDim2.new(0.49, 0, 1, 0); r.BackgroundTransparency = 1
 		local lbl = Instance.new("TextLabel", r)
 		lbl.Size = UDim2.new(0.85, 0, 1, 0); lbl.BackgroundTransparency = 1; lbl.Font = Enum.Font.GothamMedium; lbl.TextColor3 = Color3.new(1,1,1)
 		lbl.TextScaled = true; lbl.RichText = true; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.ZIndex = 22
@@ -732,54 +751,44 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		return r, lbl, btn
 	end
 
-	standBox, standLabel, standLockBtn = createLoadRow("Stand")
-	styleBox, styleLabel, styleLockBtn = createLoadRow("Style")
-	weaponBox, weaponLabel, _ = createLoadRow("Wep")
-	accBox, accLabel, _ = createLoadRow("Acc")
-	local xpRow; xpRow, xpLabel, _ = createLoadRow("XP")
-	local yenRow; yenRow, yenLabel, _ = createLoadRow("Yen")
+	local lRow1 = Instance.new("Frame", lContent); lRow1.Size = UDim2.new(1, 0, 0.3, 0); lRow1.BackgroundTransparency = 1
+	Instance.new("UIListLayout", lRow1).FillDirection = Enum.FillDirection.Horizontal; Instance.new("UIListLayout", lRow1).Padding = UDim.new(0.02, 0)
+	local lRow2 = Instance.new("Frame", lContent); lRow2.Size = UDim2.new(1, 0, 0.3, 0); lRow2.BackgroundTransparency = 1
+	Instance.new("UIListLayout", lRow2).FillDirection = Enum.FillDirection.Horizontal; Instance.new("UIListLayout", lRow2).Padding = UDim.new(0.02, 0)
+	local lRow3 = Instance.new("Frame", lContent); lRow3.Size = UDim2.new(1, 0, 0.3, 0); lRow3.BackgroundTransparency = 1
+	Instance.new("UIListLayout", lRow3).FillDirection = Enum.FillDirection.Horizontal; Instance.new("UIListLayout", lRow3).Padding = UDim.new(0.02, 0)
 
-	-- Storage
-	local stTop = Instance.new("Frame", storageCard); stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
-	local stTitle = CreateTitle(stTop, "STAND STORAGE"); stTitle.Size = UDim2.new(0.5, 0, 1, 0); stTitle.TextXAlignment = Enum.TextXAlignment.Left
-	local toggleStorageBtn = Instance.new("TextButton", stTop)
-	toggleStorageBtn.Size = UDim2.new(0.40, 0, 1, 0); toggleStorageBtn.AnchorPoint = Vector2.new(1, 0); toggleStorageBtn.Position = UDim2.new(1, 0, 0, 0)
-	toggleStorageBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); toggleStorageBtn.Text = "Styles"; toggleStorageBtn.Font = Enum.Font.GothamBold; toggleStorageBtn.TextColor3 = Color3.new(1,1,1); toggleStorageBtn.TextScaled = true; toggleStorageBtn.ZIndex = 23
-	Instance.new("UICorner", toggleStorageBtn).CornerRadius = UDim.new(0, 4)
-	Instance.new("UITextSizeConstraint", toggleStorageBtn).MaxTextSize = 12
-
-	storageContainer = Instance.new("Frame", storageCard); storageContainer.Size = UDim2.new(1, 0, 1, -24); storageContainer.Position = UDim2.new(0,0,0,24); storageContainer.BackgroundTransparency = 1; storageContainer.LayoutOrder = 2
-	Instance.new("UIListLayout", storageContainer).Padding = UDim.new(0, 0)
-
-	-- Auto Sell
-	CreateTitle(autoSellCard, "AUTO SELL")
-	autoSellContainer = Instance.new("Frame", autoSellCard)
-	autoSellContainer.Size = UDim2.new(1, 0, 1, -24); autoSellContainer.Position = UDim2.new(0,0,0,24); autoSellContainer.BackgroundTransparency = 1; autoSellContainer.LayoutOrder = 2; autoSellContainer.ZIndex = 21
-	local asG = Instance.new("UIGridLayout", autoSellContainer)
-	asG.CellSize = UDim2.new(0.31, 0, 0.45, 0); asG.CellPadding = UDim2.new(0.03, 0, 0.08, 0); asG.HorizontalAlignment = Enum.HorizontalAlignment.Center; asG.VerticalAlignment = Enum.VerticalAlignment.Center
-
-	local raritiesToSell = {"Common", "Uncommon", "Rare", "Legendary", "Mythical", "Unique"}
-	for _, r in ipairs(raritiesToSell) do
-		local b = Instance.new("TextButton", autoSellContainer)
-		b.Name = "AutoSell_" .. r; b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.ZIndex = 22
-		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-		Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
-	end
-
+	standBox, standLabel, standLockBtn = createLoadRow("Stand", lRow1)
+	styleBox, styleLabel, styleLockBtn = createLoadRow("Style", lRow1)
+	weaponBox, weaponLabel, _ = createLoadRow("Wep", lRow2)
+	accBox, accLabel, _ = createLoadRow("Acc", lRow2)
+	local xpBox; xpBox, xpLabel, _ = createLoadRow("XP", lRow3)
+	local yenBox; yenBox, yenLabel, _ = createLoadRow("Yen", lRow3)
 
 	-- ==========================================
-	-- RIGHT CONTAINER (60%)
+	-- TAB CONTAINER
 	-- ==========================================
-	local rLayout = Instance.new("UIListLayout", rightContainer)
-	rLayout.FillDirection = Enum.FillDirection.Vertical
-	rLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	rLayout.Padding = UDim.new(0.02, 0)
+	local tabContainer = Instance.new("Frame", innerContent)
+	tabContainer.Name = "TabContainer"
+	tabContainer.Size = UDim2.new(1, 0, 0.72, 0)
+	tabContainer.BackgroundTransparency = 1
+	tabContainer.LayoutOrder = 3
 
-	local statsAreaCard = CreateCard("StatsAreaCard", rightContainer, UDim2.new(1, 0, 0.35, 0), 1)
-	local itemsAreaCard = CreateCard("ItemsAreaCard", rightContainer, UDim2.new(1, 0, 0.44, 0), 2)
-	autoRollCard = CreateCard("AutoRollCard", rightContainer, UDim2.new(1, 0, 0.17, 0), 3)
+	-- ==========================================
+	-- INVENTORY TAB
+	-- ==========================================
+	local invTabContent = Instance.new("Frame", tabContainer)
+	invTabContent.Name = "InventoryTabContent"
+	invTabContent.Size = UDim2.new(1, 0, 1, 0)
+	invTabContent.BackgroundTransparency = 1
+	invTabContent.Visible = true
+	local invTL = Instance.new("UIListLayout", invTabContent); invTL.FillDirection = Enum.FillDirection.Vertical; invTL.SortOrder = Enum.SortOrder.LayoutOrder; invTL.Padding = UDim.new(0.02, 0)
 
-	-- Stats
+	local statsAreaCard = CreateCard("StatsAreaCard", invTabContent, UDim2.new(1, 0, 0.38, 0), 1)
+	local itemsAreaCard = CreateCard("ItemsAreaCard", invTabContent, UDim2.new(1, 0, 0.42, 0), 2)
+	local autoSellCard = CreateCard("AutoSellCard", invTabContent, UDim2.new(1, 0, 0.16, 0), 3)
+
+	-- Stats (Full Width)
 	local sacL = Instance.new("UIListLayout", statsAreaCard)
 	sacL.FillDirection = Enum.FillDirection.Horizontal; sacL.Padding = UDim.new(0.02, 0)
 
@@ -803,25 +812,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	for _, stat in ipairs(playerStatsList) do statLabels[stat] = CreateStatRow(stat, pStatsContainer, false) end
 	for _, stat in ipairs(standStatsList) do statLabels[stat] = CreateStatRow(stat, sStatsContainer, true) end
 
-	-- Inventory
-	local iacL = Instance.new("UIListLayout", itemsAreaCard)
-	iacL.FillDirection = Enum.FillDirection.Horizontal; iacL.Padding = UDim.new(0.02, 0)
-
-	local keyItems = Instance.new("Frame", itemsAreaCard)
-	keyItems.Size = UDim2.new(0.40, 0, 1, 0); keyItems.BackgroundTransparency = 1; keyItems.LayoutOrder = 1
-	CreateTitle(keyItems, "KEY ITEMS")
-	keyItemsContainer = Instance.new("ScrollingFrame", keyItems)
-	keyItemsContainer.Size = UDim2.new(1, 0, 1, -24); keyItemsContainer.Position = UDim2.new(0,0,0,24); keyItemsContainer.BackgroundTransparency = 1; keyItemsContainer.ScrollBarThickness = 4; keyItemsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); keyItemsContainer.ZIndex = 21; keyItemsContainer.LayoutOrder = 2
-	local kp = Instance.new("UIPadding", keyItemsContainer); kp.PaddingRight = UDim.new(0, 6); kp.PaddingLeft = UDim.new(0, 2); kp.PaddingTop = UDim.new(0, 2); kp.PaddingBottom = UDim.new(0, 2)
-	Instance.new("UIListLayout", keyItemsContainer).Padding = UDim.new(0, 4)
-
-	local sSep2 = Instance.new("Frame", itemsAreaCard)
-	sSep2.Size = UDim2.new(0, 2, 1, 0); sSep2.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep2.BorderSizePixel = 0; sSep2.LayoutOrder = 2; sSep2.ZIndex = 22
-
-	local regItems = Instance.new("Frame", itemsAreaCard)
-	regItems.Size = UDim2.new(0.58, 0, 1, 0); regItems.BackgroundTransparency = 1; regItems.LayoutOrder = 3
-
-	local riTop = Instance.new("Frame", regItems)
+	-- Reg Items (Full Width)
+	local riTop = Instance.new("Frame", itemsAreaCard)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
 	local riTitle = CreateTitle(riTop, "INVENTORY"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
 	capacityLabel = Instance.new("TextLabel", riTop)
@@ -829,46 +821,95 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
 	Instance.new("UITextSizeConstraint", capacityLabel).MaxTextSize = 12
 
-	regItemsContainer = Instance.new("ScrollingFrame", regItems)
+	regItemsContainer = Instance.new("ScrollingFrame", itemsAreaCard)
 	regItemsContainer.Size = UDim2.new(1, 0, 1, -24); regItemsContainer.Position = UDim2.new(0,0,0,24); regItemsContainer.BackgroundTransparency = 1; regItemsContainer.ScrollBarThickness = 4; regItemsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); regItemsContainer.LayoutOrder = 2; regItemsContainer.ZIndex = 21
 	local rp = Instance.new("UIPadding", regItemsContainer); rp.PaddingRight = UDim.new(0, 6); rp.PaddingLeft = UDim.new(0, 2); rp.PaddingTop = UDim.new(0, 2); rp.PaddingBottom = UDim.new(0, 2)
 	Instance.new("UIListLayout", regItemsContainer).Padding = UDim.new(0, 4)
 
-	-- Auto Roll
+	-- Auto Sell (Full Width)
+	CreateTitle(autoSellCard, "AUTO SELL")
+	autoSellContainer = Instance.new("Frame", autoSellCard)
+	autoSellContainer.Size = UDim2.new(1, 0, 1, -24); autoSellContainer.Position = UDim2.new(0,0,0,24); autoSellContainer.BackgroundTransparency = 1; autoSellContainer.LayoutOrder = 2; autoSellContainer.ZIndex = 21
+	local asG = Instance.new("UIListLayout", autoSellContainer)
+	asG.FillDirection = Enum.FillDirection.Horizontal; asG.HorizontalAlignment = Enum.HorizontalAlignment.Center; asG.VerticalAlignment = Enum.VerticalAlignment.Center; asG.Padding = UDim.new(0.02, 0)
+
+	local raritiesToSell = {"Common", "Uncommon", "Rare", "Legendary", "Mythical", "Unique"}
+	for _, r in ipairs(raritiesToSell) do
+		local b = Instance.new("TextButton", autoSellContainer)
+		b.Name = "AutoSell_" .. r; b.Size = UDim2.new(0.15, 0, 0.8, 0); b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.ZIndex = 22
+		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+		Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
+	end
+
+	-- ==========================================
+	-- STAND TAB
+	-- ==========================================
+	local standTabContent = Instance.new("Frame", tabContainer)
+	standTabContent.Name = "StandTabContent"
+	standTabContent.Size = UDim2.new(1, 0, 1, 0)
+	standTabContent.BackgroundTransparency = 1
+	standTabContent.Visible = false
+	local stTL = Instance.new("UIListLayout", standTabContent); stTL.FillDirection = Enum.FillDirection.Vertical; stTL.SortOrder = Enum.SortOrder.LayoutOrder; stTL.Padding = UDim.new(0.02, 0)
+
+	local storageCard = CreateCard("StorageCard", standTabContent, UDim2.new(1, 0, 0.38, 0), 1)
+	local keyItemsCard = CreateCard("KeyItemsCard", standTabContent, UDim2.new(1, 0, 0.42, 0), 2)
+	autoRollCard = CreateCard("AutoRollCard", standTabContent, UDim2.new(1, 0, 0.16, 0), 3)
+
+	-- Storage (Full Width)
+	local stTop = Instance.new("Frame", storageCard); stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
+	local stTitle = CreateTitle(stTop, "STAND STORAGE"); stTitle.Size = UDim2.new(0.5, 0, 1, 0); stTitle.TextXAlignment = Enum.TextXAlignment.Left
+	local toggleStorageBtn = Instance.new("TextButton", stTop)
+	toggleStorageBtn.Size = UDim2.new(0.30, 0, 1, 0); toggleStorageBtn.AnchorPoint = Vector2.new(1, 0); toggleStorageBtn.Position = UDim2.new(1, 0, 0, 0)
+	toggleStorageBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); toggleStorageBtn.Text = "Styles"; toggleStorageBtn.Font = Enum.Font.GothamBold; toggleStorageBtn.TextColor3 = Color3.new(1,1,1); toggleStorageBtn.TextScaled = true; toggleStorageBtn.ZIndex = 23
+	Instance.new("UICorner", toggleStorageBtn).CornerRadius = UDim.new(0, 4)
+	Instance.new("UITextSizeConstraint", toggleStorageBtn).MaxTextSize = 12
+
+	storageContainer = Instance.new("Frame", storageCard); storageContainer.Size = UDim2.new(1, 0, 1, -24); storageContainer.Position = UDim2.new(0,0,0,24); storageContainer.BackgroundTransparency = 1; storageContainer.LayoutOrder = 2
+	Instance.new("UIListLayout", storageContainer).Padding = UDim.new(0, 0)
+
+	-- Key Items (Full Width)
+	CreateTitle(keyItemsCard, "KEY ITEMS")
+	keyItemsContainer = Instance.new("ScrollingFrame", keyItemsCard)
+	keyItemsContainer.Size = UDim2.new(1, 0, 1, -24); keyItemsContainer.Position = UDim2.new(0,0,0,24); keyItemsContainer.BackgroundTransparency = 1; keyItemsContainer.ScrollBarThickness = 4; keyItemsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); keyItemsContainer.ZIndex = 21; keyItemsContainer.LayoutOrder = 2
+	local kp = Instance.new("UIPadding", keyItemsContainer); kp.PaddingRight = UDim.new(0, 6); kp.PaddingLeft = UDim.new(0, 2); kp.PaddingTop = UDim.new(0, 2); kp.PaddingBottom = UDim.new(0, 2)
+	Instance.new("UIListLayout", keyItemsContainer).Padding = UDim.new(0, 4)
+
+	-- Auto Roll (Full Width)
 	CreateTitle(autoRollCard, "AUTO ROLL")
 	local rollSplit = Instance.new("Frame", autoRollCard)
 	rollSplit.Size = UDim2.new(1, 0, 1, -24); rollSplit.Position = UDim2.new(0,0,0,24); rollSplit.BackgroundTransparency = 1; rollSplit.LayoutOrder = 2
 	local rsL = Instance.new("UIListLayout", rollSplit)
-	rsL.FillDirection = Enum.FillDirection.Vertical; rsL.Padding = UDim.new(0, 4)
+	rsL.FillDirection = Enum.FillDirection.Horizontal; rsL.Padding = UDim.new(0.02, 0)
 
-	local arRow1 = Instance.new("Frame", rollSplit)
-	arRow1.Size = UDim2.new(1, 0, 0.48, 0); arRow1.BackgroundTransparency = 1
-	local arL1 = Instance.new("UIListLayout", arRow1)
-	arL1.FillDirection = Enum.FillDirection.Horizontal; arL1.Padding = UDim.new(0.02, 0); arL1.VerticalAlignment = Enum.VerticalAlignment.Center
+	local arLeft = Instance.new("Frame", rollSplit)
+	arLeft.Size = UDim2.new(0.49, 0, 1, 0); arLeft.BackgroundTransparency = 1
+	local arLeftL = Instance.new("UIListLayout", arLeft)
+	arLeftL.FillDirection = Enum.FillDirection.Vertical; arLeftL.Padding = UDim.new(0, 4); arLeftL.VerticalAlignment = Enum.VerticalAlignment.Center
 
 	local function createDrop(name, text)
-		local btn = Instance.new("TextButton", arRow1)
-		btn.Name = name; btn.Size = UDim2.new(0.49, 0, 1, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
+		local btn = Instance.new("TextButton", arLeft)
+		btn.Name = name; btn.Size = UDim2.new(1, 0, 0.45, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
 		local list = Instance.new("ScrollingFrame", btn)
 		list.Name = "List"; list.Size = UDim2.new(1, 0, 0, 120); list.AnchorPoint = Vector2.new(0, 1); list.Position = UDim2.new(0, 0, 0, -2); list.BackgroundColor3 = Color3.fromRGB(30, 15, 50); list.ZIndex = 50; list.Visible = false; list.ScrollBarThickness = 4
 		Instance.new("UICorner", list).CornerRadius = UDim.new(0, 6)
+		local ls = Instance.new("UIStroke", list); ls.Color = Color3.fromRGB(120, 60, 180); ls.Thickness = 1
 		return btn
 	end
 
 	local sDrop = createDrop("StandDropdown", "Target Stand: Any")
 	local tDrop = createDrop("TraitDropdown", "Target Trait: Any")
 
-	local arRow2 = Instance.new("Frame", rollSplit)
-	arRow2.Size = UDim2.new(1, 0, 0.48, 0); arRow2.BackgroundTransparency = 1
-	local arL2 = Instance.new("UIListLayout", arRow2)
-	arL2.FillDirection = Enum.FillDirection.Horizontal; arL2.Padding = UDim.new(0.02, 0); arL2.VerticalAlignment = Enum.VerticalAlignment.Center
+	local arRight = Instance.new("Frame", rollSplit)
+	arRight.Size = UDim2.new(0.49, 0, 1, 0); arRight.BackgroundTransparency = 1
+	local arRL = Instance.new("UIListLayout", arRight)
+	arRL.FillDirection = Enum.FillDirection.Vertical; arRL.Padding = UDim.new(0, 4); arRL.VerticalAlignment = Enum.VerticalAlignment.Center
 
 	local function createRollBtn(name, text, color)
-		local btn = Instance.new("TextButton", arRow2)
-		btn.Name = name; btn.Size = UDim2.new(0.32, 0, 1, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
+		local btn = Instance.new("TextButton", arRight)
+		btn.Name = name; btn.Size = UDim2.new(1, 0, 0.28, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 		return btn
@@ -882,6 +923,31 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	-- ==========================================
 	-- HOOK UP EVENTS & LOGIC
 	-- ==========================================
+
+	invTabBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		invTabContent.Visible = true
+		standTabContent.Visible = false
+		invTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100)
+		standTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+		invStr.Color = Color3.fromRGB(255, 215, 50); invStr.Thickness = 2
+		standStr.Color = Color3.fromRGB(90, 50, 120); standStr.Thickness = 1
+		invTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
+		standTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+	end)
+
+	standTabBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		invTabContent.Visible = false
+		standTabContent.Visible = true
+		standTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100)
+		invTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+		standStr.Color = Color3.fromRGB(255, 215, 50); standStr.Thickness = 2
+		invStr.Color = Color3.fromRGB(90, 50, 120); invStr.Thickness = 1
+		standTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
+		invTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+	end)
+
 	BuildDropdownList(sDrop, sDrop:WaitForChild("List"), StandData.Stands, true)
 	BuildDropdownList(tDrop, tDrop:WaitForChild("List"), StandData.Traits, false)
 
