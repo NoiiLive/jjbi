@@ -49,10 +49,7 @@ for itemName, _ in pairs(ItemData.Consumables) do table.insert(KnownItems, itemN
 for eqName, _ in pairs(ItemData.Equipment) do table.insert(KnownItems, eqName) end
 
 local function IsKeyItem(name)
-	if name == "Stand Arrow" or name == "Rokakaka" or name == "Heavenly Stand Disc" or name == "Saint's Corpse Part" then return true end
-	local itemInfo = ItemData.Equipment[name] or ItemData.Consumables[name]
-	if itemInfo and itemInfo.Rarity == "Unique" then return true end
-	return false
+	return ItemData.Consumables[name] ~= nil
 end
 
 local function GetCombinedBonus(statName)
@@ -233,6 +230,10 @@ local function CreateStatRow(statName, parent, isStand)
 	row.Size = UDim2.new(1, 0, 1/6, 0)
 	row.BackgroundTransparency = 1
 
+	local rowPad = Instance.new("UIPadding", row)
+	rowPad.PaddingLeft = UDim.new(0, 5)
+	rowPad.PaddingRight = UDim.new(0, 15)
+
 	local statLabel = Instance.new("TextLabel", row)
 	statLabel.Size = UDim2.new(0.38, 0, 1, 0)
 	statLabel.BackgroundTransparency = 1
@@ -246,8 +247,8 @@ local function CreateStatRow(statName, parent, isStand)
 	Instance.new("UITextSizeConstraint", statLabel).MaxTextSize = 13
 
 	local btnContainer = Instance.new("Frame", row)
-	btnContainer.Size = UDim2.new(0.62, -18, 1, 0)
-	btnContainer.Position = UDim2.new(1, -18, 0, 0) 
+	btnContainer.Size = UDim2.new(0.62, 0, 1, 0)
+	btnContainer.Position = UDim2.new(1, 0, 0, 0)
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
 	btnContainer.ZIndex = 22
@@ -420,7 +421,6 @@ local function RefreshStorageList()
 		btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, -4, 0.5, 0)
 		btn.Font = Enum.Font.GothamBold; btn.TextColor3 = Color3.new(1,1,1); btn.TextScaled = true; btn.ZIndex = 24
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-		local bs = Instance.new("UIStroke", btn); bs.Color = Color3.fromRGB(120, 60, 180); bs.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
 		if slotData.IsUnlocked then
@@ -802,10 +802,10 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 	-- Stats (Full Width)
 	local sacL = Instance.new("UIListLayout", statsAreaCard)
-	sacL.FillDirection = Enum.FillDirection.Horizontal; sacL.Padding = UDim.new(0.02, 0)
+	sacL.FillDirection = Enum.FillDirection.Horizontal; sacL.Padding = UDim.new(0, 0)
 
 	local pStats = Instance.new("Frame", statsAreaCard)
-	pStats.Size = UDim2.new(0.49, 0, 1, 0); pStats.BackgroundTransparency = 1; pStats.LayoutOrder = 1
+	pStats.Size = UDim2.new(0.5, -1, 1, 0); pStats.BackgroundTransparency = 1; pStats.LayoutOrder = 1
 	CreateTitle(pStats, "PLAYER STATS")
 	pStatsContainer = Instance.new("Frame", pStats)
 	pStatsContainer.Size = UDim2.new(1, 0, 1, -24); pStatsContainer.Position = UDim2.new(0,0,0,24); pStatsContainer.BackgroundTransparency = 1; pStatsContainer.ZIndex = 21; pStatsContainer.LayoutOrder = 2
@@ -815,7 +815,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	sSep1.Size = UDim2.new(0, 2, 1, 0); sSep1.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep1.BorderSizePixel = 0; sSep1.LayoutOrder = 2; sSep1.ZIndex = 22
 
 	local sStats = Instance.new("Frame", statsAreaCard)
-	sStats.Size = UDim2.new(0.49, 0, 1, 0); sStats.BackgroundTransparency = 1; sStats.LayoutOrder = 3
+	sStats.Size = UDim2.new(0.5, -1, 1, 0); sStats.BackgroundTransparency = 1; sStats.LayoutOrder = 3
 	CreateTitle(sStats, "STAND STATS")
 	sStatsContainer = Instance.new("Frame", sStats)
 	sStatsContainer.Size = UDim2.new(1, 0, 1, -24); sStatsContainer.Position = UDim2.new(0,0,0,24); sStatsContainer.BackgroundTransparency = 1; sStatsContainer.ZIndex = 21; sStatsContainer.LayoutOrder = 2
@@ -875,7 +875,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	toggleStorageBtn.Size = UDim2.new(0.30, 0, 1, 0); toggleStorageBtn.AnchorPoint = Vector2.new(1, 0); toggleStorageBtn.Position = UDim2.new(1, 0, 0, 0)
 	toggleStorageBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); toggleStorageBtn.Text = "Styles"; toggleStorageBtn.Font = Enum.Font.GothamBold; toggleStorageBtn.TextColor3 = Color3.new(1,1,1); toggleStorageBtn.TextScaled = true; toggleStorageBtn.ZIndex = 23
 	Instance.new("UICorner", toggleStorageBtn).CornerRadius = UDim.new(0, 4)
-	local tsbStr = Instance.new("UIStroke", toggleStorageBtn); tsbStr.Color = Color3.fromRGB(90, 50, 120); tsbStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	Instance.new("UITextSizeConstraint", toggleStorageBtn).MaxTextSize = 12
 
 	storageContainer = Instance.new("Frame", storageCard); storageContainer.Size = UDim2.new(1, 0, 1, -24); storageContainer.Position = UDim2.new(0,0,0,24); storageContainer.BackgroundTransparency = 1; storageContainer.LayoutOrder = 2
@@ -899,6 +898,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		local btn = Instance.new("TextButton", arContent)
 		btn.Name = name; btn.LayoutOrder = orderIdx; btn.Size = UDim2.new(0.188, 0, 0.8, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+		local s = Instance.new("UIStroke", btn); s.Color = Color3.fromRGB(120, 60, 180); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
 		local list = Instance.new("ScrollingFrame", btn)
