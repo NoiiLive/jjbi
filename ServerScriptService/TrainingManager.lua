@@ -1,7 +1,14 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
-local ToggleTraining = Network:WaitForChild("ToggleTraining")
+
+local ToggleTraining = Network:FindFirstChild("ToggleTraining")
+if not ToggleTraining then
+	ToggleTraining = Instance.new("RemoteEvent")
+	ToggleTraining.Name = "ToggleTraining"
+	ToggleTraining.Parent = Network
+end
 
 local ActiveTrainers = {}
 
