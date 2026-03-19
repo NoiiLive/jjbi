@@ -7,12 +7,15 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local MarketplaceService = game:GetService("MarketplaceService")
-local SFXManager = require(script.Parent:WaitForChild("SFXManager"))
+
+local UIModules = script.Parent
+local SFXManager = require(UIModules:WaitForChild("SFXManager"))
+local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
+local GiftManager = require(UIModules:WaitForChild("GiftManager"))
 
 local PREMIUM_RESTOCK_PRODUCT_ID = 3548843760
 
 local shopContainer, timerLabel, yenLabel
-local giftModal, giftContainer, giftTitle, giftList
 local cachedTooltipMgr = nil
 
 local rarityColors = {
@@ -60,13 +63,29 @@ end
 
 local function applyDoubleGoldBorder(parent)
 	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3; outerStroke.Color = Color3.fromRGB(255, 210, 60); outerStroke.LineJoinMode = Enum.LineJoinMode.Round; outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradOut = Instance.new("UIGradient", outerStroke); gradOut.Rotation = -45
-	gradOut.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)), ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))}
+	outerStroke.Thickness = 3
+	outerStroke.Color = Color3.fromRGB(255, 210, 60)
+	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
+	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	local gradOut = Instance.new("UIGradient")
+	gradOut.Rotation = -45
+	gradOut.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)), 
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)), 
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
+	}
+	gradOut.Parent = outerStroke
 	outerStroke.Parent = parent
 
-	local innerFrame = Instance.new("Frame", parent)
-	innerFrame.Name = "InnerGoldBorder"; innerFrame.Size = UDim2.new(1, -6, 1, -6); innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0); innerFrame.AnchorPoint = Vector2.new(0.5, 0.5); innerFrame.BackgroundTransparency = 1; innerFrame.ZIndex = parent.ZIndex
+	local innerFrame = Instance.new("Frame")
+	innerFrame.Name = "InnerGoldBorder"
+	innerFrame.Size = UDim2.new(1, -6, 1, -6)
+	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	innerFrame.BackgroundTransparency = 1
+	innerFrame.ZIndex = parent.ZIndex
+	innerFrame.Parent = parent
 
 	local parentCorner = parent:FindFirstChildOfClass("UICorner")
 	if parentCorner then
@@ -75,24 +94,65 @@ local function applyDoubleGoldBorder(parent)
 		innerCorner.Parent = innerFrame
 	end
 
-	local innerStroke = Instance.new("UIStroke", innerFrame)
-	innerStroke.Thickness = 1; innerStroke.Color = Color3.fromRGB(255, 230, 100); innerStroke.LineJoinMode = Enum.LineJoinMode.Round; innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradIn = Instance.new("UIGradient", innerStroke); gradIn.Rotation = 45
-	gradIn.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)), ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))}
+	local innerStroke = Instance.new("UIStroke")
+	innerStroke.Thickness = 1
+	innerStroke.Color = Color3.fromRGB(255, 230, 100)
+	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
+	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	local gradIn = Instance.new("UIGradient")
+	gradIn.Rotation = 45
+	gradIn.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)), 
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
+	}
+	gradIn.Parent = innerStroke
+	innerStroke.Parent = innerFrame
 end
 
 local function CreateCard(name, parent, size, layoutOrder)
-	local frame = Instance.new("Frame", parent)
-	frame.Name = name; frame.Size = size; frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35); frame.LayoutOrder = layoutOrder; frame.ZIndex = 20
-	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
-	local stroke = Instance.new("UIStroke", frame); stroke.Color = Color3.fromRGB(90, 50, 120); stroke.Thickness = 1; stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local uip = Instance.new("UIPadding", frame); uip.PaddingTop = UDim.new(0, 8); uip.PaddingBottom = UDim.new(0, 8); uip.PaddingLeft = UDim.new(0, 8); uip.PaddingRight = UDim.new(0, 8)
+	local frame = Instance.new("Frame")
+	frame.Name = name
+	frame.Size = size
+	frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+	frame.LayoutOrder = layoutOrder
+	frame.ZIndex = 20
+	frame.Parent = parent
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = frame
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(90, 50, 120)
+	stroke.Thickness = 1
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = frame
+
+	local uip = Instance.new("UIPadding")
+	uip.PaddingTop = UDim.new(0, 8)
+	uip.PaddingBottom = UDim.new(0, 8)
+	uip.PaddingLeft = UDim.new(0, 8)
+	uip.PaddingRight = UDim.new(0, 8)
+	uip.Parent = frame
+
 	return frame
 end
 
 local function CreateTitle(parent, text)
-	local lbl = Instance.new("TextLabel", parent)
-	lbl.Size = UDim2.new(1, 0, 0, 18); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.Font = Enum.Font.GothamBlack; lbl.TextColor3 = Color3.fromRGB(255, 215, 50); lbl.TextScaled = false; lbl.TextSize = 14; lbl.LayoutOrder = 1; lbl.ZIndex = 22; lbl.TextXAlignment = Enum.TextXAlignment.Center
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(1, 0, 0, 18)
+	lbl.BackgroundTransparency = 1
+	lbl.Text = text
+	lbl.Font = Enum.Font.GothamBlack
+	lbl.TextColor3 = Color3.fromRGB(255, 215, 50)
+	lbl.TextScaled = false
+	lbl.TextSize = 14
+	lbl.LayoutOrder = 1
+	lbl.ZIndex = 22
+	lbl.TextXAlignment = Enum.TextXAlignment.Center
+	lbl.Parent = parent
+
 	return lbl
 end
 
@@ -113,7 +173,10 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	mainPanel.ClipsDescendants = true
 	mainPanel.Parent = parentFrame
 
-	Instance.new("UICorner", mainPanel).CornerRadius = UDim.new(0, 12)
+	local mpCorner = Instance.new("UICorner")
+	mpCorner.CornerRadius = UDim.new(0, 12)
+	mpCorner.Parent = mainPanel
+
 	applyDoubleGoldBorder(mainPanel)
 
 	local bgPattern = Instance.new("ImageLabel")
@@ -132,10 +195,18 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local function UpdateLayoutForScreen()
 		if not parentFrame.Parent then return end
 		local vp = camera.ViewportSize
-		if vp.X >= 1050 then mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0); mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		elseif vp.X >= 600 and vp.X < 1050 then mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0); mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-		else mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0); mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) end
+		if vp.X >= 1050 then 
+			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		elseif vp.X >= 600 and vp.X < 1050 then 
+			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		else 
+			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) 
+		end
 	end
+
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 	UpdateLayoutForScreen()
 
@@ -146,30 +217,36 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	innerContent.ZIndex = 17
 	innerContent.Parent = mainPanel
 
-	local mainPad = Instance.new("UIPadding", innerContent)
-	mainPad.PaddingTop = UDim.new(0.02, 0); mainPad.PaddingBottom = UDim.new(0.02, 0)
-	mainPad.PaddingLeft = UDim.new(0.02, 0); mainPad.PaddingRight = UDim.new(0.02, 0)
+	local mainPad = Instance.new("UIPadding")
+	mainPad.PaddingTop = UDim.new(0.02, 0)
+	mainPad.PaddingBottom = UDim.new(0.02, 0)
+	mainPad.PaddingLeft = UDim.new(0.02, 0)
+	mainPad.PaddingRight = UDim.new(0.02, 0)
+	mainPad.Parent = innerContent
 
-	local mainLayout = Instance.new("UIListLayout", innerContent)
+	local mainLayout = Instance.new("UIListLayout")
 	mainLayout.FillDirection = Enum.FillDirection.Vertical
 	mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	mainLayout.Padding = UDim.new(0.02, 0)
+	mainLayout.Parent = innerContent
 
 	-- ==========================================
 	-- SUB NAVIGATION
 	-- ==========================================
-	local subNavFrame = Instance.new("Frame", innerContent)
+	local subNavFrame = Instance.new("Frame")
 	subNavFrame.Name = "SubNavFrame"
 	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
 	subNavFrame.BackgroundTransparency = 1
 	subNavFrame.LayoutOrder = 1
+	subNavFrame.Parent = innerContent
 
-	local subNavL = Instance.new("UIListLayout", subNavFrame)
+	local subNavL = Instance.new("UIListLayout")
 	subNavL.FillDirection = Enum.FillDirection.Horizontal
 	subNavL.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	subNavL.Padding = UDim.new(0.02, 0)
+	subNavL.Parent = subNavFrame
 
-	local marketTabBtn = Instance.new("TextButton", subNavFrame)
+	local marketTabBtn = Instance.new("TextButton")
 	marketTabBtn.Size = UDim2.new(0.49, 0, 1, 0)
 	marketTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100)
 	marketTabBtn.Text = "MARKET"
@@ -177,11 +254,23 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	marketTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
 	marketTabBtn.TextScaled = true
 	marketTabBtn.ZIndex = 20
-	Instance.new("UICorner", marketTabBtn).CornerRadius = UDim.new(0, 6)
-	local mStr = Instance.new("UIStroke", marketTabBtn); mStr.Color = Color3.fromRGB(255, 215, 50); mStr.Thickness = 2; mStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	Instance.new("UITextSizeConstraint", marketTabBtn).MaxTextSize = 16
+	marketTabBtn.Parent = subNavFrame
 
-	local premiumTabBtn = Instance.new("TextButton", subNavFrame)
+	local mCorner = Instance.new("UICorner")
+	mCorner.CornerRadius = UDim.new(0, 6)
+	mCorner.Parent = marketTabBtn
+
+	local mStr = Instance.new("UIStroke")
+	mStr.Color = Color3.fromRGB(255, 215, 50)
+	mStr.Thickness = 2
+	mStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	mStr.Parent = marketTabBtn
+
+	local mUic = Instance.new("UITextSizeConstraint")
+	mUic.MaxTextSize = 16
+	mUic.Parent = marketTabBtn
+
+	local premiumTabBtn = Instance.new("TextButton")
 	premiumTabBtn.Size = UDim2.new(0.49, 0, 1, 0)
 	premiumTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
 	premiumTabBtn.Text = "PREMIUM"
@@ -189,179 +278,433 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	premiumTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
 	premiumTabBtn.TextScaled = true
 	premiumTabBtn.ZIndex = 20
-	Instance.new("UICorner", premiumTabBtn).CornerRadius = UDim.new(0, 6)
-	local pStr = Instance.new("UIStroke", premiumTabBtn); pStr.Color = Color3.fromRGB(90, 50, 120); pStr.Thickness = 1; pStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	Instance.new("UITextSizeConstraint", premiumTabBtn).MaxTextSize = 16
+	premiumTabBtn.Parent = subNavFrame
+
+	local pCorner = Instance.new("UICorner")
+	pCorner.CornerRadius = UDim.new(0, 6)
+	pCorner.Parent = premiumTabBtn
+
+	local pStr = Instance.new("UIStroke")
+	pStr.Color = Color3.fromRGB(90, 50, 120)
+	pStr.Thickness = 1
+	pStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	pStr.Parent = premiumTabBtn
+
+	local pUic = Instance.new("UITextSizeConstraint")
+	pUic.MaxTextSize = 16
+	pUic.Parent = premiumTabBtn
 
 	-- ==========================================
 	-- TAB CONTAINER
 	-- ==========================================
-	local tabContainer = Instance.new("Frame", innerContent)
+	local tabContainer = Instance.new("Frame")
 	tabContainer.Name = "TabContainer"
 	tabContainer.Size = UDim2.new(1, 0, 0.90, 0)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.LayoutOrder = 2
+	tabContainer.Parent = innerContent
 
 	-- ==========================================
 	-- MARKET TAB
 	-- ==========================================
-	local marketTabContent = Instance.new("Frame", tabContainer)
+	local marketTabContent = Instance.new("Frame")
 	marketTabContent.Name = "MarketTabContent"
 	marketTabContent.Size = UDim2.new(1, 0, 1, 0)
 	marketTabContent.BackgroundTransparency = 1
 	marketTabContent.Visible = true
-	local mTL = Instance.new("UIListLayout", marketTabContent); mTL.FillDirection = Enum.FillDirection.Vertical; mTL.SortOrder = Enum.SortOrder.LayoutOrder; mTL.Padding = UDim.new(0.02, 0)
+	marketTabContent.Parent = tabContainer
 
-	-- Top: Stock Card
-	local stockCard = CreateCard("StockCard", marketTabContent, UDim2.new(1, 0, 0.35, 0), 1)
-	local scTop = Instance.new("Frame", stockCard); scTop.Size = UDim2.new(1, 0, 0, 20); scTop.BackgroundTransparency = 1; scTop.ZIndex = 21
-	CreateTitle(scTop, "ITEM SHOP").TextXAlignment = Enum.TextXAlignment.Left
+	local mTL = Instance.new("UIListLayout")
+	mTL.FillDirection = Enum.FillDirection.Vertical
+	mTL.SortOrder = Enum.SortOrder.LayoutOrder
+	mTL.Padding = UDim.new(0.02, 0)
+	mTL.Parent = marketTabContent
 
-	timerLabel = Instance.new("TextLabel", scTop)
-	timerLabel.Size = UDim2.new(0.3, 0, 1, 0); timerLabel.Position = UDim2.new(0.5, 0, 0, 0); timerLabel.AnchorPoint = Vector2.new(0.5, 0)
-	timerLabel.BackgroundTransparency = 1; timerLabel.Font = Enum.Font.GothamMedium; timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	timerLabel.TextScaled = true; timerLabel.Text = "Restocks in: --:--:--"; timerLabel.ZIndex = 22
-	Instance.new("UITextSizeConstraint", timerLabel).MaxTextSize = 13
+	-- Top: Stock Card (50% layout for huge chunk buttons)
+	local stockCard = CreateCard("StockCard", marketTabContent, UDim2.new(1, 0, 0.50, 0), 1)
 
-	yenLabel = Instance.new("TextLabel", scTop)
-	yenLabel.Size = UDim2.new(0.3, 0, 1, 0); yenLabel.Position = UDim2.new(1, 0, 0, 0); yenLabel.AnchorPoint = Vector2.new(1, 0)
-	yenLabel.BackgroundTransparency = 1; yenLabel.Font = Enum.Font.GothamBold; yenLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
-	yenLabel.TextScaled = true; yenLabel.RichText = true; yenLabel.Text = "Yen: ¥0"; yenLabel.TextXAlignment = Enum.TextXAlignment.Right; yenLabel.ZIndex = 22
-	Instance.new("UITextSizeConstraint", yenLabel).MaxTextSize = 13
+	local scTop = Instance.new("Frame")
+	scTop.Size = UDim2.new(1, 0, 0, 20)
+	scTop.BackgroundTransparency = 1
+	scTop.ZIndex = 21
+	scTop.Parent = stockCard
 
-	shopContainer = Instance.new("Frame", stockCard)
-	shopContainer.Size = UDim2.new(1, 0, 1, -25); shopContainer.Position = UDim2.new(0, 0, 0, 25); shopContainer.BackgroundTransparency = 1; shopContainer.ZIndex = 21
-	local sGL = Instance.new("UIGridLayout", shopContainer)
-	sGL.CellSize = UDim2.new(0.315, 0, 0.45, 0); sGL.CellPadding = UDim2.new(0.02, 0, 0.1, 0); sGL.SortOrder = Enum.SortOrder.LayoutOrder
+	local shopTitle = CreateTitle(scTop, "ITEM SHOP")
+	shopTitle.TextXAlignment = Enum.TextXAlignment.Left
 
-	-- Middle: Rates Card
-	local ratesCard = CreateCard("RatesCard", marketTabContent, UDim2.new(1, 0, 0.45, 0), 2)
+	timerLabel = Instance.new("TextLabel")
+	timerLabel.Size = UDim2.new(0.3, 0, 1, 0)
+	timerLabel.Position = UDim2.new(0.5, 0, 0, 0)
+	timerLabel.AnchorPoint = Vector2.new(0.5, 0)
+	timerLabel.BackgroundTransparency = 1
+	timerLabel.Font = Enum.Font.GothamMedium
+	timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+	timerLabel.TextScaled = true
+	timerLabel.Text = "Restocks in: --:--:--"
+	timerLabel.ZIndex = 22
+	timerLabel.Parent = scTop
+
+	local tUic = Instance.new("UITextSizeConstraint")
+	tUic.MaxTextSize = 13
+	tUic.Parent = timerLabel
+
+	yenLabel = Instance.new("TextLabel")
+	yenLabel.Size = UDim2.new(0.3, 0, 1, 0)
+	yenLabel.Position = UDim2.new(1, 0, 0, 0)
+	yenLabel.AnchorPoint = Vector2.new(1, 0)
+	yenLabel.BackgroundTransparency = 1
+	yenLabel.Font = Enum.Font.GothamBold
+	yenLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
+	yenLabel.TextScaled = true
+	yenLabel.RichText = true
+	yenLabel.Text = "Yen: ¥0"
+	yenLabel.TextXAlignment = Enum.TextXAlignment.Right
+	yenLabel.ZIndex = 22
+	yenLabel.Parent = scTop
+
+	local yUic = Instance.new("UITextSizeConstraint")
+	yUic.MaxTextSize = 13
+	yUic.Parent = yenLabel
+
+	shopContainer = Instance.new("Frame")
+	shopContainer.Size = UDim2.new(1, 0, 1, -25)
+	shopContainer.Position = UDim2.new(0, 0, 0, 25)
+	shopContainer.BackgroundTransparency = 1
+	shopContainer.ZIndex = 21
+	shopContainer.Parent = stockCard
+
+	local sGL = Instance.new("UIGridLayout")
+	sGL.CellSize = UDim2.new(0.315, 0, 0.45, 0)
+	sGL.CellPadding = UDim2.new(0.02, 0, 0.05, 0)
+	sGL.SortOrder = Enum.SortOrder.LayoutOrder
+	sGL.Parent = shopContainer
+
+	-- Middle: Rates Card (30% vertical height)
+	local ratesCard = CreateCard("RatesCard", marketTabContent, UDim2.new(1, 0, 0.30, 0), 2)
 	CreateTitle(ratesCard, "DROP RATES")
-	local rcSplit = Instance.new("Frame", ratesCard); rcSplit.Size = UDim2.new(1, 0, 1, -22); rcSplit.Position = UDim2.new(0, 0, 0, 22); rcSplit.BackgroundTransparency = 1; rcSplit.ZIndex = 21
-	local rcL = Instance.new("UIListLayout", rcSplit); rcL.FillDirection = Enum.FillDirection.Horizontal; rcL.Padding = UDim.new(0.02, 0)
 
-	local standRatesScroll = Instance.new("ScrollingFrame", rcSplit)
-	standRatesScroll.Size = UDim2.new(0.49, 0, 1, 0); standRatesScroll.BackgroundTransparency = 1; standRatesScroll.ScrollBarThickness = 4; standRatesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); standRatesScroll.ZIndex = 22
-	local standRatesCol = Instance.new("TextLabel", standRatesScroll)
-	standRatesCol.Size = UDim2.new(1, -10, 0, 0); standRatesCol.AutomaticSize = Enum.AutomaticSize.Y; standRatesCol.BackgroundTransparency = 1; standRatesCol.Font = Enum.Font.GothamMedium; standRatesCol.TextColor3 = Color3.new(1,1,1); standRatesCol.TextSize = 12; standRatesCol.RichText = true; standRatesCol.TextWrapped = true; standRatesCol.TextXAlignment = Enum.TextXAlignment.Left; standRatesCol.TextYAlignment = Enum.TextYAlignment.Top; standRatesCol.ZIndex = 23
+	local rcSplit = Instance.new("Frame")
+	rcSplit.Size = UDim2.new(1, 0, 1, -22)
+	rcSplit.Position = UDim2.new(0, 0, 0, 22)
+	rcSplit.BackgroundTransparency = 1
+	rcSplit.ZIndex = 21
+	rcSplit.Parent = ratesCard
 
-	local sep = Instance.new("Frame", rcSplit)
-	sep.Size = UDim2.new(0, 2, 1, 0); sep.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sep.BorderSizePixel = 0; sep.ZIndex = 22
+	local rcL = Instance.new("UIListLayout")
+	rcL.FillDirection = Enum.FillDirection.Horizontal
+	rcL.Padding = UDim.new(0.02, 0)
+	rcL.Parent = rcSplit
 
-	local traitRatesScroll = Instance.new("ScrollingFrame", rcSplit)
-	traitRatesScroll.Size = UDim2.new(0.49, 0, 1, 0); traitRatesScroll.BackgroundTransparency = 1; traitRatesScroll.ScrollBarThickness = 4; traitRatesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); traitRatesScroll.ZIndex = 22
-	local traitRatesCol = Instance.new("TextLabel", traitRatesScroll)
-	traitRatesCol.Size = UDim2.new(1, -10, 0, 0); traitRatesCol.AutomaticSize = Enum.AutomaticSize.Y; traitRatesCol.BackgroundTransparency = 1; traitRatesCol.Font = Enum.Font.GothamMedium; traitRatesCol.TextColor3 = Color3.new(1,1,1); traitRatesCol.TextSize = 12; traitRatesCol.RichText = true; traitRatesCol.TextWrapped = true; traitRatesCol.TextXAlignment = Enum.TextXAlignment.Left; traitRatesCol.TextYAlignment = Enum.TextYAlignment.Top; traitRatesCol.ZIndex = 23
+	local standRatesScroll = Instance.new("ScrollingFrame")
+	standRatesScroll.Size = UDim2.new(0.49, 0, 1, 0)
+	standRatesScroll.BackgroundTransparency = 1
+	standRatesScroll.ScrollBarThickness = 4
+	standRatesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
+	standRatesScroll.ZIndex = 22
+	standRatesScroll.Parent = rcSplit
 
-	-- Bottom: Codes Card
+	local standRatesCol = Instance.new("TextLabel")
+	standRatesCol.Size = UDim2.new(1, -10, 0, 0)
+	standRatesCol.AutomaticSize = Enum.AutomaticSize.Y
+	standRatesCol.BackgroundTransparency = 1
+	standRatesCol.Font = Enum.Font.GothamMedium
+	standRatesCol.TextColor3 = Color3.new(1, 1, 1)
+	standRatesCol.TextSize = 12
+	standRatesCol.RichText = true
+	standRatesCol.TextWrapped = true
+	standRatesCol.TextXAlignment = Enum.TextXAlignment.Left
+	standRatesCol.TextYAlignment = Enum.TextYAlignment.Top
+	standRatesCol.ZIndex = 23
+	standRatesCol.Parent = standRatesScroll
+
+	local sep = Instance.new("Frame")
+	sep.Size = UDim2.new(0, 2, 1, 0)
+	sep.BackgroundColor3 = Color3.fromRGB(90, 50, 120)
+	sep.BorderSizePixel = 0
+	sep.ZIndex = 22
+	sep.Parent = rcSplit
+
+	local traitRatesScroll = Instance.new("ScrollingFrame")
+	traitRatesScroll.Size = UDim2.new(0.49, 0, 1, 0)
+	traitRatesScroll.BackgroundTransparency = 1
+	traitRatesScroll.ScrollBarThickness = 4
+	traitRatesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
+	traitRatesScroll.ZIndex = 22
+	traitRatesScroll.Parent = rcSplit
+
+	local traitRatesCol = Instance.new("TextLabel")
+	traitRatesCol.Size = UDim2.new(1, -10, 0, 0)
+	traitRatesCol.AutomaticSize = Enum.AutomaticSize.Y
+	traitRatesCol.BackgroundTransparency = 1
+	traitRatesCol.Font = Enum.Font.GothamMedium
+	traitRatesCol.TextColor3 = Color3.new(1, 1, 1)
+	traitRatesCol.TextSize = 12
+	traitRatesCol.RichText = true
+	traitRatesCol.TextWrapped = true
+	traitRatesCol.TextXAlignment = Enum.TextXAlignment.Left
+	traitRatesCol.TextYAlignment = Enum.TextYAlignment.Top
+	traitRatesCol.ZIndex = 23
+	traitRatesCol.Parent = traitRatesScroll
+
+	-- Bottom: Codes Card (16% to perfectly anchor to bottom)
 	local codesCard = CreateCard("CodesCard", marketTabContent, UDim2.new(1, 0, 0.16, 0), 3)
 	CreateTitle(codesCard, "CODES")
-	local codeArea = Instance.new("Frame", codesCard); codeArea.Size = UDim2.new(1, 0, 1, -22); codeArea.Position = UDim2.new(0, 0, 0, 22); codeArea.BackgroundTransparency = 1; codeArea.ZIndex = 21
-	local cL = Instance.new("UIListLayout", codeArea); cL.FillDirection = Enum.FillDirection.Horizontal; cL.HorizontalAlignment = Enum.HorizontalAlignment.Center; cL.VerticalAlignment = Enum.VerticalAlignment.Center; cL.Padding = UDim.new(0.02, 0)
 
-	local codeInput = Instance.new("TextBox", codeArea)
+	local codeArea = Instance.new("Frame")
+	codeArea.Size = UDim2.new(1, 0, 1, -22)
+	codeArea.Position = UDim2.new(0, 0, 0, 22)
+	codeArea.BackgroundTransparency = 1
+	codeArea.ZIndex = 21
+	codeArea.Parent = codesCard
+
+	local cL = Instance.new("UIListLayout")
+	cL.FillDirection = Enum.FillDirection.Horizontal
+	cL.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	cL.VerticalAlignment = Enum.VerticalAlignment.Center
+	cL.Padding = UDim.new(0.02, 0)
+	cL.Parent = codeArea
+
+	local codeInput = Instance.new("TextBox")
 	codeInput.Text = "" 
-	codeInput.Size = UDim2.new(0.7, 0, 0.8, 0); codeInput.BackgroundColor3 = Color3.fromRGB(15, 5, 25); codeInput.TextColor3 = Color3.new(1,1,1); codeInput.Font = Enum.Font.GothamBold; codeInput.TextScaled = true; codeInput.PlaceholderText = "Enter Code Here..."; codeInput.ZIndex = 22
-	Instance.new("UICorner", codeInput).CornerRadius = UDim.new(0, 6)
-	local ciStr = Instance.new("UIStroke", codeInput); ciStr.Color = Color3.fromRGB(90, 50, 120); ciStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	Instance.new("UITextSizeConstraint", codeInput).MaxTextSize = 16
+	codeInput.Size = UDim2.new(0.7, 0, 0.8, 0)
+	codeInput.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
+	codeInput.TextColor3 = Color3.new(1, 1, 1)
+	codeInput.Font = Enum.Font.GothamBold
+	codeInput.TextScaled = true
+	codeInput.PlaceholderText = "Enter Code Here..."
+	codeInput.ZIndex = 22
+	codeInput.Parent = codeArea
 
-	local redeemBtn = Instance.new("TextButton", codeArea)
-	redeemBtn.Size = UDim2.new(0.25, 0, 0.8, 0); redeemBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160); redeemBtn.TextColor3 = Color3.new(1,1,1); redeemBtn.Font = Enum.Font.GothamBold; redeemBtn.TextScaled = true; redeemBtn.Text = "Redeem"; redeemBtn.ZIndex = 22
-	Instance.new("UICorner", redeemBtn).CornerRadius = UDim.new(0, 6)
-	local rbStr = Instance.new("UIStroke", redeemBtn); rbStr.Color = Color3.fromRGB(200, 150, 255); rbStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	Instance.new("UITextSizeConstraint", redeemBtn).MaxTextSize = 16
+	local ciCorner = Instance.new("UICorner")
+	ciCorner.CornerRadius = UDim.new(0, 6)
+	ciCorner.Parent = codeInput
+
+	local ciStr = Instance.new("UIStroke")
+	ciStr.Color = Color3.fromRGB(90, 50, 120)
+	ciStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ciStr.Parent = codeInput
+
+	local ciUic = Instance.new("UITextSizeConstraint")
+	ciUic.MaxTextSize = 16
+	ciUic.Parent = codeInput
+
+	local redeemBtn = Instance.new("TextButton")
+	redeemBtn.Size = UDim2.new(0.25, 0, 0.8, 0)
+	redeemBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+	redeemBtn.TextColor3 = Color3.new(1, 1, 1)
+	redeemBtn.Font = Enum.Font.GothamBold
+	redeemBtn.TextScaled = true
+	redeemBtn.Text = "Redeem"
+	redeemBtn.ZIndex = 22
+	redeemBtn.Parent = codeArea
+
+	local rbCorner = Instance.new("UICorner")
+	rbCorner.CornerRadius = UDim.new(0, 6)
+	rbCorner.Parent = redeemBtn
+
+	local rbStr = Instance.new("UIStroke")
+	rbStr.Color = Color3.fromRGB(200, 150, 255)
+	rbStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	rbStr.Parent = redeemBtn
+
+	local rbUic = Instance.new("UITextSizeConstraint")
+	rbUic.MaxTextSize = 16
+	rbUic.Parent = redeemBtn
 
 	-- ==========================================
 	-- PREMIUM TAB
 	-- ==========================================
-	local premiumTabContent = Instance.new("Frame", tabContainer)
+	local premiumTabContent = Instance.new("Frame")
 	premiumTabContent.Name = "PremiumTabContent"
 	premiumTabContent.Size = UDim2.new(1, 0, 1, 0)
 	premiumTabContent.BackgroundTransparency = 1
 	premiumTabContent.Visible = false
-	local pTL = Instance.new("UIListLayout", premiumTabContent); pTL.FillDirection = Enum.FillDirection.Vertical; pTL.SortOrder = Enum.SortOrder.LayoutOrder; pTL.Padding = UDim.new(0.02, 0)
+	premiumTabContent.Parent = tabContainer
+
+	local pTL = Instance.new("UIListLayout")
+	pTL.FillDirection = Enum.FillDirection.Vertical
+	pTL.SortOrder = Enum.SortOrder.LayoutOrder
+	pTL.Padding = UDim.new(0.02, 0)
+	pTL.Parent = premiumTabContent
 
 	local prodCard = CreateCard("ProductsCard", premiumTabContent, UDim2.new(1, 0, 0.48, 0), 1)
 	CreateTitle(prodCard, "ROBUX BUNDLES & ITEMS")
-	local prodScroll = Instance.new("ScrollingFrame", prodCard)
-	prodScroll.Size = UDim2.new(1, 0, 1, -22); prodScroll.Position = UDim2.new(0, 0, 0, 22); prodScroll.BackgroundTransparency = 1; prodScroll.ScrollBarThickness = 6; prodScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); prodScroll.ZIndex = 21
 
-	local prodPad = Instance.new("UIPadding", prodScroll)
-	prodPad.PaddingTop = UDim.new(0, 2); prodPad.PaddingLeft = UDim.new(0, 2); prodPad.PaddingRight = UDim.new(0, 8); prodPad.PaddingBottom = UDim.new(0, 2)
+	local prodScroll = Instance.new("ScrollingFrame")
+	prodScroll.Size = UDim2.new(1, 0, 1, -22)
+	prodScroll.Position = UDim2.new(0, 0, 0, 22)
+	prodScroll.BackgroundTransparency = 1
+	prodScroll.ScrollBarThickness = 6
+	prodScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
+	prodScroll.ZIndex = 21
+	prodScroll.Parent = prodCard
 
-	local prodGL = Instance.new("UIGridLayout", prodScroll)
-	prodGL.CellSize = UDim2.new(0.315, 0, 0, 110); prodGL.CellPadding = UDim2.new(0.02, 0, 0, 10); prodGL.SortOrder = Enum.SortOrder.LayoutOrder
+	local prodPad = Instance.new("UIPadding")
+	prodPad.PaddingTop = UDim.new(0, 2)
+	prodPad.PaddingLeft = UDim.new(0, 2)
+	prodPad.PaddingRight = UDim.new(0, 8)
+	prodPad.PaddingBottom = UDim.new(0, 2)
+	prodPad.Parent = prodScroll
+
+	local prodGL = Instance.new("UIGridLayout")
+	prodGL.CellSize = UDim2.new(0.315, 0, 0, 110)
+	prodGL.CellPadding = UDim2.new(0.02, 0, 0, 10)
+	prodGL.SortOrder = Enum.SortOrder.LayoutOrder
+	prodGL.Parent = prodScroll
 
 	local passCard = CreateCard("PassesCard", premiumTabContent, UDim2.new(1, 0, 0.48, 0), 2)
 	CreateTitle(passCard, "GAMEPASSES")
-	local passScroll = Instance.new("ScrollingFrame", passCard)
-	passScroll.Size = UDim2.new(1, 0, 1, -22); passScroll.Position = UDim2.new(0, 0, 0, 22); passScroll.BackgroundTransparency = 1; passScroll.ScrollBarThickness = 6; passScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); passScroll.ZIndex = 21
 
-	local passPad = Instance.new("UIPadding", passScroll)
-	passPad.PaddingTop = UDim.new(0, 2); passPad.PaddingLeft = UDim.new(0, 2); passPad.PaddingRight = UDim.new(0, 8); passPad.PaddingBottom = UDim.new(0, 2)
+	local passScroll = Instance.new("ScrollingFrame")
+	passScroll.Size = UDim2.new(1, 0, 1, -22)
+	passScroll.Position = UDim2.new(0, 0, 0, 22)
+	passScroll.BackgroundTransparency = 1
+	passScroll.ScrollBarThickness = 6
+	passScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
+	passScroll.ZIndex = 21
+	passScroll.Parent = passCard
 
-	local passGL = Instance.new("UIGridLayout", passScroll)
-	passGL.CellSize = UDim2.new(0.315, 0, 0, 110); passGL.CellPadding = UDim2.new(0.02, 0, 0, 10); passGL.SortOrder = Enum.SortOrder.LayoutOrder
+	local passPad = Instance.new("UIPadding")
+	passPad.PaddingTop = UDim.new(0, 2)
+	passPad.PaddingLeft = UDim.new(0, 2)
+	passPad.PaddingRight = UDim.new(0, 8)
+	passPad.PaddingBottom = UDim.new(0, 2)
+	passPad.Parent = passScroll
+
+	local passGL = Instance.new("UIGridLayout")
+	passGL.CellSize = UDim2.new(0.315, 0, 0, 110)
+	passGL.CellPadding = UDim2.new(0.02, 0, 0, 10)
+	passGL.SortOrder = Enum.SortOrder.LayoutOrder
+	passGL.Parent = passScroll
 
 	-- Build Premium Items
 	local premLabels = {}
 	for i, pInfo in ipairs(premiumItems) do
 		local isPass = (pInfo.Type == "Pass")
 		local targetScroll = isPass and passScroll or prodScroll
-		local targetGL = isPass and passGL or prodGL
 
-		local itemFrm = Instance.new("Frame", targetScroll)
-		itemFrm.BackgroundColor3 = Color3.fromRGB(45, 20, 65); itemFrm.LayoutOrder = i; itemFrm.ZIndex = 22
-		Instance.new("UICorner", itemFrm).CornerRadius = UDim.new(0, 6)
+		local itemFrm = Instance.new("Frame")
+		itemFrm.BackgroundColor3 = Color3.fromRGB(45, 20, 65)
+		itemFrm.LayoutOrder = i
+		itemFrm.ZIndex = 22
+		itemFrm.Parent = targetScroll
 
-		local iGrad = Instance.new("UIGradient", itemFrm)
+		local frmCorner = Instance.new("UICorner")
+		frmCorner.CornerRadius = UDim.new(0, 6)
+		frmCorner.Parent = itemFrm
+
+		local iGrad = Instance.new("UIGradient")
 		iGrad.Rotation = 45
 		iGrad.Color = ColorSequence.new{
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 30, 100)),
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 10, 50))
 		}
+		iGrad.Parent = itemFrm
 
-		local ifStr = Instance.new("UIStroke", itemFrm); ifStr.Color = Color3.fromRGB(255, 215, 50); ifStr.Thickness = 2; ifStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		local ifStr = Instance.new("UIStroke")
+		ifStr.Color = Color3.fromRGB(255, 215, 50)
+		ifStr.Thickness = 2
+		ifStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		ifStr.Parent = itemFrm
 
-		local nLbl = Instance.new("TextLabel", itemFrm)
-		nLbl.Size = UDim2.new(1, -10, 0, 20); nLbl.Position = UDim2.new(0, 5, 0, 5); nLbl.BackgroundTransparency = 1; nLbl.Font = Enum.Font.GothamBold; nLbl.TextColor3 = Color3.fromRGB(255, 235, 130); nLbl.TextScaled = true; nLbl.Text = pInfo.Name; nLbl.TextXAlignment = Enum.TextXAlignment.Left; nLbl.ZIndex = 23
-		Instance.new("UITextSizeConstraint", nLbl).MaxTextSize = 15
+		local nLbl = Instance.new("TextLabel")
+		nLbl.Size = UDim2.new(1, -10, 0, 20)
+		nLbl.Position = UDim2.new(0, 5, 0, 5)
+		nLbl.BackgroundTransparency = 1
+		nLbl.Font = Enum.Font.GothamBold
+		nLbl.TextColor3 = Color3.fromRGB(255, 235, 130)
+		nLbl.TextScaled = true
+		nLbl.Text = pInfo.Name
+		nLbl.TextXAlignment = Enum.TextXAlignment.Left
+		nLbl.ZIndex = 23
+		nLbl.Parent = itemFrm
 
-		local dLbl = Instance.new("TextLabel", itemFrm)
-		dLbl.Size = UDim2.new(1, -10, 1, -60); dLbl.Position = UDim2.new(0, 5, 0, 28); dLbl.BackgroundTransparency = 1; dLbl.Font = Enum.Font.GothamMedium; dLbl.TextColor3 = Color3.fromRGB(220, 220, 220); dLbl.TextSize = 12; dLbl.RichText = true; dLbl.TextWrapped = true; dLbl.TextXAlignment = Enum.TextXAlignment.Left; dLbl.TextYAlignment = Enum.TextYAlignment.Top; dLbl.Text = pInfo.Desc; dLbl.ZIndex = 23
+		local nlUic = Instance.new("UITextSizeConstraint")
+		nlUic.MaxTextSize = 15
+		nlUic.Parent = nLbl
 
-		local buyBtn = Instance.new("TextButton", itemFrm)
-		buyBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40); buyBtn.Font = Enum.Font.GothamBold; buyBtn.TextColor3 = Color3.new(1,1,1); buyBtn.TextScaled = true; buyBtn.Text = tostring(pInfo.Price) .. " R$"; buyBtn.ZIndex = 24
-		Instance.new("UICorner", buyBtn).CornerRadius = UDim.new(0, 4)
-		Instance.new("UITextSizeConstraint", buyBtn).MaxTextSize = 13
+		local dLbl = Instance.new("TextLabel")
+		dLbl.Size = UDim2.new(1, -10, 1, -60)
+		dLbl.Position = UDim2.new(0, 5, 0, 28)
+		dLbl.BackgroundTransparency = 1
+		dLbl.Font = Enum.Font.GothamMedium
+		dLbl.TextColor3 = Color3.fromRGB(220, 220, 220)
+		dLbl.TextSize = 12
+		dLbl.RichText = true
+		dLbl.TextWrapped = true
+		dLbl.TextXAlignment = Enum.TextXAlignment.Left
+		dLbl.TextYAlignment = Enum.TextYAlignment.Top
+		dLbl.Text = pInfo.Desc
+		dLbl.ZIndex = 23
+		dLbl.Parent = itemFrm
 
-		local giftBtn = nil
+		local buyBtn = Instance.new("TextButton")
+		buyBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
+		buyBtn.Font = Enum.Font.GothamBold
+		buyBtn.TextColor3 = Color3.new(1, 1, 1)
+		buyBtn.TextScaled = true
+		buyBtn.Text = tostring(pInfo.Price) .. " R$"
+		buyBtn.ZIndex = 24
+		buyBtn.Parent = itemFrm
+
+		local bCorner = Instance.new("UICorner")
+		bCorner.CornerRadius = UDim.new(0, 4)
+		bCorner.Parent = buyBtn
+
+		local bUic = Instance.new("UITextSizeConstraint")
+		bUic.MaxTextSize = 13
+		bUic.Parent = buyBtn
+
 		if pInfo.Type == "Product" or pInfo.GiftId then
-			giftBtn = Instance.new("TextButton", itemFrm)
-			giftBtn.Size = UDim2.new(0.42, 0, 0, 24); giftBtn.Position = UDim2.new(0, 5, 1, -29); giftBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); giftBtn.Font = Enum.Font.GothamBold; giftBtn.TextColor3 = Color3.new(1,1,1); giftBtn.TextScaled = true; giftBtn.Text = "Gift"; giftBtn.ZIndex = 24
-			Instance.new("UICorner", giftBtn).CornerRadius = UDim.new(0, 4)
-			Instance.new("UITextSizeConstraint", giftBtn).MaxTextSize = 13
+			local giftBtn = Instance.new("TextButton")
+			giftBtn.Size = UDim2.new(0.42, 0, 0, 24)
+			giftBtn.Position = UDim2.new(0, 5, 1, -29)
+			giftBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20)
+			giftBtn.Font = Enum.Font.GothamBold
+			giftBtn.TextColor3 = Color3.new(1, 1, 1)
+			giftBtn.TextScaled = true
+			giftBtn.Text = "Gift"
+			giftBtn.ZIndex = 24
+			giftBtn.Parent = itemFrm
 
-			buyBtn.Size = UDim2.new(0.5, 0, 0, 24); buyBtn.Position = UDim2.new(1, -5, 1, -29); buyBtn.AnchorPoint = Vector2.new(1, 0)
+			local gCorner = Instance.new("UICorner")
+			gCorner.CornerRadius = UDim.new(0, 4)
+			gCorner.Parent = giftBtn
+
+			local gUic = Instance.new("UITextSizeConstraint")
+			gUic.MaxTextSize = 13
+			gUic.Parent = giftBtn
+
+			buyBtn.Size = UDim2.new(0.5, 0, 0, 24)
+			buyBtn.Position = UDim2.new(1, -5, 1, -29)
+			buyBtn.AnchorPoint = Vector2.new(1, 0)
 
 			giftBtn.MouseButton1Click:Connect(function()
-				SFXManager.Play("Click"); OpenGiftModal(pInfo)
+				SFXManager.Play("Click")
+				GiftManager.OpenGiftModal(pInfo)
 			end)
 		else
-			buyBtn.Size = UDim2.new(1, -10, 0, 24); buyBtn.Position = UDim2.new(0, 5, 1, -29)
+			buyBtn.Size = UDim2.new(1, -10, 0, 24)
+			buyBtn.Position = UDim2.new(0, 5, 1, -29)
 		end
 
 		buyBtn.MouseButton1Click:Connect(function()
-			if pInfo.Attr and player:GetAttribute(pInfo.Attr) then return end 
+			if pInfo.Attr and player:GetAttribute(pInfo.Attr) then
+				return 
+			end 
 			SFXManager.Play("Click")
 			Network.ShopAction:FireServer("SetGiftTarget", 0)
 			task.wait(0.1) 
-			if isPass then MarketplaceService:PromptGamePassPurchase(player, pInfo.Id)
-			else MarketplaceService:PromptProductPurchase(player, pInfo.Id) end
+			if isPass then 
+				MarketplaceService:PromptGamePassPurchase(player, pInfo.Id)
+			else 
+				MarketplaceService:PromptProductPurchase(player, pInfo.Id) 
+			end
 		end)
 
-		if pInfo.Attr then premLabels[pInfo.Attr] = {Btn = buyBtn, Price = pInfo.Price} end
+		if pInfo.Attr then 
+			premLabels[pInfo.Attr] = {Btn = buyBtn, Price = pInfo.Price} 
+		end
 	end
 
 	task.spawn(function()
@@ -371,102 +714,35 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	end)
 
 	-- ==========================================
-	-- GIFT MODAL SETUP
-	-- ==========================================
-	giftModal = Instance.new("Frame")
-	giftModal.Name = "GiftModal"
-	giftModal.Size = UDim2.new(1, 0, 1, 0)
-	giftModal.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	giftModal.BackgroundTransparency = 0.5
-	giftModal.Visible = false
-	giftModal.ZIndex = 100
-	giftModal.Parent = mainPanel
-
-	giftContainer = CreateCard("GiftContainer", giftModal, UDim2.new(0.4, 0, 0.6, 0), 1)
-	giftContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-	giftContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-	giftContainer.ZIndex = 101
-	applyDoubleGoldBorder(giftContainer)
-
-	giftTitle = CreateTitle(giftContainer, "Select Player to Gift")
-	giftTitle.ZIndex = 102
-
-	local closeGiftBtn = Instance.new("TextButton", giftContainer)
-	closeGiftBtn.Size = UDim2.new(0, 30, 0, 30); closeGiftBtn.Position = UDim2.new(1, -5, 0, -5); closeGiftBtn.AnchorPoint = Vector2.new(1, 0); closeGiftBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60); closeGiftBtn.Font = Enum.Font.GothamBold; closeGiftBtn.TextColor3 = Color3.new(1,1,1); closeGiftBtn.Text = "X"; closeGiftBtn.TextScaled = true; closeGiftBtn.ZIndex = 103
-	Instance.new("UICorner", closeGiftBtn).CornerRadius = UDim.new(0, 6)
-	Instance.new("UITextSizeConstraint", closeGiftBtn).MaxTextSize = 16
-	closeGiftBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); giftModal.Visible = false end)
-
-	giftList = Instance.new("ScrollingFrame", giftContainer)
-	giftList.Size = UDim2.new(1, 0, 1, -25); giftList.Position = UDim2.new(0, 0, 0, 25); giftList.BackgroundTransparency = 1; giftList.ScrollBarThickness = 6; giftList.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); giftList.ZIndex = 102
-	local gLL = Instance.new("UIListLayout", giftList); gLL.FillDirection = Enum.FillDirection.Vertical; gLL.Padding = UDim.new(0, 5); gLL.SortOrder = Enum.SortOrder.LayoutOrder
-
-	function OpenGiftModal(pInfo)
-		giftTitle.Text = "Gift: " .. pInfo.Name
-		for _, c in pairs(giftList:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
-
-		local playersFound = false
-
-		local function makeGiftBtn(text, color)
-			local b = Instance.new("TextButton", giftList)
-			b.Size = UDim2.new(1, -10, 0, 35); b.BackgroundColor3 = color; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.Text = text; b.ZIndex = 103
-			Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-			Instance.new("UITextSizeConstraint", b).MaxTextSize = 14
-			return b
-		end
-
-		if pInfo.Type == "Pass" then
-			local selfBtn = makeGiftBtn("Buy as Tradable Item", Color3.fromRGB(200, 150, 0))
-			selfBtn.MouseButton1Click:Connect(function()
-				SFXManager.Play("Click"); giftModal.Visible = false
-				Network.ShopAction:FireServer("SetGiftTarget", -1); task.wait(0.1)
-				MarketplaceService:PromptProductPurchase(player, pInfo.GiftId)
-			end)
-		end
-
-		for _, p in ipairs(game.Players:GetPlayers()) do
-			if p ~= player then
-				if pInfo.Type == "Pass" and pInfo.Attr and p:GetAttribute(pInfo.Attr) == true then continue end
-				playersFound = true
-				local btn = makeGiftBtn("Gift to: " .. p.Name, Color3.fromRGB(120, 20, 160))
-				btn.MouseButton1Click:Connect(function()
-					SFXManager.Play("Click"); giftModal.Visible = false
-					Network.ShopAction:FireServer("SetGiftTarget", p.UserId); task.wait(0.1)
-					if pInfo.Type == "Pass" then MarketplaceService:PromptProductPurchase(player, pInfo.GiftId)
-					else MarketplaceService:PromptProductPurchase(player, pInfo.Id) end
-				end)
-			end
-		end
-
-		if not playersFound and pInfo.Type ~= "Pass" then
-			local empty = makeGiftBtn("No eligible players found!", Color3.fromRGB(100, 100, 100))
-			empty.AutoButtonColor = false
-		end
-
-		giftList.CanvasSize = UDim2.new(0, 0, 0, gLL.AbsoluteContentSize.Y + 10)
-		giftModal.Visible = true
-	end
-
-	-- ==========================================
 	-- HOOK UP EVENTS & LOGIC
 	-- ==========================================
 
 	marketTabBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
-		marketTabContent.Visible = true; premiumTabContent.Visible = false
-		marketTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100); premiumTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-		mStr.Color = Color3.fromRGB(255, 215, 50); mStr.Thickness = 2
-		pStr.Color = Color3.fromRGB(90, 50, 120); pStr.Thickness = 1
-		marketTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130); premiumTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+		marketTabContent.Visible = true
+		premiumTabContent.Visible = false
+		marketTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100)
+		premiumTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+		mStr.Color = Color3.fromRGB(255, 215, 50)
+		mStr.Thickness = 2
+		pStr.Color = Color3.fromRGB(90, 50, 120)
+		pStr.Thickness = 1
+		marketTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
+		premiumTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
 	end)
 
 	premiumTabBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
-		marketTabContent.Visible = false; premiumTabContent.Visible = true
-		premiumTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100); marketTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-		pStr.Color = Color3.fromRGB(255, 215, 50); pStr.Thickness = 2
-		mStr.Color = Color3.fromRGB(90, 50, 120); mStr.Thickness = 1
-		premiumTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130); marketTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+		marketTabContent.Visible = false
+		premiumTabContent.Visible = true
+		premiumTabBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100)
+		marketTabBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+		pStr.Color = Color3.fromRGB(255, 215, 50)
+		pStr.Thickness = 2
+		mStr.Color = Color3.fromRGB(90, 50, 120)
+		mStr.Thickness = 1
+		premiumTabBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
+		marketTabBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
 	end)
 
 	redeemBtn.MouseButton1Click:Connect(function()
@@ -484,11 +760,17 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		local function BuildPoolString(dataTable, isTrait, currentEquipped)
 			local pools = { Common = {}, Uncommon = {}, Rare = {}, Legendary = {}, Mythical = {}, Evolution = {}, Boss = {} }
 			local rates = {}
-			if isTrait then rates = { Common = "35%", Rare = "16%", Legendary = "6%", Mythical = "1%" }
-			else rates = { Common = "50%", Uncommon = "30%", Rare = "15%", Legendary = "5%", Mythical = "1% WORLD BOSS" } end
+
+			if isTrait then 
+				rates = { Common = "35%", Rare = "16%", Legendary = "6%", Mythical = "1%" }
+			else 
+				rates = { Common = "50%", Uncommon = "30%", Rare = "15%", Legendary = "5%", Mythical = "1% WORLD BOSS ONLY" } 
+			end
 
 			for name, data in pairs(dataTable) do
-				if pools[data.Rarity] then table.insert(pools[data.Rarity], name) end
+				if pools[data.Rarity] then 
+					table.insert(pools[data.Rarity], name) 
+				end
 			end
 
 			local str = ""
@@ -499,10 +781,14 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 				if #pools[rarity] > 0 and rates[rarity] then
 					table.sort(pools[rarity])
 					str = str .. "<b><font color='"..hexes[rarity].."'>"..rarity.." ("..rates[rarity]..")</font></b>\n"
+
 					local formattedNames = {}
 					for _, name in ipairs(pools[rarity]) do
-						if name == currentEquipped then table.insert(formattedNames, "<u><b><font color='#FFFFFF'>" .. name .. "</font></b></u>")
-						else table.insert(formattedNames, name) end
+						if name == currentEquipped then 
+							table.insert(formattedNames, "<u><b><font color='#FFFFFF'>" .. name .. "</font></b></u>")
+						else 
+							table.insert(formattedNames, name) 
+						end
 					end
 					str = str .. table.concat(formattedNames, ", ") .. "\n\n"
 				end
@@ -513,8 +799,11 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 				str = str .. "<b><font color='#AA00AA'>Evolution</font></b>\n"
 				local formattedEvos = {}
 				for _, name in ipairs(pools["Evolution"]) do
-					if name == currentEquipped then table.insert(formattedEvos, "<u><b><font color='#FFFFFF'>" .. name .. "</font></b></u>")
-					else table.insert(formattedEvos, name) end
+					if name == currentEquipped then 
+						table.insert(formattedEvos, "<u><b><font color='#FFFFFF'>" .. name .. "</font></b></u>")
+					else 
+						table.insert(formattedEvos, name) 
+					end
 				end
 				str = str .. table.concat(formattedEvos, ", ") .. "\n\n"
 			end
@@ -546,17 +835,32 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		end
 	end
 
-	for attrName, _ in pairs(premLabels) do player:GetAttributeChangedSignal(attrName):Connect(UpdateRobuxUI) end
+	for attrName, _ in pairs(premLabels) do 
+		player:GetAttributeChangedSignal(attrName):Connect(UpdateRobuxUI) 
+	end
+
 	UpdateRobuxUI()
 
 	local function RefreshShopItems(stockStr)
-		for _, child in pairs(shopContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
-		if not stockStr or stockStr == "" then return end
+		for _, child in pairs(shopContainer:GetChildren()) do 
+			if child:IsA("Frame") then 
+				child:Destroy() 
+			end 
+		end
+
+		if not stockStr or stockStr == "" then 
+			return 
+		end
 
 		local stockData = {}
+
 		if string.sub(stockStr, 1, 1) == "[" then
-			local success, decoded = pcall(function() return game:GetService("HttpService"):JSONDecode(stockStr) end)
-			if success and decoded then stockData = decoded end
+			local success, decoded = pcall(function() 
+				return game:GetService("HttpService"):JSONDecode(stockStr) 
+			end)
+			if success and decoded then 
+				stockData = decoded 
+			end
 		else
 			local items = string.split(stockStr, ",")
 			for _, name in ipairs(items) do
@@ -570,42 +874,106 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		end
 
 		for _, item in ipairs(stockData) do
-			local itemFrame = Instance.new("Frame", shopContainer)
-			itemFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45); itemFrame.ZIndex = 22
-			Instance.new("UICorner", itemFrame).CornerRadius = UDim.new(0, 6)
-			local iStr = Instance.new("UIStroke", itemFrame); iStr.Color = rarityColors[item.Rarity or "Common"]; iStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			local itemFrame = Instance.new("Frame")
+			itemFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
+			itemFrame.ZIndex = 22
+			itemFrame.Parent = shopContainer
 
-			local nameLabel = Instance.new("TextLabel", itemFrame)
-			nameLabel.Size = UDim2.new(1, -10, 0.6, 0); nameLabel.Position = UDim2.new(0, 5, 0, 5); nameLabel.BackgroundTransparency = 1; nameLabel.Font = Enum.Font.GothamMedium; nameLabel.TextColor3 = rarityColors[item.Rarity or "Common"]; nameLabel.TextScaled = true; nameLabel.TextWrapped = true; nameLabel.RichText = true; nameLabel.Text = item.Name .. "\n<font color='#55FF55'>¥" .. (item.Cost or 0) .. "</font>"; nameLabel.ZIndex = 23
-			Instance.new("UITextSizeConstraint", nameLabel).MaxTextSize = 14
+			local iCorner = Instance.new("UICorner")
+			iCorner.CornerRadius = UDim.new(0, 6)
+			iCorner.Parent = itemFrame
 
-			local buyBtn = Instance.new("TextButton", itemFrame)
-			buyBtn.Size = UDim2.new(1, -10, 0.4, -10); buyBtn.Position = UDim2.new(0, 5, 1, -5); buyBtn.AnchorPoint = Vector2.new(0, 1); buyBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160); buyBtn.Font = Enum.Font.GothamBold; buyBtn.TextColor3 = Color3.new(1,1,1); buyBtn.TextScaled = true; buyBtn.Text = "Buy"; buyBtn.ZIndex = 24
-			Instance.new("UICorner", buyBtn).CornerRadius = UDim.new(0, 4)
-			Instance.new("UITextSizeConstraint", buyBtn).MaxTextSize = 13
+			local iStr = Instance.new("UIStroke")
+			iStr.Color = rarityColors[item.Rarity or "Common"]
+			iStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			iStr.Parent = itemFrame
 
-			buyBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.ShopAction:FireServer("Buy", item.Name) end)
-			itemFrame.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) end)
-			itemFrame.MouseLeave:Connect(cachedTooltipMgr.Hide)
+			local nameLabel = Instance.new("TextLabel")
+			nameLabel.Size = UDim2.new(1, -10, 0.6, 0)
+			nameLabel.Position = UDim2.new(0, 5, 0, 5)
+			nameLabel.BackgroundTransparency = 1
+			nameLabel.Font = Enum.Font.GothamMedium
+			nameLabel.TextColor3 = rarityColors[item.Rarity or "Common"]
+			nameLabel.TextScaled = true
+			nameLabel.TextWrapped = true
+			nameLabel.RichText = true
+			nameLabel.Text = item.Name .. "\n<font color='#55FF55'>¥" .. (item.Cost or 0) .. "</font>"
+			nameLabel.ZIndex = 23
+			nameLabel.Parent = itemFrame
+
+			local nlUic = Instance.new("UITextSizeConstraint")
+			nlUic.MaxTextSize = 14
+			nlUic.Parent = nameLabel
+
+			local buyBtn = Instance.new("TextButton")
+			buyBtn.Size = UDim2.new(1, -10, 0.4, -10)
+			buyBtn.Position = UDim2.new(0, 5, 1, -5)
+			buyBtn.AnchorPoint = Vector2.new(0, 1)
+			buyBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+			buyBtn.Font = Enum.Font.GothamBold
+			buyBtn.TextColor3 = Color3.new(1, 1, 1)
+			buyBtn.TextScaled = true
+			buyBtn.Text = "Buy"
+			buyBtn.ZIndex = 24
+			buyBtn.Parent = itemFrame
+
+			local bbCorner = Instance.new("UICorner")
+			bbCorner.CornerRadius = UDim.new(0, 4)
+			bbCorner.Parent = buyBtn
+
+			local bbUic = Instance.new("UITextSizeConstraint")
+			bbUic.MaxTextSize = 13
+			bbUic.Parent = buyBtn
+
+			buyBtn.MouseButton1Click:Connect(function() 
+				SFXManager.Play("Click") 
+				Network.ShopAction:FireServer("Buy", item.Name) 
+			end)
+
+			itemFrame.MouseEnter:Connect(function() 
+				cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) 
+			end)
+
+			itemFrame.MouseLeave:Connect(function()
+				cachedTooltipMgr.Hide()
+			end)
 		end
 	end
 
+	-- Catch-all for Shop Notification Routing
 	Network:WaitForChild("ShopUpdate").OnClientEvent:Connect(function(action, data)
-		if action == "Refresh" then RefreshShopItems(table.concat(data, ",")) end
+		if action == "Refresh" then 
+			RefreshShopItems(table.concat(data, ",")) 
+		elseif type(data) == "string" and (action == "Notify" or action == "Notification" or action == "SystemMessage" or action == "Message" or action == "Error" or action == "Success") then
+			NotificationManager.Show(data)
+		elseif type(action) == "string" and data == nil then
+			-- In case the server passes the message as the action directly
+			if action ~= "Refresh" and not string.match(action, "Prompt") then
+				NotificationManager.Show(action)
+			end
+		end
 	end)
 
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(passPlayer, passId, wasPurchased)
 		if passPlayer == player and wasPurchased then 
 			SFXManager.Play("BuyPass") 
-			for _, pItem in ipairs(premiumItems) do if pItem.Id == passId and pItem.Attr then player:SetAttribute(pItem.Attr, true) end end
+			for _, pItem in ipairs(premiumItems) do 
+				if pItem.Id == passId and pItem.Attr then 
+					player:SetAttribute(pItem.Attr, true) 
+				end 
+			end
 		end
 	end)
 
 	MarketplaceService.PromptProductPurchaseFinished:Connect(function(userId, productId, wasPurchased)
-		if userId == player.UserId and wasPurchased then SFXManager.Play("BuyPass") end
+		if userId == player.UserId and wasPurchased then 
+			SFXManager.Play("BuyPass") 
+		end
 	end)
 
-	player:GetAttributeChangedSignal("ShopStock"):Connect(function() RefreshShopItems(player:GetAttribute("ShopStock")) end)
+	player:GetAttributeChangedSignal("ShopStock"):Connect(function() 
+		RefreshShopItems(player:GetAttribute("ShopStock")) 
+	end)
 
 	task.spawn(function()
 		local leaderstats = player:WaitForChild("leaderstats", 5)
@@ -613,7 +981,9 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			local yen = leaderstats:WaitForChild("Yen", 5)
 			if yen then
 				yenLabel.Text = "Yen: <font color='#55FF55'>¥" .. yen.Value .. "</font>"
-				yen.Changed:Connect(function(val) yenLabel.Text = "Yen: <font color='#55FF55'>¥" .. val .. "</font>" end)
+				yen.Changed:Connect(function(val) 
+					yenLabel.Text = "Yen: <font color='#55FF55'>¥" .. val .. "</font>" 
+				end)
 			end
 		end
 	end)
@@ -622,11 +992,17 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		while task.wait(1) do
 			local rt = player:GetAttribute("ShopRefreshTime") or 0
 			local remain = rt - os.time()
-			if remain > 0 then timerLabel.Text = "Restocks in: " .. FormatTime(remain) else timerLabel.Text = "Restocking..." end
+			if remain > 0 then 
+				timerLabel.Text = "Restocks in: " .. FormatTime(remain) 
+			else 
+				timerLabel.Text = "Restocking..." 
+			end
 		end
 	end)
 
-	task.delay(1, function() RefreshShopItems(player:GetAttribute("ShopStock")) end)
+	task.delay(1, function() 
+		RefreshShopItems(player:GetAttribute("ShopStock")) 
+	end)
 end
 
 return ShopTab
