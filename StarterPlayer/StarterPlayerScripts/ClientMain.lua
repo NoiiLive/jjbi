@@ -65,6 +65,7 @@ end)
 CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
+		NotificationManager.Show(data) -- FIXED: Routes server shop/code messages to the popup UI
 	elseif action == "TrainingTick" then
 		TrainingTab.OnTick(data)
 	else
@@ -362,6 +363,9 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
+-- ========================================================
+-- REACTIVE MUTE STATE
+-- ========================================================
 local function applyMuteState()
 	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
 	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
@@ -371,8 +375,10 @@ local function applyMuteState()
 	end
 end
 
+-- Sync whenever the server finishes loading or the player toggles it
 player:GetAttributeChangedSignal("IsMuted"):Connect(applyMuteState)
 
+-- Ensure BGM loads on start before trying to apply volume
 task.spawn(function()
 	SoundService:WaitForChild("BizarreBGM", 5)
 	applyMuteState()
@@ -382,7 +388,11 @@ muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
 	local currentState = player:GetAttribute("IsMuted") or false
 	local newState = not currentState
+
+	-- Predictively set it on the client for zero latency
 	player:SetAttribute("IsMuted", newState)
+
+	-- Tell the server to save the new state
 	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
 
