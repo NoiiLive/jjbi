@@ -24,8 +24,11 @@ if not RemotesFolder then
 	RemotesFolder.Parent = ReplicatedStorage
 end
 
+-- Added ToggleTraining and RedeemCode to ensure no infinite yields across the game
 local requiredRemotes = {
 	"ToggleMute",
+	"ToggleTraining",
+	"RedeemCode",
 	"TutorialAction",
 	"CombatAction",
 	"CombatUpdate",
