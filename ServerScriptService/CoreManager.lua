@@ -24,7 +24,6 @@ if not RemotesFolder then
 	RemotesFolder.Parent = ReplicatedStorage
 end
 
--- Added ToggleTraining and RedeemCode to ensure no infinite yields across the game
 local requiredRemotes = {
 	"ToggleMute",
 	"ToggleTraining",
@@ -48,7 +47,9 @@ local requiredRemotes = {
 	"MultiplayerAction",
 	"NotificationEvent",
 	"AutoSellToggle",
-	"PrestigeEvent"
+	"PrestigeEvent",
+	"LeaderboardAction",
+	"LeaderboardUpdate"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
