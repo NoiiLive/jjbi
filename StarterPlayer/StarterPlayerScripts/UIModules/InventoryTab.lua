@@ -810,7 +810,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 	local riTop = Instance.new("Frame", itemsAreaCard)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
-	local riTitle = CreateTitle(riTop, "EQUIPPABLES"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
+	local riTitle = CreateTitle(riTop, "EQUIPMENT"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
 	capacityLabel = Instance.new("TextLabel", riTop)
 	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -15, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
 	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
