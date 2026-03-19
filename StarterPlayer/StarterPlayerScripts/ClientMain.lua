@@ -1,4 +1,5 @@
 -- @ScriptType: LocalScript
+-- @ScriptType: LocalScript
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -25,6 +26,8 @@ local TooltipManager = require(UIModules:WaitForChild("TooltipManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
 local CombatTab = require(UIModules:WaitForChild("CombatTab"))
 local InventoryTab = require(UIModules:WaitForChild("InventoryTab"))
+local UpdatesTab = require(UIModules:WaitForChild("UpdatesTab"))
+local TrainingTab = require(UIModules:WaitForChild("TrainingTab"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
@@ -42,6 +45,8 @@ end)
 CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
+	elseif action == "TrainingTick" then
+		TrainingTab.OnTick(data)
 	else
 		CombatTab.UpdateCombat(action, data)
 	end
@@ -337,6 +342,9 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
+-- ========================================================
+-- REACTIVE MUTE STATE
+-- ========================================================
 local function applyMuteState()
 	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
 	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
@@ -346,8 +354,10 @@ local function applyMuteState()
 	end
 end
 
+-- Sync whenever the server finishes loading or the player toggles it
 player:GetAttributeChangedSignal("IsMuted"):Connect(applyMuteState)
 
+-- Ensure BGM loads on start before trying to apply volume
 task.spawn(function()
 	SoundService:WaitForChild("BizarreBGM", 5)
 	applyMuteState()
@@ -357,9 +367,11 @@ muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
 	local currentState = player:GetAttribute("IsMuted") or false
 	local newState = not currentState
-
+	
+	-- Predictively set it on the client for zero latency
 	player:SetAttribute("IsMuted", newState)
-
+	
+	-- Tell the server to save the new state
 	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
 
@@ -668,6 +680,8 @@ camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
 CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
-InventoryTab.Init(TabFrames["Inventory"], TooltipManager)
+InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
+UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
+TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
 
 SwitchTab("Updates")
