@@ -30,6 +30,7 @@ local UpdatesTab = require(UIModules:WaitForChild("UpdatesTab"))
 local TrainingTab = require(UIModules:WaitForChild("TrainingTab"))
 local ShopTab = require(UIModules:WaitForChild("ShopTab"))
 local GiftManager = require(UIModules:WaitForChild("GiftManager"))
+local MultiplayerTab = require(UIModules:WaitForChild("MultiplayerTab"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
@@ -77,6 +78,23 @@ DungeonUpdate.OnClientEvent:Connect(function(action, data)
 	if CombatTab.UpdateDungeon then
 		CombatTab.UpdateDungeon(action, data)
 	end
+end)
+
+-- Multiplayer Update Listeners
+local function safeCall(func, action, data)
+	if func then func(action, data) end
+end
+
+Network:WaitForChild("GangUpdate").OnClientEvent:Connect(function(action, data)
+	safeCall(MultiplayerTab.HandleGangUpdate, action, data)
+end)
+
+Network:WaitForChild("ArenaUpdate").OnClientEvent:Connect(function(action, data)
+	safeCall(MultiplayerTab.HandleArenaUpdate, action, data)
+end)
+
+Network:WaitForChild("TradeUpdate").OnClientEvent:Connect(function(action, data)
+	safeCall(MultiplayerTab.HandleTradeUpdate, action, data)
 end)
 
 local function applyDoubleGoldBorder(parent)
@@ -363,9 +381,6 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
--- ========================================================
--- REACTIVE MUTE STATE
--- ========================================================
 local function applyMuteState()
 	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
 	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
@@ -375,10 +390,8 @@ local function applyMuteState()
 	end
 end
 
--- Sync whenever the server finishes loading or the player toggles it
 player:GetAttributeChangedSignal("IsMuted"):Connect(applyMuteState)
 
--- Ensure BGM loads on start before trying to apply volume
 task.spawn(function()
 	SoundService:WaitForChild("BizarreBGM", 5)
 	applyMuteState()
@@ -388,11 +401,7 @@ muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
 	local currentState = player:GetAttribute("IsMuted") or false
 	local newState = not currentState
-
-	-- Predictively set it on the client for zero latency
 	player:SetAttribute("IsMuted", newState)
-
-	-- Tell the server to save the new state
 	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
 
@@ -711,5 +720,6 @@ InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
 UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
 TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
 ShopTab.Init(TabFrames["Shop"], TooltipManager)
+MultiplayerTab.Init(TabFrames["Multiplayer"], TooltipManager, SwitchTab)
 
 SwitchTab("Updates")
