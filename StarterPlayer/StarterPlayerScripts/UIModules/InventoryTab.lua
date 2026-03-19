@@ -632,9 +632,6 @@ end
 function InventoryTab.Init(parentFrame, tooltipMgr)
 	cachedTooltipMgr = tooltipMgr
 
-	-- ========================================================
-	-- MAIN FRAME SETUP
-	-- ========================================================
 	local mainPanel = Instance.new("Frame")
 	mainPanel.Name = "MainPanel"
 	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
@@ -688,9 +685,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	mainLayout.Padding = UDim.new(0.02, 0)
 
-	-- ==========================================
-	-- SUB NAVIGATION
-	-- ==========================================
 	local subNavFrame = Instance.new("Frame", innerContent)
 	subNavFrame.Name = "SubNavFrame"
 	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
@@ -726,9 +720,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local standStr = Instance.new("UIStroke", standTabBtn); standStr.Color = Color3.fromRGB(90, 50, 120); standStr.Thickness = 1; standStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	Instance.new("UITextSizeConstraint", standTabBtn).MaxTextSize = 16
 
-	-- ==========================================
-	-- SHARED LOADOUT
-	-- ==========================================
 	local loadoutCard = CreateCard("LoadoutCard", innerContent, UDim2.new(1, 0, 0.18, 0), 2)
 	CreateTitle(loadoutCard, "LOADOUT")
 
@@ -777,18 +768,12 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local xpBox; xpBox, xpLabel, _ = createLoadRow("XP", lRow3)
 	local yenBox; yenBox, yenLabel, _ = createLoadRow("Yen", lRow3)
 
-	-- ==========================================
-	-- TAB CONTAINER
-	-- ==========================================
 	local tabContainer = Instance.new("Frame", innerContent)
 	tabContainer.Name = "TabContainer"
 	tabContainer.Size = UDim2.new(1, 0, 0.72, 0)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.LayoutOrder = 3
 
-	-- ==========================================
-	-- INVENTORY TAB
-	-- ==========================================
 	local invTabContent = Instance.new("Frame", tabContainer)
 	invTabContent.Name = "InventoryTabContent"
 	invTabContent.Size = UDim2.new(1, 0, 1, 0)
@@ -800,7 +785,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local itemsAreaCard = CreateCard("ItemsAreaCard", invTabContent, UDim2.new(1, 0, 0.35, 0), 2)
 	local autoSellCard = CreateCard("AutoSellCard", invTabContent, UDim2.new(1, 0, 0.20, 0), 3)
 
-	-- Stats (Full Width)
 	local sacL = Instance.new("UIListLayout", statsAreaCard)
 	sacL.FillDirection = Enum.FillDirection.Horizontal; sacL.Padding = UDim.new(0, 0)
 
@@ -824,10 +808,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	for _, stat in ipairs(playerStatsList) do statLabels[stat] = CreateStatRow(stat, pStatsContainer, false) end
 	for _, stat in ipairs(standStatsList) do statLabels[stat] = CreateStatRow(stat, sStatsContainer, true) end
 
-	-- Reg Items (Full Width)
 	local riTop = Instance.new("Frame", itemsAreaCard)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
-	local riTitle = CreateTitle(riTop, "INVENTORY"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
+	local riTitle = CreateTitle(riTop, "EQUIPPABLES"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
 	capacityLabel = Instance.new("TextLabel", riTop)
 	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -15, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
 	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
@@ -838,7 +821,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local rp = Instance.new("UIPadding", regItemsContainer); rp.PaddingRight = UDim.new(0, 6); rp.PaddingLeft = UDim.new(0, 2); rp.PaddingTop = UDim.new(0, 2); rp.PaddingBottom = UDim.new(0, 2)
 	Instance.new("UIListLayout", regItemsContainer).Padding = UDim.new(0, 4)
 
-	-- Auto Sell (Full Width)
 	CreateTitle(autoSellCard, "AUTO SELL")
 	autoSellContainer = Instance.new("Frame", autoSellCard)
 	autoSellContainer.Size = UDim2.new(1, 0, 1, -24); autoSellContainer.Position = UDim2.new(0,0,0,24); autoSellContainer.BackgroundTransparency = 1; autoSellContainer.LayoutOrder = 2; autoSellContainer.ZIndex = 21
@@ -854,9 +836,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		Instance.new("UITextSizeConstraint", b).MaxTextSize = 13
 	end
 
-	-- ==========================================
-	-- STAND TAB
-	-- ==========================================
 	local standTabContent = Instance.new("Frame", tabContainer)
 	standTabContent.Name = "StandTabContent"
 	standTabContent.Size = UDim2.new(1, 0, 1, 0)
@@ -868,7 +847,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local keyItemsCard = CreateCard("KeyItemsCard", standTabContent, UDim2.new(1, 0, 0.35, 0), 2)
 	autoRollCard = CreateCard("AutoRollCard", standTabContent, UDim2.new(1, 0, 0.20, 0), 3)
 
-	-- Storage (Full Width)
 	local stTop = Instance.new("Frame", storageCard); stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
 	local stTitle = CreateTitle(stTop, "STAND STORAGE"); stTitle.Size = UDim2.new(0.5, 0, 1, 0); stTitle.TextXAlignment = Enum.TextXAlignment.Left
 	local toggleStorageBtn = Instance.new("TextButton", stTop)
@@ -880,14 +858,12 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	storageContainer = Instance.new("Frame", storageCard); storageContainer.Size = UDim2.new(1, 0, 1, -24); storageContainer.Position = UDim2.new(0,0,0,24); storageContainer.BackgroundTransparency = 1; storageContainer.LayoutOrder = 2
 	Instance.new("UIListLayout", storageContainer).Padding = UDim.new(0, 0)
 
-	-- Key Items (Full Width)
-	CreateTitle(keyItemsCard, "KEY ITEMS")
+	CreateTitle(keyItemsCard, "CONSUMABLES")
 	keyItemsContainer = Instance.new("ScrollingFrame", keyItemsCard)
 	keyItemsContainer.Size = UDim2.new(1, 0, 1, -24); keyItemsContainer.Position = UDim2.new(0,0,0,24); keyItemsContainer.BackgroundTransparency = 1; keyItemsContainer.ScrollBarThickness = 4; keyItemsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); keyItemsContainer.ZIndex = 21; keyItemsContainer.LayoutOrder = 2
 	local kp = Instance.new("UIPadding", keyItemsContainer); kp.PaddingRight = UDim.new(0, 6); kp.PaddingLeft = UDim.new(0, 2); kp.PaddingTop = UDim.new(0, 2); kp.PaddingBottom = UDim.new(0, 2)
 	Instance.new("UIListLayout", keyItemsContainer).Padding = UDim.new(0, 4)
 
-	-- Auto Roll (Full Width)
 	CreateTitle(autoRollCard, "AUTO ROLL")
 	local arContent = Instance.new("Frame", autoRollCard)
 	arContent.Size = UDim2.new(1, 0, 1, -24); arContent.Position = UDim2.new(0,0,0,24); arContent.BackgroundTransparency = 1; arContent.LayoutOrder = 2
@@ -923,10 +899,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local btnRArrow = createRollBtn("RollArrowBtn", "Use Arrow", Color3.fromRGB(200, 150, 0), 3)
 	local btnRCorpse = createRollBtn("RollCorpseBtn", "Use Corpse", Color3.fromRGB(200, 50, 150), 4)
 	local btnRRoka = createRollBtn("RollRokaBtn", "Use Roka", Color3.fromRGB(200, 50, 50), 5)
-
-	-- ==========================================
-	-- HOOK UP EVENTS & LOGIC
-	-- ==========================================
 
 	invTabBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
