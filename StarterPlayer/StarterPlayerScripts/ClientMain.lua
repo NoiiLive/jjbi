@@ -65,7 +65,7 @@ end)
 CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
-		NotificationManager.Show(data) -- FIXED: Routes server shop/code messages to the popup UI
+		NotificationManager.Show(data)
 	elseif action == "TrainingTick" then
 		TrainingTab.OnTick(data)
 	else
@@ -642,7 +642,14 @@ navToggleBtn.MouseButton1Click:Connect(function()
 	ToggleNav()
 end)
 
-local keyMap = { [Enum.KeyCode.One] = 1, [Enum.KeyCode.Two] = 2, [Enum.KeyCode.Three] = 3, [Enum.KeyCode.Four] = 4, [Enum.KeyCode.Five] = 5, [Enum.KeyCode.Six] = 6 }
+local keyMap = { 
+	[Enum.KeyCode.One] = 1, [Enum.KeyCode.KeypadOne] = 1,
+	[Enum.KeyCode.Two] = 2, [Enum.KeyCode.KeypadTwo] = 2,
+	[Enum.KeyCode.Three] = 3, [Enum.KeyCode.KeypadThree] = 3,
+	[Enum.KeyCode.Four] = 4, [Enum.KeyCode.KeypadFour] = 4,
+	[Enum.KeyCode.Five] = 5, [Enum.KeyCode.KeypadFive] = 5,
+	[Enum.KeyCode.Six] = 6, [Enum.KeyCode.KeypadSix] = 6 
+}
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed or UserInputService:GetFocusedTextBox() then return end
@@ -652,7 +659,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 	local tabIndex = keyMap[input.KeyCode]
 	if tabIndex and tabs[tabIndex] then
-		if not isNavOpen then ToggleNav() end 
 		SFXManager.Play("Click")
 		SwitchTab(tabs[tabIndex])
 	end
