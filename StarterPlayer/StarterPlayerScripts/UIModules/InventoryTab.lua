@@ -797,8 +797,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local invTL = Instance.new("UIListLayout", invTabContent); invTL.FillDirection = Enum.FillDirection.Vertical; invTL.SortOrder = Enum.SortOrder.LayoutOrder; invTL.Padding = UDim.new(0.02, 0)
 
 	local statsAreaCard = CreateCard("StatsAreaCard", invTabContent, UDim2.new(1, 0, 0.40, 0), 1)
-	local itemsAreaCard = CreateCard("ItemsAreaCard", invTabContent, UDim2.new(1, 0, 0.40, 0), 2)
-	local autoSellCard = CreateCard("AutoSellCard", invTabContent, UDim2.new(1, 0, 0.16, 0), 3)
+	local itemsAreaCard = CreateCard("ItemsAreaCard", invTabContent, UDim2.new(1, 0, 0.35, 0), 2)
+	local autoSellCard = CreateCard("AutoSellCard", invTabContent, UDim2.new(1, 0, 0.20, 0), 3)
 
 	-- Stats (Full Width)
 	local sacL = Instance.new("UIListLayout", statsAreaCard)
@@ -865,8 +865,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local stTL = Instance.new("UIListLayout", standTabContent); stTL.FillDirection = Enum.FillDirection.Vertical; stTL.SortOrder = Enum.SortOrder.LayoutOrder; stTL.Padding = UDim.new(0.02, 0)
 
 	local storageCard = CreateCard("StorageCard", standTabContent, UDim2.new(1, 0, 0.40, 0), 1)
-	local keyItemsCard = CreateCard("KeyItemsCard", standTabContent, UDim2.new(1, 0, 0.40, 0), 2)
-	autoRollCard = CreateCard("AutoRollCard", standTabContent, UDim2.new(1, 0, 0.16, 0), 3)
+	local keyItemsCard = CreateCard("KeyItemsCard", standTabContent, UDim2.new(1, 0, 0.35, 0), 2)
+	autoRollCard = CreateCard("AutoRollCard", standTabContent, UDim2.new(1, 0, 0.20, 0), 3)
 
 	-- Storage (Full Width)
 	local stTop = Instance.new("Frame", storageCard); stTop.Size = UDim2.new(1, 0, 0, 20); stTop.BackgroundTransparency = 1; stTop.LayoutOrder = 1; stTop.ZIndex = 21
