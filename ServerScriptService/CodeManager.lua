@@ -6,12 +6,9 @@ local RedeemCode = Network:WaitForChild("RedeemCode")
 
 local ActiveCodes = {
 	["BIZARRE"] = {Yen = 1000, XP = 2500, Items = {["Stand Arrow"] = 1}},
-	["250KVISITS"] = {Items = {["Stand Arrow"] = 250, ["Rokakaka"] = 250, ["Saint's Corpse Part"] = 100}},
-	["2KFAVS"] = {Items = {["Stand Arrow"] = 20, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 2}},
-	["1KLIKES"] = {Items = {["Legendary Giftbox"] = 10, ["Mythical Giftbox"] = 1}},
-	["INVFIX"] = {Items = {["Legendary Giftbox"] = 10, ["Mythical Giftbox"] = 1}},
-	["GANGSUPD"] = {Items = {["Stand Arrow"] = 10, ["Rokakaka"] = 5, ["Saint's Corpse Part"] = 3}},
-	["STEEL PIPE"] = {Items = {["Steel Pipe (x400)"] = 1}}
+	["300KVISITS"] = {Items = {["Stand Arrow"] = 300, ["Rokakaka"] = 300, ["Saint's Corpse Part"] = 125}},
+	["GUIREWORK"] = {Items = {["Mythical Giftbox"] = 3}},
+	["STEELPIPE"] = {Items = {["Steel Pipe (x400)"] = 1}},
 }
 
 RedeemCode.OnServerEvent:Connect(function(player, codeStr)
