@@ -340,8 +340,9 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 			elseif entry.Rank == 2 then rankColor = Color3.fromRGB(192, 192, 192)
 			elseif entry.Rank == 3 then rankColor = Color3.fromRGB(205, 127, 50) end
 
+			-- Rank Label: Fixed width to completely avoid crushing the icon
 			local rankLbl = Instance.new("TextLabel")
-			rankLbl.Size = UDim2.new(0.15, 0, 1, 0)
+			rankLbl.Size = UDim2.new(0, 40, 1, 0)
 			rankLbl.Position = UDim2.new(0, 10, 0, 0)
 			rankLbl.BackgroundTransparency = 1
 			rankLbl.Font = Enum.Font.GothamBlack
@@ -353,9 +354,10 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 			rankLbl.Parent = row
 			Instance.new("UITextSizeConstraint", rankLbl).MaxTextSize = 18
 
+			local hasIcon = false
 			local iconImg = Instance.new("ImageLabel")
 			iconImg.Size = UDim2.new(0, 28, 0, 28)
-			iconImg.Position = UDim2.new(0.15, 5, 0.5, 0)
+			iconImg.Position = UDim2.new(0, 50, 0.5, 0)
 			iconImg.AnchorPoint = Vector2.new(0, 0.5)
 			iconImg.BackgroundTransparency = 1
 			iconImg.ScaleType = Enum.ScaleType.Fit
@@ -363,35 +365,28 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 			iconImg.Parent = row
 			Instance.new("UICorner", iconImg).CornerRadius = UDim.new(1, 0)
 
-			local hasIcon = false
 			if currentMode == "Players" then
 				iconImg.Image = entry.Profile and entry.Profile.Icon or ""
 				hasIcon = true
 			else
 				if entry.Profile and entry.Profile.Emblem and entry.Profile.Emblem ~= "" then
-					iconImg.Image = entry.Profile.Emblem
+					local emblemStr = entry.Profile.Emblem
+					-- If players input raw ID instead of rbxassetid://
+					if tonumber(emblemStr) then
+						emblemStr = "rbxassetid://" .. emblemStr
+					end
+					iconImg.Image = emblemStr
 					hasIcon = true
 				else
 					iconImg.Visible = false
 				end
 			end
 
-			local nameLbl = Instance.new("TextLabel")
-			nameLbl.Size = hasIcon and UDim2.new(0.40, -40, 1, 0) or UDim2.new(0.40, -5, 1, 0)
-			nameLbl.Position = hasIcon and UDim2.new(0.15, 40, 0, 0) or UDim2.new(0.15, 5, 0, 0)
-			nameLbl.BackgroundTransparency = 1
-			nameLbl.Font = Enum.Font.GothamBold
-			nameLbl.TextColor3 = rankColor
-			nameLbl.TextScaled = true
-			nameLbl.Text = entry.Name
-			nameLbl.TextXAlignment = Enum.TextXAlignment.Left
-			nameLbl.ZIndex = 23
-			nameLbl.Parent = row
-			Instance.new("UITextSizeConstraint", nameLbl).MaxTextSize = 16
-
+			-- Value Label: Anchored tightly to the right side (takes exactly 30% space)
 			local valLbl = Instance.new("TextLabel")
-			valLbl.Size = UDim2.new(0.45, -15, 1, 0)
-			valLbl.Position = UDim2.new(0.55, 0, 0, 0)
+			valLbl.Size = UDim2.new(0.30, 0, 1, 0)
+			valLbl.Position = UDim2.new(1, -10, 0, 0)
+			valLbl.AnchorPoint = Vector2.new(1, 0)
 			valLbl.BackgroundTransparency = 1
 			valLbl.Font = Enum.Font.GothamMedium
 			valLbl.TextColor3 = Color3.fromRGB(220, 220, 220)
@@ -401,6 +396,20 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 			valLbl.ZIndex = 23
 			valLbl.Parent = row
 			Instance.new("UITextSizeConstraint", valLbl).MaxTextSize = 16
+
+			-- Name Label: Dynamically stretches exactly from the end of the icon up to the start of the Value
+			local nameLbl = Instance.new("TextLabel")
+			nameLbl.Size = hasIcon and UDim2.new(0.70, -95, 1, 0) or UDim2.new(0.70, -60, 1, 0)
+			nameLbl.Position = hasIcon and UDim2.new(0, 85, 0, 0) or UDim2.new(0, 50, 0, 0)
+			nameLbl.BackgroundTransparency = 1
+			nameLbl.Font = Enum.Font.GothamBold
+			nameLbl.TextColor3 = rankColor
+			nameLbl.TextScaled = true
+			nameLbl.Text = entry.Name
+			nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+			nameLbl.ZIndex = 23
+			nameLbl.Parent = row
+			Instance.new("UITextSizeConstraint", nameLbl).MaxTextSize = 16
 
 			row.MouseEnter:Connect(function()
 				if not entry.Profile then return end
