@@ -291,7 +291,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	prodPad.PaddingTop = UDim.new(0, 2); prodPad.PaddingLeft = UDim.new(0, 2); prodPad.PaddingRight = UDim.new(0, 8); prodPad.PaddingBottom = UDim.new(0, 2)
 
 	local prodGL = Instance.new("UIGridLayout", prodScroll)
-	prodGL.CellSize = UDim2.new(0.315, 0, 0, 125); prodGL.CellPadding = UDim2.new(0.02, 0, 0, 10); prodGL.SortOrder = Enum.SortOrder.LayoutOrder
+	prodGL.CellSize = UDim2.new(0.315, 0, 0, 110); prodGL.CellPadding = UDim2.new(0.02, 0, 0, 10); prodGL.SortOrder = Enum.SortOrder.LayoutOrder
 
 	local passCard = CreateCard("PassesCard", premiumTabContent, UDim2.new(1, 0, 0.48, 0), 2)
 	CreateTitle(passCard, "GAMEPASSES")
@@ -302,7 +302,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	passPad.PaddingTop = UDim.new(0, 2); passPad.PaddingLeft = UDim.new(0, 2); passPad.PaddingRight = UDim.new(0, 8); passPad.PaddingBottom = UDim.new(0, 2)
 
 	local passGL = Instance.new("UIGridLayout", passScroll)
-	passGL.CellSize = UDim2.new(0.315, 0, 0, 125); passGL.CellPadding = UDim2.new(0.02, 0, 0, 10); passGL.SortOrder = Enum.SortOrder.LayoutOrder
+	passGL.CellSize = UDim2.new(0.315, 0, 0, 110); passGL.CellPadding = UDim2.new(0.02, 0, 0, 10); passGL.SortOrder = Enum.SortOrder.LayoutOrder
 
 	-- Build Premium Items
 	local premLabels = {}
@@ -322,14 +322,14 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 10, 50))
 		}
 
-		local ifStr = Instance.new("UIStroke", itemFrm); ifStr.Color = Color3.fromRGB(150, 80, 255); ifStr.Thickness = 2; ifStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		local ifStr = Instance.new("UIStroke", itemFrm); ifStr.Color = Color3.fromRGB(255, 215, 50); ifStr.Thickness = 2; ifStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 		local nLbl = Instance.new("TextLabel", itemFrm)
 		nLbl.Size = UDim2.new(1, -10, 0, 20); nLbl.Position = UDim2.new(0, 5, 0, 5); nLbl.BackgroundTransparency = 1; nLbl.Font = Enum.Font.GothamBold; nLbl.TextColor3 = Color3.fromRGB(255, 235, 130); nLbl.TextScaled = true; nLbl.Text = pInfo.Name; nLbl.TextXAlignment = Enum.TextXAlignment.Left; nLbl.ZIndex = 23
 		Instance.new("UITextSizeConstraint", nLbl).MaxTextSize = 15
 
 		local dLbl = Instance.new("TextLabel", itemFrm)
-		dLbl.Size = UDim2.new(1, -10, 1, -70); dLbl.Position = UDim2.new(0, 5, 0, 30); dLbl.BackgroundTransparency = 1; dLbl.Font = Enum.Font.GothamMedium; dLbl.TextColor3 = Color3.fromRGB(220, 220, 220); dLbl.TextSize = 12; dLbl.RichText = true; dLbl.TextWrapped = true; dLbl.TextXAlignment = Enum.TextXAlignment.Left; dLbl.TextYAlignment = Enum.TextYAlignment.Top; dLbl.Text = pInfo.Desc; dLbl.ZIndex = 23
+		dLbl.Size = UDim2.new(1, -10, 1, -60); dLbl.Position = UDim2.new(0, 5, 0, 28); dLbl.BackgroundTransparency = 1; dLbl.Font = Enum.Font.GothamMedium; dLbl.TextColor3 = Color3.fromRGB(220, 220, 220); dLbl.TextSize = 12; dLbl.RichText = true; dLbl.TextWrapped = true; dLbl.TextXAlignment = Enum.TextXAlignment.Left; dLbl.TextYAlignment = Enum.TextYAlignment.Top; dLbl.Text = pInfo.Desc; dLbl.ZIndex = 23
 
 		local buyBtn = Instance.new("TextButton", itemFrm)
 		buyBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40); buyBtn.Font = Enum.Font.GothamBold; buyBtn.TextColor3 = Color3.new(1,1,1); buyBtn.TextScaled = true; buyBtn.Text = tostring(pInfo.Price) .. " R$"; buyBtn.ZIndex = 24
@@ -339,17 +339,17 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		local giftBtn = nil
 		if pInfo.Type == "Product" or pInfo.GiftId then
 			giftBtn = Instance.new("TextButton", itemFrm)
-			giftBtn.Size = UDim2.new(0.42, 0, 0, 25); giftBtn.Position = UDim2.new(0, 5, 1, -30); giftBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); giftBtn.Font = Enum.Font.GothamBold; giftBtn.TextColor3 = Color3.new(1,1,1); giftBtn.TextScaled = true; giftBtn.Text = "Gift"; giftBtn.ZIndex = 24
+			giftBtn.Size = UDim2.new(0.42, 0, 0, 24); giftBtn.Position = UDim2.new(0, 5, 1, -29); giftBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20); giftBtn.Font = Enum.Font.GothamBold; giftBtn.TextColor3 = Color3.new(1,1,1); giftBtn.TextScaled = true; giftBtn.Text = "Gift"; giftBtn.ZIndex = 24
 			Instance.new("UICorner", giftBtn).CornerRadius = UDim.new(0, 4)
 			Instance.new("UITextSizeConstraint", giftBtn).MaxTextSize = 13
 
-			buyBtn.Size = UDim2.new(0.5, 0, 0, 25); buyBtn.Position = UDim2.new(1, -5, 1, -30); buyBtn.AnchorPoint = Vector2.new(1, 0)
+			buyBtn.Size = UDim2.new(0.5, 0, 0, 24); buyBtn.Position = UDim2.new(1, -5, 1, -29); buyBtn.AnchorPoint = Vector2.new(1, 0)
 
 			giftBtn.MouseButton1Click:Connect(function()
 				SFXManager.Play("Click"); OpenGiftModal(pInfo)
 			end)
 		else
-			buyBtn.Size = UDim2.new(1, -10, 0, 25); buyBtn.Position = UDim2.new(0, 5, 1, -30)
+			buyBtn.Size = UDim2.new(1, -10, 0, 24); buyBtn.Position = UDim2.new(0, 5, 1, -29)
 		end
 
 		buyBtn.MouseButton1Click:Connect(function()
@@ -485,7 +485,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			local pools = { Common = {}, Uncommon = {}, Rare = {}, Legendary = {}, Mythical = {}, Evolution = {}, Boss = {} }
 			local rates = {}
 			if isTrait then rates = { Common = "35%", Rare = "16%", Legendary = "6%", Mythical = "1%" }
-			else rates = { Common = "50%", Uncommon = "30%", Rare = "15%", Legendary = "5%", Mythical = "1% WORLD BOSS ONLY" } end
+			else rates = { Common = "50%", Uncommon = "30%", Rare = "15%", Legendary = "5%", Mythical = "1% WORLD BOSS" } end
 
 			for name, data in pairs(dataTable) do
 				if pools[data.Rarity] then table.insert(pools[data.Rarity], name) end
