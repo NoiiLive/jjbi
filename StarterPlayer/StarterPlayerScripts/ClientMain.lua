@@ -29,10 +29,12 @@ local InventoryTab = require(UIModules:WaitForChild("InventoryTab"))
 local UpdatesTab = require(UIModules:WaitForChild("UpdatesTab"))
 local TrainingTab = require(UIModules:WaitForChild("TrainingTab"))
 local ShopTab = require(UIModules:WaitForChild("ShopTab"))
+local GiftManager = require(UIModules:WaitForChild("GiftManager"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
 NotificationManager.Init(screenGui)
+GiftManager.Init(screenGui)
 
 local Network = ReplicatedStorage:WaitForChild("Network")
 local NotificationEvent = Network:WaitForChild("NotificationEvent")
@@ -355,10 +357,8 @@ local function applyMuteState()
 	end
 end
 
--- Sync whenever the server finishes loading or the player toggles it
 player:GetAttributeChangedSignal("IsMuted"):Connect(applyMuteState)
 
--- Ensure BGM loads on start before trying to apply volume
 task.spawn(function()
 	SoundService:WaitForChild("BizarreBGM", 5)
 	applyMuteState()
@@ -368,11 +368,7 @@ muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
 	local currentState = player:GetAttribute("IsMuted") or false
 	local newState = not currentState
-
-	-- Predictively set it on the client for zero latency
 	player:SetAttribute("IsMuted", newState)
-
-	-- Tell the server to save the new state
 	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
 
@@ -680,10 +676,10 @@ end
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
-CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
-InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
+CombatTab.Init(TabFrames["Singleplayer"], TooltipManager)
+InventoryTab.Init(TabFrames["Inventory"], TooltipManager)
 UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
-TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
+TrainingTab.Init(TabFrames["Training"], TooltipManager)
 ShopTab.Init(TabFrames["Shop"], TooltipManager)
 
 SwitchTab("Updates")
