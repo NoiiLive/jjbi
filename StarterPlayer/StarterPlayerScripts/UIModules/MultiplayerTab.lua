@@ -7,12 +7,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local UIModules = script.Parent
 
--- Temporarily disabled to prevent Infinite Yields from missing remotes
+-- Temporarily disabled (Except LeaderboardTab) to prevent Infinite Yields from missing remotes
 -- local GangsTab = require(UIModules:WaitForChild("GangsTab"))
 -- local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
 -- local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
 -- local TradingTab = require(UIModules:WaitForChild("TradingTab"))
--- local LeaderboardTab = require(UIModules:WaitForChild("LeaderboardTab"))
+local LeaderboardTab = require(UIModules:WaitForChild("LeaderboardTab"))
 -- local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
 
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
@@ -153,7 +153,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	subNavL.FillDirection = Enum.FillDirection.Horizontal
 	subNavL.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	subNavL.Padding = UDim.new(0.015, 0)
-	subNavL.SortOrder = Enum.SortOrder.LayoutOrder -- FIXED: Forces correct numerical layout order
+	subNavL.SortOrder = Enum.SortOrder.LayoutOrder
 	subNavL.Parent = subNavFrame
 
 	local function CreateSubNavButton(name, text, order)
@@ -186,7 +186,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		return btn, bStr
 	end
 
-	-- Reordered correctly via LayoutOrder
+	-- Reordered: Gangs, Event, Raids, Arena, Trading, Ranks
 	local gangBtn, gStroke = CreateSubNavButton("GangBtn", "GANGS", 1)
 	local sbrBtn, sStroke = CreateSubNavButton("SbrBtn", "EVENT", 2)
 	local raidBtn, rStroke = CreateSubNavButton("RaidBtn", "RAIDS", 3)
@@ -324,13 +324,13 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	tradeBtn.MouseButton1Click:Connect(function() TryOpenLockedTab("Trading") end)
 
 	-- ==========================================
-	-- INIT SUB MODULES (TEMPORARILY DISABLED)
+	-- INIT SUB MODULES
 	-- ==========================================
 	-- pcall(function() GangsTab.Init(gangsFrame, tooltipMgr) end)
 	-- pcall(function() ArenaTab.Init(arenaFrame, tooltipMgr, function() ForceSubTabFocus("Arena") end) end)
 	-- pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
 	-- pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
-	-- pcall(function() LeaderboardTab.Init(lbFrame, tooltipMgr) end)
+	pcall(function() LeaderboardTab.Init(lbFrame, tooltipMgr) end)
 	-- pcall(function() SBREventTab.Init(sbrFrame, tooltipMgr, function() ForceSubTabFocus("Event") end) end)
 
 	MultiplayerTab.HandleGangUpdate = function() end
