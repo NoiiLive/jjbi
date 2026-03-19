@@ -153,6 +153,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	subNavL.FillDirection = Enum.FillDirection.Horizontal
 	subNavL.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	subNavL.Padding = UDim.new(0.015, 0)
+	subNavL.SortOrder = Enum.SortOrder.LayoutOrder -- FIXED: Forces correct numerical layout order
 	subNavL.Parent = subNavFrame
 
 	local function CreateSubNavButton(name, text, order)
@@ -185,7 +186,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		return btn, bStr
 	end
 
-	-- Reordered: Gangs, Event, Raids, Arena, Trading, Ranks
+	-- Reordered correctly via LayoutOrder
 	local gangBtn, gStroke = CreateSubNavButton("GangBtn", "GANGS", 1)
 	local sbrBtn, sStroke = CreateSubNavButton("SbrBtn", "EVENT", 2)
 	local raidBtn, rStroke = CreateSubNavButton("RaidBtn", "RAIDS", 3)
