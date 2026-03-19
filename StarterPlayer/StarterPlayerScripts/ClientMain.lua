@@ -381,6 +381,9 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
+-- ========================================================
+-- REACTIVE MUTE STATE
+-- ========================================================
 local function applyMuteState()
 	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
 	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
@@ -405,8 +408,45 @@ muteBtn.MouseButton1Click:Connect(function()
 	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
 
+-- ========================================================
+-- ACTIVE BOOSTS TOOLTIP
+-- ========================================================
+local function GetActiveBoostsText()
+	local text = "<b><font color='#FFD700'>GLOBAL BOOSTS</font></b>\n____________________\n\n"
+
+	local friends = math.min(player:GetAttribute("ServerFriends") or 0, 4)
+	if friends > 0 then
+		text ..= "<font color='#55FFFF'>• Connection Boost ("..friends.."/4): +"..(friends*5).."% XP & Yen</font>\n"
+	else
+		text ..= "<font color='#888888'>• Connection Boost (0/4): +0% XP & Yen</font>\n"
+	end
+
+	if player.MembershipType == Enum.MembershipType.Premium then
+		text ..= "<font color='#55FFFF'>• Premium Boost: +5% XP</font>\n"
+	else
+		text ..= "<font color='#888888'>• Premium Boost: +5% XP</font>\n"
+	end
+
+	if player:GetAttribute("IsSupporter") then
+		text ..= "<font color='#55FFFF'>• Group Boost: +1% Luck & 5% XP</font>\n"
+	else
+		text ..= "<font color='#888888'>• Group Boost: +1% Luck & 5% XP</font>\n"
+	end
+
+	return text
+end
+
+boostBtn.MouseEnter:Connect(function()
+	TooltipManager.Show(GetActiveBoostsText())
+end)
+
+boostBtn.MouseLeave:Connect(function()
+	TooltipManager.Hide()
+end)
+
 boostBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
+	Network:WaitForChild("BoostAction"):FireServer("CheckSupporter")
 end)
 
 local TabFrames = {}
@@ -715,11 +755,14 @@ end
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
+-- Initialize Tabs
 CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
 InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
 UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
 TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
 ShopTab.Init(TabFrames["Shop"], TooltipManager)
+
+-- Initialize Multiplayer Tab last so all UI modules exist
 MultiplayerTab.Init(TabFrames["Multiplayer"], TooltipManager, SwitchTab)
 
 SwitchTab("Updates")
