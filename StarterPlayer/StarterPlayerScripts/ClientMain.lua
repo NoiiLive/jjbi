@@ -28,6 +28,7 @@ local CombatTab = require(UIModules:WaitForChild("CombatTab"))
 local InventoryTab = require(UIModules:WaitForChild("InventoryTab"))
 local UpdatesTab = require(UIModules:WaitForChild("UpdatesTab"))
 local TrainingTab = require(UIModules:WaitForChild("TrainingTab"))
+local ShopTab = require(UIModules:WaitForChild("ShopTab"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
@@ -367,10 +368,10 @@ muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
 	local currentState = player:GetAttribute("IsMuted") or false
 	local newState = not currentState
-	
+
 	-- Predictively set it on the client for zero latency
 	player:SetAttribute("IsMuted", newState)
-	
+
 	-- Tell the server to save the new state
 	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
@@ -683,5 +684,6 @@ CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
 InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
 UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
 TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
+ShopTab.Init(TabFrames["Shop"], TooltipManager)
 
 SwitchTab("Updates")
