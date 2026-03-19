@@ -214,20 +214,6 @@ local function CreateTitle(parent, text)
 	return lbl
 end
 
-local function setUpgradeBtnState(btn, enabled)
-	if enabled then
-		btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
-		btn.TextColor3 = Color3.new(1, 1, 1)
-		local stroke = btn:FindFirstChild("UIStroke")
-		if stroke then stroke.Color = Color3.fromRGB(120, 60, 180) end
-	else
-		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 30)
-		btn.TextColor3 = Color3.fromRGB(100, 100, 100)
-		local stroke = btn:FindFirstChild("UIStroke")
-		if stroke then stroke.Color = Color3.fromRGB(60, 40, 80) end
-	end
-end
-
 local function CreateStatRow(statName, parent, isStand)
 	local row = Instance.new("Frame", parent)
 	row.Size = UDim2.new(1, 0, 1/6, 0)
@@ -343,6 +329,20 @@ local function BuildDropdownList(parentBtn, listFrame, dataTable, isStand)
 	parentBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); listFrame.Visible = not listFrame.Visible end)
 end
 
+local function setUpgradeBtnState(btn, enabled)
+	if enabled then
+		btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+		btn.TextColor3 = Color3.new(1, 1, 1)
+		local stroke = btn:FindFirstChild("UIStroke")
+		if stroke then stroke.Color = Color3.fromRGB(120, 60, 180) end
+	else
+		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 30)
+		btn.TextColor3 = Color3.fromRGB(100, 100, 100)
+		local stroke = btn:FindFirstChild("UIStroke")
+		if stroke then stroke.Color = Color3.fromRGB(60, 40, 80) end
+	end
+end
+
 local function RefreshStatTexts()
 	local prestigeObj = player:WaitForChild("leaderstats", 5) and player.leaderstats:WaitForChild("Prestige", 5)
 	local prestige = prestigeObj and prestigeObj.Value or 0
@@ -370,6 +370,9 @@ local function RefreshStatTexts()
 			setUpgradeBtnState(data.Btn10, currentXP >= cost10)
 			setUpgradeBtnState(data.BtnMax, currentXP >= cost1)
 		end
+	end
+	if currentlyHoveredUpgrade and currentlyHoveredStat then
+		-- Keeps tooltip active dynamically
 	end
 end
 
@@ -479,7 +482,22 @@ local function RefreshInventoryList()
 		capacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
 	end
 
-	local function RenderItem(itemName, count, isSpecial)
+	local function sortItemsFunc(a, b)
+		local dataA = ItemData.Equipment[a.Name] or ItemData.Consumables[a.Name]
+		local dataB = ItemData.Equipment[b.Name] or ItemData.Consumables[b.Name]
+		local rA = dataA and dataA.Rarity or "Common"
+		local rB = dataB and dataB.Rarity or "Common"
+		local tierA = raritySortTiers[rA] or raritySortTiers.Common
+		local tierB = raritySortTiers[rB] or raritySortTiers.Common
+
+		if tierA == tierB then return a.Name < b.Name end
+		return tierA < tierB
+	end
+
+	table.sort(specialItems, sortItemsFunc)
+	table.sort(normalItems, sortItemsFunc)
+
+	local function RenderItem(itemName, count, isSpecial, orderIdx)
 		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 		local rarity = itemData and itemData.Rarity or "Common"
 		local container = isSpecial and keyItemsContainer or regItemsContainer
@@ -487,7 +505,7 @@ local function RefreshInventoryList()
 		local itemFrame = Instance.new("Frame", container)
 		itemFrame.Size = UDim2.new(1, -8, 0, 30)
 		itemFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
-		itemFrame.LayoutOrder = raritySortTiers[rarity] or raritySortTiers.Common
+		itemFrame.LayoutOrder = orderIdx
 		itemFrame.ZIndex = 23
 		Instance.new("UICorner", itemFrame).CornerRadius = UDim.new(0, 4)
 		local str = Instance.new("UIStroke", itemFrame); str.Color = rarityColors[rarity] or rarityColors.Common
@@ -558,9 +576,7 @@ local function RefreshInventoryList()
 				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
 				return
 			end
-			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
-
-			Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
+			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide(); Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
 
 			local iData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 			local sellVal = iData and (iData.SellPrice or math.floor((iData.Cost or 50) / 2)) or 25
@@ -571,8 +587,8 @@ local function RefreshInventoryList()
 		itemFrame.MouseLeave:Connect(cachedTooltipMgr.Hide)
 	end
 
-	for _, item in ipairs(specialItems) do RenderItem(item.Name, item.Count, true) end
-	for _, item in ipairs(normalItems) do RenderItem(item.Name, item.Count, false) end
+	for i, item in ipairs(specialItems) do RenderItem(item.Name, item.Count, true, i) end
+	for i, item in ipairs(normalItems) do RenderItem(item.Name, item.Count, false, i) end
 
 	keyItemsContainer.CanvasSize = UDim2.new(0, 0, 0, (#specialItems * 34) + 10)
 	regItemsContainer.CanvasSize = UDim2.new(0, 0, 0, (#normalItems * 34) + 10)
@@ -690,9 +706,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	lLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	lLayout.Padding = UDim.new(0.02, 0)
 
-	local loadoutCard = CreateCard("LoadoutCard", leftContainer, UDim2.new(1, 0, 0.34, 0), 1)
-	local storageCard = CreateCard("StorageCard", leftContainer, UDim2.new(1, 0, 0.43, 0), 2)
-	local autoSellCard = CreateCard("AutoSellCard", leftContainer, UDim2.new(1, 0, 0.19, 0), 3)
+	local loadoutCard = CreateCard("LoadoutCard", leftContainer, UDim2.new(1, 0, 0.35, 0), 1)
+	local storageCard = CreateCard("StorageCard", leftContainer, UDim2.new(1, 0, 0.44, 0), 2)
+	local autoSellCard = CreateCard("AutoSellCard", leftContainer, UDim2.new(1, 0, 0.17, 0), 3)
 
 	-- Loadout
 	CreateTitle(loadoutCard, "LOADOUT")
@@ -761,8 +777,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	rLayout.Padding = UDim.new(0.02, 0)
 
 	local statsAreaCard = CreateCard("StatsAreaCard", rightContainer, UDim2.new(1, 0, 0.35, 0), 1)
-	local itemsAreaCard = CreateCard("ItemsAreaCard", rightContainer, UDim2.new(1, 0, 0.45, 0), 2)
-	autoRollCard = CreateCard("AutoRollCard", rightContainer, UDim2.new(1, 0, 0.16, 0), 3)
+	local itemsAreaCard = CreateCard("ItemsAreaCard", rightContainer, UDim2.new(1, 0, 0.44, 0), 2)
+	autoRollCard = CreateCard("AutoRollCard", rightContainer, UDim2.new(1, 0, 0.17, 0), 3)
 
 	-- Stats
 	local sacL = Instance.new("UIListLayout", statsAreaCard)
@@ -809,7 +825,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local riTop = Instance.new("Frame", regItems)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
 	local riTitle = CreateTitle(riTop, "INVENTORY"); riTitle.Size = UDim2.new(0.5, 0, 1, 0); riTitle.TextXAlignment = Enum.TextXAlignment.Left
-
 	capacityLabel = Instance.new("TextLabel", riTop)
 	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -15, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
 	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
@@ -825,7 +840,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local rollSplit = Instance.new("Frame", autoRollCard)
 	rollSplit.Size = UDim2.new(1, 0, 1, -24); rollSplit.Position = UDim2.new(0,0,0,24); rollSplit.BackgroundTransparency = 1; rollSplit.LayoutOrder = 2
 	local rsL = Instance.new("UIListLayout", rollSplit)
-	rsL.FillDirection = Enum.FillDirection.Vertical; rsL.Padding = UDim.new(0, 0)
+	rsL.FillDirection = Enum.FillDirection.Vertical; rsL.Padding = UDim.new(0, 4)
 
 	local arRow1 = Instance.new("Frame", rollSplit)
 	arRow1.Size = UDim2.new(1, 0, 0.48, 0); arRow1.BackgroundTransparency = 1
@@ -841,12 +856,11 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		local list = Instance.new("ScrollingFrame", btn)
 		list.Name = "List"; list.Size = UDim2.new(1, 0, 0, 120); list.AnchorPoint = Vector2.new(0, 1); list.Position = UDim2.new(0, 0, 0, -2); list.BackgroundColor3 = Color3.fromRGB(30, 15, 50); list.ZIndex = 50; list.Visible = false; list.ScrollBarThickness = 4
 		Instance.new("UICorner", list).CornerRadius = UDim.new(0, 6)
-		local ls = Instance.new("UIStroke", list); ls.Color = Color3.fromRGB(120, 60, 180); ls.Thickness = 1
 		return btn
 	end
 
 	local sDrop = createDrop("StandDropdown", "Target Stand: Any")
-	local tDrop = createDrop("TraitDropdown", "Target Trait: Any")
+	local tDrop = createDrop("Target Trait: Any")
 
 	local arRow2 = Instance.new("Frame", rollSplit)
 	arRow2.Size = UDim2.new(1, 0, 0.48, 0); arRow2.BackgroundTransparency = 1
@@ -861,9 +875,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		return btn
 	end
 
-	local btnRArrow = createRollBtn("RollArrowBtn", "Auto Arrow", Color3.fromRGB(200, 150, 0))
-	local btnRCorpse = createRollBtn("RollCorpseBtn", "Auto Corpse", Color3.fromRGB(200, 50, 150))
-	local btnRRoka = createRollBtn("RollRokaBtn", "Auto Roka", Color3.fromRGB(200, 50, 50))
+	local btnRArrow = createRollBtn("RollArrowBtn", "Arrow", Color3.fromRGB(200, 150, 0))
+	local btnRCorpse = createRollBtn("RollCorpseBtn", "Corpse", Color3.fromRGB(200, 50, 150))
+	local btnRRoka = createRollBtn("RollRokaBtn", "Roka", Color3.fromRGB(200, 50, 50))
 
 
 	-- ==========================================
