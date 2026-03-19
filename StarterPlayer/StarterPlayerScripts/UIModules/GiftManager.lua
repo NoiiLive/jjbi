@@ -19,18 +19,21 @@ local isPromptShowing = false
 
 local function applyDoubleGoldBorder(parent)
 	local parentCorner = parent:FindFirstChildOfClass("UICorner")
+
 	local outerStroke = Instance.new("UIStroke")
 	outerStroke.Thickness = 3
 	outerStroke.Color = Color3.fromRGB(255, 210, 60)
 	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
 	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradOut = Instance.new("UIGradient", outerStroke)
+
+	local gradOut = Instance.new("UIGradient")
 	gradOut.Rotation = -45
 	gradOut.Color = ColorSequence.new{
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
 		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
 	}
+	gradOut.Parent = outerStroke
 	outerStroke.Parent = parent
 
 	local innerFrame = Instance.new("Frame")
@@ -40,24 +43,33 @@ local function applyDoubleGoldBorder(parent)
 	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	innerFrame.BackgroundTransparency = 1
 	innerFrame.ZIndex = parent.ZIndex
+
 	if parentCorner then
 		local innerCorner = Instance.new("UICorner")
-		innerCorner.CornerRadius = UDim.new(0, math.max(0, parentCorner.CornerRadius.Offset - 3))
+		if parentCorner.CornerRadius.Scale > 0 then
+			innerCorner.CornerRadius = parentCorner.CornerRadius
+		else
+			local offset = math.max(0, parentCorner.CornerRadius.Offset - 3)
+			innerCorner.CornerRadius = UDim.new(0, offset)
+		end
 		innerCorner.Parent = innerFrame
 	end
 	innerFrame.Parent = parent
 
-	local innerStroke = Instance.new("UIStroke", innerFrame)
+	local innerStroke = Instance.new("UIStroke")
 	innerStroke.Thickness = 1
 	innerStroke.Color = Color3.fromRGB(255, 230, 100)
 	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
 	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradIn = Instance.new("UIGradient", innerStroke)
+
+	local gradIn = Instance.new("UIGradient")
 	gradIn.Rotation = 45
 	gradIn.Color = ColorSequence.new{
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
 	}
+	gradIn.Parent = innerStroke
+	innerStroke.Parent = innerFrame
 end
 
 local function createModal(name, parent)
@@ -70,16 +82,21 @@ local function createModal(name, parent)
 	modal.ZIndex = 200
 	modal.Parent = parent
 
-	local container = Instance.new("Frame", modal)
-	container.Size = UDim2.new(0.45, 0, 0.75, 0)
+	local container = Instance.new("Frame")
+	container.Size = UDim2.new(0.55, 0, 0.80, 0)
 	container.Position = UDim2.new(0.5, 0, 0.5, 0)
 	container.AnchorPoint = Vector2.new(0.5, 0.5)
 	container.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
 	container.ZIndex = 201
-	Instance.new("UICorner", container).CornerRadius = UDim.new(0, 12)
+	container.Parent = modal
+
+	local cCorner = Instance.new("UICorner")
+	cCorner.CornerRadius = UDim.new(0, 12)
+	cCorner.Parent = container
+
 	applyDoubleGoldBorder(container)
 
-	local title = Instance.new("TextLabel", container)
+	local title = Instance.new("TextLabel")
 	title.Size = UDim2.new(1, -80, 0, 40)
 	title.Position = UDim2.new(0.5, 0, 0, 15)
 	title.AnchorPoint = Vector2.new(0.5, 0)
@@ -88,57 +105,79 @@ local function createModal(name, parent)
 	title.TextColor3 = Color3.fromRGB(255, 215, 50)
 	title.TextScaled = true
 	title.ZIndex = 202
-	Instance.new("UITextSizeConstraint", title).MaxTextSize = 28
+	title.Parent = container
 
-	local scroll = Instance.new("ScrollingFrame", container)
-	scroll.Size = UDim2.new(1, -20, 1, -70)
-	scroll.Position = UDim2.new(0.5, 0, 0, 60)
+	local tUic = Instance.new("UITextSizeConstraint")
+	tUic.MaxTextSize = 28
+	tUic.Parent = title
+
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Size = UDim2.new(1, -20, 1, -75)
+	scroll.Position = UDim2.new(0.5, 0, 0, 65)
 	scroll.AnchorPoint = Vector2.new(0.5, 0)
 	scroll.BackgroundTransparency = 1
 	scroll.ScrollBarThickness = 6
 	scroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
 	scroll.ZIndex = 202
-	local pad = Instance.new("UIPadding", scroll)
+	scroll.Parent = container
+
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 10)
+	pad.PaddingBottom = UDim.new(0, 10)
 	pad.PaddingRight = UDim.new(0, 6)
-	local layout = Instance.new("UIListLayout", scroll)
+	pad.Parent = scroll
+
+	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Vertical
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	layout.Padding = UDim.new(0, 10)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = scroll
 
 	return modal, container, title, scroll, layout
 end
 
 local function createSlotBtn(name, order, isDeny, parent)
-	local btn = Instance.new("TextButton", parent)
+	local btn = Instance.new("TextButton")
 	btn.Name = name
 	btn.LayoutOrder = order
-	btn.Size = UDim2.new(0.9, 0, 0, 50)
+	btn.Size = UDim2.new(0.95, 0, 0, 55)
 	btn.Font = Enum.Font.GothamBold
 	btn.TextColor3 = Color3.new(1, 1, 1)
 	btn.TextScaled = true
 	btn.ZIndex = 203
-	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-	Instance.new("UITextSizeConstraint", btn).MaxTextSize = 18
+	btn.Parent = parent
+
+	local bCorner = Instance.new("UICorner")
+	bCorner.CornerRadius = UDim.new(0, 6)
+	bCorner.Parent = btn
+
+	local bUic = Instance.new("UITextSizeConstraint")
+	bUic.MaxTextSize = 22
+	bUic.Parent = btn
 
 	if isDeny then
 		btn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
-		local stroke = Instance.new("UIStroke", btn)
+		local stroke = Instance.new("UIStroke")
 		stroke.Color = Color3.fromRGB(255, 100, 100)
 		stroke.Thickness = 2
 		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = btn
 	else
 		btn.BackgroundColor3 = Color3.fromRGB(45, 20, 65)
-		local grad = Instance.new("UIGradient", btn)
+		local grad = Instance.new("UIGradient")
 		grad.Rotation = 45
 		grad.Color = ColorSequence.new{
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 30, 100)),
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 10, 50))
 		}
-		local stroke = Instance.new("UIStroke", btn)
+		grad.Parent = btn
+
+		local stroke = Instance.new("UIStroke")
 		stroke.Color = Color3.fromRGB(255, 215, 50)
 		stroke.Thickness = 2
 		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = btn
 	end
 	return btn
 end
@@ -208,16 +247,21 @@ function GiftManager.Init(parentGui)
 	giftModal.ZIndex = 300
 	giftModal.Parent = parentGui
 
-	giftContainer = Instance.new("Frame", giftModal)
-	giftContainer.Size = UDim2.new(0.4, 0, 0.7, 0)
+	giftContainer = Instance.new("Frame")
+	giftContainer.Size = UDim2.new(0.55, 0, 0.80, 0)
 	giftContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
 	giftContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	giftContainer.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
 	giftContainer.ZIndex = 301
-	Instance.new("UICorner", giftContainer).CornerRadius = UDim.new(0, 12)
+	giftContainer.Parent = giftModal
+
+	local gCorner = Instance.new("UICorner")
+	gCorner.CornerRadius = UDim.new(0, 12)
+	gCorner.Parent = giftContainer
+
 	applyDoubleGoldBorder(giftContainer)
 
-	giftTitle = Instance.new("TextLabel", giftContainer)
+	giftTitle = Instance.new("TextLabel")
 	giftTitle.Size = UDim2.new(1, -100, 0, 40)
 	giftTitle.Position = UDim2.new(0.5, 0, 0, 15)
 	giftTitle.AnchorPoint = Vector2.new(0.5, 0)
@@ -226,11 +270,15 @@ function GiftManager.Init(parentGui)
 	giftTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
 	giftTitle.TextScaled = true
 	giftTitle.ZIndex = 302
-	Instance.new("UITextSizeConstraint", giftTitle).MaxTextSize = 24
+	giftTitle.Parent = giftContainer
 
-	local closeBtn = Instance.new("TextButton", giftContainer)
+	local gtUic = Instance.new("UITextSizeConstraint")
+	gtUic.MaxTextSize = 28
+	gtUic.Parent = giftTitle
+
+	local closeBtn = Instance.new("TextButton")
 	closeBtn.Size = UDim2.new(0, 35, 0, 35)
-	closeBtn.Position = UDim2.new(1, -10, 0, 10)
+	closeBtn.Position = UDim2.new(1, -15, 0, 15)
 	closeBtn.AnchorPoint = Vector2.new(1, 0)
 	closeBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
 	closeBtn.Text = "X"
@@ -238,26 +286,48 @@ function GiftManager.Init(parentGui)
 	closeBtn.TextColor3 = Color3.new(1, 1, 1)
 	closeBtn.TextScaled = true
 	closeBtn.ZIndex = 303
-	Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
-	closeBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click") giftModal.Visible = false end)
+	closeBtn.Parent = giftContainer
 
-	giftList = Instance.new("ScrollingFrame", giftContainer)
-	giftList.Size = UDim2.new(1, -30, 1, -80)
+	local cbCorner = Instance.new("UICorner")
+	cbCorner.CornerRadius = UDim.new(0, 6)
+	cbCorner.Parent = closeBtn
+
+	closeBtn.MouseButton1Click:Connect(function() 
+		SFXManager.Play("Click") 
+		giftModal.Visible = false 
+	end)
+
+	giftList = Instance.new("ScrollingFrame")
+	giftList.Size = UDim2.new(1, -20, 1, -75)
 	giftList.Position = UDim2.new(0.5, 0, 0, 65)
 	giftList.AnchorPoint = Vector2.new(0.5, 0)
 	giftList.BackgroundTransparency = 1
 	giftList.ScrollBarThickness = 6
 	giftList.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
 	giftList.ZIndex = 302
-	local gLL = Instance.new("UIListLayout", giftList)
+	giftList.Parent = giftContainer
+
+	local gPad = Instance.new("UIPadding")
+	gPad.PaddingTop = UDim.new(0, 10)
+	gPad.PaddingBottom = UDim.new(0, 10)
+	gPad.PaddingRight = UDim.new(0, 6)
+	gPad.Parent = giftList
+
+	local gLL = Instance.new("UIListLayout")
 	gLL.FillDirection = Enum.FillDirection.Vertical
 	gLL.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	gLL.Padding = UDim.new(0, 8)
+	gLL.Padding = UDim.new(0, 10)
 	gLL.SortOrder = Enum.SortOrder.LayoutOrder
+	gLL.Parent = giftList
 
-	Network:WaitForChild("ShopUpdate").OnClientEvent:Connect(function(action, data)
-		if action == "GiftPrompt" then GiftManager.ShowClaimPrompt(data) end
-	end)
+	-- Catch any Server Prompt Events across ShopUpdate or ShopAction
+	local function CatchPrompt(action, data)
+		if action == "GiftPrompt" or action == "ClaimPrompt" or action == "Prompt" or action == "Receive" then
+			GiftManager.ShowClaimPrompt(data)
+		end
+	end
+	Network:WaitForChild("ShopUpdate").OnClientEvent:Connect(CatchPrompt)
+	Network:WaitForChild("ShopAction").OnClientEvent:Connect(CatchPrompt)
 end
 
 processQueue = function()
@@ -275,46 +345,76 @@ processQueue = function()
 		btnScSlot3.Text = FormatSlotLabel("Slot 3", nextData.Slot3)
 		btnScSlot4.Text = FormatSlotLabel("Slot 4 (Pres. 15)", nextData.Slot4)
 		btnScSlot5.Text = FormatSlotLabel("Slot 5 (Pres. 30)", nextData.Slot5)
+
 		btnScSlot2.Visible = player:GetAttribute("HasStandSlot2") == true
 		btnScSlot3.Visible = player:GetAttribute("HasStandSlot3") == true
 		btnScSlot4.Visible = prestige >= 15
 		btnScSlot5.Visible = prestige >= 30
+
 		standClaimModal.Visible = true
 		SFXManager.Play("BuyPass")
-		task.delay(0.05, function() standScroll.CanvasSize = UDim2.new(0, 0, 0, standLL.AbsoluteContentSize.Y + 10) end)
+
+		task.delay(0.05, function() 
+			standScroll.CanvasSize = UDim2.new(0, 0, 0, standLL.AbsoluteContentSize.Y + 20) 
+		end)
 	elseif nextData.StyleName then
 		styleTitle.Text = "GIFT: " .. nextData.StyleName
 		btnStyleActive.Text = FormatSlotLabel("Active", nextData.Active)
 		btnStyleSlot1.Text = FormatSlotLabel("Slot 1", nextData.Slot1)
 		btnStyleSlot2.Text = FormatSlotLabel("Slot 2", nextData.Slot2)
 		btnStyleSlot3.Text = FormatSlotLabel("Slot 3", nextData.Slot3)
+
 		btnStyleSlot2.Visible = player:GetAttribute("HasStyleSlot2") == true
 		btnStyleSlot3.Visible = player:GetAttribute("HasStyleSlot3") == true
+
 		styleClaimModal.Visible = true
 		SFXManager.Play("BuyPass")
-		task.delay(0.05, function() styleScroll.CanvasSize = UDim2.new(0, 0, 0, styleLL.AbsoluteContentSize.Y + 10) end)
+
+		task.delay(0.05, function() 
+			styleScroll.CanvasSize = UDim2.new(0, 0, 0, styleLL.AbsoluteContentSize.Y + 20) 
+		end)
 	end
 end
 
 function GiftManager.OpenGiftModal(pInfo)
-	giftTitle.Text = "GIFTING: " .. pInfo.Name:upper()
-	for _, c in pairs(giftList:GetChildren()) do if c:IsA("TextButton") then c.Visible = false c:Destroy() end end
+	giftTitle.Text = "GIFTING: " .. string.upper(pInfo.Name)
+	for _, c in pairs(giftList:GetChildren()) do 
+		if c:IsA("TextButton") then 
+			c.Visible = false 
+			c:Destroy() 
+		end 
+	end
 
 	local function makePlayerBtn(text, color, onClick)
-		local b = Instance.new("TextButton", giftList)
-		b.Size = UDim2.new(0.95, 0, 0, 45)
+		local b = Instance.new("TextButton")
+		b.Size = UDim2.new(0.95, 0, 0, 55)
 		b.BackgroundColor3 = color
 		b.Font = Enum.Font.GothamBold
 		b.TextColor3 = Color3.new(1, 1, 1)
+		b.TextScaled = true
 		b.Text = text
-		b.TextSize = 16
 		b.ZIndex = 303
-		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-		local s = Instance.new("UIStroke", b)
+		b.Parent = giftList
+
+		local bCorner = Instance.new("UICorner")
+		bCorner.CornerRadius = UDim.new(0, 6)
+		bCorner.Parent = b
+
+		local s = Instance.new("UIStroke")
 		s.Color = Color3.fromRGB(255, 215, 50)
 		s.Thickness = 1
 		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		b.MouseButton1Click:Connect(function() SFXManager.Play("Click") giftModal.Visible = false onClick() end)
+		s.Parent = b
+
+		local bUic = Instance.new("UITextSizeConstraint")
+		bUic.MaxTextSize = 22
+		bUic.Parent = b
+
+		b.MouseButton1Click:Connect(function() 
+			SFXManager.Play("Click") 
+			giftModal.Visible = false 
+			onClick() 
+		end)
 		return b
 	end
 
@@ -329,13 +429,18 @@ function GiftManager.OpenGiftModal(pInfo)
 	local count = 0
 	for _, p in ipairs(game.Players:GetPlayers()) do
 		if p ~= player then
-			if pInfo.Type == "Pass" and pInfo.Attr and p:GetAttribute(pInfo.Attr) == true then continue end
+			if pInfo.Type == "Pass" and pInfo.Attr and p:GetAttribute(pInfo.Attr) == true then 
+				continue 
+			end
 			count += 1
 			makePlayerBtn("Gift to: " .. p.Name, Color3.fromRGB(120, 20, 160), function()
 				Network.ShopAction:FireServer("SetGiftTarget", p.UserId)
 				task.wait(0.1)
-				if pInfo.Type == "Pass" then game:GetService("MarketplaceService"):PromptProductPurchase(player, pInfo.GiftId)
-				else game:GetService("MarketplaceService"):PromptProductPurchase(player, pInfo.Id) end
+				if pInfo.Type == "Pass" then 
+					game:GetService("MarketplaceService"):PromptProductPurchase(player, pInfo.GiftId)
+				else 
+					game:GetService("MarketplaceService"):PromptProductPurchase(player, pInfo.Id) 
+				end
 			end)
 		end
 	end
@@ -345,14 +450,19 @@ function GiftManager.OpenGiftModal(pInfo)
 		empty.AutoButtonColor = false
 	end
 
-	task.delay(0.05, function() giftList.CanvasSize = UDim2.new(0, 0, 0, giftList.UIListLayout.AbsoluteContentSize.Y + 10) end)
+	task.delay(0.05, function() 
+		giftList.CanvasSize = UDim2.new(0, 0, 0, giftList.UIListLayout.AbsoluteContentSize.Y + 20) 
+	end)
+
 	giftModal.Visible = true
 end
 
 function GiftManager.ShowClaimPrompt(data)
+	if type(data) ~= "table" then return end
 	if data.StandName and data.StyleName then
-		local sData, stData = table.clone(data), table.clone(data)
+		local sData = table.clone(data)
 		sData.StyleName = nil
+		local stData = table.clone(data)
 		stData.StandName = nil
 		table.insert(promptQueue, sData)
 		table.insert(promptQueue, stData)
