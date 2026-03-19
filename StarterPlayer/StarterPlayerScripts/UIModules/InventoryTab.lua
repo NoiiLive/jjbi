@@ -49,10 +49,7 @@ for itemName, _ in pairs(ItemData.Consumables) do table.insert(KnownItems, itemN
 for eqName, _ in pairs(ItemData.Equipment) do table.insert(KnownItems, eqName) end
 
 local function IsKeyItem(name)
-	if name == "Stand Arrow" or name == "Rokakaka" or name == "Heavenly Stand Disc" or name == "Saint's Corpse Part" then return true end
-	local itemInfo = ItemData.Equipment[name] or ItemData.Consumables[name]
-	if itemInfo and itemInfo.Rarity == "Unique" then return true end
-	return false
+	return ItemData.Consumables[name] ~= nil
 end
 
 local function GetCombinedBonus(statName)
@@ -233,10 +230,6 @@ local function CreateStatRow(statName, parent, isStand)
 	row.Size = UDim2.new(1, 0, 1/6, 0)
 	row.BackgroundTransparency = 1
 
-	-- Hard boundary padding so buttons never touch the edge
-	local rowPad = Instance.new("UIPadding", row)
-	rowPad.PaddingRight = UDim.new(0, 15)
-
 	local statLabel = Instance.new("TextLabel", row)
 	statLabel.Size = UDim2.new(0.38, 0, 1, 0)
 	statLabel.BackgroundTransparency = 1
@@ -250,8 +243,8 @@ local function CreateStatRow(statName, parent, isStand)
 	Instance.new("UITextSizeConstraint", statLabel).MaxTextSize = 13
 
 	local btnContainer = Instance.new("Frame", row)
-	btnContainer.Size = UDim2.new(0.62, 0, 1, 0)
-	btnContainer.Position = UDim2.new(1, 0, 0, 0)
+	btnContainer.Size = UDim2.new(0.60, -12, 1, 0) 
+	btnContainer.Position = UDim2.new(1, -12, 0, 0)
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
 	btnContainer.ZIndex = 22
@@ -280,10 +273,10 @@ local function CreateStatRow(statName, parent, isStand)
 		return b
 	end
 
-	local b1 = makeBtn("+1", 1, 0.16)
-	local b5 = makeBtn("+5", 2, 0.16)
-	local b10 = makeBtn("+10", 3, 0.24)
-	local bMax = makeBtn("MAX", 4, 0.36)
+	local b1 = makeBtn("+1", 1, 0.15)
+	local b5 = makeBtn("+5", 2, 0.15)
+	local b10 = makeBtn("+10", 3, 0.22)
+	local bMax = makeBtn("MAX", 4, 0.30)
 
 	local function hookUpgradeHover(btn, amt)
 		btn.MouseEnter:Connect(function() showUpgradeTooltip(statName, amt) end)
@@ -340,8 +333,8 @@ local function BuildDropdownList(parentBtn, listFrame, dataTable, isStand)
 		Instance.new("UITextSizeConstraint", b).MaxTextSize = 12
 		b.MouseButton1Click:Connect(function()
 			SFXManager.Play("Click")
-			if isStand then targetAutoStand = opt; parentBtn.Text = "Stand: " .. opt
-			else targetAutoTrait = opt; parentBtn.Text = "Trait: " .. opt end
+			if isStand then targetAutoStand = opt; parentBtn.Text = "Target Stand: " .. opt
+			else targetAutoTrait = opt; parentBtn.Text = "Target Trait: " .. opt end
 			listFrame.Visible = false
 		end)
 	end
@@ -808,7 +801,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	sacL.FillDirection = Enum.FillDirection.Horizontal; sacL.Padding = UDim.new(0.02, 0)
 
 	local pStats = Instance.new("Frame", statsAreaCard)
-	pStats.Size = UDim2.new(0.48, 0, 1, 0); pStats.BackgroundTransparency = 1; pStats.LayoutOrder = 1
+	pStats.Size = UDim2.new(0.49, 0, 1, 0); pStats.BackgroundTransparency = 1; pStats.LayoutOrder = 1
 	CreateTitle(pStats, "PLAYER STATS")
 	pStatsContainer = Instance.new("Frame", pStats)
 	pStatsContainer.Size = UDim2.new(1, 0, 1, -24); pStatsContainer.Position = UDim2.new(0,0,0,24); pStatsContainer.BackgroundTransparency = 1; pStatsContainer.ZIndex = 21; pStatsContainer.LayoutOrder = 2
@@ -818,7 +811,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	sSep1.Size = UDim2.new(0, 2, 1, 0); sSep1.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep1.BorderSizePixel = 0; sSep1.LayoutOrder = 2; sSep1.ZIndex = 22
 
 	local sStats = Instance.new("Frame", statsAreaCard)
-	sStats.Size = UDim2.new(0.48, 0, 1, 0); sStats.BackgroundTransparency = 1; sStats.LayoutOrder = 3
+	sStats.Size = UDim2.new(0.49, 0, 1, 0); sStats.BackgroundTransparency = 1; sStats.LayoutOrder = 3
 	CreateTitle(sStats, "STAND STATS")
 	sStatsContainer = Instance.new("Frame", sStats)
 	sStatsContainer.Size = UDim2.new(1, 0, 1, -24); sStatsContainer.Position = UDim2.new(0,0,0,24); sStatsContainer.BackgroundTransparency = 1; sStatsContainer.ZIndex = 21; sStatsContainer.LayoutOrder = 2
@@ -846,14 +839,13 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	autoSellContainer = Instance.new("Frame", autoSellCard)
 	autoSellContainer.Size = UDim2.new(1, 0, 1, -24); autoSellContainer.Position = UDim2.new(0,0,0,24); autoSellContainer.BackgroundTransparency = 1; autoSellContainer.LayoutOrder = 2; autoSellContainer.ZIndex = 21
 	local asG = Instance.new("UIListLayout", autoSellContainer)
-	asG.FillDirection = Enum.FillDirection.Horizontal; asG.HorizontalAlignment = Enum.HorizontalAlignment.Center; asG.VerticalAlignment = Enum.VerticalAlignment.Center; asG.Padding = UDim.new(0.02, 0)
+	asG.FillDirection = Enum.FillDirection.Horizontal; asG.HorizontalAlignment = Enum.HorizontalAlignment.Center; asG.VerticalAlignment = Enum.VerticalAlignment.Center; asG.Padding = UDim.new(0.02, 0); asG.SortOrder = Enum.SortOrder.LayoutOrder
 
 	local raritiesToSell = {"Common", "Uncommon", "Rare", "Legendary", "Mythical"}
-	for _, r in ipairs(raritiesToSell) do
+	for i, r in ipairs(raritiesToSell) do
 		local b = Instance.new("TextButton", autoSellContainer)
-		b.Name = "AutoSell_" .. r; b.Size = UDim2.new(0.18, 0, 0.8, 0); b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.ZIndex = 22
+		b.Name = "AutoSell_" .. r; b.LayoutOrder = i; b.Size = UDim2.new(0.15, 0, 0.8, 0); b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.ZIndex = 22
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(100, 100, 100); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		Instance.new("UITextSizeConstraint", b).MaxTextSize = 13
 	end
 
@@ -896,13 +888,12 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local arContent = Instance.new("Frame", autoRollCard)
 	arContent.Size = UDim2.new(1, 0, 1, -24); arContent.Position = UDim2.new(0,0,0,24); arContent.BackgroundTransparency = 1; arContent.LayoutOrder = 2
 	local arL = Instance.new("UIListLayout", arContent)
-	arL.FillDirection = Enum.FillDirection.Horizontal; arL.HorizontalAlignment = Enum.HorizontalAlignment.Center; arL.VerticalAlignment = Enum.VerticalAlignment.Center; arL.Padding = UDim.new(0.015, 0)
+	arL.FillDirection = Enum.FillDirection.Horizontal; arL.HorizontalAlignment = Enum.HorizontalAlignment.Center; arL.VerticalAlignment = Enum.VerticalAlignment.Center; arL.Padding = UDim.new(0.015, 0); arL.SortOrder = Enum.SortOrder.LayoutOrder
 
-	local function createDrop(name, text)
+	local function createDrop(name, text, orderIdx)
 		local btn = Instance.new("TextButton", arContent)
-		btn.Name = name; btn.Size = UDim2.new(0.18, 0, 0.8, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
+		btn.Name = name; btn.LayoutOrder = orderIdx; btn.Size = UDim2.new(0.19, 0, 0.8, 0); btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", btn); s.Color = Color3.fromRGB(120, 60, 180); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 
 		local list = Instance.new("ScrollingFrame", btn)
@@ -912,21 +903,20 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		return btn
 	end
 
-	local sDrop = createDrop("StandDropdown", "Stand: Any")
-	local tDrop = createDrop("TraitDropdown", "Trait: Any")
+	local sDrop = createDrop("StandDropdown", "Stand: Any", 1)
+	local tDrop = createDrop("TraitDropdown", "Trait: Any", 2)
 
-	local function createRollBtn(name, text, color)
+	local function createRollBtn(name, text, color, orderIdx)
 		local btn = Instance.new("TextButton", arContent)
-		btn.Name = name; btn.Size = UDim2.new(0.18, 0, 0.8, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
+		btn.Name = name; btn.LayoutOrder = orderIdx; btn.Size = UDim2.new(0.19, 0, 0.8, 0); btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
 		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", btn); s.Color = Color3.new(1,1,1); s.Thickness = 1; s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
 		return btn
 	end
 
-	local btnRArrow = createRollBtn("RollArrowBtn", "Use Arrow", Color3.fromRGB(200, 150, 0))
-	local btnRCorpse = createRollBtn("RollCorpseBtn", "Use Corpse", Color3.fromRGB(200, 50, 150))
-	local btnRRoka = createRollBtn("RollRokaBtn", "Use Roka", Color3.fromRGB(200, 50, 50))
+	local btnRArrow = createRollBtn("RollArrowBtn", "Use Arrow", Color3.fromRGB(200, 150, 0), 3)
+	local btnRCorpse = createRollBtn("RollCorpseBtn", "Use Corpse", Color3.fromRGB(200, 50, 150), 4)
+	local btnRRoka = createRollBtn("RollRokaBtn", "Use Roka", Color3.fromRGB(200, 50, 50), 5)
 
 	-- ==========================================
 	-- HOOK UP EVENTS & LOGIC
