@@ -27,12 +27,12 @@ local function applyDoubleGoldBorder(parent)
 	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 	local gradOut = Instance.new("UIGradient")
-	gradOut.Rotation = -45
 	gradOut.Color = ColorSequence.new{
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
 		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
 	}
+	gradOut.Rotation = -45
 	gradOut.Parent = outerStroke
 	outerStroke.Parent = parent
 
@@ -63,11 +63,11 @@ local function applyDoubleGoldBorder(parent)
 	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 	local gradIn = Instance.new("UIGradient")
-	gradIn.Rotation = 45
 	gradIn.Color = ColorSequence.new{
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
 	}
+	gradIn.Rotation = 45
 	gradIn.Parent = innerStroke
 	innerStroke.Parent = innerFrame
 end
@@ -83,7 +83,7 @@ local function createModal(name, parent)
 	modal.Parent = parent
 
 	local container = Instance.new("Frame")
-	container.Size = UDim2.new(0.55, 0, 0.80, 0)
+	container.Size = UDim2.new(0.55, 0, 0.75, 0)
 	container.Position = UDim2.new(0.5, 0, 0.5, 0)
 	container.AnchorPoint = Vector2.new(0.5, 0.5)
 	container.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
@@ -248,7 +248,7 @@ function GiftManager.Init(parentGui)
 	giftModal.Parent = parentGui
 
 	giftContainer = Instance.new("Frame")
-	giftContainer.Size = UDim2.new(0.55, 0, 0.80, 0)
+	giftContainer.Size = UDim2.new(0.55, 0, 0.75, 0)
 	giftContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
 	giftContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	giftContainer.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
@@ -322,7 +322,7 @@ function GiftManager.Init(parentGui)
 
 	-- Catch any Server Prompt Events across ShopUpdate or ShopAction
 	local function CatchPrompt(action, data)
-		if action == "GiftPrompt" or action == "ClaimPrompt" or action == "Prompt" or action == "Receive" then
+		if action == "ShowStandClaim" or action == "GiftPrompt" or action == "ClaimPrompt" or action == "Prompt" or action == "Receive" then
 			GiftManager.ShowClaimPrompt(data)
 		end
 	end
