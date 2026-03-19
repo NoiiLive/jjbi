@@ -214,6 +214,20 @@ local function CreateTitle(parent, text)
 	return lbl
 end
 
+local function setUpgradeBtnState(btn, enabled)
+	if enabled then
+		btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+		btn.TextColor3 = Color3.new(1, 1, 1)
+		local stroke = btn:FindFirstChild("UIStroke")
+		if stroke then stroke.Color = Color3.fromRGB(120, 60, 180) end
+	else
+		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 30)
+		btn.TextColor3 = Color3.fromRGB(100, 100, 100)
+		local stroke = btn:FindFirstChild("UIStroke")
+		if stroke then stroke.Color = Color3.fromRGB(60, 40, 80) end
+	end
+end
+
 local function CreateStatRow(statName, parent, isStand)
 	local row = Instance.new("Frame", parent)
 	row.Size = UDim2.new(1, 0, 1/6, 0)
@@ -232,7 +246,7 @@ local function CreateStatRow(statName, parent, isStand)
 
 	local btnContainer = Instance.new("Frame", row)
 	btnContainer.Size = UDim2.new(0.62, 0, 1, 0)
-	btnContainer.Position = UDim2.new(1, -12, 0, 0) -- Hardcoded pixel offset to prevent clipping right edge
+	btnContainer.Position = UDim2.new(1, -12, 0, 0) 
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
 	btnContainer.ZIndex = 22
@@ -329,20 +343,6 @@ local function BuildDropdownList(parentBtn, listFrame, dataTable, isStand)
 	parentBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); listFrame.Visible = not listFrame.Visible end)
 end
 
-local function setUpgradeBtnState(btn, enabled)
-	if enabled then
-		btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
-		btn.TextColor3 = Color3.new(1, 1, 1)
-		local stroke = btn:FindFirstChild("UIStroke")
-		if stroke then stroke.Color = Color3.fromRGB(120, 60, 180) end
-	else
-		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 30)
-		btn.TextColor3 = Color3.fromRGB(100, 100, 100)
-		local stroke = btn:FindFirstChild("UIStroke")
-		if stroke then stroke.Color = Color3.fromRGB(60, 40, 80) end
-	end
-end
-
 local function RefreshStatTexts()
 	local prestigeObj = player:WaitForChild("leaderstats", 5) and player.leaderstats:WaitForChild("Prestige", 5)
 	local prestige = prestigeObj and prestigeObj.Value or 0
@@ -370,9 +370,6 @@ local function RefreshStatTexts()
 			setUpgradeBtnState(data.Btn10, currentXP >= cost10)
 			setUpgradeBtnState(data.BtnMax, currentXP >= cost1)
 		end
-	end
-	if currentlyHoveredUpgrade and currentlyHoveredStat then
-		-- Keeps tooltip active dynamically
 	end
 end
 
@@ -462,6 +459,18 @@ local function RefreshStorageList()
 	end
 end
 
+local function sortItemsFunc(a, b)
+	local dataA = ItemData.Equipment[a.Name] or ItemData.Consumables[a.Name]
+	local dataB = ItemData.Equipment[b.Name] or ItemData.Consumables[b.Name]
+	local rA = dataA and dataA.Rarity or "Common"
+	local rB = dataB and dataB.Rarity or "Common"
+	local tierA = raritySortTiers[rA] or raritySortTiers.Common
+	local tierB = raritySortTiers[rB] or raritySortTiers.Common
+
+	if tierA == tierB then return a.Name < b.Name end
+	return tierA < tierB
+end
+
 local function RefreshInventoryList()
 	for _, child in pairs(keyItemsContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
 	for _, child in pairs(regItemsContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
@@ -477,25 +486,13 @@ local function RefreshInventoryList()
 		end
 	end
 
+	table.sort(specialItems, sortItemsFunc)
+	table.sort(normalItems, sortItemsFunc)
+
 	if capacityLabel then
 		local maxInv = GameData.GetMaxInventory(player)
 		capacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
 	end
-
-	local function sortItemsFunc(a, b)
-		local dataA = ItemData.Equipment[a.Name] or ItemData.Consumables[a.Name]
-		local dataB = ItemData.Equipment[b.Name] or ItemData.Consumables[b.Name]
-		local rA = dataA and dataA.Rarity or "Common"
-		local rB = dataB and dataB.Rarity or "Common"
-		local tierA = raritySortTiers[rA] or raritySortTiers.Common
-		local tierB = raritySortTiers[rB] or raritySortTiers.Common
-
-		if tierA == tierB then return a.Name < b.Name end
-		return tierA < tierB
-	end
-
-	table.sort(specialItems, sortItemsFunc)
-	table.sort(normalItems, sortItemsFunc)
 
 	local function RenderItem(itemName, count, isSpecial, orderIdx)
 		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
@@ -576,7 +573,9 @@ local function RefreshInventoryList()
 				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
 				return
 			end
-			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide(); Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
+			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
+
+			Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
 
 			local iData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 			local sellVal = iData and (iData.SellPrice or math.floor((iData.Cost or 50) / 2)) or 25
@@ -860,7 +859,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	end
 
 	local sDrop = createDrop("StandDropdown", "Target Stand: Any")
-	local tDrop = createDrop("Target Trait: Any")
+	local tDrop = createDrop("TraitDropdown", "Target Trait: Any")
 
 	local arRow2 = Instance.new("Frame", rollSplit)
 	arRow2.Size = UDim2.new(1, 0, 0.48, 0); arRow2.BackgroundTransparency = 1
@@ -875,9 +874,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		return btn
 	end
 
-	local btnRArrow = createRollBtn("RollArrowBtn", "Arrow", Color3.fromRGB(200, 150, 0))
-	local btnRCorpse = createRollBtn("RollCorpseBtn", "Corpse", Color3.fromRGB(200, 50, 150))
-	local btnRRoka = createRollBtn("RollRokaBtn", "Roka", Color3.fromRGB(200, 50, 50))
+	local btnRArrow = createRollBtn("RollArrowBtn", "Auto Arrow", Color3.fromRGB(200, 150, 0))
+	local btnRCorpse = createRollBtn("RollCorpseBtn", "Auto Corpse", Color3.fromRGB(200, 50, 150))
+	local btnRRoka = createRollBtn("RollRokaBtn", "Auto Roka", Color3.fromRGB(200, 50, 50))
 
 
 	-- ==========================================
