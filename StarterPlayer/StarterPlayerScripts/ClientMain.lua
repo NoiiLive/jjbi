@@ -338,15 +338,27 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
-local isMuted = false
+local isMuted = player:GetAttribute("IsMuted") or false
+muteBtn.Text = isMuted and "🔈" or "🔊"
+
+task.spawn(function()
+	local bgm = SoundService:WaitForChild("BizarreBGM", 5)
+	if bgm then
+		bgm.Volume = isMuted and 0 or 0.4
+	end
+end)
+
 muteBtn.MouseButton1Click:Connect(function()
 	SFXManager.Play("Click")
 	isMuted = not isMuted
 	muteBtn.Text = isMuted and "🔈" or "🔊"
+
 	local bgm = SoundService:FindFirstChild("BizarreBGM")
 	if bgm then
 		bgm.Volume = isMuted and 0 or 0.4
 	end
+
+	Network:WaitForChild("ToggleMute"):FireServer(isMuted)
 end)
 
 boostBtn.MouseButton1Click:Connect(function()
