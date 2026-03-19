@@ -60,22 +60,13 @@ end
 
 local function applyDoubleGoldBorder(parent)
 	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3
-	outerStroke.Color = Color3.fromRGB(255, 210, 60)
-	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradOut = Instance.new("UIGradient", outerStroke)
-	gradOut.Rotation = -45
+	outerStroke.Thickness = 3; outerStroke.Color = Color3.fromRGB(255, 210, 60); outerStroke.LineJoinMode = Enum.LineJoinMode.Round; outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	local gradOut = Instance.new("UIGradient", outerStroke); gradOut.Rotation = -45
 	gradOut.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)), ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))}
 	outerStroke.Parent = parent
 
 	local innerFrame = Instance.new("Frame", parent)
-	innerFrame.Name = "InnerGoldBorder"
-	innerFrame.Size = UDim2.new(1, -6, 1, -6)
-	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	innerFrame.BackgroundTransparency = 1
-	innerFrame.ZIndex = parent.ZIndex
+	innerFrame.Name = "InnerGoldBorder"; innerFrame.Size = UDim2.new(1, -6, 1, -6); innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0); innerFrame.AnchorPoint = Vector2.new(0.5, 0.5); innerFrame.BackgroundTransparency = 1; innerFrame.ZIndex = parent.ZIndex
 
 	local parentCorner = parent:FindFirstChildOfClass("UICorner")
 	if parentCorner then
@@ -85,45 +76,23 @@ local function applyDoubleGoldBorder(parent)
 	end
 
 	local innerStroke = Instance.new("UIStroke", innerFrame)
-	innerStroke.Thickness = 1
-	innerStroke.Color = Color3.fromRGB(255, 230, 100)
-	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradIn = Instance.new("UIGradient", innerStroke)
-	gradIn.Rotation = 45
+	innerStroke.Thickness = 1; innerStroke.Color = Color3.fromRGB(255, 230, 100); innerStroke.LineJoinMode = Enum.LineJoinMode.Round; innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	local gradIn = Instance.new("UIGradient", innerStroke); gradIn.Rotation = 45
 	gradIn.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)), ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))}
 end
 
 local function CreateCard(name, parent, size, layoutOrder)
 	local frame = Instance.new("Frame", parent)
-	frame.Name = name
-	frame.Size = size
-	frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
-	frame.LayoutOrder = layoutOrder
-	frame.ZIndex = 20
+	frame.Name = name; frame.Size = size; frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35); frame.LayoutOrder = layoutOrder; frame.ZIndex = 20
 	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
-	local stroke = Instance.new("UIStroke", frame)
-	stroke.Color = Color3.fromRGB(90, 50, 120)
-	stroke.Thickness = 1
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local uip = Instance.new("UIPadding", frame)
-	uip.PaddingTop = UDim.new(0, 8); uip.PaddingBottom = UDim.new(0, 8)
-	uip.PaddingLeft = UDim.new(0, 8); uip.PaddingRight = UDim.new(0, 8)
+	local stroke = Instance.new("UIStroke", frame); stroke.Color = Color3.fromRGB(90, 50, 120); stroke.Thickness = 1; stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	local uip = Instance.new("UIPadding", frame); uip.PaddingTop = UDim.new(0, 8); uip.PaddingBottom = UDim.new(0, 8); uip.PaddingLeft = UDim.new(0, 8); uip.PaddingRight = UDim.new(0, 8)
 	return frame
 end
 
 local function CreateTitle(parent, text)
 	local lbl = Instance.new("TextLabel", parent)
-	lbl.Size = UDim2.new(1, 0, 0, 18)
-	lbl.BackgroundTransparency = 1
-	lbl.Text = text
-	lbl.Font = Enum.Font.GothamBlack
-	lbl.TextColor3 = Color3.fromRGB(255, 215, 50)
-	lbl.TextScaled = false
-	lbl.TextSize = 14
-	lbl.LayoutOrder = 1
-	lbl.ZIndex = 22
-	lbl.TextXAlignment = Enum.TextXAlignment.Center
+	lbl.Size = UDim2.new(1, 0, 0, 18); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.Font = Enum.Font.GothamBlack; lbl.TextColor3 = Color3.fromRGB(255, 215, 50); lbl.TextScaled = false; lbl.TextSize = 14; lbl.LayoutOrder = 1; lbl.ZIndex = 22; lbl.TextXAlignment = Enum.TextXAlignment.Center
 	return lbl
 end
 
@@ -291,6 +260,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local cL = Instance.new("UIListLayout", codeArea); cL.FillDirection = Enum.FillDirection.Horizontal; cL.HorizontalAlignment = Enum.HorizontalAlignment.Center; cL.VerticalAlignment = Enum.VerticalAlignment.Center; cL.Padding = UDim.new(0.02, 0)
 
 	local codeInput = Instance.new("TextBox", codeArea)
+	codeInput.Text = "" 
 	codeInput.Size = UDim2.new(0.7, 0, 0.8, 0); codeInput.BackgroundColor3 = Color3.fromRGB(15, 5, 25); codeInput.TextColor3 = Color3.new(1,1,1); codeInput.Font = Enum.Font.GothamBold; codeInput.TextScaled = true; codeInput.PlaceholderText = "Enter Code Here..."; codeInput.ZIndex = 22
 	Instance.new("UICorner", codeInput).CornerRadius = UDim.new(0, 6)
 	local ciStr = Instance.new("UIStroke", codeInput); ciStr.Color = Color3.fromRGB(90, 50, 120); ciStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -316,15 +286,23 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	CreateTitle(prodCard, "ROBUX BUNDLES & ITEMS")
 	local prodScroll = Instance.new("ScrollingFrame", prodCard)
 	prodScroll.Size = UDim2.new(1, 0, 1, -22); prodScroll.Position = UDim2.new(0, 0, 0, 22); prodScroll.BackgroundTransparency = 1; prodScroll.ScrollBarThickness = 6; prodScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); prodScroll.ZIndex = 21
+
+	local prodPad = Instance.new("UIPadding", prodScroll)
+	prodPad.PaddingTop = UDim.new(0, 2); prodPad.PaddingLeft = UDim.new(0, 2); prodPad.PaddingRight = UDim.new(0, 8); prodPad.PaddingBottom = UDim.new(0, 2)
+
 	local prodGL = Instance.new("UIGridLayout", prodScroll)
-	prodGL.CellSize = UDim2.new(0.48, 0, 0, 110); prodGL.CellPadding = UDim2.new(0.02, 0, 0, 10); prodGL.SortOrder = Enum.SortOrder.LayoutOrder
+	prodGL.CellSize = UDim2.new(0.315, 0, 0, 125); prodGL.CellPadding = UDim2.new(0.02, 0, 0, 10); prodGL.SortOrder = Enum.SortOrder.LayoutOrder
 
 	local passCard = CreateCard("PassesCard", premiumTabContent, UDim2.new(1, 0, 0.48, 0), 2)
 	CreateTitle(passCard, "GAMEPASSES")
 	local passScroll = Instance.new("ScrollingFrame", passCard)
 	passScroll.Size = UDim2.new(1, 0, 1, -22); passScroll.Position = UDim2.new(0, 0, 0, 22); passScroll.BackgroundTransparency = 1; passScroll.ScrollBarThickness = 6; passScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); passScroll.ZIndex = 21
+
+	local passPad = Instance.new("UIPadding", passScroll)
+	passPad.PaddingTop = UDim.new(0, 2); passPad.PaddingLeft = UDim.new(0, 2); passPad.PaddingRight = UDim.new(0, 8); passPad.PaddingBottom = UDim.new(0, 2)
+
 	local passGL = Instance.new("UIGridLayout", passScroll)
-	passGL.CellSize = UDim2.new(0.48, 0, 0, 110); passGL.CellPadding = UDim2.new(0.02, 0, 0, 10); passGL.SortOrder = Enum.SortOrder.LayoutOrder
+	passGL.CellSize = UDim2.new(0.315, 0, 0, 125); passGL.CellPadding = UDim2.new(0.02, 0, 0, 10); passGL.SortOrder = Enum.SortOrder.LayoutOrder
 
 	-- Build Premium Items
 	local premLabels = {}
@@ -334,16 +312,24 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		local targetGL = isPass and passGL or prodGL
 
 		local itemFrm = Instance.new("Frame", targetScroll)
-		itemFrm.BackgroundColor3 = Color3.fromRGB(30, 15, 45); itemFrm.LayoutOrder = i; itemFrm.ZIndex = 22
+		itemFrm.BackgroundColor3 = Color3.fromRGB(45, 20, 65); itemFrm.LayoutOrder = i; itemFrm.ZIndex = 22
 		Instance.new("UICorner", itemFrm).CornerRadius = UDim.new(0, 6)
-		local ifStr = Instance.new("UIStroke", itemFrm); ifStr.Color = Color3.fromRGB(90, 50, 120); ifStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+		local iGrad = Instance.new("UIGradient", itemFrm)
+		iGrad.Rotation = 45
+		iGrad.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 30, 100)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 10, 50))
+		}
+
+		local ifStr = Instance.new("UIStroke", itemFrm); ifStr.Color = Color3.fromRGB(150, 80, 255); ifStr.Thickness = 2; ifStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 		local nLbl = Instance.new("TextLabel", itemFrm)
-		nLbl.Size = UDim2.new(1, -10, 0, 20); nLbl.Position = UDim2.new(0, 5, 0, 5); nLbl.BackgroundTransparency = 1; nLbl.Font = Enum.Font.GothamBold; nLbl.TextColor3 = Color3.new(1,1,1); nLbl.TextScaled = true; nLbl.Text = pInfo.Name; nLbl.TextXAlignment = Enum.TextXAlignment.Left; nLbl.ZIndex = 23
-		Instance.new("UITextSizeConstraint", nLbl).MaxTextSize = 14
+		nLbl.Size = UDim2.new(1, -10, 0, 20); nLbl.Position = UDim2.new(0, 5, 0, 5); nLbl.BackgroundTransparency = 1; nLbl.Font = Enum.Font.GothamBold; nLbl.TextColor3 = Color3.fromRGB(255, 235, 130); nLbl.TextScaled = true; nLbl.Text = pInfo.Name; nLbl.TextXAlignment = Enum.TextXAlignment.Left; nLbl.ZIndex = 23
+		Instance.new("UITextSizeConstraint", nLbl).MaxTextSize = 15
 
 		local dLbl = Instance.new("TextLabel", itemFrm)
-		dLbl.Size = UDim2.new(1, -10, 1, -65); dLbl.Position = UDim2.new(0, 5, 0, 30); dLbl.BackgroundTransparency = 1; dLbl.Font = Enum.Font.GothamMedium; dLbl.TextColor3 = Color3.fromRGB(200, 200, 200); dLbl.TextSize = 12; dLbl.RichText = true; dLbl.TextWrapped = true; dLbl.TextXAlignment = Enum.TextXAlignment.Left; dLbl.TextYAlignment = Enum.TextYAlignment.Top; dLbl.Text = pInfo.Desc; dLbl.ZIndex = 23
+		dLbl.Size = UDim2.new(1, -10, 1, -70); dLbl.Position = UDim2.new(0, 5, 0, 30); dLbl.BackgroundTransparency = 1; dLbl.Font = Enum.Font.GothamMedium; dLbl.TextColor3 = Color3.fromRGB(220, 220, 220); dLbl.TextSize = 12; dLbl.RichText = true; dLbl.TextWrapped = true; dLbl.TextXAlignment = Enum.TextXAlignment.Left; dLbl.TextYAlignment = Enum.TextYAlignment.Top; dLbl.Text = pInfo.Desc; dLbl.ZIndex = 23
 
 		local buyBtn = Instance.new("TextButton", itemFrm)
 		buyBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40); buyBtn.Font = Enum.Font.GothamBold; buyBtn.TextColor3 = Color3.new(1,1,1); buyBtn.TextScaled = true; buyBtn.Text = tostring(pInfo.Price) .. " R$"; buyBtn.ZIndex = 24
