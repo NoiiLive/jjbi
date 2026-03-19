@@ -96,11 +96,10 @@ function GameData.GetMaxInventory(player)
 
 	local ls = player:FindFirstChild("leaderstats")
 	local elo = ls and ls:FindFirstChild("Elo") and ls.Elo.Value or 1000
-	local prestige = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
 
 	local eloBoost = elo >= 4000 and 5 or 0
 
-	local totalCapacity = baseMax + gangBoost + eloBoost + prestige
+	local totalCapacity = baseMax + gangBoost + eloBoost
 
 	if player:GetAttribute("Has2xInventory") then
 		totalCapacity = totalCapacity * 2
@@ -115,18 +114,12 @@ function GameData.GetInventoryCount(player)
 
 	local ItemData = require(game:GetService("ReplicatedStorage"):WaitForChild("ItemData"))
 
-	local ignoredKeys = {
-		StandArrowCount = true,
-		RokakakaCount = true,
-		HeavenlyStandDiscCount = true,
-		SaintsCorpsePartCount = true,
-	}
+	local ignoredKeys = {}
 
 	for itemName, data in pairs(ItemData.Consumables) do
-		if data.Rarity == "Unique" then
-			ignoredKeys[itemName:gsub("[^%w]", "") .. "Count"] = true
-		end
+		ignoredKeys[itemName:gsub("[^%w]", "") .. "Count"] = true
 	end
+
 	for itemName, data in pairs(ItemData.Equipment) do
 		if data.Rarity == "Unique" then
 			ignoredKeys[itemName:gsub("[^%w]", "") .. "Count"] = true
