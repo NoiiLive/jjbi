@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local TooltipManager = {}
 
 local player = game.Players.LocalPlayer
@@ -107,7 +108,7 @@ function TooltipManager.GetItemTooltip(itemName)
 		local cons = ItemData.Consumables[itemName]
 		local desc = type(cons) == "table" and cons.Description or tostring(cons)
 		local rarity = type(cons) == "table" and cons.Rarity or "Common"
-		return "<b><font color='#FFD700'>" .. itemName .. "</font></b> | <font color='#AAAAAA'>" .. rarity .. "</font>\n____________________\n\n" .. desc
+		return "<b><font color='#FFD700'>" .. itemName .. "</font></b>\n<i>Consumable</i> | <font color='#AAAAAA'>" .. rarity .. "</font>\n____________________\n\n" .. desc
 	end
 	return "Unknown item."
 end
