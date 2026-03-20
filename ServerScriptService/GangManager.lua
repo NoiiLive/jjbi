@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,10 +21,19 @@ local ActiveGangs = {}
 local CachedBrowserList = {} 
 local RolePower = { ["Grunt"] = 1, ["Caporegime"] = 2, ["Consigliere"] = 3, ["Boss"] = 4 }
 
-local AdminWipeEvent = ReplicatedStorage:WaitForChild("AdminForceWipeGang")
-local ProgressOrderEvent = Instance.new("BindableEvent")
-ProgressOrderEvent.Name = "AddGangOrderProgress"
-ProgressOrderEvent.Parent = Network
+local AdminWipeEvent = ReplicatedStorage:FindFirstChild("AdminForceWipeGang")
+if not AdminWipeEvent then
+	AdminWipeEvent = Instance.new("BindableEvent")
+	AdminWipeEvent.Name = "AdminForceWipeGang"
+	AdminWipeEvent.Parent = ReplicatedStorage
+end
+
+local ProgressOrderEvent = ReplicatedStorage:FindFirstChild("AddGangOrderProgress")
+if not ProgressOrderEvent then
+	ProgressOrderEvent = Instance.new("BindableEvent")
+	ProgressOrderEvent.Name = "AddGangOrderProgress"
+	ProgressOrderEvent.Parent = ReplicatedStorage
+end
 
 local function GetDictSize(d)
 	local c = 0
@@ -100,6 +110,61 @@ local function DistributeOrderLoot(gangData, rarity)
 	end
 end
 
+local function GetClientGangData(player)
+	local gangName = player:GetAttribute("Gang")
+	if not gangName or gangName == "None" or not ActiveGangs[gangName] then
+		return { HasGang = false, Invites = PlayerInvites[player] or {} }
+	end
+
+	local gData = ActiveGangs[gangName]
+	local myRole = player:GetAttribute("GangRole") or "Grunt"
+
+	local membersList = {}
+	for _, m in ipairs(gData.Members) do
+		local p = Players:GetPlayerByUserId(m.UserId)
+		table.insert(membersList, {
+			Name = m.Name,
+			UserId = m.UserId,
+			Role = m.Role,
+			IsOnline = p ~= nil,
+			LastOnline = m.LastOnline,
+			Prestige = m.Prestige,
+			PlayTime = m.PlayTime,
+			Contribution = m.Contribution
+		})
+	end
+
+	return {
+		HasGang = true,
+		MyRole = myRole,
+		GangData = {
+			Name = gangName,
+			Level = GetGangLevel(gData.Rep or 0),
+			Rep = gData.Rep,
+			MaxRep = GetGangLevel(gData.Rep or 0) * 1000, 
+			Treasury = gData.Treasury,
+			Motto = gData.Motto,
+			Emblem = gData.Emblem,
+			PrestigeReq = gData.PrestigeReq,
+			JoinMode = gData.JoinMode,
+			Buildings = gData.Buildings,
+			Orders = gData.Orders,
+			LastOrderReset = gData.LastOrderReset,
+			ActiveUpgrade = gData.ActiveUpgrade,
+			RoleNames = gData.CustomRoles,
+			Requests = gData.Requests,
+			MemberCount = GetDictSize(gData.Members),
+			Members = membersList
+		}
+	}
+end
+
+local function SyncPlayer(player)
+	if player and player.Parent then
+		GangUpdate:FireClient(player, "Sync", GetClientGangData(player))
+	end
+end
+
 AdminWipeEvent.Event:Connect(function(gangKey)
 	local displayToWipe = gangKey
 	local gangData = ActiveGangs[gangKey]
@@ -119,7 +184,7 @@ AdminWipeEvent.Event:Connect(function(gangKey)
 			p:SetAttribute("GangRole", "None")
 			ApplyGangBuffs(p, nil)
 			Network.CombatUpdate:FireClient(p, "SystemMessage", "<font color='#FF5555'>Your gang was completely erased by an Admin.</font>")
-			GangUpdate:FireClient(p, "Sync", nil)
+			SyncPlayer(p)
 		end
 	end
 
@@ -146,9 +211,8 @@ local function LoadGangData(gangName)
 		if not data.LastOrderReset then data.LastOrderReset = os.time() end
 		if not data.PrestigeReq then data.PrestigeReq = 0 end
 		if not data.ActiveUpgrade then data.ActiveUpgrade = nil end
-
-		-- FIX: Make sure older gangs have the Requests table properly initialized to prevent client errors
 		if not data.Requests then data.Requests = {} end
+		if not data.CustomRoles then data.CustomRoles = { Boss = "Boss", Consigliere = "Consigliere", Caporegime = "Caporegime", Grunt = "Grunt" } end
 
 		ActiveGangs[key] = data
 		return data
@@ -226,7 +290,7 @@ local function SyncGangToMembers(gangName)
 	if not gang then return end
 	for userIdStr, _ in pairs(gang.Members) do
 		local p = Players:GetPlayerByUserId(tonumber(userIdStr))
-		if p then GangUpdate:FireClient(p, "Sync", gang) end
+		if p then SyncPlayer(p) end
 	end
 end
 
@@ -331,7 +395,13 @@ ProgressOrderEvent.Event:Connect(function(gangKey, orderType, amount)
 	if completedAny then SyncGangToMembers(key) end
 end)
 
-local GangRepEvent = ReplicatedStorage:WaitForChild("AwardGangReputation")
+local GangRepEvent = ReplicatedStorage:FindFirstChild("AwardGangReputation")
+if not GangRepEvent then
+	GangRepEvent = Instance.new("BindableEvent")
+	GangRepEvent.Name = "AwardGangReputation"
+	GangRepEvent.Parent = ReplicatedStorage
+end
+
 GangRepEvent.Event:Connect(function(userId, amount)
 	local player = Players:GetPlayerByUserId(userId)
 	if not player then return end
@@ -349,8 +419,8 @@ GangRepEvent.Event:Connect(function(userId, amount)
 end)
 
 Players.PlayerAdded:Connect(function(player)
-	task.spawn(function()
-		task.wait(2) 
+	player:SetAttribute("GangDmgBoost", 1.0)
+	task.delay(3, function()
 		local gName = player:GetAttribute("Gang")
 		if gName and gName ~= "None" then
 			local data = LoadGangData(gName)
@@ -365,21 +435,22 @@ Players.PlayerAdded:Connect(function(player)
 					local serverRole = data.Members[tostring(player.UserId)].Role
 					player:SetAttribute("GangRole", serverRole)
 					ApplyGangBuffs(player, data)
-					GangUpdate:FireClient(player, "Sync", data)
+					SyncPlayer(player)
 				else
 					player:SetAttribute("Gang", "None")
 					player:SetAttribute("GangRole", "None")
 					ApplyGangBuffs(player, nil)
-					GangUpdate:FireClient(player, "Sync", nil)
+					SyncPlayer(player)
 				end
 			else
 				player:SetAttribute("Gang", "None")
 				player:SetAttribute("GangRole", "None")
 				ApplyGangBuffs(player, nil)
-				GangUpdate:FireClient(player, "Sync", nil)
+				SyncPlayer(player)
 			end
 		else
 			ApplyGangBuffs(player, nil)
+			SyncPlayer(player)
 		end
 	end)
 
@@ -398,12 +469,12 @@ Players.PlayerAdded:Connect(function(player)
 					local serverRole = data.Members[tostring(player.UserId)].Role
 					player:SetAttribute("GangRole", serverRole)
 					ApplyGangBuffs(player, data)
-					GangUpdate:FireClient(player, "Sync", data)
+					SyncPlayer(player)
 				else
 					player:SetAttribute("Gang", "None")
 					player:SetAttribute("GangRole", "None")
 					ApplyGangBuffs(player, nil)
-					GangUpdate:FireClient(player, "Sync", nil)
+					SyncPlayer(player)
 					Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You are no longer in a gang.</font>")
 				end
 			end
@@ -434,7 +505,10 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 	if action == "Create" then
 		if pGangName ~= "None" then return end
 		local yen = player.leaderstats.Yen
-		if yen.Value < 500000 then return end
+		if yen.Value < 500000 then 
+			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You need ¥500,000 to create a gang!</font>")
+			return 
+		end
 
 		local displayGangName = tostring(value)
 		local gangKey = string.lower(displayGangName)
@@ -443,8 +517,9 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Name must be 3 to 15 characters long!</font>")
 			return
 		end
-		if not string.match(displayGangName, "^[a-zA-Z0-9 ]+$") then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Alphanumeric characters only!</font>")
+
+		if not string.match(displayGangName, "^[a-zA-Z ]+$") then
+			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Alphabetic characters and spaces only!</font>")
 			return
 		end
 
@@ -486,8 +561,8 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local newKey = string.lower(displayGangName)
 		local oldKey = pGangName
 
-		if string.len(displayGangName) < 3 or string.len(displayGangName) > 15 or not string.match(displayGangName, "^[a-zA-Z0-9 ]+$") then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Invalid name! 3-15 alphanumeric characters only.</font>")
+		if string.len(displayGangName) < 3 or string.len(displayGangName) > 15 or not string.match(displayGangName, "^[a-zA-Z ]+$") then
+			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Invalid name! 3-15 alphabetic characters only.</font>")
 			return
 		end
 
@@ -682,7 +757,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local resultList = {}
 		local count = 0
 		for _, gName in ipairs(shuffled) do
-			if count >= 15 then break end
+			if count >= 30 then break end
 			local gData = LoadGangData(gName)
 			if gData then
 				table.insert(resultList, {
@@ -768,7 +843,6 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			end
 		else
 			SaveGangData(targetGangKey, function(gangData)
-				-- FIX: Added safety check to ensure Requests table exists before assigning
 				if not gangData.Requests then gangData.Requests = {} end
 				gangData.Requests[pIdStr] = player.Name
 				return gangData
@@ -824,7 +898,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 					tPlayer:SetAttribute("GangRole", "None")
 					ApplyGangBuffs(tPlayer, nil)
 					Network.CombatUpdate:FireClient(tPlayer, "SystemMessage", "<font color='#FF5555'>You were kicked from the gang.</font>")
-					GangUpdate:FireClient(tPlayer, "Sync", nil)
+					SyncPlayer(tPlayer)
 				end
 			end
 			return gangData
@@ -922,7 +996,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		player:SetAttribute("GangRole", "None")
 		ApplyGangBuffs(player, nil)
 		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#AAAAAA'>You left the gang.</font>")
-		GangUpdate:FireClient(player, "Sync", nil)
+		SyncPlayer(player)
 		SyncGangToMembers(pGangName)
 
 	elseif action == "Disband" then
@@ -939,7 +1013,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 				mem:SetAttribute("GangRole", "None")
 				ApplyGangBuffs(mem, nil)
 				Network.CombatUpdate:FireClient(mem, "SystemMessage", "<font color='#FF5555'>Your gang was disbanded.</font>")
-				GangUpdate:FireClient(mem, "Sync", nil)
+				SyncPlayer(mem)
 			end
 		end
 
@@ -963,7 +1037,6 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 					if not gangData.LastOrderReset then gangData.LastOrderReset = os.time() end
 					if not gangData.PrestigeReq then gangData.PrestigeReq = 0 end
 
-					-- FIX: Initializing Requests table during Sync for legacy gangs
 					if not gangData.Requests then gangData.Requests = {} end
 
 					if gangData.ActiveUpgrade and os.time() >= gangData.ActiveUpgrade.FinishTime then
@@ -996,11 +1069,11 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 					return gangData
 				end)
 
-				GangUpdate:FireClient(player, "Sync", ActiveGangs[pGangName]) 
+				SyncPlayer(player) 
 			else
 				player:SetAttribute("Gang", "None")
 				player:SetAttribute("GangRole", "None")
-				GangUpdate:FireClient(player, "Sync", nil)
+				SyncPlayer(player)
 			end
 		end
 	end
