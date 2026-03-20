@@ -7,14 +7,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local UIModules = script.Parent
 
--- Temporarily disabled (Except LeaderboardTab) to prevent Infinite Yields from missing remotes
+-- Temporarily disabled
 -- local GangsTab = require(UIModules:WaitForChild("GangsTab"))
 -- local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
--- local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
 -- local TradingTab = require(UIModules:WaitForChild("TradingTab"))
-local LeaderboardTab = require(UIModules:WaitForChild("LeaderboardTab"))
 -- local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
 
+local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
+local LeaderboardTab = require(UIModules:WaitForChild("LeaderboardTab"))
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
 
@@ -68,9 +68,6 @@ local function applyDoubleGoldBorder(parent)
 end
 
 function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
-	-- ========================================================
-	-- MAIN FRAME SETUP
-	-- ========================================================
 	local mainPanel = Instance.new("Frame")
 	mainPanel.Name = "MainPanel"
 	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
@@ -139,9 +136,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	mainLayout.Padding = UDim.new(0.02, 0)
 	mainLayout.Parent = innerContent
 
-	-- ==========================================
-	-- SUB NAVIGATION
-	-- ==========================================
 	local subNavFrame = Instance.new("Frame")
 	subNavFrame.Name = "SubNavFrame"
 	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
@@ -186,7 +180,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		return btn, bStr
 	end
 
-	-- Reordered: Gangs, Event, Raids, Arena, Trading, Ranks
 	local gangBtn, gStroke = CreateSubNavButton("GangBtn", "GANGS", 1)
 	local sbrBtn, sStroke = CreateSubNavButton("SbrBtn", "EVENT", 2)
 	local raidBtn, rStroke = CreateSubNavButton("RaidBtn", "RAIDS", 3)
@@ -194,9 +187,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local tradeBtn, tStroke = CreateSubNavButton("TradeBtn", "TRADING", 5)
 	local lbBtn, lStroke = CreateSubNavButton("LbBtn", "RANKS", 6)
 
-	-- ==========================================
-	-- TAB CONTAINER & SUB FRAMES
-	-- ==========================================
 	local tabContainer = Instance.new("Frame")
 	tabContainer.Name = "TabContainer"
 	tabContainer.Size = UDim2.new(1, 0, 0.90, 0)
@@ -221,16 +211,12 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local tradeFrame = CreateSubFrame("TradeFrame")
 	local lbFrame = CreateSubFrame("LbFrame")
 
-	-- Default visibility set to Gangs
 	gangsFrame.Visible = true
 	gangBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
 	gangBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
 	gStroke.Color = Color3.fromRGB(255, 215, 0)
 	gStroke.Thickness = 2
 
-	-- ==========================================
-	-- LOGIC
-	-- ==========================================
 	local function ForceSubTabFocus(target)
 		if switchTabFunc then switchTabFunc("Multiplayer") end
 
@@ -328,7 +314,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	-- ==========================================
 	-- pcall(function() GangsTab.Init(gangsFrame, tooltipMgr) end)
 	-- pcall(function() ArenaTab.Init(arenaFrame, tooltipMgr, function() ForceSubTabFocus("Arena") end) end)
-	-- pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
+	pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
 	-- pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
 	pcall(function() LeaderboardTab.Init(lbFrame, tooltipMgr) end)
 	-- pcall(function() SBREventTab.Init(sbrFrame, tooltipMgr, function() ForceSubTabFocus("Event") end) end)
@@ -336,7 +322,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	MultiplayerTab.HandleGangUpdate = function() end
 	MultiplayerTab.HandleArenaUpdate = function() end
 	MultiplayerTab.HandleTradeUpdate = function() end
-	MultiplayerTab.HandleRaidUpdate = function() end
+	MultiplayerTab.HandleRaidUpdate = RaidsTab.HandleUpdate or function() end
 end
 
 return MultiplayerTab
