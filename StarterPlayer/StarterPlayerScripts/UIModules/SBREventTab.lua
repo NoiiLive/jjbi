@@ -18,7 +18,7 @@ local REROLL_ROBUX_PRODUCT_ID = 3554941196
 
 local mainContainer
 local lobbyContainer, raceContainer
-local timerLbl, queueBtn, queueCountLbl
+local timerLbl, queueBtn, queueCountLbl, forceStartBtn
 local horseNameLbl, speedValLbl, endValLbl, traitLbl
 local upgSpeedBtn, upgEndBtn, upgTimerLbl
 local rerollYenBtn, rerollRobuxBtn
@@ -110,7 +110,7 @@ local function CreateDropdown(parentObj, defaultText, itemList, onSelect)
 
 	local listFrame = Instance.new("ScrollingFrame")
 	listFrame.Size = UDim2.new(1, 0, 0, 120)
-	listFrame.Position = UDim2.new(0, 0, 0, -125) -- Pops UPWARDS so it doesn't clip off the screen
+	listFrame.Position = UDim2.new(0, 0, 0, -125) 
 	listFrame.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
 	listFrame.ScrollBarThickness = 6
 	listFrame.ScrollBarImageColor3 = Color3.fromRGB(120, 60, 180)
@@ -173,33 +173,37 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lcPad.PaddingLeft = UDim.new(0.02, 0); lcPad.PaddingRight = UDim.new(0.02, 0)
 	lcPad.Parent = lobbyContainer
 
-	-- STABLE CARD (No longer scrolling, explicitly fits)
+	-- STABLE CARD (Increased padding to utilize the full vertical space evenly)
 	local stableCard = CreateCard("StableCard", lobbyContainer, UDim2.new(0.48, 0, 1, 0), UDim2.new(0, 0, 0, 0))
 
 	local scPad = Instance.new("UIPadding")
-	scPad.PaddingTop = UDim.new(0, 15); scPad.PaddingLeft = UDim.new(0, 15); scPad.PaddingRight = UDim.new(0, 15)
+	scPad.PaddingTop = UDim.new(0, 15); scPad.PaddingBottom = UDim.new(0, 15)
+	scPad.PaddingLeft = UDim.new(0, 15); scPad.PaddingRight = UDim.new(0, 15)
 	scPad.Parent = stableCard
 
 	local scLayout = Instance.new("UIListLayout", stableCard)
-	scLayout.SortOrder = Enum.SortOrder.LayoutOrder; scLayout.Padding = UDim.new(0, 10)
+	scLayout.SortOrder = Enum.SortOrder.LayoutOrder; scLayout.Padding = UDim.new(0.025, 0)
 
 	local sTitle = Instance.new("TextLabel", stableCard)
-	sTitle.Size = UDim2.new(1, 0, 0, 30); sTitle.BackgroundTransparency = 1
+	sTitle.Size = UDim2.new(1, 0, 0.08, 0); sTitle.BackgroundTransparency = 1
 	sTitle.Font = Enum.Font.GothamBlack; sTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
 	sTitle.TextScaled = true; sTitle.Text = "MY STABLE"; sTitle.LayoutOrder = 1
 	sTitle.ZIndex = 22
+	Instance.new("UITextSizeConstraint", sTitle).MaxTextSize = 24
 
 	horseNameLbl = Instance.new("TextLabel", stableCard)
-	horseNameLbl.Size = UDim2.new(1, 0, 0, 30); horseNameLbl.BackgroundTransparency = 1
+	horseNameLbl.Size = UDim2.new(1, 0, 0.1, 0); horseNameLbl.BackgroundTransparency = 1
 	horseNameLbl.Font = Enum.Font.GothamBold; horseNameLbl.TextColor3 = Color3.new(1, 1, 1)
 	horseNameLbl.TextScaled = true; horseNameLbl.Text = "Unknown Steed"; horseNameLbl.LayoutOrder = 2
 	horseNameLbl.ZIndex = 22
+	Instance.new("UITextSizeConstraint", horseNameLbl).MaxTextSize = 22
 
 	traitLbl = Instance.new("TextLabel", stableCard)
-	traitLbl.Size = UDim2.new(1, 0, 0, 20); traitLbl.BackgroundTransparency = 1
+	traitLbl.Size = UDim2.new(1, 0, 0.06, 0); traitLbl.BackgroundTransparency = 1
 	traitLbl.Font = Enum.Font.GothamMedium; traitLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
 	traitLbl.TextScaled = true; traitLbl.Text = "Trait: None"; traitLbl.LayoutOrder = 3
 	traitLbl.ZIndex = 22
+	Instance.new("UITextSizeConstraint", traitLbl).MaxTextSize = 16
 
 	traitLbl.MouseEnter:Connect(function()
 		local t = player:GetAttribute("HorseTrait") or "None"
@@ -210,7 +214,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	traitLbl.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
 
 	local statRow = Instance.new("Frame", stableCard)
-	statRow.Size = UDim2.new(1, 0, 0, 35); statRow.BackgroundTransparency = 1; statRow.LayoutOrder = 4
+	statRow.Size = UDim2.new(1, 0, 0.11, 0); statRow.BackgroundTransparency = 1; statRow.LayoutOrder = 4
 	statRow.ZIndex = 21
 
 	speedValLbl = Instance.new("TextLabel", statRow)
@@ -218,6 +222,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	speedValLbl.Font = Enum.Font.GothamBold; speedValLbl.TextColor3 = Color3.fromRGB(50, 255, 50)
 	speedValLbl.TextScaled = true; speedValLbl.TextXAlignment = Enum.TextXAlignment.Left
 	speedValLbl.ZIndex = 22
+	Instance.new("UITextSizeConstraint", speedValLbl).MaxTextSize = 18
 
 	upgSpeedBtn = Instance.new("TextButton", statRow)
 	upgSpeedBtn.Size = UDim2.new(0.5, 0, 1, 0); upgSpeedBtn.Position = UDim2.new(0.5, 0, 0, 0)
@@ -229,7 +234,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	Instance.new("UITextSizeConstraint", upgSpeedBtn).MaxTextSize = 14
 
 	local statRow2 = Instance.new("Frame", stableCard)
-	statRow2.Size = UDim2.new(1, 0, 0, 35); statRow2.BackgroundTransparency = 1; statRow2.LayoutOrder = 5
+	statRow2.Size = UDim2.new(1, 0, 0.11, 0); statRow2.BackgroundTransparency = 1; statRow2.LayoutOrder = 5
 	statRow2.ZIndex = 21
 
 	endValLbl = Instance.new("TextLabel", statRow2)
@@ -237,6 +242,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	endValLbl.Font = Enum.Font.GothamBold; endValLbl.TextColor3 = Color3.fromRGB(50, 255, 255)
 	endValLbl.TextScaled = true; endValLbl.TextXAlignment = Enum.TextXAlignment.Left
 	endValLbl.ZIndex = 22
+	Instance.new("UITextSizeConstraint", endValLbl).MaxTextSize = 18
 
 	upgEndBtn = Instance.new("TextButton", statRow2)
 	upgEndBtn.Size = UDim2.new(0.5, 0, 1, 0); upgEndBtn.Position = UDim2.new(0.5, 0, 0, 0)
@@ -244,17 +250,18 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	upgEndBtn.TextColor3 = Color3.new(1, 1, 1); upgEndBtn.TextScaled = true; upgEndBtn.Text = "Upgrade Endurance (100k)"
 	upgEndBtn.ZIndex = 22
 	Instance.new("UICorner", upgEndBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(upgEndBtn, 180, 80, 180)
+	AddBtnStroke(upgEndBtn, 80, 180, 180)
 	Instance.new("UITextSizeConstraint", upgEndBtn).MaxTextSize = 14
 
 	upgTimerLbl = Instance.new("TextLabel", stableCard)
-	upgTimerLbl.Size = UDim2.new(1, 0, 0, 20); upgTimerLbl.BackgroundTransparency = 1
+	upgTimerLbl.Size = UDim2.new(1, 0, 0.06, 0); upgTimerLbl.BackgroundTransparency = 1
 	upgTimerLbl.Font = Enum.Font.GothamMedium; upgTimerLbl.TextColor3 = Color3.fromRGB(255, 215, 0)
 	upgTimerLbl.TextScaled = true; upgTimerLbl.Text = ""; upgTimerLbl.LayoutOrder = 6
 	upgTimerLbl.ZIndex = 22
+	Instance.new("UITextSizeConstraint", upgTimerLbl).MaxTextSize = 14
 
 	local rerollRow = Instance.new("Frame", stableCard)
-	rerollRow.Size = UDim2.new(1, 0, 0, 35); rerollRow.BackgroundTransparency = 1; rerollRow.LayoutOrder = 7
+	rerollRow.Size = UDim2.new(1, 0, 0.11, 0); rerollRow.BackgroundTransparency = 1; rerollRow.LayoutOrder = 7
 	rerollRow.ZIndex = 21
 
 	rerollYenBtn = Instance.new("TextButton", rerollRow)
@@ -275,13 +282,14 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	AddBtnStroke(rerollRobuxBtn, 80, 220, 120); Instance.new("UITextSizeConstraint", rerollRobuxBtn).MaxTextSize = 14
 
 	local nameTitle = Instance.new("TextLabel", stableCard)
-	nameTitle.Size = UDim2.new(1, 0, 0, 20); nameTitle.BackgroundTransparency = 1
+	nameTitle.Size = UDim2.new(1, 0, 0.06, 0); nameTitle.BackgroundTransparency = 1
 	nameTitle.Font = Enum.Font.GothamBlack; nameTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
 	nameTitle.TextScaled = true; nameTitle.Text = "CUSTOM HORSE NAME"; nameTitle.LayoutOrder = 8
 	nameTitle.ZIndex = 22
+	Instance.new("UITextSizeConstraint", nameTitle).MaxTextSize = 14
 
 	local nameRow = Instance.new("Frame", stableCard)
-	nameRow.Size = UDim2.new(1, 0, 0, 35); nameRow.BackgroundTransparency = 1; nameRow.LayoutOrder = 9
+	nameRow.Size = UDim2.new(1, 0, 0.11, 0); nameRow.BackgroundTransparency = 1; nameRow.LayoutOrder = 9
 	nameRow.ZIndex = 21
 
 	local n1Drop = Instance.new("TextButton", nameRow)
@@ -308,44 +316,41 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	CreateDropdown(n1Drop, "Select", Names1, function(val) targetName1 = val end)
 	CreateDropdown(n2Drop, "Select", Names2, function(val) targetName2 = val end)
 
+
+	-- QUEUE CARD 
 	local queueCard = CreateCard("QueueCard", lobbyContainer, UDim2.new(0.48, 0, 1, 0), UDim2.new(0.52, 0, 0, 0))
-
-	local queueScroll = Instance.new("ScrollingFrame", queueCard)
-	queueScroll.Name = "QueueScroll"
-	queueScroll.Size = UDim2.new(1, 0, 1, 0)
-	queueScroll.BackgroundTransparency = 1
-	queueScroll.ScrollBarThickness = 6
-	queueScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	queueScroll.ZIndex = 21
-
 	local qcPad = Instance.new("UIPadding")
-	qcPad.PaddingTop = UDim.new(0, 15); qcPad.PaddingLeft = UDim.new(0, 15); qcPad.PaddingRight = UDim.new(0, 15)
-	qcPad.Parent = queueScroll
+	qcPad.PaddingTop = UDim.new(0, 15); qcPad.PaddingBottom = UDim.new(0, 15)
+	qcPad.PaddingLeft = UDim.new(0, 15); qcPad.PaddingRight = UDim.new(0, 15)
+	qcPad.Parent = queueCard
 
-	local qcLayout = Instance.new("UIListLayout", queueScroll)
-	qcLayout.SortOrder = Enum.SortOrder.LayoutOrder; qcLayout.Padding = UDim.new(0, 20)
+	local qcLayout = Instance.new("UIListLayout", queueCard)
+	qcLayout.SortOrder = Enum.SortOrder.LayoutOrder; qcLayout.Padding = UDim.new(0.05, 0)
 	qcLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
-	local qTitle = Instance.new("TextLabel", queueScroll)
-	qTitle.Size = UDim2.new(1, 0, 0, 30); qTitle.BackgroundTransparency = 1
+	local qTitle = Instance.new("TextLabel", queueCard)
+	qTitle.Size = UDim2.new(1, 0, 0.1, 0); qTitle.BackgroundTransparency = 1
 	qTitle.Font = Enum.Font.GothamBlack; qTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
 	qTitle.TextScaled = true; qTitle.Text = "SBR EVENT"; qTitle.LayoutOrder = 1
 	qTitle.ZIndex = 22
+	Instance.new("UITextSizeConstraint", qTitle).MaxTextSize = 28
 
-	timerLbl = Instance.new("TextLabel", queueScroll)
-	timerLbl.Size = UDim2.new(1, 0, 0, 60); timerLbl.BackgroundTransparency = 1
+	timerLbl = Instance.new("TextLabel", queueCard)
+	timerLbl.Size = UDim2.new(1, 0, 0.25, 0); timerLbl.BackgroundTransparency = 1
 	timerLbl.Font = Enum.Font.GothamBlack; timerLbl.TextColor3 = Color3.new(1, 1, 1)
 	timerLbl.TextScaled = true; timerLbl.RichText = true; timerLbl.Text = "NEXT RACE IN\n--:--"; timerLbl.LayoutOrder = 2
 	timerLbl.ZIndex = 22
+	Instance.new("UITextSizeConstraint", timerLbl).MaxTextSize = 40
 
-	queueCountLbl = Instance.new("TextLabel", queueScroll)
-	queueCountLbl.Size = UDim2.new(1, 0, 0, 30); queueCountLbl.BackgroundTransparency = 1
+	queueCountLbl = Instance.new("TextLabel", queueCard)
+	queueCountLbl.Size = UDim2.new(1, 0, 0.1, 0); queueCountLbl.BackgroundTransparency = 1
 	queueCountLbl.Font = Enum.Font.GothamMedium; queueCountLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
 	queueCountLbl.TextScaled = true; queueCountLbl.Text = "Players in Queue: 0"; queueCountLbl.LayoutOrder = 3
 	queueCountLbl.ZIndex = 22
+	Instance.new("UITextSizeConstraint", queueCountLbl).MaxTextSize = 20
 
-	queueBtn = Instance.new("TextButton", queueScroll)
-	queueBtn.Size = UDim2.new(0.8, 0, 0, 60); queueBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+	queueBtn = Instance.new("TextButton", queueCard)
+	queueBtn.Size = UDim2.new(0.8, 0, 0.2, 0); queueBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
 	queueBtn.Font = Enum.Font.GothamBold; queueBtn.TextColor3 = Color3.new(1,1,1)
 	queueBtn.TextScaled = true; queueBtn.Text = "Join Event Queue"; queueBtn.LayoutOrder = 4
 	queueBtn.ZIndex = 22
@@ -353,8 +358,8 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	AddBtnStroke(queueBtn, 80, 200, 80)
 	Instance.new("UITextSizeConstraint", queueBtn).MaxTextSize = 24
 
-	local forceStartBtn = Instance.new("TextButton", queueScroll)
-	forceStartBtn.Size = UDim2.new(0.8, 0, 0, 40)
+	forceStartBtn = Instance.new("TextButton", queueCard)
+	forceStartBtn.Size = UDim2.new(0.8, 0, 0.15, 0)
 	forceStartBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20)
 	forceStartBtn.Font = Enum.Font.GothamBold
 	forceStartBtn.TextColor3 = Color3.new(1,1,1)
@@ -364,15 +369,12 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	forceStartBtn.ZIndex = 22
 	Instance.new("UICorner", forceStartBtn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(forceStartBtn, 220, 140, 80)
-	forceStartBtn.Visible = isStudio
+	forceStartBtn.Visible = false
+	Instance.new("UITextSizeConstraint", forceStartBtn).MaxTextSize = 18
 
 	forceStartBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		Network.SBRAction:FireServer("ForceStartEvent")
-	end)
-
-	task.delay(0.1, function()
-		queueScroll.CanvasSize = UDim2.new(0, 0, 0, qcLayout.AbsoluteContentSize.Y + 30)
 	end)
 
 	local function UpdatePassUI()
@@ -402,7 +404,12 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	local inQueue = false
 	queueBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click"); inQueue = not inQueue; 
+		SFXManager.Play("Click"); 
+		if queueBtn.Text == "Force Join (Studio)" then
+			Network.SBRAction:FireServer("ToggleQueue")
+			return
+		end
+		inQueue = not inQueue; 
 		queueBtn.Text = inQueue and "Leave Queue" or "Join Event Queue"
 		queueBtn.BackgroundColor3 = inQueue and Color3.fromRGB(140, 40, 40) or Color3.fromRGB(50, 150, 50)
 		Network.SBRAction:FireServer("ToggleQueue")
@@ -447,10 +454,29 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	combatUI = CombatTemplate.Create(raceContainer, tooltipMgr)
 
+	-- Safe Log Appender so it doesn't wipe previous entries
+	local function AppendLog(text)
+		if not text or text == "" then return end
+		if not combatUI or not combatUI.ChatText then return end
+
+		if combatUI.ChatText.Text == "" then
+			combatUI.ChatText.Text = text
+		else
+			combatUI.ChatText.Text = combatUI.ChatText.Text .. "\n" .. text
+		end
+
+		task.defer(function()
+			if combatUI.ChatScroll then
+				combatUI.ChatScroll.CanvasPosition = Vector2.new(0, 999999)
+			end
+		end)
+	end
+
 	sbrTopArea = Instance.new("Frame")
 	sbrTopArea.Size = UDim2.new(1, 0, 0, 30)
 	sbrTopArea.BackgroundTransparency = 1
 	sbrTopArea.LayoutOrder = 0
+	sbrTopArea.ZIndex = 30
 	sbrTopArea.Parent = combatUI.ContentContainer
 
 	rRegionLbl = Instance.new("TextLabel", sbrTopArea)
@@ -458,12 +484,14 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	rRegionLbl.Font = Enum.Font.GothamBlack; rRegionLbl.TextColor3 = Color3.fromRGB(255, 215, 50)
 	rRegionLbl.TextScaled = true; rRegionLbl.TextXAlignment = Enum.TextXAlignment.Left
 	rRegionLbl.Text = "Region: San Diego Beach"
+	rRegionLbl.ZIndex = 31
 
 	rDistLbl = Instance.new("TextLabel", sbrTopArea)
 	rDistLbl.Size = UDim2.new(0.5, 0, 1, 0); rDistLbl.Position = UDim2.new(0.5, 0, 0, 0)
 	rDistLbl.BackgroundTransparency = 1; rDistLbl.Font = Enum.Font.GothamBlack
 	rDistLbl.TextColor3 = Color3.fromRGB(50, 255, 255); rDistLbl.TextScaled = true
 	rDistLbl.TextXAlignment = Enum.TextXAlignment.Right; rDistLbl.Text = "Distance: 0 / 10000m"
+	rDistLbl.ZIndex = 31
 
 	turnTimerLabel = Instance.new("TextLabel")
 	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
@@ -483,7 +511,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	combatResourceLabel.Font = Enum.Font.GothamBold
 	combatResourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
 	combatResourceLabel.TextScaled = true
-	combatResourceLabel.ZIndex = 22
+	combatResourceLabel.ZIndex = 32
 	combatResourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
 	combatResourceLabel.LayoutOrder = 2 
 	combatResourceLabel.Visible = false
@@ -494,24 +522,29 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	sbrPathArea.Size = UDim2.new(1, 0, 0.35, 0)
 	sbrPathArea.BackgroundTransparency = 1
 	sbrPathArea.LayoutOrder = 5
+	sbrPathArea.ZIndex = 30
 	sbrPathArea.Parent = combatUI.ContentContainer
 
 	local sBg = Instance.new("Frame", sbrPathArea)
 	sBg.Size = UDim2.new(1, 0, 0, 25); sBg.BackgroundColor3 = Color3.fromRGB(40, 20, 20)
+	sBg.ZIndex = 31
 	Instance.new("UICorner", sBg).CornerRadius = UDim.new(0, 6)
 
 	stamFill = Instance.new("Frame", sBg)
-	stamFill.Size = UDim2.new(1, 0, 1, 0); stamFill.BackgroundColor3 = Color3.fromRGB(200, 140, 20)
+	stamFill.Size = UDim2.new(1, 0, 1, 0); stamFill.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+	stamFill.ZIndex = 32
 	Instance.new("UICorner", stamFill).CornerRadius = UDim.new(0, 6)
 
 	stamTxt = Instance.new("TextLabel", sBg)
 	stamTxt.Size = UDim2.new(1, 0, 1, 0); stamTxt.BackgroundTransparency = 1
 	stamTxt.Font = Enum.Font.GothamBold; stamTxt.TextColor3 = Color3.new(1, 1, 1)
-	stamTxt.TextScaled = true; stamTxt.Text = "Horse Stamina: 100/100"; stamTxt.ZIndex = 2
+	stamTxt.TextScaled = true; stamTxt.Text = "Horse Stamina: 100/100"
+	stamTxt.ZIndex = 33
 
 	local pathBtns = Instance.new("Frame", sbrPathArea)
 	pathBtns.Size = UDim2.new(1, 0, 1, -35); pathBtns.Position = UDim2.new(0, 0, 0, 35)
 	pathBtns.BackgroundTransparency = 1
+	pathBtns.ZIndex = 31
 	local pbLayout = Instance.new("UIListLayout", pathBtns)
 	pbLayout.FillDirection = Enum.FillDirection.Horizontal; pbLayout.Padding = UDim.new(0, 10)
 	pbLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; pbLayout.VerticalAlignment = Enum.VerticalAlignment.Center
@@ -519,21 +552,24 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	safeBtn = Instance.new("TextButton", pathBtns)
 	safeBtn.Size = UDim2.new(0.3, 0, 0.8, 0); safeBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
 	safeBtn.Font = Enum.Font.GothamBold; safeBtn.TextColor3 = Color3.new(1,1,1); safeBtn.TextScaled = true
-	safeBtn.Text = "Safe Path\n<font size='12'>Low Risk, Low Distance</font>"; safeBtn.RichText = true
+	safeBtn.Text = "Safe Path"
+	safeBtn.ZIndex = 32
 	Instance.new("UICorner", safeBtn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(safeBtn, 100, 200, 255); Instance.new("UITextSizeConstraint", safeBtn).MaxTextSize = 22
 
 	restBtn = Instance.new("TextButton", pathBtns)
 	restBtn.Size = UDim2.new(0.3, 0, 0.8, 0); restBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
 	restBtn.Font = Enum.Font.GothamBold; restBtn.TextColor3 = Color3.new(1,1,1); restBtn.TextScaled = true
-	restBtn.Text = "Rest\n<font size='12'>0 Distance, Regain Stamina</font>"; restBtn.RichText = true
+	restBtn.Text = "Rest"
+	restBtn.ZIndex = 32
 	Instance.new("UICorner", restBtn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(restBtn, 100, 255, 100); Instance.new("UITextSizeConstraint", restBtn).MaxTextSize = 22
 
 	riskyBtn = Instance.new("TextButton", pathBtns)
 	riskyBtn.Size = UDim2.new(0.3, 0, 0.8, 0); riskyBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
 	riskyBtn.Font = Enum.Font.GothamBold; riskyBtn.TextColor3 = Color3.new(1,1,1); riskyBtn.TextScaled = true
-	riskyBtn.Text = "Risky Path\n<font size='12'>High Distance, Ambush Risk</font>"; riskyBtn.RichText = true
+	riskyBtn.Text = "Risky Path"
+	riskyBtn.ZIndex = 32
 	Instance.new("UICorner", riskyBtn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(riskyBtn, 255, 100, 100); Instance.new("UITextSizeConstraint", riskyBtn).MaxTextSize = 22
 
@@ -546,7 +582,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	waitingLabel.TextScaled = true
 	waitingLabel.Text = "Riding forward..."
 	waitingLabel.Visible = false
-	waitingLabel.ZIndex = 22
+	waitingLabel.ZIndex = 30
 	waitingLabel.LayoutOrder = 6
 	waitingLabel.Parent = combatUI.ContentContainer
 	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
@@ -556,11 +592,11 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		combatUI.AbilitiesArea.Visible = inCombat
 		combatResourceLabel.Visible = inCombat
 		turnTimerLabel.Visible = inCombat
-
+		sbrTopArea.Visible = not inCombat
 		sbrPathArea.Visible = not inCombat
 		waitingLabel.Visible = false
 
-		if combatUI.ChatScroll then
+		if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
 			if inCombat then
 				combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.18, 0)
 			else
@@ -571,9 +607,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	local function RequestPath(typeStr)
 		SFXManager.Play("Click")
-		sbrPathArea.Visible = false
-		waitingLabel.Text = "Riding forward..."
-		waitingLabel.Visible = true
 		Network.SBRAction:FireServer("TakePath", typeStr)
 	end
 
@@ -592,9 +625,12 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 				if left > 0 then
 					upgTimerLbl.Text = "Upgrading... " .. FormatTime(left)
 					upgTimerLbl.Visible = true
+					upgSpeedBtn.Visible = false
+					upgEndBtn.Visible = false
 				else
 					upgTimerLbl.Text = ""
 					upgTimerLbl.Visible = false
+					UpdateStableUI()
 				end
 			else
 				upgTimerLbl.Text = ""
@@ -604,12 +640,22 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 			if currentCycleTime < 1800 then
 				timerLbl.Text = "RACE IN PROGRESS\n<font color='#FF5555'>" .. FormatTime(1800 - currentCycleTime) .. "</font> Left!"
 				queueCountLbl.Text = "Event is currently active."
-				queueBtn.Visible = false
+
+				if isStudio then
+					queueBtn.Visible = true
+					queueBtn.Text = "Force Join (Studio)"
+					queueBtn.BackgroundColor3 = Color3.fromRGB(180, 120, 20)
+					forceStartBtn.Visible = false
+				else
+					queueBtn.Visible = false
+					forceStartBtn.Visible = false
+				end
 			else
 				timerLbl.Text = "NEXT RACE IN\n<font color='#55FF55'>" .. FormatTime(3600 - currentCycleTime) .. "</font>"
 				queueBtn.Visible = true
 				queueBtn.Text = inQueue and "Leave Queue" or "Join Event Queue"
 				queueBtn.BackgroundColor3 = inQueue and Color3.fromRGB(140, 40, 40) or Color3.fromRGB(50, 150, 50)
+				forceStartBtn.Visible = isStudio
 			end
 		end
 	end)
@@ -707,6 +753,15 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 		table.sort(valid, function(a, b) return (a.Data.Order or 99) < (b.Data.Order or 99) end)
 
+		local function submitAttack(skName)
+			SFXManager.Play("Click")
+			cachedTooltipMgr.Hide()
+			combatUI.AbilitiesArea.Visible = false
+			waitingLabel.Text = "Waiting for opponent..."
+			waitingLabel.Visible = true
+			Network.SBRAction:FireServer("CombatAttack", skName) 
+		end
+
 		for _, sk in ipairs(valid) do
 			local c = sk.Data.Type == "Stand" and Color3.fromRGB(120, 20, 160) or (sk.Data.Type == "Style" and Color3.fromRGB(180, 80, 20) or Color3.fromRGB(60, 60, 80))
 			local btn = combatUI:AddAbility(sk.Name, c, nil)
@@ -716,7 +771,9 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 			if pData.Stamina < (sk.Data.StaminaCost or 0) or pData.StandEnergy < (sk.Data.EnergyCost or 0) or currentCooldown > 0 then
 				btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 				btn.TextColor3 = Color3.new(0.5, 0.5, 0.5)
-				if currentCooldown > 0 then btn.Text = sk.Name .. " (" .. currentCooldown .. ")" end
+				if currentCooldown > 0 then 
+					btn.Text = sk.Name .. " (" .. currentCooldown .. ")" 
+				end
 			else
 				if sk.Name == "Flee" then
 					local isConfirmingFlee = false
@@ -727,28 +784,21 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 							btn.Text = "Confirm Flee?"
 							btn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
 							task.delay(3, function()
-								if isConfirmingFlee and btn and btn.Parent then
+								if isConfirmingFlee then
 									isConfirmingFlee = false
-									btn.Text = sk.Name
-									btn.BackgroundColor3 = c
+									if btn and btn.Parent then
+										btn.Text = sk.Name
+										btn.BackgroundColor3 = c
+									end
 								end
 							end)
 						else
-							cachedTooltipMgr.Hide()
-							combatUI.AbilitiesArea.Visible = false
-							waitingLabel.Text = "Waiting for opponent..."
-							waitingLabel.Visible = true
-							Network.SBRAction:FireServer("CombatAttack", sk.Name) 
+							submitAttack(sk.Name)
 						end
 					end)
 				else
 					btn.MouseButton1Click:Connect(function() 
-						SFXManager.Play("Click")
-						cachedTooltipMgr.Hide()
-						combatUI.AbilitiesArea.Visible = false
-						waitingLabel.Text = "Waiting for opponent..."
-						waitingLabel.Visible = true
-						Network.SBRAction:FireServer("CombatAttack", sk.Name) 
+						submitAttack(sk.Name)
 					end)
 				end
 			end
@@ -768,7 +818,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 			lobbyContainer.Visible = false; raceContainer.Visible = true
 			currentDeadline = 0
 			combatUI.ChatText.Text = ""
-			combatUI:Log("<font color='#FFD700'><b>THE RACE HAS BEGUN!</b></font>")
+			AppendLog("<font color='#FFD700'><b>THE RACE HAS BEGUN!</b></font>")
 			rDistLbl.Text = "Distance: 0 / 10000m"
 			rRegionLbl.Text = "Region: San Diego Beach"
 
@@ -779,7 +829,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 			SetCombatMode(false)
 
 		elseif action == "PathResult" then
-			combatUI:Log(data.Log)
+			AppendLog(data.Log)
 			rDistLbl.Text = "Distance: " .. data.Dist .. " / 10000m"
 			rRegionLbl.Text = "Region: " .. data.Region
 			local maxS = stamTxt.Text:split("/")[2]
@@ -790,7 +840,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 			sbrPathArea.Visible = true
 
 		elseif action == "CombatStart" then
-			combatUI:Log(data.LogMsg)
+			AppendLog(data.LogMsg)
 			currentDeadline = data.Deadline or 0
 			SetCombatMode(true)
 			UpdateCombatState(data)
@@ -804,8 +854,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 				waitingLabel.Text = "Combat is playing out..."
 				waitingLabel.Visible = true
 
-				local lines = string.split(data.LogMsg, "\n")
-				for _, line in ipairs(lines) do if line ~= "" then combatUI:Log(line) end end
+				AppendLog(data.LogMsg)
 
 				if string.find(data.LogMsg, "dodged!") then SFXManager.Play("CombatDodge")
 				elseif string.find(data.LogMsg, "Blocked") then SFXManager.Play("CombatBlock")
@@ -843,13 +892,13 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		elseif action == "CombatEnd" then
 			SFXManager.Play("CombatVictory")
 			currentDeadline = 0
-			combatUI:Log("<font color='#55FF55'><b>" .. data .. "</b></font>")
+			AppendLog("<font color='#55FF55'><b>" .. data .. "</b></font>")
 			SetCombatMode(false)
 
 		elseif action == "Eliminated" then
 			SFXManager.Play("CombatDefeat")
 			currentDeadline = 0
-			combatUI:Log("<font color='#FF5555'><b>" .. data .. " YOU HAVE BEEN ELIMINATED!</b></font>")
+			AppendLog("<font color='#FF5555'><b>" .. data .. " YOU HAVE BEEN ELIMINATED!</b></font>")
 			SetCombatMode(false)
 			sbrPathArea.Visible = false
 			inQueue = false
@@ -858,14 +907,14 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		elseif action == "Finished" then
 			SFXManager.Play("CombatVictory")
 			currentDeadline = 0
-			combatUI:Log("<font color='#55FFFF'><b>YOU CROSSED THE FINISH LINE IN " .. data .. " PLACE!</b></font>")
+			AppendLog("<font color='#55FFFF'><b>YOU CROSSED THE FINISH LINE IN " .. data .. " PLACE!</b></font>")
 			SetCombatMode(false)
 			sbrPathArea.Visible = false
 			inQueue = false
 
 		elseif action == "RaceEnded" then
 			currentDeadline = 0
-			combatUI:Log("<font color='#FFD700'><b>THE RACE IS OVER!</b></font>")
+			AppendLog("<font color='#FFD700'><b>THE RACE IS OVER!</b></font>")
 			SetCombatMode(false)
 			sbrPathArea.Visible = false
 			inQueue = false
