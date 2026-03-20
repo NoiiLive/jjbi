@@ -11,8 +11,8 @@ local UIModules = script.Parent
 -- local GangsTab = require(UIModules:WaitForChild("GangsTab"))
 -- local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
 -- local TradingTab = require(UIModules:WaitForChild("TradingTab"))
--- local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
 
+local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
 local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
 local LeaderboardTab = require(UIModules:WaitForChild("LeaderboardTab"))
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
@@ -218,8 +218,8 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	end
 
 	local gangsFrame = CreateSubFrame("GangsFrame", true)
-	local sbrFrame = CreateSubFrame("SbrFrame", true)
-	local raidsFrame = CreateSubFrame("RaidsFrame", false) -- Raids receives 0 Padding so it matches StoryTab exactly
+	local sbrFrame = CreateSubFrame("SbrFrame", false) -- SBR uses CombatTemplate, needs 0 Padding
+	local raidsFrame = CreateSubFrame("RaidsFrame", false) 
 	local arenaFrame = CreateSubFrame("ArenaFrame", true)
 	local tradeFrame = CreateSubFrame("TradeFrame", true)
 	local lbFrame = CreateSubFrame("LbFrame", true)
@@ -330,7 +330,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
 	-- pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
 	pcall(function() LeaderboardTab.Init(lbFrame, tooltipMgr) end)
-	-- pcall(function() SBREventTab.Init(sbrFrame, tooltipMgr, function() ForceSubTabFocus("Event") end) end)
+	pcall(function() SBREventTab.Init(sbrFrame, tooltipMgr, function() ForceSubTabFocus("Event") end) end)
 
 	MultiplayerTab.HandleGangUpdate = function() end
 	MultiplayerTab.HandleArenaUpdate = function() end
