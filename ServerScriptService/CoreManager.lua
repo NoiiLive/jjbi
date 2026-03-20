@@ -71,7 +71,6 @@ if not saveEvent then
 	saveEvent.Parent = ReplicatedStorage
 end
 
--- Create the SBR Robux Reroll BindableEvent to prevent Infinite Yields
 local sbrRerollEvent = ReplicatedStorage:FindFirstChild("SBRRobuxReroll")
 if not sbrRerollEvent then
 	sbrRerollEvent = Instance.new("BindableEvent")
