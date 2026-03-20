@@ -54,7 +54,7 @@ local StatusDescs = {
 	Confusion = "May attack allies or self.", Buff_Strength = "Increased damage dealt.",
 	Buff_Defense = "Reduced damage taken.", Buff_Speed = "Increased evasion and turn priority.",
 	Buff_Willpower = "Increased crit and survival chance.", Debuff_Strength = "Reduced damage dealt.",
-	Buff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
+	Debuff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance."
 }
 
@@ -354,14 +354,13 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	turnTimerLabel = Instance.new("TextLabel")
 	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
-	turnTimerLabel.Position = UDim2.new(0, 0, 0, -5)
+	turnTimerLabel.Position = UDim2.new(0, 0, 0, -30) 
 	turnTimerLabel.BackgroundTransparency = 1
 	turnTimerLabel.Font = Enum.Font.GothamBlack
 	turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 	turnTimerLabel.TextScaled = true
 	turnTimerLabel.ZIndex = 50
 	turnTimerLabel.Text = "Time Remaining: --s"
-	turnTimerLabel.LayoutOrder = -1 
 	turnTimerLabel.Visible = false
 	turnTimerLabel.Parent = combatUI.MainFrame
 	Instance.new("UITextSizeConstraint", turnTimerLabel).MaxTextSize = 26
@@ -433,6 +432,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	betInput.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
 	betInput.TextColor3 = Color3.fromRGB(255, 215, 0)
 	betInput.Font = Enum.Font.GothamBold
+	betInput.Text = ""
 	betInput.PlaceholderText = "Bet Amount..."
 	betInput.TextScaled = true; betInput.LayoutOrder = 1; betInput.ZIndex = 32
 	Instance.new("UICorner", betInput).CornerRadius = UDim.new(0, 8)
@@ -457,6 +457,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	betT1Btn.Size = UDim2.new(1, 0, 0.6, 0)
 	betT1Btn.BackgroundColor3 = Color3.fromRGB(40, 100, 180)
 	betT1Btn.Font = Enum.Font.GothamBold; betT1Btn.TextColor3 = Color3.new(1,1,1)
+	betT1Btn.Text = "Bet Team 1"
 	betT1Btn.TextScaled = true; betT1Btn.LayoutOrder = 1; betT1Btn.ZIndex = 32
 	Instance.new("UICorner", betT1Btn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(betT1Btn, 100, 150, 255)
@@ -477,6 +478,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	betT2Btn.Size = UDim2.new(1, 0, 0.6, 0)
 	betT2Btn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
 	betT2Btn.Font = Enum.Font.GothamBold; betT2Btn.TextColor3 = Color3.new(1,1,1)
+	betT2Btn.Text = "Bet Team 2"
 	betT2Btn.TextScaled = true; betT2Btn.LayoutOrder = 1; betT2Btn.ZIndex = 32
 	Instance.new("UICorner", betT2Btn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(betT2Btn, 255, 100, 100)
@@ -701,6 +703,9 @@ function ArenaTab.HandleUpdate(action, data)
 		lobbyContainer.Visible = false
 		combatContainer.Visible = true
 
+		for fid, fObj in pairs(activeFighters) do if fObj.Frame then fObj.Frame:Destroy() end end
+		activeFighters = {}
+
 		isSpectating = data.State.IsSpectator
 		currentMatchId = data.State.MatchId
 
@@ -724,11 +729,17 @@ function ArenaTab.HandleUpdate(action, data)
 		isSpectating = true
 		currentMatchId = data.MatchId
 
+		for fid, fObj in pairs(activeFighters) do if fObj.Frame then fObj.Frame:Destroy() end end
+		activeFighters = {}
+
 		task.delay(0.05, function()
 			if ArenaTab.SetCombatMode then ArenaTab.SetCombatMode(true, true) end
 
 			combatUI.ChatText.Text = ""
-			AppendLog("<font color='#55FFFF'><b>SPECTATING: " .. data.State.P1.Name .. " VS " .. data.State.P2.Name .. "</b></font>")
+
+			local t1Name = data.State.MyTeam[1] and data.State.MyTeam[1].Name or "Team 1"
+			local t2Name = data.State.EnemyTeam[1] and data.State.EnemyTeam[1].Name or "Team 2"
+			AppendLog("<font color='#55FFFF'><b>SPECTATING: " .. t1Name .. " VS " .. t2Name .. "</b></font>")
 
 			betInput.Text = ""
 			betInput.Visible = true
@@ -905,7 +916,7 @@ function ArenaTab.UpdateCombatState(state)
 				local stroke = fObj.Frame:FindFirstChildOfClass("UIStroke")
 				if stroke then
 					if pData.UserId == selectedTargetId then
-						stroke.Color = Color3.fromRGB(255, 215, 0)
+						stroke.Color = Color3.fromRGB(50, 150, 255) 
 						stroke.Thickness = 2
 					else
 						stroke.Color = Color3.fromRGB(90, 50, 120) 
