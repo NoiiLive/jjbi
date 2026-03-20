@@ -116,6 +116,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 	UpdateLayoutForScreen()
 
+	-- INNER CONTENT REWRITE (Matches CombatTab structure exactly)
 	local innerContent = Instance.new("Frame")
 	innerContent.Name = "InnerContent"
 	innerContent.Size = UDim2.new(1, 0, 1, 0)
@@ -123,30 +124,18 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	innerContent.ZIndex = 17
 	innerContent.Parent = mainPanel
 
-	local mainPad = Instance.new("UIPadding")
-	mainPad.PaddingTop = UDim.new(0.02, 0)
-	mainPad.PaddingBottom = UDim.new(0.02, 0)
-	mainPad.PaddingLeft = UDim.new(0.02, 0)
-	mainPad.PaddingRight = UDim.new(0.02, 0)
-	mainPad.Parent = innerContent
-
-	local mainLayout = Instance.new("UIListLayout")
-	mainLayout.FillDirection = Enum.FillDirection.Vertical
-	mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	mainLayout.Padding = UDim.new(0.02, 0)
-	mainLayout.Parent = innerContent
-
 	local subNavFrame = Instance.new("Frame")
 	subNavFrame.Name = "SubNavFrame"
-	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
+	subNavFrame.Size = UDim2.new(1, 0, 0, 55)
 	subNavFrame.BackgroundTransparency = 1
-	subNavFrame.LayoutOrder = 1
+	subNavFrame.ZIndex = 20
 	subNavFrame.Parent = innerContent
 
 	local subNavL = Instance.new("UIListLayout")
 	subNavL.FillDirection = Enum.FillDirection.Horizontal
 	subNavL.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	subNavL.Padding = UDim.new(0.015, 0)
+	subNavL.VerticalAlignment = Enum.VerticalAlignment.Center
+	subNavL.Padding = UDim.new(0, 10)
 	subNavL.SortOrder = Enum.SortOrder.LayoutOrder
 	subNavL.Parent = subNavFrame
 
@@ -154,7 +143,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
 		btn.LayoutOrder = order
-		btn.Size = UDim2.new(0.15, 0, 1, 0)
+		btn.Size = UDim2.new(0.15, 0, 0.85, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
@@ -173,6 +162,11 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		bStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		bStr.Parent = btn
 
+		local bPad = Instance.new("UIPadding")
+		bPad.PaddingTop = UDim.new(0, 5)
+		bPad.PaddingBottom = UDim.new(0, 5)
+		bPad.Parent = btn
+
 		local bUic = Instance.new("UITextSizeConstraint")
 		bUic.MaxTextSize = 14
 		bUic.Parent = btn
@@ -187,11 +181,13 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local tradeBtn, tStroke = CreateSubNavButton("TradeBtn", "TRADING", 5)
 	local lbBtn, lStroke = CreateSubNavButton("LbBtn", "RANKS", 6)
 
+	-- TAB CONTAINER (Offset matches CombatTab)
 	local tabContainer = Instance.new("Frame")
 	tabContainer.Name = "TabContainer"
-	tabContainer.Size = UDim2.new(1, 0, 0.90, 0)
+	tabContainer.Size = UDim2.new(1, 0, 1, -75)
+	tabContainer.Position = UDim2.new(0, 0, 0, 75)
 	tabContainer.BackgroundTransparency = 1
-	tabContainer.LayoutOrder = 2
+	tabContainer.ZIndex = 17
 	tabContainer.Parent = innerContent
 
 	local function CreateSubFrame(name)
