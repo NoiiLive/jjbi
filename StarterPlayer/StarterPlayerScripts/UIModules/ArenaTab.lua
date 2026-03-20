@@ -703,11 +703,11 @@ function ArenaTab.HandleUpdate(action, data)
 		lobbyContainer.Visible = false
 		combatContainer.Visible = true
 
-		for fid, fObj in pairs(activeFighters) do if fObj.Frame then fObj.Frame:Destroy() end end
-		activeFighters = {}
-
 		isSpectating = data.State.IsSpectator
 		currentMatchId = data.State.MatchId
+
+		for fid, fObj in pairs(activeFighters) do if fObj.Frame then fObj.Frame:Destroy() end end
+		activeFighters = {}
 
 		task.delay(0.05, function()
 			if ArenaTab.SetCombatMode then ArenaTab.SetCombatMode(true, false) end
@@ -914,6 +914,12 @@ function ArenaTab.UpdateCombatState(state)
 		if not isSpectating then
 			if fObj.Frame then
 				local stroke = fObj.Frame:FindFirstChildOfClass("UIStroke")
+				if not stroke then
+					stroke = Instance.new("UIStroke")
+					stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					stroke.Parent = fObj.Frame
+				end
+
 				if stroke then
 					if pData.UserId == selectedTargetId then
 						stroke.Color = Color3.fromRGB(50, 150, 255) 
@@ -933,7 +939,22 @@ function ArenaTab.UpdateCombatState(state)
 								if pData.HP > 0 and selectedTargetId ~= pData.UserId then
 									SFXManager.Play("Click")
 									selectedTargetId = pData.UserId
-									ArenaTab.UpdateCombatState(state) 
+
+									for _, eData in ipairs(state.EnemyTeam) do
+										local eObj = activeFighters[tostring(eData.UserId)]
+										if eObj and eObj.Frame then
+											local eStroke = eObj.Frame:FindFirstChildOfClass("UIStroke")
+											if eStroke then
+												if eData.UserId == selectedTargetId then
+													eStroke.Color = Color3.fromRGB(50, 150, 255)
+													eStroke.Thickness = 2
+												else
+													eStroke.Color = Color3.fromRGB(90, 50, 120)
+													eStroke.Thickness = 1
+												end
+											end
+										end
+									end
 								end
 							end
 						end)
@@ -1034,10 +1055,12 @@ function ArenaTab.RenderSkills(state)
 						btn.Text = "Confirm Flee?"
 						btn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
 						task.delay(3, function()
-							if isConfirmingFlee and btn and btn.Parent then
+							if isConfirmingFlee then
 								isConfirmingFlee = false
-								btn.Text = sk.Name
-								btn.BackgroundColor3 = c
+								if btn and btn.Parent then
+									btn.Text = sk.Name
+									btn.BackgroundColor3 = c
+								end
 							end
 						end)
 					else
