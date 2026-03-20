@@ -138,7 +138,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lobbyContainer.Visible = true
 	lobbyContainer.Parent = mainContainer
 
-	-- LEFT PANEL (Profile & Host Setup)
+	-- LEFT PANEL
 	profileCard = CreateCard("ProfileCard", lobbyContainer, UDim2.new(0.30, 0, 1, 0), UDim2.new(0, 0, 0, 0))
 	local pPad = Instance.new("UIPadding", profileCard)
 	pPad.PaddingTop = UDim.new(0.04, 0); pPad.PaddingBottom = UDim.new(0.04, 0)
@@ -271,8 +271,8 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local oqLayout = Instance.new("UIListLayout", openQueuesScroll); oqLayout.SortOrder = Enum.SortOrder.LayoutOrder; oqLayout.Padding = UDim.new(0, 10)
 
 	local oqInnerPad = Instance.new("UIPadding", openQueuesScroll)
-	oqInnerPad.PaddingTop = UDim.new(0, 5); oqInnerPad.PaddingBottom = UDim.new(0, 5)
-	oqInnerPad.PaddingLeft = UDim.new(0, 5); oqInnerPad.PaddingRight = UDim.new(0, 12)
+	oqInnerPad.PaddingTop = UDim.new(0, 4); oqInnerPad.PaddingBottom = UDim.new(0, 4)
+	oqInnerPad.PaddingLeft = UDim.new(0, 4); oqInnerPad.PaddingRight = UDim.new(0, 12)
 
 	activeMatchesCard = CreateCard("ActiveMatchesCard", rightPanel, UDim2.new(1, 0, 0.48, 0), UDim2.new(0, 0, 0.52, 0))
 	local amPad = Instance.new("UIPadding", activeMatchesCard)
@@ -296,8 +296,8 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local amLayout = Instance.new("UIListLayout", activeMatchesScroll); amLayout.SortOrder = Enum.SortOrder.LayoutOrder; amLayout.Padding = UDim.new(0, 10)
 
 	local amInnerPad = Instance.new("UIPadding", activeMatchesScroll)
-	amInnerPad.PaddingTop = UDim.new(0, 5); amInnerPad.PaddingBottom = UDim.new(0, 5)
-	amInnerPad.PaddingLeft = UDim.new(0, 5); amInnerPad.PaddingRight = UDim.new(0, 12)
+	amInnerPad.PaddingTop = UDim.new(0, 4); amInnerPad.PaddingBottom = UDim.new(0, 4)
+	amInnerPad.PaddingLeft = UDim.new(0, 4); amInnerPad.PaddingRight = UDim.new(0, 12)
 
 	-- ==========================================================
 	-- BUTTON LOGIC (Host Setup)
@@ -354,50 +354,24 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	turnTimerLabel = Instance.new("TextLabel")
 	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
-	turnTimerLabel.Position = UDim2.new(0, 0, 0, -5)
 	turnTimerLabel.BackgroundTransparency = 1
 	turnTimerLabel.Font = Enum.Font.GothamBlack
 	turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 	turnTimerLabel.TextScaled = true
 	turnTimerLabel.ZIndex = 30
 	turnTimerLabel.Text = "Time Remaining: --s"
-	turnTimerLabel.Parent = combatUI.MainFrame
-
-	combatResourceLabel = Instance.new("TextLabel")
-	combatResourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	combatResourceLabel.BackgroundTransparency = 1
-	combatResourceLabel.Font = Enum.Font.GothamBold
-	combatResourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	combatResourceLabel.TextScaled = true
-	combatResourceLabel.ZIndex = 22
-	combatResourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
-	combatResourceLabel.LayoutOrder = 2 
-	combatResourceLabel.Visible = false
-	combatResourceLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", combatResourceLabel).MaxTextSize = 18
-
-	waitingLabel = Instance.new("TextLabel")
-	waitingLabel.Name = "WaitingLabel"
-	waitingLabel.Size = UDim2.new(1, 0, 0.25, 0)
-	waitingLabel.BackgroundTransparency = 1
-	waitingLabel.Font = Enum.Font.GothamMedium
-	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	waitingLabel.TextScaled = true
-	waitingLabel.Text = "Waiting for opponent..."
-	waitingLabel.Visible = false
-	waitingLabel.ZIndex = 22
-	waitingLabel.LayoutOrder = 6
-	waitingLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
+	turnTimerLabel.LayoutOrder = -1 -- Forces the text label to sit at the absolute top of the container
+	turnTimerLabel.Visible = false
+	turnTimerLabel.Parent = combatUI.ContentContainer
 
 	-- ==========================================================
 	-- BETTING AREA (Spectator Mode)
 	-- ==========================================================
 	bettingArea = Instance.new("Frame")
 	bettingArea.Name = "BettingArea"
-	bettingArea.Size = UDim2.new(1, 0, 0.20, 0)
-	bettingArea.Position = UDim2.new(0, 0, 0.80, 0) -- Fixed Position so it correctly mimics AbilitiesArea
+	bettingArea.Size = UDim2.new(1, 0, 0.12, 0)
 	bettingArea.BackgroundTransparency = 1
+	bettingArea.LayoutOrder = 0 -- Forces the betting area to stack immediately below the turn timer
 	bettingArea.ZIndex = 32
 	bettingArea.Visible = false
 	bettingArea.Parent = combatUI.ContentContainer
@@ -506,6 +480,44 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	betT1Btn.MouseButton1Click:Connect(function() TryPlaceBet(1) end)
 	betT2Btn.MouseButton1Click:Connect(function() TryPlaceBet(2) end)
 
+	combatResourceLabel = Instance.new("TextLabel")
+	combatResourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
+	combatResourceLabel.BackgroundTransparency = 1
+	combatResourceLabel.Font = Enum.Font.GothamBold
+	combatResourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
+	combatResourceLabel.TextScaled = true
+	combatResourceLabel.ZIndex = 22
+	combatResourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
+	combatResourceLabel.LayoutOrder = 2 
+	combatResourceLabel.Visible = false
+	combatResourceLabel.Parent = combatUI.ContentContainer
+	Instance.new("UITextSizeConstraint", combatResourceLabel).MaxTextSize = 18
+
+	waitingLabel = Instance.new("TextLabel")
+	waitingLabel.Name = "WaitingLabel"
+	waitingLabel.Size = UDim2.new(1, 0, 0.25, 0)
+	waitingLabel.BackgroundTransparency = 1
+	waitingLabel.Font = Enum.Font.GothamMedium
+	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+	waitingLabel.TextScaled = true
+	waitingLabel.Text = "Waiting for opponent..."
+	waitingLabel.Visible = false
+	waitingLabel.ZIndex = 22
+	waitingLabel.LayoutOrder = 6
+	waitingLabel.Parent = combatUI.ContentContainer
+	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
+
+	task.spawn(function()
+		while task.wait(0.2) do
+			if combatContainer.Visible and currentDeadline > 0 then
+				local remain = math.max(0, currentDeadline - os.time())
+				turnTimerLabel.Text = "Time Remaining: " .. remain .. "s"
+				if remain <= 5 then turnTimerLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+				else turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0) end
+			end
+		end
+	end)
+
 	mainContainer:GetPropertyChangedSignal("Visible"):Connect(function()
 		if mainContainer.Visible and lobbyContainer.Visible then Network.ArenaAction:FireServer("RequestLobbies") end
 	end)
@@ -550,7 +562,7 @@ function ArenaTab.HandleUpdate(action, data)
 		end
 
 		for i, lobby in ipairs(data) do
-			local row = CreateCard("QRow_"..i, openQueuesScroll, UDim2.new(1, 0, 0, 60))
+			local row = CreateCard("QRow_"..i, openQueuesScroll, UDim2.new(1, -4, 0, 60))
 			row.LayoutOrder = i
 			local rowPad = Instance.new("UIPadding", row)
 			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
@@ -628,7 +640,7 @@ function ArenaTab.HandleUpdate(action, data)
 		end
 
 		for i, match in ipairs(data) do
-			local row = CreateCard("MRow_"..i, activeMatchesScroll, UDim2.new(1, 0, 0, 60))
+			local row = CreateCard("MRow_"..i, activeMatchesScroll, UDim2.new(1, -4, 0, 60))
 			row.LayoutOrder = i
 			local rowPad = Instance.new("UIPadding", row)
 			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
@@ -687,11 +699,11 @@ function ArenaTab.HandleUpdate(action, data)
 				pool2Lbl.Text = "Pool 2: ¥" .. (data.State.Pool2 or 0)
 
 				if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
-					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.18, 0)
+					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.40, 0)
 				end
 			else
 				if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
-					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.40, 0)
+					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.18, 0)
 				end
 			end
 
@@ -704,41 +716,6 @@ function ArenaTab.HandleUpdate(action, data)
 				combatUI.AbilitiesArea.Visible = true
 				ArenaTab.RenderSkills(data.State) 
 			end
-		end)
-
-	elseif action == "SpectateStart" then
-		if forceTabFocus then forceTabFocus() end
-		lobbyContainer.Visible = false
-		combatContainer.Visible = true
-		isSpectating = true
-		currentMatchId = data.MatchId
-
-		task.delay(0.05, function()
-			combatUI.AlliesContainer.Parent.Visible = true
-			combatUI.AbilitiesArea.Visible = false
-			combatResourceLabel.Visible = false
-			bettingArea.Visible = true
-			turnTimerLabel.Visible = true
-
-			combatUI.ChatText.Text = ""
-			AppendLog("<font color='#55FFFF'><b>SPECTATING: " .. data.State.P1.Name .. " VS " .. data.State.P2.Name .. "</b></font>")
-
-			betInput.Text = ""
-			betInput.Visible = true
-			betT1Btn.Text = "Bet Team 1"
-			betT1Btn.Visible = true
-			betT2Btn.Text = "Bet Team 2"
-			betT2Btn.Visible = true
-			bettingStatusLbl.Visible = false
-
-			pool1Lbl.Text = "Pool 1: ¥" .. (data.State.Pool1 or 0)
-			pool2Lbl.Text = "Pool 2: ¥" .. (data.State.Pool2 or 0)
-
-			if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
-				combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.18, 0)
-			end
-
-			ArenaTab.UpdateCombatState(data.State)
 		end)
 
 	elseif action == "Waiting" then
@@ -815,6 +792,15 @@ function ArenaTab.HandleUpdate(action, data)
 				combatUI.AbilitiesArea.Visible = true
 				ArenaTab.RenderSkills(data.State)
 			end
+		end
+
+	elseif action == "CombatUpdateState" then
+		currentDeadline = data.Deadline or 0
+		ArenaTab.UpdateCombatState(data.State)
+
+		if not isSpectating then 
+			combatUI.AbilitiesArea.Visible = true
+			ArenaTab.RenderSkills(data.State) 
 		end
 
 	elseif action == "MatchOver" then
