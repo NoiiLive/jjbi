@@ -9,9 +9,9 @@ local UIModules = script.Parent
 
 -- Temporarily disabled
 -- local GangsTab = require(UIModules:WaitForChild("GangsTab"))
--- local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
 -- local TradingTab = require(UIModules:WaitForChild("TradingTab"))
 
+local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
 local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
 local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
 local LeaderboardTab = require(UIModules:WaitForChild("LeaderboardTab"))
@@ -97,9 +97,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
-	-- ========================================================
-	-- COMBAT-TAB MATCHING LAYOUT
-	-- ========================================================
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
 	subNav.Size = UDim2.new(1, 0, 0, 55)
@@ -187,7 +184,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local tradeBtn, tStroke = CreateSubNavButton("TradeBtn", "TRADING", 5)
 	local lbBtn, lStroke = CreateSubNavButton("LbBtn", "RANKS", 6)
 
-	-- TAB CONTAINER (Absolute 75px offset matches CombatTab exactly)
 	local tabContainer = Instance.new("Frame")
 	tabContainer.Name = "TabContainer"
 	tabContainer.Size = UDim2.new(1, 0, 1, -75)
@@ -204,7 +200,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		frame.Visible = false
 		frame.Parent = tabContainer
 
-		-- Inject padding only for non-combat menus so they don't hug the absolute edge
 		if needsPadding then
 			local pad = Instance.new("UIPadding")
 			pad.PaddingTop = UDim.new(0.02, 0)
@@ -218,9 +213,9 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	end
 
 	local gangsFrame = CreateSubFrame("GangsFrame", true)
-	local sbrFrame = CreateSubFrame("SbrFrame", false) -- SBR uses CombatTemplate, needs 0 Padding
+	local sbrFrame = CreateSubFrame("SbrFrame", false) 
 	local raidsFrame = CreateSubFrame("RaidsFrame", false) 
-	local arenaFrame = CreateSubFrame("ArenaFrame", true)
+	local arenaFrame = CreateSubFrame("ArenaFrame", false) 
 	local tradeFrame = CreateSubFrame("TradeFrame", true)
 	local lbFrame = CreateSubFrame("LbFrame", true)
 
@@ -326,14 +321,14 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	-- INIT SUB MODULES
 	-- ==========================================
 	-- pcall(function() GangsTab.Init(gangsFrame, tooltipMgr) end)
-	-- pcall(function() ArenaTab.Init(arenaFrame, tooltipMgr, function() ForceSubTabFocus("Arena") end) end)
+	pcall(function() ArenaTab.Init(arenaFrame, tooltipMgr, function() ForceSubTabFocus("Arena") end) end)
 	pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
 	-- pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
 	pcall(function() LeaderboardTab.Init(lbFrame, tooltipMgr) end)
 	pcall(function() SBREventTab.Init(sbrFrame, tooltipMgr, function() ForceSubTabFocus("Event") end) end)
 
 	MultiplayerTab.HandleGangUpdate = function() end
-	MultiplayerTab.HandleArenaUpdate = function() end
+	MultiplayerTab.HandleArenaUpdate = ArenaTab.HandleUpdate or function() end
 	MultiplayerTab.HandleTradeUpdate = function() end
 	MultiplayerTab.HandleRaidUpdate = RaidsTab.HandleUpdate or function() end
 end
