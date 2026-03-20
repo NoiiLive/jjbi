@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
@@ -7,6 +8,9 @@ local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 
 local ShopAction = Network:WaitForChild("ShopAction")
 local ShopUpdate = Network:WaitForChild("ShopUpdate")
+
+local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
+NotificationEvent.Name = "NotificationEvent"
 
 local function RollItem(forcedRarity)
 	local targetRarity = "Common"
@@ -92,7 +96,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		if data == "Deny" then
 			player:SetAttribute("PendingShopStand", nil)
 			player:SetAttribute("PendingShopTrait", nil)
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You declined the gifted Stand.</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You declined the gifted Stand.</font>")
 			return
 		end
 
@@ -127,7 +131,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 
 		player:SetAttribute("PendingShopStand", nil)
 		player:SetAttribute("PendingShopTrait", nil)
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>Successfully claimed " .. pendingStand .. " to " .. data .. "!</font>")
+		NotificationEvent:FireClient(player, "<font color='#55FF55'>Successfully claimed " .. pendingStand .. " to " .. data .. "!</font>")
 		return
 	end
 
@@ -137,7 +141,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 
 		if data == "Deny" then
 			player:SetAttribute("PendingShopStyle", nil)
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You declined the gifted Style.</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You declined the gifted Style.</font>")
 			return
 		end
 
@@ -152,7 +156,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		end
 
 		player:SetAttribute("PendingShopStyle", nil)
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF8C00'>Successfully claimed " .. pendingStyle .. " to " .. data .. "!</font>")
+		NotificationEvent:FireClient(player, "<font color='#FF8C00'>Successfully claimed " .. pendingStyle .. " to " .. data .. "!</font>")
 		return
 	end
 
@@ -173,7 +177,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 
 		local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka" or itemName == "Heavenly Stand Disc")
 		if not isIgnored and GameData.GetInventoryCount(player) >= GameData.GetMaxInventory(player) then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Inventory Full!</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Inventory Full!</font>")
 			return
 		end
 
@@ -187,9 +191,9 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
 			table.remove(stockList, itemIndex)
 			player:SetAttribute("ShopStock", table.concat(stockList, ","))
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "Purchased " .. itemName .. "!")
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Purchased " .. itemName .. "!</font>")
 		else
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Not enough Yen!</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen!</font>")
 		end
 
 	elseif action == "RestockYen" then
@@ -200,9 +204,9 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Yen", cost) end
 
 			player:SetAttribute("ShopRefreshTime", 0) 
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>Restocked Shop for 50k Yen!</font>")
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Restocked Shop for 50k Yen!</font>")
 		else
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Not enough Yen to restock!</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen to restock!</font>")
 		end
 
 	elseif action == "Sell" then
@@ -211,7 +215,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		local lockedItems = player:GetAttribute("LockedItems") or ""
 		local isLocked = table.find(string.split(lockedItems, ","), itemName) ~= nil
 		if isLocked then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Cannot sell a locked item!</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell a locked item!</font>")
 			return
 		end
 
@@ -230,7 +234,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 				end
 			end
 			yen.Value += sellPrice
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>Sold " .. itemName .. " for ¥" .. sellPrice .. "!</font>")
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Sold " .. itemName .. " for ¥" .. sellPrice .. "!</font>")
 		end
 	end
 end)
