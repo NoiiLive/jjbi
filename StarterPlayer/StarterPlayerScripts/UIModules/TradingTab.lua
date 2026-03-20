@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local TradingTab = {}
 
 local player = game.Players.LocalPlayer
@@ -436,7 +437,7 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lblOff.Size = UDim2.new(0.4, 0, 0.3, 0)
 	lblOff.Position = UDim2.new(0.52, 0, 0, 0)
 	lblOff.BackgroundTransparency = 1
-	lblLF.Font = Enum.Font.GothamBold
+	lblOff.Font = Enum.Font.GothamBold
 	lblOff.TextColor3 = Color3.new(1,1,1)
 	lblOff.TextScaled = true
 	lblOff.TextXAlignment = Enum.TextXAlignment.Left
@@ -543,6 +544,90 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	bivLayout.Padding = UDim.new(0, 10)
 	local bivPad = Instance.new("UIPadding", browserInboxView)
 	bivPad.PaddingTop = UDim.new(0, 5); bivPad.PaddingLeft = UDim.new(0, 5); bivPad.PaddingRight = UDim.new(0, 10)
+
+	-- ==========================================================
+	-- LOBBY NAVIGATION BUTTON CONNECTIONS
+	-- ==========================================================
+	toggleReqsBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		requestsEnabled = not requestsEnabled
+		toggleReqsBtn.Text = requestsEnabled and "Requests: ON" or "Requests: OFF"
+		toggleReqsBtn.BackgroundColor3 = requestsEnabled and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(140, 40, 40)
+		local stroke = toggleReqsBtn:FindFirstChildOfClass("UIStroke")
+		if stroke then stroke.Color = requestsEnabled and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100) end
+		Network.TradeAction:FireServer("ToggleRequests", requestsEnabled)
+	end)
+
+	tabReqBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		reqView.Visible = true
+		hostView.Visible = false
+		tabReqBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabReqBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabHostBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabHostBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabReqBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabHostBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	tabHostBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		reqView.Visible = false
+		hostView.Visible = true
+		tabHostBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabHostBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabReqBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabReqBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabHostBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabReqBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	tabLobbyBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		browserLobbyView.Visible = true
+		browserInboxView.Visible = false
+		tabLobbyBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabLobbyBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabInboxBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabInboxBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabLobbyBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabInboxBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	tabInboxBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		browserLobbyView.Visible = false
+		browserInboxView.Visible = true
+		tabInboxBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabInboxBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabLobbyBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabLobbyBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabInboxBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabLobbyBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	sendReqBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		local target = getReqVal()
+		if target and target ~= "" and target ~= "Select a Player..." then
+			Network.TradeAction:FireServer("SendRequest", target)
+			resetReqVal("Select a Player...")
+		else
+			NotificationManager.Show("<font color='#FF5555'>Please select a player first!</font>")
+		end
+	end)
+
+	hostBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		if isHosting then
+			Network.TradeAction:FireServer("CancelLobby")
+		else
+			local lf = getLfVal()
+			local off = getOffVal()
+			Network.TradeAction:FireServer("CreateLobby", {LF = lf, Offering = off})
+		end
+	end)
+
 
 	-- ==========================================================
 	-- ACTIVE TRADE CARD
