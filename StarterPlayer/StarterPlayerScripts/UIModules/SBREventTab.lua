@@ -158,9 +158,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
 
-	-- ==========================================================
-	-- LOBBY CONTAINER
-	-- ==========================================================
 	lobbyContainer = Instance.new("Frame")
 	lobbyContainer.Name = "LobbyContainer"
 	lobbyContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -173,7 +170,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lcPad.PaddingLeft = UDim.new(0.02, 0); lcPad.PaddingRight = UDim.new(0.02, 0)
 	lcPad.Parent = lobbyContainer
 
-	-- STABLE CARD (Increased padding to utilize the full vertical space evenly)
 	local stableCard = CreateCard("StableCard", lobbyContainer, UDim2.new(0.48, 0, 1, 0), UDim2.new(0, 0, 0, 0))
 
 	local scPad = Instance.new("UIPadding")
@@ -316,8 +312,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	CreateDropdown(n1Drop, "Select", Names1, function(val) targetName1 = val end)
 	CreateDropdown(n2Drop, "Select", Names2, function(val) targetName2 = val end)
 
-
-	-- QUEUE CARD 
 	local queueCard = CreateCard("QueueCard", lobbyContainer, UDim2.new(0.48, 0, 1, 0), UDim2.new(0.52, 0, 0, 0))
 	local qcPad = Instance.new("UIPadding")
 	qcPad.PaddingTop = UDim.new(0, 15); qcPad.PaddingBottom = UDim.new(0, 15)
@@ -442,9 +436,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	player:GetAttributeChangedSignal("HorseTrait"):Connect(UpdateStableUI)
 	UpdateStableUI()
 
-	-- ==========================================================
-	-- RACE CONTAINER (Combat Template + Custom Additions)
-	-- ==========================================================
 	raceContainer = Instance.new("Frame")
 	raceContainer.Name = "RaceContainer"
 	raceContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -454,7 +445,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	combatUI = CombatTemplate.Create(raceContainer, tooltipMgr)
 
-	-- Safe Log Appender so it doesn't wipe previous entries
 	local function AppendLog(text)
 		if not text or text == "" then return end
 		if not combatUI or not combatUI.ChatText then return end
@@ -580,7 +570,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	waitingLabel.Font = Enum.Font.GothamMedium
 	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 	waitingLabel.TextScaled = true
-	waitingLabel.Text = "Riding forward..."
+	waitingLabel.Text = "Waiting for other players..."
 	waitingLabel.Visible = false
 	waitingLabel.ZIndex = 30
 	waitingLabel.LayoutOrder = 6
@@ -911,6 +901,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 			SetCombatMode(false)
 			sbrPathArea.Visible = false
 			inQueue = false
+			task.delay(5, function() lobbyContainer.Visible = true; raceContainer.Visible = false end)
 
 		elseif action == "RaceEnded" then
 			currentDeadline = 0
