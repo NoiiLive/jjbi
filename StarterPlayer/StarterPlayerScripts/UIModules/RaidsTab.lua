@@ -141,7 +141,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	-- ==========================================================
 	menuFrame = Instance.new("ScrollingFrame")
 	menuFrame.Name = "MenuFrame"
-	menuFrame.Size = UDim2.new(1, 0, 1, 0)
+	menuFrame.Size = UDim2.new(0.96, 0, 0.96, 0) -- Scaled down 4%
+	menuFrame.Position = UDim2.new(0.02, 0, 0.02, 0) -- Offset by 2% (Mimics Padding)
 	menuFrame.BackgroundTransparency = 1
 	menuFrame.ScrollBarThickness = 6
 	menuFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
@@ -272,7 +273,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	-- ==========================================================
 	matchmakingFrame = Instance.new("Frame")
 	matchmakingFrame.Name = "MatchmakingFrame"
-	matchmakingFrame.Size = UDim2.new(1, 0, 1, 0)
+	matchmakingFrame.Size = UDim2.new(0.96, 0, 0.96, 0) -- Scaled down 4%
+	matchmakingFrame.Position = UDim2.new(0.02, 0, 0.02, 0) -- Offset by 2% (Mimics Padding)
 	matchmakingFrame.BackgroundTransparency = 1
 	matchmakingFrame.Visible = false
 	matchmakingFrame.Parent = parentFrame
