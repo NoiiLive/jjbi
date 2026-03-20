@@ -49,7 +49,11 @@ local requiredRemotes = {
 	"AutoSellToggle",
 	"PrestigeEvent",
 	"LeaderboardAction",
-	"LeaderboardUpdate"
+	"LeaderboardUpdate",
+	"RaidAction",
+	"RaidUpdate",
+	"SBRAction",
+	"SBRUpdate"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
