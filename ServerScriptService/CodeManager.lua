@@ -1,8 +1,12 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local RedeemCode = Network:WaitForChild("RedeemCode")
+
+local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
+NotificationEvent.Name = "NotificationEvent"
 
 local ActiveCodes = {
 	["BIZARRE"] = {Yen = 1000, XP = 2500, Items = {["Stand Arrow"] = 1}},
@@ -20,7 +24,9 @@ RedeemCode.OnServerEvent:Connect(function(player, codeStr)
 	local redeemedList = string.split(redeemedStr, ",")
 
 	if table.find(redeemedList, codeStr) then
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Code '" .. codeStr .. "' has already been redeemed!</font>")
+		local msg = "<font color='#FF5555'>Code '" .. codeStr .. "' has already been redeemed!</font>"
+		Network.CombatUpdate:FireClient(player, "SystemMessage", msg)
+		NotificationEvent:FireClient(player, msg)
 		return
 	end
 
@@ -61,7 +67,10 @@ RedeemCode.OnServerEvent:Connect(function(player, codeStr)
 		end
 
 		Network.CombatUpdate:FireClient(player, "SystemMessage", finalMsg .. capNotice)
+		NotificationEvent:FireClient(player, finalMsg .. capNotice)
 	else
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Invalid or expired code!</font>")
+		local msg = "<font color='#FF5555'>Invalid or expired code!</font>"
+		Network.CombatUpdate:FireClient(player, "SystemMessage", msg)
+		NotificationEvent:FireClient(player, msg)
 	end
 end)
