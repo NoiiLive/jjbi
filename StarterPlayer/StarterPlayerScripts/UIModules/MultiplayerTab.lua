@@ -97,6 +97,33 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
+	-- ========================================================
+	-- COMBAT-TAB MATCHING LAYOUT
+	-- ========================================================
+	local subNav = Instance.new("Frame")
+	subNav.Name = "SubNav"
+	subNav.Size = UDim2.new(1, 0, 0, 55)
+	subNav.BackgroundTransparency = 1
+	subNav.ZIndex = 20
+	subNav.Parent = mainPanel
+
+	local subNavCenter = Instance.new("Frame")
+	subNavCenter.Name = "CenterContainer"
+	subNavCenter.Size = UDim2.new(0.85, 0, 1, -10)
+	subNavCenter.Position = UDim2.new(0.5, 0, 0.5, 0)
+	subNavCenter.AnchorPoint = Vector2.new(0.5, 0.5)
+	subNavCenter.BackgroundTransparency = 1
+	subNavCenter.ZIndex = 21
+	subNavCenter.Parent = subNav
+
+	local navLayout = Instance.new("UIListLayout")
+	navLayout.FillDirection = Enum.FillDirection.Horizontal
+	navLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	navLayout.Padding = UDim.new(0, 8)
+	navLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	navLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	navLayout.Parent = subNavCenter
+
 	local camera = workspace.CurrentCamera
 	local function UpdateLayoutForScreen()
 		if not parentFrame.Parent then return end
@@ -104,40 +131,19 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		if vp.X >= 1050 then 
 			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+			subNavCenter.Size = UDim2.new(0.85, 0, 1, -10)
 		elseif vp.X >= 600 and vp.X < 1050 then 
 			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+			subNavCenter.Size = UDim2.new(0.95, 0, 1, -10)
 		else 
 			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) 
+			subNavCenter.Size = UDim2.new(0.98, 0, 1, -10)
 		end
 	end
-
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 	UpdateLayoutForScreen()
-
-	-- INNER CONTENT REWRITE (Matches CombatTab structure exactly)
-	local innerContent = Instance.new("Frame")
-	innerContent.Name = "InnerContent"
-	innerContent.Size = UDim2.new(1, 0, 1, 0)
-	innerContent.BackgroundTransparency = 1
-	innerContent.ZIndex = 17
-	innerContent.Parent = mainPanel
-
-	local subNavFrame = Instance.new("Frame")
-	subNavFrame.Name = "SubNavFrame"
-	subNavFrame.Size = UDim2.new(1, 0, 0, 55)
-	subNavFrame.BackgroundTransparency = 1
-	subNavFrame.ZIndex = 20
-	subNavFrame.Parent = innerContent
-
-	local subNavL = Instance.new("UIListLayout")
-	subNavL.FillDirection = Enum.FillDirection.Horizontal
-	subNavL.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	subNavL.VerticalAlignment = Enum.VerticalAlignment.Center
-	subNavL.Padding = UDim.new(0, 10)
-	subNavL.SortOrder = Enum.SortOrder.LayoutOrder
-	subNavL.Parent = subNavFrame
 
 	local function CreateSubNavButton(name, text, order)
 		local btn = Instance.new("TextButton")
@@ -150,7 +156,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		btn.TextColor3 = Color3.new(1, 1, 1)
 		btn.TextScaled = true
 		btn.ZIndex = 20
-		btn.Parent = subNavFrame
+		btn.Parent = subNavCenter
 
 		local bCorner = Instance.new("UICorner")
 		bCorner.CornerRadius = UDim.new(0, 6)
@@ -181,31 +187,42 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local tradeBtn, tStroke = CreateSubNavButton("TradeBtn", "TRADING", 5)
 	local lbBtn, lStroke = CreateSubNavButton("LbBtn", "RANKS", 6)
 
-	-- TAB CONTAINER (Offset matches CombatTab)
+	-- TAB CONTAINER (Absolute 75px offset matches CombatTab exactly)
 	local tabContainer = Instance.new("Frame")
 	tabContainer.Name = "TabContainer"
 	tabContainer.Size = UDim2.new(1, 0, 1, -75)
 	tabContainer.Position = UDim2.new(0, 0, 0, 75)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.ZIndex = 17
-	tabContainer.Parent = innerContent
+	tabContainer.Parent = mainPanel
 
-	local function CreateSubFrame(name)
+	local function CreateSubFrame(name, needsPadding)
 		local frame = Instance.new("Frame")
 		frame.Name = name
 		frame.Size = UDim2.new(1, 0, 1, 0)
 		frame.BackgroundTransparency = 1
 		frame.Visible = false
 		frame.Parent = tabContainer
+
+		-- Inject padding only for non-combat menus so they don't hug the absolute edge
+		if needsPadding then
+			local pad = Instance.new("UIPadding")
+			pad.PaddingTop = UDim.new(0.02, 0)
+			pad.PaddingBottom = UDim.new(0.02, 0)
+			pad.PaddingLeft = UDim.new(0.02, 0)
+			pad.PaddingRight = UDim.new(0.02, 0)
+			pad.Parent = frame
+		end
+
 		return frame
 	end
 
-	local gangsFrame = CreateSubFrame("GangsFrame")
-	local sbrFrame = CreateSubFrame("SbrFrame")
-	local raidsFrame = CreateSubFrame("RaidsFrame")
-	local arenaFrame = CreateSubFrame("ArenaFrame")
-	local tradeFrame = CreateSubFrame("TradeFrame")
-	local lbFrame = CreateSubFrame("LbFrame")
+	local gangsFrame = CreateSubFrame("GangsFrame", true)
+	local sbrFrame = CreateSubFrame("SbrFrame", true)
+	local raidsFrame = CreateSubFrame("RaidsFrame", false) -- Raids receives 0 Padding so it matches StoryTab exactly
+	local arenaFrame = CreateSubFrame("ArenaFrame", true)
+	local tradeFrame = CreateSubFrame("TradeFrame", true)
+	local lbFrame = CreateSubFrame("LbFrame", true)
 
 	gangsFrame.Visible = true
 	gangBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
