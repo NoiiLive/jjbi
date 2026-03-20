@@ -1,9 +1,13 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
+
+local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
+NotificationEvent.Name = "NotificationEvent"
 
 local function GrantItem(player, itemName, amount)
 	local grantAmount = amount or 1
@@ -75,12 +79,18 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 	local function SendPurchaseMsg(itemName)
 		if purchaser ~= receiver then
 			if Network:FindFirstChild("CombatUpdate") then
-				Network.CombatUpdate:FireClient(purchaser, "SystemMessage", "<font color='#55FF55'>Successfully gifted " .. itemName .. " to " .. receiver.Name .. "!</font>")
-				Network.CombatUpdate:FireClient(receiver, "SystemMessage", "<font color='#FF55FF'>🎁 You received a gift! (" .. itemName .. ") from " .. purchaser.Name .. "!</font>")
+				local pMsg = "<font color='#55FF55'>Successfully gifted " .. itemName .. " to " .. receiver.Name .. "!</font>"
+				local rMsg = "<font color='#FF55FF'>🎁 You received a gift! (" .. itemName .. ") from " .. purchaser.Name .. "!</font>"
+				Network.CombatUpdate:FireClient(purchaser, "SystemMessage", pMsg)
+				NotificationEvent:FireClient(purchaser, pMsg)
+				Network.CombatUpdate:FireClient(receiver, "SystemMessage", rMsg)
+				NotificationEvent:FireClient(receiver, rMsg)
 			end
 		else
 			if Network:FindFirstChild("CombatUpdate") then
-				Network.CombatUpdate:FireClient(purchaser, "SystemMessage", "<font color='#55FF55'>Successfully purchased " .. itemName .. "!</font>")
+				local msg = "<font color='#55FF55'>Successfully purchased " .. itemName .. "!</font>"
+				Network.CombatUpdate:FireClient(purchaser, "SystemMessage", msg)
+				NotificationEvent:FireClient(purchaser, msg)
 			end
 		end
 	end
@@ -242,7 +252,6 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
 
-
 	return Enum.ProductPurchaseDecision.NotProcessedYet
 end
 
@@ -262,6 +271,8 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passI
 	elseif passId == 1749586333 then player:SetAttribute("HasHorseNamePass", true); passName = "Custom Horse Name Pass" end
 
 	if Network:FindFirstChild("CombatUpdate") then
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>Successfully unlocked " .. passName .. "!</font>")
+		local msg = "<font color='#55FF55'>Successfully unlocked " .. passName .. "!</font>"
+		Network.CombatUpdate:FireClient(player, "SystemMessage", msg)
+		NotificationEvent:FireClient(player, msg)
 	end
 end)
