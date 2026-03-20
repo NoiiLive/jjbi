@@ -66,7 +66,7 @@ end)
 CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
-		NotificationManager.Show(data)
+		-- Removed the duplicate NotificationManager.Show(data) here so the server can safely trigger both without double popups!
 	elseif action == "TrainingTick" then
 		TrainingTab.OnTick(data)
 	else
