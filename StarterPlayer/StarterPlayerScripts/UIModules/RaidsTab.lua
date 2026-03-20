@@ -39,6 +39,29 @@ local raidBosses = {
 	{ Id = "Raid_Part7", Name = "23rd President", Req = 7, Desc = "He has taken the first napkin. Beware his dimensional shifts." }
 }
 
+local StatusIcons = {
+	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF",
+	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
+	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-"
+}
+
+local StatusDescs = {
+	Stun = "Cannot move or act.",
+	Poison = "Takes damage every turn.",
+	Burn = "Takes damage every turn.",
+	Bleed = "Takes damage every turn.",
+	Freeze = "Frozen solid. Cannot move, takes damage.",
+	Confusion = "May attack allies or self.",
+	Buff_Strength = "Increased damage dealt.",
+	Buff_Defense = "Reduced damage taken.",
+	Buff_Speed = "Increased evasion and turn priority.",
+	Buff_Willpower = "Increased crit and survival chance.",
+	Debuff_Strength = "Reduced damage dealt.",
+	Debuff_Defense = "Increased damage taken.",
+	Debuff_Speed = "Reduced evasion and turn priority.",
+	Debuff_Willpower = "Reduced crit and survival chance."
+}
+
 local function applyDoubleGoldBorder(parent)
 	local outerStroke = Instance.new("UIStroke")
 	outerStroke.Thickness = 3
@@ -108,18 +131,6 @@ local function CreateCard(name, parent, size, pos)
 	stroke.Parent = frame
 	return frame
 end
-
-local effIcons = {
-	Stun = "⚡", Poison = "☠️", Burn = "🔥", Bleed = "🩸", Freeze = "❄️", Confusion = "🌀",
-	Buff_Strength = "💪+", Buff_Defense = "🛡️+", Buff_Speed = "💨+", Buff_Willpower = "🧠+",
-	Debuff_Strength = "💪-", Debuff_Defense = "🛡️-", Debuff_Speed = "💨-", Debuff_Willpower = "🧠-"
-}
-
-local effNames = {
-	Stun = "Stunned", Poison = "Poisoned", Burn = "Burning", Bleed = "Bleeding", Freeze = "Frozen", Confusion = "Confused",
-	Buff_Strength = "Strength Up", Buff_Defense = "Defense Up", Buff_Speed = "Speed Up", Buff_Willpower = "Willpower Up",
-	Debuff_Strength = "Strength Down", Debuff_Defense = "Defense Down", Debuff_Speed = "Speed Down", Debuff_Willpower = "Willpower Down"
-}
 
 function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
@@ -285,7 +296,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	backBtn.Parent = topBar
 
 	local bbUic = Instance.new("UITextSizeConstraint")
-	bbUic.MaxTextSize = 12
+	bbUic.MaxTextSize = 14
 	bbUic.Parent = backBtn
 
 	local bbCorner = Instance.new("UICorner")
@@ -422,7 +433,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	startRaidBtn = Instance.new("TextButton")
 	startRaidBtn.Name = "StartRaidBtn"
 	startRaidBtn.Size = UDim2.new(0.42, 0, 0, 45)
-	startRaidBtn.Position = UDim2.new(0.05, 0, 0.5, 0)
+	startRaidBtn.Position = UDim2.new(0.06, 0, 0.5, 0)
 	startRaidBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
 	startRaidBtn.Font = Enum.Font.GothamBold
 	startRaidBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -436,7 +447,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cancelLobbyBtn = Instance.new("TextButton")
 	cancelLobbyBtn.Name = "CancelLobbyBtn"
 	cancelLobbyBtn.Size = UDim2.new(0.42, 0, 0, 45)
-	cancelLobbyBtn.Position = UDim2.new(0.53, 0, 0.5, 0)
+	cancelLobbyBtn.Position = UDim2.new(0.52, 0, 0.5, 0)
 	cancelLobbyBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 	cancelLobbyBtn.Font = Enum.Font.GothamBold
 	cancelLobbyBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -475,8 +486,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	lobbyContainer = Instance.new("ScrollingFrame")
 	lobbyContainer.Name = "LobbyContainer"
-	lobbyContainer.Size = UDim2.new(1, 0, 1, -40)
-	lobbyContainer.Position = UDim2.new(0, 0, 0, 40)
+	lobbyContainer.Size = UDim2.new(1, 0, 1, -45)
+	lobbyContainer.Position = UDim2.new(0, 0, 0, 45)
 	lobbyContainer.BackgroundTransparency = 1
 	lobbyContainer.ScrollBarThickness = 6
 	lobbyContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
@@ -484,7 +495,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lobbyContainer.Parent = lobbyCard
 
 	local lcPad = Instance.new("UIPadding")
-	lcPad.PaddingTop = UDim.new(0, 10)
+	lcPad.PaddingTop = UDim.new(0, 15)
 	lcPad.PaddingRight = UDim.new(0, 8)
 	lcPad.PaddingLeft = UDim.new(0, 4) 
 	lcPad.Parent = lobbyContainer
@@ -571,24 +582,36 @@ function RaidsTab.UpdateCombatState(state)
 			fObj:UpdateHealth(pData.HP, pData.MaxHP)
 		end
 
-		-- Apply Statuses
-		for _, c in pairs(fObj.StatusContainer:GetChildren()) do
-			if c:IsA("Frame") then c:Destroy() end
-		end
-
-		if pData.StunImmunity and pData.StunImmunity > 0 then
-			fObj:SetStatus("StunImm", "🛡️", tostring(pData.StunImmunity), "Stun Immune", true)
-		end
-		if pData.ConfusionImmunity and pData.ConfusionImmunity > 0 then
-			fObj:SetStatus("ConfImm", "🌀", tostring(pData.ConfusionImmunity), "Confusion Immune", true)
-		end
-
+		-- Sync Statuses
+		local currentStatuses = {}
 		if pData.Statuses then
-			for effId, dur in pairs(pData.Statuses) do
-				if dur > 0 and effIcons[effId] then
-					fObj:SetStatus(effId, effIcons[effId], tostring(dur), effNames[effId] or effId, false)
+			for eff, duration in pairs(pData.Statuses) do
+				if duration and duration > 0 then
+					currentStatuses[eff] = true
+					fObj:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.")
 				end
 			end
+		end
+
+		for eff, _ in pairs(StatusIcons) do
+			if not currentStatuses[eff] then
+				fObj:RemoveStatus(eff)
+			end
+		end
+
+		-- Sync Immunities
+		local hasStunImmunity = (pData.StunImmunity and pData.StunImmunity > 0)
+		if hasStunImmunity then
+			fObj:SetCooldown("StunImmunity", "STN", tostring(pData.StunImmunity), "Immune to Stun effects.")
+		else
+			fObj:RemoveCooldown("StunImmunity")
+		end
+
+		local hasConfImmunity = (pData.ConfusionImmunity and pData.ConfusionImmunity > 0)
+		if hasConfImmunity then
+			fObj:SetCooldown("ConfImmunity", "CNF", tostring(pData.ConfusionImmunity), "Immune to Confusion effects.")
+		else
+			fObj:RemoveCooldown("ConfImmunity")
 		end
 
 		if pData.UserId == state.MyId then
@@ -608,23 +631,36 @@ function RaidsTab.UpdateCombatState(state)
 		bObj:UpdateHealth(state.Boss.HP, state.Boss.MaxHP)
 	end
 
-	for _, c in pairs(bObj.StatusContainer:GetChildren()) do
-		if c:IsA("Frame") then c:Destroy() end
-	end
-
-	if state.Boss.StunImmunity and state.Boss.StunImmunity > 0 then
-		bObj:SetStatus("StunImm", "🛡️", tostring(state.Boss.StunImmunity), "Stun Immune", true)
-	end
-	if state.Boss.ConfusionImmunity and state.Boss.ConfusionImmunity > 0 then
-		bObj:SetStatus("ConfImm", "🌀", tostring(state.Boss.ConfusionImmunity), "Confusion Immune", true)
-	end
-
+	-- Sync Boss Statuses
+	local bossStatuses = {}
 	if state.Boss.Statuses then
-		for effId, dur in pairs(state.Boss.Statuses) do
-			if dur > 0 and effIcons[effId] then
-				bObj:SetStatus(effId, effIcons[effId], tostring(dur), effNames[effId] or effId, false)
+		for eff, duration in pairs(state.Boss.Statuses) do
+			if duration and duration > 0 then
+				bossStatuses[eff] = true
+				bObj:SetStatus(eff, StatusIcons[eff] or "EFF", tostring(duration), StatusDescs[eff] or "Active effect.")
 			end
 		end
+	end
+
+	for eff, _ in pairs(StatusIcons) do
+		if not bossStatuses[eff] then
+			bObj:RemoveStatus(eff)
+		end
+	end
+
+	-- Sync Boss Immunities
+	local hasBossStunImmunity = (state.Boss.StunImmunity and state.Boss.StunImmunity > 0)
+	if hasBossStunImmunity then
+		bObj:SetCooldown("StunImmunity", "STN", tostring(state.Boss.StunImmunity), "Immune to Stun effects.")
+	else
+		bObj:RemoveCooldown("StunImmunity")
+	end
+
+	local hasBossConfImmunity = (state.Boss.ConfusionImmunity and state.Boss.ConfusionImmunity > 0)
+	if hasBossConfImmunity then
+		bObj:SetCooldown("ConfImmunity", "CNF", tostring(state.Boss.ConfusionImmunity), "Immune to Confusion effects.")
+	else
+		bObj:RemoveCooldown("ConfImmunity")
 	end
 
 	-- Cleanup dead/missing fighters
@@ -721,7 +757,7 @@ function RaidsTab.HandleUpdate(action, data)
 				startRaidBtn.Text = count > 1 and "Start Raid" or "Start Solo"
 
 				cancelLobbyBtn.Size = UDim2.new(0.42, 0, 0, 45)
-				cancelLobbyBtn.Position = UDim2.new(0.53, 0, 0.5, 0)
+				cancelLobbyBtn.Position = UDim2.new(0.52, 0, 0.5, 0)
 				cancelLobbyBtn.Text = "Disband Party"
 				cancelLobbyBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 			else
