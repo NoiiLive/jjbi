@@ -39,7 +39,7 @@ local Names1 = {
 }
 
 local Names2 = {
-	"Stallion","Mustang","Bronco","Hoof","Trotter","Galloper","Racer","Trailblazer",
+	"Stallion","Mustang","Bronco","Hoof","Trotter","Galloper","Racer","Trailblazer", "Dancer",
 	"Bullet","Runner","Dasher","Sprinter","Chaser","Hunter","Striker","Blade","Arrow","Spear","Crusher","Breaker",
 	"Eagle","Falcon","Hawk","Wolf","Tiger","Lion","Bear","Dragon","Cobra","Panther",
 	"Comet","Meteor","Nova","Eclipse","Hurricane","Cyclone","Blizzard","Tornado","Storm","Tempest",
