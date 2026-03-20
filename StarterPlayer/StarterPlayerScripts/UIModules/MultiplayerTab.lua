@@ -7,10 +7,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local UIModules = script.Parent
 
--- Temporarily disabled
--- local GangsTab = require(UIModules:WaitForChild("GangsTab"))
+local GangsTab = require(UIModules:WaitForChild("GangsTab"))
 local TradingTab = require(UIModules:WaitForChild("TradingTab"))
-
 local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
 local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
 local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
@@ -317,10 +315,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	raidBtn.MouseButton1Click:Connect(function() TryOpenLockedTab("Raids") end)
 	tradeBtn.MouseButton1Click:Connect(function() TryOpenLockedTab("Trading") end)
 
-	-- ==========================================
-	-- INIT SUB MODULES
-	-- ==========================================
-	-- pcall(function() GangsTab.Init(gangsFrame, tooltipMgr) end)
+	pcall(function() GangsTab.Init(gangsFrame, tooltipMgr) end)
 	pcall(function() ArenaTab.Init(arenaFrame, tooltipMgr, function() ForceSubTabFocus("Arena") end) end)
 	pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
 	pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
