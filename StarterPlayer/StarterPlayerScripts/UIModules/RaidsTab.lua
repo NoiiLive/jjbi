@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local RaidsTab = {}
 
 local player = game.Players.LocalPlayer
@@ -145,9 +144,6 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
 
-	-- ==========================================================
-	-- MENU FRAME (Raid Selection)
-	-- ==========================================================
 	menuFrame = Instance.new("ScrollingFrame")
 	menuFrame.Name = "MenuFrame"
 	menuFrame.Size = UDim2.new(1, 0, 1, 0) 
@@ -278,9 +274,6 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 	end)
 
-	-- ==========================================================
-	-- MATCHMAKING FRAME
-	-- ==========================================================
 	matchmakingFrame = Instance.new("Frame")
 	matchmakingFrame.Name = "MatchmakingFrame"
 	matchmakingFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -298,13 +291,13 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	local topBar = Instance.new("Frame")
 	topBar.Name = "TopBar"
-	topBar.Size = UDim2.new(1, 0, 0, 35)
+	topBar.Size = UDim2.new(1, 0, 0.08, 0)
 	topBar.BackgroundTransparency = 1
 	topBar.Parent = matchmakingFrame
 
 	local backBtn = Instance.new("TextButton")
 	backBtn.Name = "BackBtn"
-	backBtn.Size = UDim2.new(0, 80, 1, 0)
+	backBtn.Size = UDim2.new(0.15, 0, 1, 0)
 	backBtn.Position = UDim2.new(0, 5, 0, 0)
 	backBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
 	backBtn.Font = Enum.Font.GothamBold
@@ -327,8 +320,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	raidTitleLabel = Instance.new("TextLabel")
 	raidTitleLabel.Name = "RaidTitleLabel"
-	raidTitleLabel.Size = UDim2.new(1, -100, 1, 0)
-	raidTitleLabel.Position = UDim2.new(0, 100, 0, 0)
+	raidTitleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+	raidTitleLabel.Position = UDim2.new(0.18, 0, 0, 0)
 	raidTitleLabel.BackgroundTransparency = 1
 	raidTitleLabel.Font = Enum.Font.GothamBlack
 	raidTitleLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
@@ -337,10 +330,10 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	raidTitleLabel.ZIndex = 22
 	raidTitleLabel.Parent = topBar
 
-	hostCard = CreateCard("HostCard", matchmakingFrame, UDim2.new(0.48, 0, 1, -45), UDim2.new(0, 0, 0, 45))
+	hostCard = CreateCard("HostCard", matchmakingFrame, UDim2.new(0.48, 0, 0.9, 0), UDim2.new(0, 0, 0.1, 0))
 
 	local hostTitle = Instance.new("TextLabel")
-	hostTitle.Size = UDim2.new(1, 0, 0, 30)
+	hostTitle.Size = UDim2.new(1, 0, 0.1, 0)
 	hostTitle.Position = UDim2.new(0, 0, 0, 5)
 	hostTitle.BackgroundTransparency = 1
 	hostTitle.Font = Enum.Font.GothamBlack
@@ -350,11 +343,10 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	hostTitle.ZIndex = 22
 	hostTitle.Parent = hostCard
 
-	-- DYNAMIC CENTERED CONTAINERS
 	viewDefault = Instance.new("Frame")
 	viewDefault.Name = "ViewDefault"
-	viewDefault.Size = UDim2.new(1, 0, 1, -40)
-	viewDefault.Position = UDim2.new(0, 0, 0, 40)
+	viewDefault.Size = UDim2.new(1, 0, 0.9, 0)
+	viewDefault.Position = UDim2.new(0, 0, 0.1, 0)
 	viewDefault.BackgroundTransparency = 1
 	viewDefault.Visible = true
 	viewDefault.ZIndex = 21
@@ -367,7 +359,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	local openSetupBtn = Instance.new("TextButton")
 	openSetupBtn.Name = "OpenSetupBtn"
-	openSetupBtn.Size = UDim2.new(0.6, 0, 0, 45)
+	openSetupBtn.Size = UDim2.new(0.6, 0, 0.15, 0)
 	openSetupBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 140)
 	openSetupBtn.Font = Enum.Font.GothamBold
 	openSetupBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -381,8 +373,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	viewSetup = Instance.new("Frame")
 	viewSetup.Name = "ViewSetup"
-	viewSetup.Size = UDim2.new(1, 0, 1, -40)
-	viewSetup.Position = UDim2.new(0, 0, 0, 40)
+	viewSetup.Size = UDim2.new(1, 0, 0.9, 0)
+	viewSetup.Position = UDim2.new(0, 0, 0.1, 0)
 	viewSetup.BackgroundTransparency = 1
 	viewSetup.Visible = false
 	viewSetup.ZIndex = 21
@@ -392,13 +384,13 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	vsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	vsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	vsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	vsLayout.Padding = UDim.new(0, 12)
+	vsLayout.Padding = UDim.new(0.05, 0)
 	vsLayout.Parent = viewSetup
 
 	local friendsToggleBtn = Instance.new("TextButton")
 	friendsToggleBtn.Name = "FriendsToggleBtn"
 	friendsToggleBtn.LayoutOrder = 1
-	friendsToggleBtn.Size = UDim2.new(0.8, 0, 0, 40)
+	friendsToggleBtn.Size = UDim2.new(0.8, 0, 0.15, 0)
 	friendsToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 	friendsToggleBtn.Font = Enum.Font.GothamBold
 	friendsToggleBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -413,7 +405,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local confirmSetupBtn = Instance.new("TextButton")
 	confirmSetupBtn.Name = "ConfirmSetupBtn"
 	confirmSetupBtn.LayoutOrder = 2
-	confirmSetupBtn.Size = UDim2.new(0.8, 0, 0, 45)
+	confirmSetupBtn.Size = UDim2.new(0.8, 0, 0.15, 0)
 	confirmSetupBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
 	confirmSetupBtn.Font = Enum.Font.GothamBold
 	confirmSetupBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -428,7 +420,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local cancelSetupBtn = Instance.new("TextButton")
 	cancelSetupBtn.Name = "CancelSetupBtn"
 	cancelSetupBtn.LayoutOrder = 3
-	cancelSetupBtn.Size = UDim2.new(0.8, 0, 0, 40)
+	cancelSetupBtn.Size = UDim2.new(0.8, 0, 0.12, 0)
 	cancelSetupBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
 	cancelSetupBtn.Font = Enum.Font.GothamBold
 	cancelSetupBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -442,8 +434,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	viewHosting = Instance.new("Frame")
 	viewHosting.Name = "ViewHosting"
-	viewHosting.Size = UDim2.new(1, 0, 1, -40)
-	viewHosting.Position = UDim2.new(0, 0, 0, 40)
+	viewHosting.Size = UDim2.new(1, 0, 0.9, 0)
+	viewHosting.Position = UDim2.new(0, 0, 0.1, 0)
 	viewHosting.BackgroundTransparency = 1
 	viewHosting.Visible = false
 	viewHosting.ZIndex = 21
@@ -453,13 +445,13 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	vhLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	vhLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	vhLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	vhLayout.Padding = UDim.new(0, 15)
+	vhLayout.Padding = UDim.new(0.1, 0)
 	vhLayout.Parent = viewHosting
 
 	hostingLbl = Instance.new("TextLabel")
 	hostingLbl.Name = "HostingLbl"
 	hostingLbl.LayoutOrder = 1
-	hostingLbl.Size = UDim2.new(1, 0, 0, 30)
+	hostingLbl.Size = UDim2.new(1, 0, 0.15, 0)
 	hostingLbl.BackgroundTransparency = 1
 	hostingLbl.Font = Enum.Font.GothamBold
 	hostingLbl.TextColor3 = Color3.new(1, 1, 1)
@@ -469,7 +461,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	hostingLbl.Parent = viewHosting
 
 	local hostingBtnsContainer = Instance.new("Frame")
-	hostingBtnsContainer.Size = UDim2.new(1, 0, 0, 45)
+	hostingBtnsContainer.Size = UDim2.new(1, 0, 0.15, 0)
 	hostingBtnsContainer.BackgroundTransparency = 1
 	hostingBtnsContainer.LayoutOrder = 2
 	hostingBtnsContainer.Parent = viewHosting
@@ -478,7 +470,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	hbLayout.FillDirection = Enum.FillDirection.Horizontal
 	hbLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	hbLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	hbLayout.Padding = UDim.new(0, 10)
+	hbLayout.Padding = UDim.new(0.05, 0)
 	hbLayout.Parent = hostingBtnsContainer
 
 	startRaidBtn = Instance.new("TextButton")
@@ -523,10 +515,10 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cancelLobbyBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); RaidAction:FireServer("CancelLobby") end)
 	startRaidBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); RaidAction:FireServer("ForceStartRaid") end)
 
-	lobbyCard = CreateCard("LobbyCard", matchmakingFrame, UDim2.new(0.48, 0, 1, -45), UDim2.new(0.52, 0, 0, 45))
+	lobbyCard = CreateCard("LobbyCard", matchmakingFrame, UDim2.new(0.48, 0, 0.9, 0), UDim2.new(0.52, 0, 0.1, 0))
 
 	local lobbyTitle = Instance.new("TextLabel")
-	lobbyTitle.Size = UDim2.new(1, 0, 0, 30)
+	lobbyTitle.Size = UDim2.new(1, 0, 0.1, 0)
 	lobbyTitle.Position = UDim2.new(0, 0, 0, 5)
 	lobbyTitle.BackgroundTransparency = 1
 	lobbyTitle.Font = Enum.Font.GothamBlack
@@ -538,8 +530,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	lobbyContainer = Instance.new("ScrollingFrame")
 	lobbyContainer.Name = "LobbyContainer"
-	lobbyContainer.Size = UDim2.new(1, 0, 1, -45)
-	lobbyContainer.Position = UDim2.new(0, 0, 0, 45)
+	lobbyContainer.Size = UDim2.new(1, 0, 0.82, 0)
+	lobbyContainer.Position = UDim2.new(0, 0, 0.15, 0)
 	lobbyContainer.BackgroundTransparency = 1
 	lobbyContainer.ScrollBarThickness = 6
 	lobbyContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
@@ -548,7 +540,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	local lcPad = Instance.new("UIPadding")
 	lcPad.PaddingTop = UDim.new(0, 5)
-	lcPad.PaddingRight = UDim.new(0, 8)
+	lcPad.PaddingBottom = UDim.new(0, 10) 
+	lcPad.PaddingRight = UDim.new(0, 10)
 	lcPad.PaddingLeft = UDim.new(0, 4) 
 	lcPad.Parent = lobbyContainer
 
@@ -558,9 +551,6 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lcLayout.Padding = UDim.new(0, 10)
 	lcLayout.Parent = lobbyContainer
 
-	-- ==========================================================
-	-- COMBAT CARD (Injected from CombatTemplate)
-	-- ==========================================================
 	combatCard = Instance.new("Frame")
 	combatCard.Name = "CombatCard"
 	combatCard.Size = UDim2.new(1, 0, 1, 0)
@@ -570,7 +560,6 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	combatUI = CombatTemplate.Create(combatCard, tooltipMgr)
 
-	-- Add specific Raid components (Turn Timer & Resources) into the ContentContainer cleanly
 	turnTimerLabel = Instance.new("TextLabel")
 	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
 	turnTimerLabel.Position = UDim2.new(0, 0, 0, -5)
@@ -592,11 +581,7 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	resourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
 	resourceLabel.LayoutOrder = 2 
 	resourceLabel.Parent = combatUI.ContentContainer
-
-	local resUic = Instance.new("UITextSizeConstraint")
-	resUic.MaxTextSize = 18
-	resUic.MinTextSize = 10
-	resUic.Parent = resourceLabel
+	Instance.new("UITextSizeConstraint", resourceLabel).MaxTextSize = 18
 
 	waitingLabel = Instance.new("TextLabel")
 	waitingLabel.Name = "WaitingLabel"
@@ -610,15 +595,8 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	waitingLabel.ZIndex = 22
 	waitingLabel.LayoutOrder = 4
 	waitingLabel.Parent = combatUI.ContentContainer
+	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
 
-	local wUic = Instance.new("UITextSizeConstraint")
-	wUic.MaxTextSize = 24
-	wUic.MinTextSize = 10
-	wUic.Parent = waitingLabel
-
-	-- ==========================================================
-	-- LOGIC LOOPS & NETWORKING
-	-- ==========================================================
 	task.spawn(function()
 		while task.wait(0.2) do
 			if combatCard.Visible and currentDeadline > 0 then
@@ -638,21 +616,18 @@ end
 function RaidsTab.UpdateCombatState(state)
 	local processed = {}
 
-	-- Render Party (Allies)
 	for _, pData in ipairs(state.Party) do
 		local id = tostring(pData.UserId)
 		processed[id] = true
 		local fObj = activeFighters[id]
 
 		if not fObj then
-			-- CombatTemplate expects: isAlly, id, name, iconId, initialHp, maxHp
 			fObj = combatUI:AddFighter(true, id, pData.Name, id, pData.HP, pData.MaxHP)
 			activeFighters[id] = fObj
 		else
 			fObj:UpdateHealth(pData.HP, pData.MaxHP)
 		end
 
-		-- Sync Statuses
 		local currentStatuses = {}
 		if pData.Statuses then
 			for eff, duration in pairs(pData.Statuses) do
@@ -669,7 +644,6 @@ function RaidsTab.UpdateCombatState(state)
 			end
 		end
 
-		-- Sync Immunities
 		local hasStunImmunity = (pData.StunImmunity and pData.StunImmunity > 0)
 		if hasStunImmunity then
 			fObj:SetCooldown("StunImmunity", "STN", tostring(pData.StunImmunity), "Immune to Stun effects.")
@@ -689,7 +663,6 @@ function RaidsTab.UpdateCombatState(state)
 		end
 	end
 
-	-- Render Boss (Enemy)
 	local bId = "Boss_" .. (state.Boss.Name or "Unknown")
 	processed[bId] = true
 	local bObj = activeFighters[bId]
@@ -701,7 +674,6 @@ function RaidsTab.UpdateCombatState(state)
 		bObj:UpdateHealth(state.Boss.HP, state.Boss.MaxHP)
 	end
 
-	-- Sync Boss Statuses
 	local bossStatuses = {}
 	if state.Boss.Statuses then
 		for eff, duration in pairs(state.Boss.Statuses) do
@@ -718,7 +690,6 @@ function RaidsTab.UpdateCombatState(state)
 		end
 	end
 
-	-- Sync Boss Immunities
 	local hasBossStunImmunity = (state.Boss.StunImmunity and state.Boss.StunImmunity > 0)
 	if hasBossStunImmunity then
 		bObj:SetCooldown("StunImmunity", "STN", tostring(state.Boss.StunImmunity), "Immune to Stun effects.")
@@ -733,7 +704,6 @@ function RaidsTab.UpdateCombatState(state)
 		bObj:RemoveCooldown("ConfImmunity")
 	end
 
-	-- Cleanup dead/missing fighters
 	for id, fObj in pairs(activeFighters) do
 		if not processed[id] then
 			if fObj.Frame then fObj.Frame:Destroy() end
@@ -866,7 +836,6 @@ function RaidsTab.HandleUpdate(action, data)
 			empty.TextColor3 = Color3.fromRGB(150, 150, 150)
 			empty.Font = Enum.Font.GothamMedium
 			empty.TextScaled = true
-			empty.TextWrapped = true
 			empty.ZIndex = 22
 
 			local eUic = Instance.new("UITextSizeConstraint", empty)
@@ -876,8 +845,10 @@ function RaidsTab.HandleUpdate(action, data)
 		end
 
 		for i, lobby in ipairs(lobbies) do
-			local row = CreateCard("LobbyRow_" .. i, lobbyContainer, UDim2.new(1, 0, 0, 60), nil)
+			local row = CreateCard("LobbyRow_" .. i, lobbyContainer, UDim2.new(1, -8, 0, 60), nil)
 			row.LayoutOrder = i
+			local rowPad = Instance.new("UIPadding", row)
+			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
 
 			local infoText = "<b>" .. lobby.HostName .. "'s Party</b>"
 			if lobby.FriendsOnly then infoText = infoText .. " <font color='#55FF55'>[Friends]</font>" end
@@ -885,7 +856,7 @@ function RaidsTab.HandleUpdate(action, data)
 
 			local lbl = Instance.new("TextLabel")
 			lbl.Size = UDim2.new(0.65, 0, 1, 0)
-			lbl.Position = UDim2.new(0, 10, 0, 0)
+			lbl.Position = UDim2.new(0, 0, 0, 0)
 			lbl.BackgroundTransparency = 1
 			lbl.Font = Enum.Font.GothamMedium
 			lbl.TextColor3 = Color3.new(1, 1, 1)
@@ -916,8 +887,8 @@ function RaidsTab.HandleUpdate(action, data)
 			cUic.Parent = countLbl
 
 			local joinBtn = Instance.new("TextButton")
-			joinBtn.Size = UDim2.new(0.15, 0, 0.6, 0)
-			joinBtn.Position = UDim2.new(1, -10, 0.5, 0)
+			joinBtn.Size = UDim2.new(0.20, 0, 0.6, 0)
+			joinBtn.Position = UDim2.new(1, 0, 0.5, 0)
 			joinBtn.AnchorPoint = Vector2.new(1, 0.5)
 			joinBtn.Font = Enum.Font.GothamBold
 			joinBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -941,6 +912,15 @@ function RaidsTab.HandleUpdate(action, data)
 			end
 		end
 
+		task.delay(0.05, function()
+			if lobbyContainer then
+				local lcLayout = lobbyContainer:FindFirstChildWhichIsA("UIListLayout")
+				if lcLayout then
+					lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, lcLayout.AbsoluteContentSize.Y + 20)
+				end
+			end
+		end)
+
 	elseif action == "MatchStart" then
 		if forceTabFocus then forceTabFocus() end 
 		menuFrame.Visible = false
@@ -949,25 +929,20 @@ function RaidsTab.HandleUpdate(action, data)
 
 		currentDeadline = data.Deadline or 0
 
+		if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
+			combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.13, 0)
+		end
+
 		combatUI.ChatText.Text = ""
 		combatUI:Log("<font color='#FFD700'>" .. data.LogMsg .. "</font>")
 
 		RaidsTab.UpdateCombatState(data.State)
 		RaidsTab.RenderSkills(data.State)
 
-	elseif action == "Waiting" then
-		combatUI.AbilitiesArea.Visible = false
-		waitingLabel.Text = "Waiting for other players..."
-		waitingLabel.Visible = true
-
 	elseif action == "TurnResult" then
 		currentDeadline = data.Deadline or 0
 
 		if data.LogMsg and data.LogMsg ~= "" then
-			combatUI.AbilitiesArea.Visible = false
-			waitingLabel.Text = ""
-			waitingLabel.Visible = true
-
 			local lines = string.split(data.LogMsg, "\n")
 			for _, line in ipairs(lines) do 
 				if line ~= "" then 
@@ -1014,8 +989,6 @@ function RaidsTab.HandleUpdate(action, data)
 		currentDeadline = 0
 		turnTimerLabel.Text = "Raid Over!"
 		combatUI:ClearAbilities()
-		combatUI.AbilitiesArea.Visible = false
-		waitingLabel.Visible = false
 		combatUI:Log(data.LogMsg)
 
 		if data.Result == "Win" then SFXManager.Play("CombatVictory") else SFXManager.Play("CombatDefeat") end
