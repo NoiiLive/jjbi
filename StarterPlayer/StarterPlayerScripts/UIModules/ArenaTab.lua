@@ -138,7 +138,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lobbyContainer.Visible = true
 	lobbyContainer.Parent = mainContainer
 
-	-- LEFT PANEL
+	-- LEFT PANEL (Profile & Host Setup)
 	profileCard = CreateCard("ProfileCard", lobbyContainer, UDim2.new(0.30, 0, 1, 0), UDim2.new(0, 0, 0, 0))
 	local pPad = Instance.new("UIPadding", profileCard)
 	pPad.PaddingTop = UDim.new(0.04, 0); pPad.PaddingBottom = UDim.new(0.04, 0)
@@ -361,6 +361,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	turnTimerLabel.TextScaled = true
 	turnTimerLabel.ZIndex = 50
 	turnTimerLabel.Text = "Time Remaining: --s"
+	turnTimerLabel.LayoutOrder = -1 
 	turnTimerLabel.Visible = false
 	turnTimerLabel.Parent = combatUI.MainFrame
 	Instance.new("UITextSizeConstraint", turnTimerLabel).MaxTextSize = 26
@@ -399,7 +400,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	bettingArea.Name = "BettingArea"
 	bettingArea.Size = UDim2.new(1, 0, 0.18, 0)
 	bettingArea.BackgroundTransparency = 1
-	bettingArea.LayoutOrder = 4
+	bettingArea.LayoutOrder = 0 
 	bettingArea.ZIndex = 32
 	bettingArea.Visible = false
 	bettingArea.Parent = combatUI.ContentContainer
@@ -915,26 +916,26 @@ function ArenaTab.UpdateCombatState(state)
 				if not fObj.Frame:GetAttribute("TargetHooked") then
 					fObj.Frame:SetAttribute("TargetHooked", true)
 
-					local function hookTarget(child)
-						if child then
-							local btn = Instance.new("TextButton")
-							btn.Size = UDim2.new(1, 0, 1, 0)
-							btn.BackgroundTransparency = 1
-							btn.Text = ""
-							btn.ZIndex = 50
-							btn.Parent = child
-							btn.MouseButton1Click:Connect(function()
-								if pData.HP > 0 then
+					local function hookClick(guiObj)
+						guiObj.InputBegan:Connect(function(input)
+							if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+								if pData.HP > 0 and selectedTargetId ~= pData.UserId then
 									SFXManager.Play("Click")
 									selectedTargetId = pData.UserId
 									ArenaTab.UpdateCombatState(state) 
 								end
-							end)
-						end
+							end
+						end)
 					end
 
-					hookTarget(fObj.Frame:FindFirstChild("IconBox"))
-					hookTarget(fObj.Frame:FindFirstChild("InfoArea"))
+					hookClick(fObj.Frame)
+					for _, c in ipairs(fObj.Frame:GetDescendants()) do
+						if c:IsA("GuiObject") then hookClick(c) end
+					end
+
+					fObj.Frame.DescendantAdded:Connect(function(c)
+						if c:IsA("GuiObject") then hookClick(c) end
+					end)
 				end
 			end
 		end
@@ -965,6 +966,7 @@ end
 function ArenaTab.RenderSkills(state)
 	if isSpectating then return end
 	combatUI:ClearAbilities()
+	combatUI.AbilitiesArea.Visible = true
 	waitingLabel.Visible = false
 
 	local myState = nil
