@@ -514,7 +514,7 @@ function ExecuteCombatTurn(racer)
 		b.PlayerReady = false
 		b.PlayerSelectedSkill = nil
 		b.IsProcessing = false
-		b.TurnDeadline = os.time() + 15
+		b.TurnDeadline = os.time() + 5
 
 		if b.OpponentRacer then
 			if p2Skill and (p2Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + 5) end
