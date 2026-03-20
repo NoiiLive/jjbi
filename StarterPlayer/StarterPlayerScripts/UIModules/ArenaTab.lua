@@ -54,7 +54,7 @@ local StatusDescs = {
 	Confusion = "May attack allies or self.", Buff_Strength = "Increased damage dealt.",
 	Buff_Defense = "Reduced damage taken.", Buff_Speed = "Increased evasion and turn priority.",
 	Buff_Willpower = "Increased crit and survival chance.", Debuff_Strength = "Reduced damage dealt.",
-	Debuff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
+	Buff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance."
 }
 
@@ -269,7 +269,9 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	openQueuesScroll.BackgroundTransparency = 1; openQueuesScroll.ScrollBarThickness = 8
 	openQueuesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); openQueuesScroll.ZIndex = 21
 	local oqLayout = Instance.new("UIListLayout", openQueuesScroll); oqLayout.SortOrder = Enum.SortOrder.LayoutOrder; oqLayout.Padding = UDim.new(0, 10)
-	Instance.new("UIPadding", openQueuesScroll).PaddingRight = UDim.new(0, 12)
+
+	local oqInnerPad = Instance.new("UIPadding", openQueuesScroll)
+	oqInnerPad.PaddingTop = UDim.new(0, 4); oqInnerPad.PaddingLeft = UDim.new(0, 4); oqInnerPad.PaddingRight = UDim.new(0, 8)
 
 	activeMatchesCard = CreateCard("ActiveMatchesCard", rightPanel, UDim2.new(1, 0, 0.48, 0), UDim2.new(0, 0, 0.52, 0))
 	local amPad = Instance.new("UIPadding", activeMatchesCard)
@@ -291,7 +293,9 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	activeMatchesScroll.BackgroundTransparency = 1; activeMatchesScroll.ScrollBarThickness = 8
 	activeMatchesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); activeMatchesScroll.ZIndex = 21
 	local amLayout = Instance.new("UIListLayout", activeMatchesScroll); amLayout.SortOrder = Enum.SortOrder.LayoutOrder; amLayout.Padding = UDim.new(0, 10)
-	Instance.new("UIPadding", activeMatchesScroll).PaddingRight = UDim.new(0, 12)
+
+	local amInnerPad = Instance.new("UIPadding", activeMatchesScroll)
+	amInnerPad.PaddingTop = UDim.new(0, 4); amInnerPad.PaddingLeft = UDim.new(0, 4); amInnerPad.PaddingRight = UDim.new(0, 8)
 
 	-- ==========================================================
 	-- BUTTON LOGIC (Host Setup)
@@ -346,16 +350,19 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	combatUI = CombatTemplate.Create(combatContainer, tooltipMgr)
 
+	-- Put timer in combat container so it hovers above cleanly
 	turnTimerLabel = Instance.new("TextLabel")
-	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
-	turnTimerLabel.Position = UDim2.new(0, 0, 0, -5)
+	turnTimerLabel.Size = UDim2.new(1, 0, 0, 30)
+	turnTimerLabel.Position = UDim2.new(0, 0, 0.02, 0)
 	turnTimerLabel.BackgroundTransparency = 1
 	turnTimerLabel.Font = Enum.Font.GothamBlack
 	turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 	turnTimerLabel.TextScaled = true
 	turnTimerLabel.ZIndex = 30
 	turnTimerLabel.Text = "Time Remaining: --s"
-	turnTimerLabel.Parent = combatUI.MainFrame
+	turnTimerLabel.Visible = false
+	turnTimerLabel.Parent = combatContainer
+	Instance.new("UITextSizeConstraint", turnTimerLabel).MaxTextSize = 26
 
 	combatResourceLabel = Instance.new("TextLabel")
 	combatResourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
@@ -409,12 +416,13 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	leaveSpecBtn.TextColor3 = Color3.new(1,1,1)
 	leaveSpecBtn.Text = "Exit Spectate"
 	leaveSpecBtn.TextScaled = true
+	leaveSpecBtn.ZIndex = 32
 	Instance.new("UICorner", leaveSpecBtn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(leaveSpecBtn, 255, 100, 100)
 	Instance.new("UITextSizeConstraint", leaveSpecBtn).MaxTextSize = 16
 
 	local betCol = Instance.new("Frame", bettingArea)
-	betCol.Size = UDim2.new(0.2, 0, 0.8, 0); betCol.BackgroundTransparency = 1
+	betCol.Size = UDim2.new(0.2, 0, 0.8, 0); betCol.BackgroundTransparency = 1; betCol.ZIndex = 32
 	local bcLayout = Instance.new("UIListLayout", betCol); bcLayout.SortOrder = Enum.SortOrder.LayoutOrder; bcLayout.Padding = UDim.new(0, 5)
 
 	betInput = Instance.new("TextBox", betCol)
@@ -423,7 +431,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	betInput.TextColor3 = Color3.fromRGB(255, 215, 0)
 	betInput.Font = Enum.Font.GothamBold
 	betInput.PlaceholderText = "Bet Amount..."
-	betInput.TextScaled = true; betInput.LayoutOrder = 1
+	betInput.TextScaled = true; betInput.LayoutOrder = 1; betInput.ZIndex = 32
 	Instance.new("UICorner", betInput).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(betInput, 255, 215, 50)
 	Instance.new("UITextSizeConstraint", betInput).MaxTextSize = 20
@@ -434,18 +442,18 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	bettingStatusLbl.Font = Enum.Font.GothamBold
 	bettingStatusLbl.TextColor3 = Color3.fromRGB(50, 255, 50)
 	bettingStatusLbl.TextScaled = true; bettingStatusLbl.LayoutOrder = 2
-	bettingStatusLbl.Visible = false
+	bettingStatusLbl.Visible = false; bettingStatusLbl.ZIndex = 32
 	Instance.new("UITextSizeConstraint", bettingStatusLbl).MaxTextSize = 14
 
 	local t1Col = Instance.new("Frame", bettingArea)
-	t1Col.Size = UDim2.new(0.25, 0, 0.8, 0); t1Col.BackgroundTransparency = 1
+	t1Col.Size = UDim2.new(0.25, 0, 0.8, 0); t1Col.BackgroundTransparency = 1; t1Col.ZIndex = 32
 	local t1Layout = Instance.new("UIListLayout", t1Col); t1Layout.SortOrder = Enum.SortOrder.LayoutOrder; t1Layout.Padding = UDim.new(0, 5)
 
 	betT1Btn = Instance.new("TextButton", t1Col)
 	betT1Btn.Size = UDim2.new(1, 0, 0.6, 0)
 	betT1Btn.BackgroundColor3 = Color3.fromRGB(40, 100, 180)
 	betT1Btn.Font = Enum.Font.GothamBold; betT1Btn.TextColor3 = Color3.new(1,1,1)
-	betT1Btn.TextScaled = true; betT1Btn.LayoutOrder = 1
+	betT1Btn.TextScaled = true; betT1Btn.LayoutOrder = 1; betT1Btn.ZIndex = 32
 	Instance.new("UICorner", betT1Btn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(betT1Btn, 100, 150, 255)
 	Instance.new("UITextSizeConstraint", betT1Btn).MaxTextSize = 18
@@ -453,18 +461,18 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	pool1Lbl = Instance.new("TextLabel", t1Col)
 	pool1Lbl.Size = UDim2.new(1, 0, 0.35, 0); pool1Lbl.BackgroundTransparency = 1
 	pool1Lbl.Font = Enum.Font.GothamBold; pool1Lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	pool1Lbl.TextScaled = true; pool1Lbl.Text = "Pool 1: ¥0"; pool1Lbl.LayoutOrder = 2
+	pool1Lbl.TextScaled = true; pool1Lbl.Text = "Pool 1: ¥0"; pool1Lbl.LayoutOrder = 2; pool1Lbl.ZIndex = 32
 	Instance.new("UITextSizeConstraint", pool1Lbl).MaxTextSize = 14
 
 	local t2Col = Instance.new("Frame", bettingArea)
-	t2Col.Size = UDim2.new(0.25, 0, 0.8, 0); t2Col.BackgroundTransparency = 1
+	t2Col.Size = UDim2.new(0.25, 0, 0.8, 0); t2Col.BackgroundTransparency = 1; t2Col.ZIndex = 32
 	local t2Layout = Instance.new("UIListLayout", t2Col); t2Layout.SortOrder = Enum.SortOrder.LayoutOrder; t2Layout.Padding = UDim.new(0, 5)
 
 	betT2Btn = Instance.new("TextButton", t2Col)
 	betT2Btn.Size = UDim2.new(1, 0, 0.6, 0)
 	betT2Btn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
 	betT2Btn.Font = Enum.Font.GothamBold; betT2Btn.TextColor3 = Color3.new(1,1,1)
-	betT2Btn.TextScaled = true; betT2Btn.LayoutOrder = 1
+	betT2Btn.TextScaled = true; betT2Btn.LayoutOrder = 1; betT2Btn.ZIndex = 32
 	Instance.new("UICorner", betT2Btn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(betT2Btn, 255, 100, 100)
 	Instance.new("UITextSizeConstraint", betT2Btn).MaxTextSize = 18
@@ -472,7 +480,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	pool2Lbl = Instance.new("TextLabel", t2Col)
 	pool2Lbl.Size = UDim2.new(1, 0, 0.35, 0); pool2Lbl.BackgroundTransparency = 1
 	pool2Lbl.Font = Enum.Font.GothamBold; pool2Lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	pool2Lbl.TextScaled = true; pool2Lbl.Text = "Pool 2: ¥0"; pool2Lbl.LayoutOrder = 2
+	pool2Lbl.TextScaled = true; pool2Lbl.Text = "Pool 2: ¥0"; pool2Lbl.LayoutOrder = 2; pool2Lbl.ZIndex = 32
 	Instance.new("UITextSizeConstraint", pool2Lbl).MaxTextSize = 14
 
 	leaveSpecBtn.MouseButton1Click:Connect(function()
@@ -495,6 +503,17 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	betT1Btn.MouseButton1Click:Connect(function() TryPlaceBet(1) end)
 	betT2Btn.MouseButton1Click:Connect(function() TryPlaceBet(2) end)
+
+	task.spawn(function()
+		while task.wait(0.2) do
+			if combatContainer.Visible and currentDeadline > 0 then
+				local remain = math.max(0, currentDeadline - os.time())
+				turnTimerLabel.Text = "Time Remaining: " .. remain .. "s"
+				if remain <= 5 then turnTimerLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+				else turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0) end
+			end
+		end
+	end)
 
 	mainContainer:GetPropertyChangedSignal("Visible"):Connect(function()
 		if mainContainer.Visible and lobbyContainer.Visible then Network.ArenaAction:FireServer("RequestLobbies") end
@@ -527,17 +546,20 @@ function ArenaTab.HandleUpdate(action, data)
 		end
 
 	elseif action == "LobbiesUpdate" then
-		for _, child in pairs(openQueuesScroll:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
+		for _, child in pairs(openQueuesScroll:GetChildren()) do 
+			if child:IsA("Frame") or child:IsA("TextLabel") then child:Destroy() end 
+		end
+
 		if #data == 0 then
 			local empty = Instance.new("TextLabel")
 			empty.Size = UDim2.new(1, 0, 0, 40); empty.BackgroundTransparency = 1; empty.Text = "No open rooms found."
-			empty.TextColor3 = Color3.fromRGB(150, 150, 150); empty.Font = Enum.Font.GothamMedium; empty.TextSize = 16
-			empty.Parent = openQueuesScroll
+			empty.TextColor3 = Color3.fromRGB(150, 150, 150); empty.Font = Enum.Font.GothamMedium; empty.TextScaled = true
+			empty.Parent = openQueuesScroll; Instance.new("UITextSizeConstraint", empty).MaxTextSize = 16
 			return
 		end
 
 		for i, lobby in ipairs(data) do
-			local row = CreateCard("QRow_"..i, openQueuesScroll, UDim2.new(1, -8, 0, 60))
+			local row = CreateCard("QRow_"..i, openQueuesScroll, UDim2.new(1, -4, 0, 60))
 			row.LayoutOrder = i
 			local rowPad = Instance.new("UIPadding", row)
 			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
@@ -605,14 +627,17 @@ function ArenaTab.HandleUpdate(action, data)
 		end)
 
 	elseif action == "ActiveMatchesUpdate" then
-		for _, child in pairs(activeMatchesScroll:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
+		for _, child in pairs(activeMatchesScroll:GetChildren()) do 
+			if child:IsA("Frame") or child:IsA("TextLabel") then child:Destroy() end 
+		end
+
 		if #data == 0 then
-			local empty = Instance.new("TextLabel"); empty.Size = UDim2.new(1, 0, 0, 40); empty.BackgroundTransparency = 1; empty.Text = "No active battles."; empty.TextColor3 = Color3.fromRGB(150, 150, 150); empty.Font = Enum.Font.GothamMedium; empty.TextSize = 16; empty.Parent = activeMatchesScroll
+			local empty = Instance.new("TextLabel"); empty.Size = UDim2.new(1, 0, 0, 40); empty.BackgroundTransparency = 1; empty.Text = "No active battles."; empty.TextColor3 = Color3.fromRGB(150, 150, 150); empty.Font = Enum.Font.GothamMedium; empty.TextScaled = true; empty.Parent = activeMatchesScroll; Instance.new("UITextSizeConstraint", empty).MaxTextSize = 16
 			return
 		end
 
 		for i, match in ipairs(data) do
-			local row = CreateCard("MRow_"..i, activeMatchesScroll, UDim2.new(1, -8, 0, 60))
+			local row = CreateCard("MRow_"..i, activeMatchesScroll, UDim2.new(1, -4, 0, 60))
 			row.LayoutOrder = i
 			local rowPad = Instance.new("UIPadding", row)
 			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
@@ -652,38 +677,40 @@ function ArenaTab.HandleUpdate(action, data)
 		isSpectating = data.State.IsSpectator
 		currentMatchId = data.State.MatchId
 
-		combatUI.AlliesContainer.Parent.Visible = true
-		combatUI.AbilitiesArea.Visible = not isSpectating
-		combatResourceLabel.Visible = not isSpectating
-		bettingArea.Visible = isSpectating
-		turnTimerLabel.Visible = true
+		task.delay(0.05, function()
+			combatUI.AlliesContainer.Parent.Visible = true
+			combatUI.AbilitiesArea.Visible = not isSpectating
+			combatResourceLabel.Visible = not isSpectating
+			bettingArea.Visible = isSpectating
+			turnTimerLabel.Visible = true
 
-		if isSpectating then
-			betInput.Text = ""
-			betInput.Visible = true
-			betT1Btn.Text = "Bet Team 1"
-			betT1Btn.Visible = true
-			betT2Btn.Text = "Bet Team 2"
-			betT2Btn.Visible = true
-			bettingStatusLbl.Visible = false
+			if isSpectating then
+				betInput.Text = ""
+				betInput.Visible = true
+				betT1Btn.Text = "Bet Team 1"
+				betT1Btn.Visible = true
+				betT2Btn.Text = "Bet Team 2"
+				betT2Btn.Visible = true
+				bettingStatusLbl.Visible = false
 
-			pool1Lbl.Text = "Pool 1: ¥" .. (data.State.Pool1 or 0)
-			pool2Lbl.Text = "Pool 2: ¥" .. (data.State.Pool2 or 0)
+				pool1Lbl.Text = "Pool 1: ¥" .. (data.State.Pool1 or 0)
+				pool2Lbl.Text = "Pool 2: ¥" .. (data.State.Pool2 or 0)
 
-			if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
-				combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.18, 0)
+				if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
+					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.18, 0)
+				end
+			else
+				if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
+					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.40, 0)
+				end
 			end
-		else
-			if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
-				combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.40, 0)
-			end
-		end
 
-		combatUI.ChatText.Text = ""
-		AppendLog("<font color='#FFD700'><b>" .. data.LogMsg .. "</b></font>")
-		selectedTargetId = nil
-		ArenaTab.UpdateCombatState(data.State)
-		if not isSpectating then ArenaTab.RenderSkills(data.State) end
+			combatUI.ChatText.Text = ""
+			AppendLog("<font color='#FFD700'><b>" .. data.LogMsg .. "</b></font>")
+			selectedTargetId = nil
+			ArenaTab.UpdateCombatState(data.State)
+			if not isSpectating then ArenaTab.RenderSkills(data.State) end
+		end)
 
 	elseif action == "Waiting" then
 		combatUI.AbilitiesArea.Visible = false
@@ -775,6 +802,8 @@ function ArenaTab.HandleUpdate(action, data)
 			viewDefault.Visible = true; viewSetup.Visible = false; viewHosting.Visible = false
 			lobbyContainer.Visible = true
 			combatContainer.Visible = false
+			isSpectating = false
+			bettingArea.Visible = false
 			Network.ArenaAction:FireServer("RequestLobbies")
 		end)
 	end
