@@ -12,7 +12,11 @@ local CombatCore = require(game:GetService("ServerScriptService"):WaitForChild("
 local SBRAction = Network:WaitForChild("SBRAction")
 local SBRUpdate = Network:WaitForChild("SBRUpdate")
 
-local studioForced = false
+local cycleOffset = 0
+
+local function GetSBRTime()
+	return (os.time() + cycleOffset) % 3600
+end
 
 local EventState = {
 	IsActive = false,
@@ -180,7 +184,6 @@ end
 local function EndEvent()
 	EventState.IsActive = false
 	EventState.Queue = {}
-	studioForced = false
 
 	for uid, racer in pairs(EventState.Racers) do
 		if racer.Player and racer.Player.Parent then
@@ -290,10 +293,10 @@ local hasSentWarning = false
 
 task.spawn(function()
 	while task.wait(1) do
-		local cycleTime = os.time() % 3600 
-		local shouldBeActive = (cycleTime < 1800) or studioForced
+		local cycleTime = GetSBRTime() 
+		local shouldBeActive = (cycleTime < 1800)
 
-		if cycleTime == 1740 and not hasSentWarning and not studioForced then
+		if cycleTime == 1740 and not hasSentWarning then
 			hasSentWarning = true
 			Network.CombatUpdate:FireAllClients("SystemMessage", "<b><font color='#FFAA00'>The Steel Ball Run Race will begin in 1 Minute!</font></b>")
 		elseif cycleTime < 1740 then
@@ -531,7 +534,7 @@ end
 
 SBRAction.OnServerEvent:Connect(function(player, action, data)
 	if action == "RequestSync" then
-		SBRUpdate:FireClient(player, "SyncTimer", os.time() % 3600)
+		SBRUpdate:FireClient(player, "SyncTimer", GetSBRTime())
 
 	elseif action == "SetHorseName" then
 		if not player:GetAttribute("HasHorseNamePass") then return end
@@ -604,7 +607,8 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 
 	elseif action == "ForceStartEvent" then
 		if game:GetService("RunService"):IsStudio() then
-			studioForced = true
+			cycleOffset = -(os.time() % 3600)
+			SBRUpdate:FireAllClients("SyncTimer", GetSBRTime())
 		end
 
 	elseif action == "TakePath" then
