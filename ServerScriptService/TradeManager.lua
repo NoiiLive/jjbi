@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -307,8 +308,15 @@ local function ExecuteTrade(session)
 end
 
 local function StartTrade(p1, p2)
-	if OpenLobbies[p1] then OpenLobbies[p1] = nil end
-	if OpenLobbies[p2] then OpenLobbies[p2] = nil end
+	if OpenLobbies[p1] then 
+		OpenLobbies[p1] = nil 
+		TradeUpdate:FireClient(p1, "LobbyStatus", {IsHosting = false})
+	end
+	if OpenLobbies[p2] then 
+		OpenLobbies[p2] = nil 
+		TradeUpdate:FireClient(p2, "LobbyStatus", {IsHosting = false})
+	end
+
 	if IncomingRequests[p1] then IncomingRequests[p1][p2] = nil end
 	if IncomingRequests[p2] then IncomingRequests[p2][p1] = nil end
 
@@ -421,7 +429,6 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			for host, _ in pairs(OpenLobbies) do if host.UserId == data then targetHost = host; break end end
 			if targetHost and targetHost ~= player then
 				StartTrade(targetHost, player)
-				TradeUpdate:FireClient(targetHost, "LobbyStatus", {IsHosting = false})
 			end
 
 		elseif action == "SendRequest" then
