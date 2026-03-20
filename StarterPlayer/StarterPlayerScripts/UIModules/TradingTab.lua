@@ -416,7 +416,7 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	hostView.ZIndex = 21
 
 	local lblLF = Instance.new("TextLabel", hostView)
-	lblLF.Size = UDim2.new(0.4, 0, 0.3, 0)
+	lblLF.Size = UDim2.new(0.35, 0, 0.3, 0)
 	lblLF.Position = UDim2.new(0, 0, 0, 0)
 	lblLF.BackgroundTransparency = 1
 	lblLF.Font = Enum.Font.GothamBold
@@ -428,14 +428,14 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	Instance.new("UITextSizeConstraint", lblLF).MaxTextSize = 12
 
 	local lfDropdownObj = Instance.new("Frame", hostView)
-	lfDropdownObj.Size = UDim2.new(0.5, 0, 0.4, 0)
+	lfDropdownObj.Size = UDim2.new(0.35, 0, 0.4, 0)
 	lfDropdownObj.Position = UDim2.new(0, 0, 0.3, 0)
 	lfDropdownObj.BackgroundTransparency = 1
 	local getLfVal, resetLfVal = InitMultiSelectGrid(lfDropdownObj, "Any / Offers", KnownItems)
 
 	local lblOff = Instance.new("TextLabel", hostView)
-	lblOff.Size = UDim2.new(0.4, 0, 0.3, 0)
-	lblOff.Position = UDim2.new(0.52, 0, 0, 0)
+	lblOff.Size = UDim2.new(0.35, 0, 0.3, 0)
+	lblOff.Position = UDim2.new(0.4, 0, 0, 0)
 	lblOff.BackgroundTransparency = 1
 	lblOff.Font = Enum.Font.GothamBold
 	lblOff.TextColor3 = Color3.new(1,1,1)
@@ -446,15 +446,15 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	Instance.new("UITextSizeConstraint", lblOff).MaxTextSize = 12
 
 	local offDropdownObj = Instance.new("Frame", hostView)
-	offDropdownObj.Size = UDim2.new(0.48, 0, 0.4, 0)
-	offDropdownObj.Position = UDim2.new(0.52, 0, 0.3, 0)
+	offDropdownObj.Size = UDim2.new(0.35, 0, 0.4, 0)
+	offDropdownObj.Position = UDim2.new(0.4, 0, 0.3, 0)
 	offDropdownObj.BackgroundTransparency = 1
 	local getOffVal, resetOffVal = InitMultiSelectGrid(offDropdownObj, "Any / Open", KnownItems)
 
 	local hostBtn = Instance.new("TextButton", hostView)
-	hostBtn.Size = UDim2.new(0.2, 0, 0.5, 0)
-	hostBtn.Position = UDim2.new(1, 0, 0, 0)
-	hostBtn.AnchorPoint = Vector2.new(1, 0)
+	hostBtn.Size = UDim2.new(0.2, 0, 0.7, 0)
+	hostBtn.Position = UDim2.new(1, 0, 0.5, 0)
+	hostBtn.AnchorPoint = Vector2.new(1, 0.5)
 	hostBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
 	hostBtn.Font = Enum.Font.GothamBold
 	hostBtn.TextColor3 = Color3.new(1, 1, 1)
@@ -544,90 +544,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	bivLayout.Padding = UDim.new(0, 10)
 	local bivPad = Instance.new("UIPadding", browserInboxView)
 	bivPad.PaddingTop = UDim.new(0, 5); bivPad.PaddingLeft = UDim.new(0, 5); bivPad.PaddingRight = UDim.new(0, 10)
-
-	-- ==========================================================
-	-- LOBBY NAVIGATION BUTTON CONNECTIONS
-	-- ==========================================================
-	toggleReqsBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		requestsEnabled = not requestsEnabled
-		toggleReqsBtn.Text = requestsEnabled and "Requests: ON" or "Requests: OFF"
-		toggleReqsBtn.BackgroundColor3 = requestsEnabled and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(140, 40, 40)
-		local stroke = toggleReqsBtn:FindFirstChildOfClass("UIStroke")
-		if stroke then stroke.Color = requestsEnabled and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100) end
-		Network.TradeAction:FireServer("ToggleRequests", requestsEnabled)
-	end)
-
-	tabReqBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		reqView.Visible = true
-		hostView.Visible = false
-		tabReqBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
-		tabReqBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
-		tabHostBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-		tabHostBtn.TextColor3 = Color3.new(1, 1, 1)
-		local s1 = tabReqBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
-		local s2 = tabHostBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
-	end)
-
-	tabHostBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		reqView.Visible = false
-		hostView.Visible = true
-		tabHostBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
-		tabHostBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
-		tabReqBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-		tabReqBtn.TextColor3 = Color3.new(1, 1, 1)
-		local s1 = tabHostBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
-		local s2 = tabReqBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
-	end)
-
-	tabLobbyBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		browserLobbyView.Visible = true
-		browserInboxView.Visible = false
-		tabLobbyBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
-		tabLobbyBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
-		tabInboxBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-		tabInboxBtn.TextColor3 = Color3.new(1, 1, 1)
-		local s1 = tabLobbyBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
-		local s2 = tabInboxBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
-	end)
-
-	tabInboxBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		browserLobbyView.Visible = false
-		browserInboxView.Visible = true
-		tabInboxBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
-		tabInboxBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
-		tabLobbyBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-		tabLobbyBtn.TextColor3 = Color3.new(1, 1, 1)
-		local s1 = tabInboxBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
-		local s2 = tabLobbyBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
-	end)
-
-	sendReqBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		local target = getReqVal()
-		if target and target ~= "" and target ~= "Select a Player..." then
-			Network.TradeAction:FireServer("SendRequest", target)
-			resetReqVal("Select a Player...")
-		else
-			NotificationManager.Show("<font color='#FF5555'>Please select a player first!</font>")
-		end
-	end)
-
-	hostBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		if isHosting then
-			Network.TradeAction:FireServer("CancelLobby")
-		else
-			local lf = getLfVal()
-			local off = getOffVal()
-			Network.TradeAction:FireServer("CreateLobby", {LF = lf, Offering = off})
-		end
-	end)
-
 
 	-- ==========================================================
 	-- ACTIVE TRADE CARD
@@ -720,6 +636,8 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 		gLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 		local gPad = Instance.new("UIPadding", grid)
+		gPad.PaddingTop = UDim.new(0, 5)
+		gPad.PaddingLeft = UDim.new(0, 5)
 		gPad.PaddingRight = UDim.new(0, 8)
 
 		return side
@@ -780,7 +698,8 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	myInvList.Visible = true; myInvList.ZIndex = 22
 	local milLayout = Instance.new("UIGridLayout", myInvList)
 	milLayout.CellSize = UDim2.new(0.31, 0, 0, 50); milLayout.CellPadding = UDim2.new(0.03, 0, 0, 10)
-	Instance.new("UIPadding", myInvList).PaddingRight = UDim.new(0, 8)
+	local milPad = Instance.new("UIPadding", myInvList)
+	milPad.PaddingTop = UDim.new(0, 5); milPad.PaddingLeft = UDim.new(0, 5); milPad.PaddingRight = UDim.new(0, 8)
 
 	myStandList = Instance.new("ScrollingFrame", invCard)
 	myStandList.Size = UDim2.new(1, 0, 0.8, 0); myStandList.Position = UDim2.new(0, 0, 0.2, 0)
@@ -788,7 +707,8 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	myStandList.Visible = false; myStandList.ZIndex = 22
 	local mslLayout = Instance.new("UIGridLayout", myStandList)
 	mslLayout.CellSize = UDim2.new(0.31, 0, 0, 50); mslLayout.CellPadding = UDim2.new(0.03, 0, 0, 10)
-	Instance.new("UIPadding", myStandList).PaddingRight = UDim.new(0, 8)
+	local mslPad = Instance.new("UIPadding", myStandList)
+	mslPad.PaddingTop = UDim.new(0, 5); mslPad.PaddingLeft = UDim.new(0, 5); mslPad.PaddingRight = UDim.new(0, 8)
 
 	myStyleList = Instance.new("ScrollingFrame", invCard)
 	myStyleList.Size = UDim2.new(1, 0, 0.8, 0); myStyleList.Position = UDim2.new(0, 0, 0.2, 0)
@@ -796,7 +716,8 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	myStyleList.Visible = false; myStyleList.ZIndex = 22
 	local mstLayout = Instance.new("UIGridLayout", myStyleList)
 	mstLayout.CellSize = UDim2.new(0.31, 0, 0, 50); mstLayout.CellPadding = UDim2.new(0.03, 0, 0, 10)
-	Instance.new("UIPadding", myStyleList).PaddingRight = UDim.new(0, 8)
+	local mstPad = Instance.new("UIPadding", myStyleList)
+	mstPad.PaddingTop = UDim.new(0, 5); mstPad.PaddingLeft = UDim.new(0, 5); mstPad.PaddingRight = UDim.new(0, 8)
 
 	tItemsBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); myInvList.Visible = true; myStandList.Visible = false; myStyleList.Visible = false; tItemsBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100); tStandsBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50); tStylesBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50) end)
 	tStandsBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); myInvList.Visible = false; myStandList.Visible = true; myStyleList.Visible = false; tItemsBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50); tStandsBtn.BackgroundColor3 = Color3.fromRGB(70, 30, 100); tStylesBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50) end)
@@ -1080,54 +1001,62 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 			NotificationManager.Show("<font color='#55FF55'>New Trade Request from " .. data .. "!</font>")
 
 		elseif action == "ShowClaimPrompt" then
-			if forceTabFocus then forceTabFocus() end 
-			claimTitle.Text = "You received " .. (data.Name or "Unknown") .. "!"
+			task.spawn(function()
+				while styleClaimModal.Visible do task.wait(0.2) end
 
-			local function FormatSlotText(title, standName)
-				local safeName = standName or "None"
-				if safeName == "None" or safeName == "" then return title .. "\n[Empty]" end
-				return title .. "\n[" .. safeName .. "]"
-			end
+				if forceTabFocus then forceTabFocus() end 
+				claimTitle.Text = "You received " .. (data.Name or "Unknown") .. "!"
 
-			btnActive.Text = FormatSlotText("Active Stand", data.Active)
-			btnSlot1.Text = FormatSlotText("Storage 1", data.Slot1)
-			btnSlot2.Text = FormatSlotText("Storage 2", data.Slot2)
-			btnSlot3.Text = FormatSlotText("Storage 3", data.Slot3)
-			btnSlot4.Text = FormatSlotText("Storage 4", data.Slot4)
-			btnSlot5.Text = FormatSlotText("Storage 5", data.Slot5)
+				local function FormatSlotText(title, standName)
+					local safeName = standName or "None"
+					if safeName == "None" or safeName == "" then return title .. "\n[Empty]" end
+					return title .. "\n[" .. safeName .. "]"
+				end
 
-			local ls = player:FindFirstChild("leaderstats")
-			local prestige = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
+				btnActive.Text = FormatSlotText("Active Stand", data.Active)
+				btnSlot1.Text = FormatSlotText("Storage 1", data.Slot1)
+				btnSlot2.Text = FormatSlotText("Storage 2", data.Slot2)
+				btnSlot3.Text = FormatSlotText("Storage 3", data.Slot3)
+				btnSlot4.Text = FormatSlotText("Storage 4", data.Slot4)
+				btnSlot5.Text = FormatSlotText("Storage 5", data.Slot5)
 
-			btnSlot2.Visible = player:GetAttribute("HasStandSlot2") == true
-			btnSlot3.Visible = player:GetAttribute("HasStandSlot3") == true
-			btnSlot4.Visible = prestige >= 15
-			btnSlot5.Visible = prestige >= 30
+				local ls = player:FindFirstChild("leaderstats")
+				local prestige = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
 
-			claimModal.Visible = true
+				btnSlot2.Visible = player:GetAttribute("HasStandSlot2") == true
+				btnSlot3.Visible = player:GetAttribute("HasStandSlot3") == true
+				btnSlot4.Visible = prestige >= 15
+				btnSlot5.Visible = prestige >= 30
+
+				claimModal.Visible = true
+			end)
 
 		elseif action == "HideClaimPrompt" then
 			claimModal.Visible = false
 
 		elseif action == "ShowStyleClaimPrompt" then
-			if forceTabFocus then forceTabFocus() end 
-			styleClaimTitle.Text = "You received " .. (data.Name or "Unknown") .. "!"
+			task.spawn(function()
+				while claimModal.Visible do task.wait(0.2) end
 
-			local function FormatSlotText(title, styleName)
-				local safeName = styleName or "None"
-				if safeName == "None" or safeName == "" then return title .. "\n[Empty]" end
-				return title .. "\n[" .. safeName .. "]"
-			end
+				if forceTabFocus then forceTabFocus() end 
+				styleClaimTitle.Text = "You received " .. (data.Name or "Unknown") .. "!"
 
-			btnStyleActive.Text = FormatSlotText("Active Style", data.Active)
-			btnStyleSlot1.Text = FormatSlotText("Storage 1", data.Slot1)
-			btnStyleSlot2.Text = FormatSlotText("Storage 2", data.Slot2)
-			btnStyleSlot3.Text = FormatSlotText("Storage 3", data.Slot3)
+				local function FormatSlotText(title, styleName)
+					local safeName = styleName or "None"
+					if safeName == "None" or safeName == "" then return title .. "\n[Empty]" end
+					return title .. "\n[" .. safeName .. "]"
+				end
 
-			btnStyleSlot2.Visible = player:GetAttribute("HasStyleSlot2") == true
-			btnStyleSlot3.Visible = player:GetAttribute("HasStyleSlot3") == true
+				btnStyleActive.Text = FormatSlotText("Active Style", data.Active)
+				btnStyleSlot1.Text = FormatSlotText("Storage 1", data.Slot1)
+				btnStyleSlot2.Text = FormatSlotText("Storage 2", data.Slot2)
+				btnStyleSlot3.Text = FormatSlotText("Storage 3", data.Slot3)
 
-			styleClaimModal.Visible = true
+				btnStyleSlot2.Visible = player:GetAttribute("HasStyleSlot2") == true
+				btnStyleSlot3.Visible = player:GetAttribute("HasStyleSlot3") == true
+
+				styleClaimModal.Visible = true
+			end)
 
 		elseif action == "HideStyleClaimPrompt" then
 			styleClaimModal.Visible = false
