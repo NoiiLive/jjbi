@@ -9,6 +9,9 @@ local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local TradeAction = Network:WaitForChild("TradeAction")
 local TradeUpdate = Network:WaitForChild("TradeUpdate")
 
+local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
+NotificationEvent.Name = "NotificationEvent"
+
 local OpenLobbies = {} 
 local IncomingRequests = {} 
 local ActiveTrades = {} 
@@ -92,8 +95,8 @@ local function EndTrade(session, reasonMsg)
 	if session.P2.Parent then TradeUpdate:FireClient(session.P2, "TradeEnd") end
 
 	if reasonMsg then
-		if session.P1.Parent then Network.CombatUpdate:FireClient(session.P1, "SystemMessage", reasonMsg) end
-		if session.P2.Parent then Network.CombatUpdate:FireClient(session.P2, "SystemMessage", reasonMsg) end
+		if session.P1.Parent then NotificationEvent:FireClient(session.P1, reasonMsg) end
+		if session.P2.Parent then NotificationEvent:FireClient(session.P2, reasonMsg) end
 	end
 end
 
@@ -368,7 +371,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute("PendingStand_Name", "None")
 			player:SetAttribute("PendingStand_Trait", "None")
 			TradeUpdate:FireClient(player, "HideClaimPrompt")
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#A020F0'>Stand safely stored!</font>")
+			NotificationEvent:FireClient(player, "<font color='#A020F0'>Stand safely stored!</font>")
 
 		elseif action == "ClaimStyle" then
 			local pName = player:GetAttribute("PendingStyle_Name")
@@ -387,7 +390,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 
 			player:SetAttribute("PendingStyle_Name", "None")
 			TradeUpdate:FireClient(player, "HideStyleClaimPrompt")
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF8C00'>Style safely stored!</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF8C00'>Style safely stored!</font>")
 
 		elseif action == "ToggleRequests" then
 			if not CanTrade(player) then return end
@@ -427,19 +430,19 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if not targetPlayer or targetPlayer == player then return end
 
 			if not CanTrade(targetPlayer) then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>" .. targetPlayer.Name .. " must reach Prestige 1 to unlock trading!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. targetPlayer.Name .. " must reach Prestige 1 to unlock trading!</font>")
 				return
 			end
 
 			if PlayerSettings[targetPlayer] and PlayerSettings[targetPlayer].RequestsEnabled == false then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>That player is not accepting trade requests right now.</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>That player is not accepting trade requests right now.</font>")
 				return
 			end
 
 			if not IncomingRequests[targetPlayer] then IncomingRequests[targetPlayer] = {} end
 			IncomingRequests[targetPlayer][player] = true
 
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>Trade request sent to " .. targetPlayer.Name .. "!</font>")
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Trade request sent to " .. targetPlayer.Name .. "!</font>")
 			TradeUpdate:FireClient(targetPlayer, "TradeAlert", player.Name)
 			TradeUpdate:FireClient(targetPlayer, "BrowserUpdate", GetBrowserDataForPlayer(targetPlayer))
 
@@ -479,7 +482,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if myOffer.Stand then return end 
 
 			if player:GetAttribute("StandLocked") and data == "Active" then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You cannot trade a locked Stand!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade a locked Stand!</font>")
 				return
 			end
 
@@ -525,7 +528,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if myOffer.Style then return end 
 
 			if player:GetAttribute("StyleLocked") and data == "Active" then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You cannot trade a locked Style!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade a locked Style!</font>")
 				return
 			end
 
@@ -557,7 +560,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 
 			local lockedItems = player:GetAttribute("LockedItems") or ""
 			if table.find(string.split(lockedItems, ","), itemName) then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You cannot trade a locked item!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade a locked item!</font>")
 				return
 			end
 
@@ -579,7 +582,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 				UnlockTrade()
 				SyncTrade(session)
 			else
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You cannot trade equipped items. Unequip it first!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade equipped items. Unequip it first!</font>")
 			end
 
 		elseif action == "RemoveItem" then
