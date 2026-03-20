@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -312,16 +313,23 @@ local function ProcessTurn(match)
 		local winPool = (winningTeamNum == 1) and match.Pool1 or match.Pool2
 		local losePool = (winningTeamNum == 1) and match.Pool2 or match.Pool1
 
-		for specPlayer, betData in pairs(match.Bets) do
-			if betData.Team == winningTeamNum then
-				local share = betData.Amount / winPool
-				local payout = math.floor(betData.Amount + (share * losePool))
-				specPlayer.leaderstats.Yen.Value += payout
-				ArenaUpdate:FireClient(specPlayer, "MatchOver", {Result = "Spectate", LogMsg = logStr .. "\n\n<font color='#55FF55'>Bet Won! Payout: ¥" .. payout .. "</font>"})
-			else
-				ArenaUpdate:FireClient(specPlayer, "MatchOver", {Result = "Spectate", LogMsg = logStr .. "\n\n<font color='#FF5555'>Bet Lost! (-¥" .. betData.Amount .. ")</font>"})
+		for _, specPlayer in ipairs(match.Spectators) do
+			if specPlayer and specPlayer.Parent then
+				local betData = match.Bets[specPlayer]
+				if betData then
+					if betData.Team == winningTeamNum then
+						local share = betData.Amount / winPool
+						local payout = math.floor(betData.Amount + (share * losePool))
+						specPlayer.leaderstats.Yen.Value += payout
+						ArenaUpdate:FireClient(specPlayer, "MatchOver", {Result = "Spectate", LogMsg = logStr .. "\n\n<font color='#55FF55'>Bet Won! Payout: ¥" .. payout .. "</font>"})
+					else
+						ArenaUpdate:FireClient(specPlayer, "MatchOver", {Result = "Spectate", LogMsg = logStr .. "\n\n<font color='#FF5555'>Bet Lost! (-¥" .. betData.Amount .. ")</font>"})
+					end
+				else
+					ArenaUpdate:FireClient(specPlayer, "MatchOver", {Result = "Spectate", LogMsg = logStr .. "\n\n<font color='#AAAAAA'>Match Finished.</font>"})
+				end
+				SpectatingMatches[specPlayer] = nil
 			end
-			SpectatingMatches[specPlayer] = nil
 		end
 
 		MatchRegistry[match.Id] = nil
@@ -420,7 +428,7 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, BuildPlayerStruct(qp)) end
 			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, BuildPlayerStruct(qp)) end
 
-			local turnTime = 5
+			local turnTime = 15
 			if lobby.Capacity == 4 then turnTime = 30 elseif lobby.Capacity == 8 then turnTime = 45 end
 
 			local matchId = HttpService:GenerateGUID(false)
@@ -451,7 +459,7 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 
 		table.insert(match.Spectators, player)
 		SpectatingMatches[player] = match
-		ArenaUpdate:FireClient(player, "MatchStart", { State = GetClientState(match, player, true), LogMsg = "You are now spectating!", Deadline = match.TurnDeadline })
+		ArenaUpdate:FireClient(player, "SpectateStart", { MatchId = match.Id, State = GetClientState(match, player, true), Deadline = match.TurnDeadline })
 		ArenaUpdate:FireAllClients("ActiveMatchesUpdate", GetActiveMatchesData())
 	elseif action == "LeaveSpectate" then
 		local match = SpectatingMatches[player]
