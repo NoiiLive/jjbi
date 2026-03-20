@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -10,6 +11,8 @@ local CombatCore = require(game:GetService("ServerScriptService"):WaitForChild("
 
 local SBRAction = Network:WaitForChild("SBRAction")
 local SBRUpdate = Network:WaitForChild("SBRUpdate")
+
+local studioForced = false
 
 local EventState = {
 	IsActive = false,
@@ -177,6 +180,7 @@ end
 local function EndEvent()
 	EventState.IsActive = false
 	EventState.Queue = {}
+	studioForced = false
 
 	for uid, racer in pairs(EventState.Racers) do
 		if racer.Player and racer.Player.Parent then
@@ -287,9 +291,9 @@ local hasSentWarning = false
 task.spawn(function()
 	while task.wait(1) do
 		local cycleTime = os.time() % 3600 
-		local shouldBeActive = cycleTime < 1800
+		local shouldBeActive = (cycleTime < 1800) or studioForced
 
-		if cycleTime == 1740 and not hasSentWarning then
+		if cycleTime == 1740 and not hasSentWarning and not studioForced then
 			hasSentWarning = true
 			Network.CombatUpdate:FireAllClients("SystemMessage", "<b><font color='#FFAA00'>The Steel Ball Run Race will begin in 1 Minute!</font></b>")
 		elseif cycleTime < 1740 then
@@ -597,6 +601,11 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 		end
 		if not inQueue then table.insert(EventState.Queue, player) end
 		SBRUpdate:FireAllClients("SyncQueue", #EventState.Queue)
+
+	elseif action == "ForceStartEvent" then
+		if game:GetService("RunService"):IsStudio() then
+			studioForced = true
+		end
 
 	elseif action == "TakePath" then
 		local r = EventState.Racers[player.UserId]
