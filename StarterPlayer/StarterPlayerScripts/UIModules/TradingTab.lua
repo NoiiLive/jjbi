@@ -769,17 +769,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	AddBtnStroke(lockBtn, 255, 180, 50, 1)
 	Instance.new("UITextSizeConstraint", lockBtn).MaxTextSize = 16
 
-	cancelTradeBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("CancelTrade") end)
-
-	setYenBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		local amt = tonumber(addYenInput.Text)
-		if amt and amt >= 0 then Network.TradeAction:FireServer("SetYen", math.floor(amt)) end
-		addYenInput.Text = ""
-	end)
-
-	lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ToggleLock") end)
-
 	-- ==========================================================
 	-- CLAIM MODALS
 	-- ==========================================================
@@ -849,13 +838,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	btnSlot4 = CreateClaimBtn("BtnSlot4", 5); btnSlot4.Parent = claimBtnGrid
 	btnSlot5 = CreateClaimBtn("BtnSlot5", 6); btnSlot5.Parent = claimBtnGrid
 
-	btnActive.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Active") end)
-	btnSlot1.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot1") end)
-	btnSlot2.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot2") end)
-	btnSlot3.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot3") end)
-	btnSlot4.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot4") end)
-	btnSlot5.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot5") end)
-
 	styleClaimModal = Instance.new("Frame", parentFrame)
 	styleClaimModal.Name = "StyleClaimModal"
 	styleClaimModal.Size = UDim2.new(1, 0, 1, 0)
@@ -919,6 +901,111 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	btnStyleSlot1 = CreateStyleClaimBtn("BtnStyleSlot1", 2); btnStyleSlot1.Parent = styleClaimBtnGrid
 	btnStyleSlot2 = CreateStyleClaimBtn("BtnStyleSlot2", 3); btnStyleSlot2.Parent = styleClaimBtnGrid
 	btnStyleSlot3 = CreateStyleClaimBtn("BtnStyleSlot3", 4); btnStyleSlot3.Parent = styleClaimBtnGrid
+
+
+	-- ==========================================================
+	-- LOBBY NAVIGATION BUTTON CONNECTIONS
+	-- ==========================================================
+	toggleReqsBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		requestsEnabled = not requestsEnabled
+		toggleReqsBtn.Text = requestsEnabled and "Requests: ON" or "Requests: OFF"
+		toggleReqsBtn.BackgroundColor3 = requestsEnabled and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(140, 40, 40)
+		local stroke = toggleReqsBtn:FindFirstChildOfClass("UIStroke")
+		if stroke then stroke.Color = requestsEnabled and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100) end
+		Network.TradeAction:FireServer("ToggleRequests", requestsEnabled)
+	end)
+
+	tabReqBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		reqView.Visible = true
+		hostView.Visible = false
+		tabReqBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabReqBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabHostBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabHostBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabReqBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabHostBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	tabHostBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		reqView.Visible = false
+		hostView.Visible = true
+		tabHostBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabHostBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabReqBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabReqBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabHostBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabReqBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	tabLobbyBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		browserLobbyView.Visible = true
+		browserInboxView.Visible = false
+		tabLobbyBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabLobbyBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabInboxBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabInboxBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabLobbyBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabInboxBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	tabInboxBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		browserLobbyView.Visible = false
+		browserInboxView.Visible = true
+		tabInboxBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+		tabInboxBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
+		tabLobbyBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+		tabLobbyBtn.TextColor3 = Color3.new(1, 1, 1)
+		local s1 = tabInboxBtn:FindFirstChildOfClass("UIStroke"); if s1 then s1.Color = Color3.fromRGB(255, 215, 0); s1.Thickness = 2 end
+		local s2 = tabLobbyBtn:FindFirstChildOfClass("UIStroke"); if s2 then s2.Color = Color3.fromRGB(120, 60, 180); s2.Thickness = 1 end
+	end)
+
+	sendReqBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		local target = getReqVal()
+		if target and target ~= "" and target ~= "Select a Player..." then
+			Network.TradeAction:FireServer("SendRequest", target)
+			resetReqVal("Select a Player...")
+		else
+			NotificationManager.Show("<font color='#FF5555'>Please select a player first!</font>")
+		end
+	end)
+
+	hostBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		if isHosting then
+			Network.TradeAction:FireServer("CancelLobby")
+		else
+			local lf = getLfVal()
+			local off = getOffVal()
+			Network.TradeAction:FireServer("CreateLobby", {LF = lf, Offering = off})
+		end
+	end)
+
+	-- ==========================================================
+	-- ACTIVE TRADE CARD & CLAIM BUTTON CONNECTIONS
+	-- ==========================================================
+	cancelTradeBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("CancelTrade") end)
+
+	setYenBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		local amt = tonumber(addYenInput.Text)
+		if amt and amt >= 0 then Network.TradeAction:FireServer("SetYen", math.floor(amt)) end
+		addYenInput.Text = ""
+	end)
+
+	lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ToggleLock") end)
+
+	btnActive.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Active") end)
+	btnSlot1.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot1") end)
+	btnSlot2.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot2") end)
+	btnSlot3.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot3") end)
+	btnSlot4.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot4") end)
+	btnSlot5.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot5") end)
 
 	btnStyleActive.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStyle", "Active") end)
 	btnStyleSlot1.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStyle", "Slot1") end)
