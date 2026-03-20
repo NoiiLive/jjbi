@@ -420,7 +420,7 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, BuildPlayerStruct(qp)) end
 			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, BuildPlayerStruct(qp)) end
 
-			local turnTime = 15
+			local turnTime = 5
 			if lobby.Capacity == 4 then turnTime = 30 elseif lobby.Capacity == 8 then turnTime = 45 end
 
 			local matchId = HttpService:GenerateGUID(false)
