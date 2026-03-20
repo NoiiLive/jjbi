@@ -9,7 +9,7 @@ local UIModules = script.Parent
 
 -- Temporarily disabled
 -- local GangsTab = require(UIModules:WaitForChild("GangsTab"))
--- local TradingTab = require(UIModules:WaitForChild("TradingTab"))
+local TradingTab = require(UIModules:WaitForChild("TradingTab"))
 
 local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
 local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
@@ -323,7 +323,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	-- pcall(function() GangsTab.Init(gangsFrame, tooltipMgr) end)
 	pcall(function() ArenaTab.Init(arenaFrame, tooltipMgr, function() ForceSubTabFocus("Arena") end) end)
 	pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
-	-- pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
+	pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
 	pcall(function() LeaderboardTab.Init(lbFrame, tooltipMgr) end)
 	pcall(function() SBREventTab.Init(sbrFrame, tooltipMgr, function() ForceSubTabFocus("Event") end) end)
 
