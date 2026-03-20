@@ -54,7 +54,7 @@ local StatusDescs = {
 	Confusion = "May attack allies or self.", Buff_Strength = "Increased damage dealt.",
 	Buff_Defense = "Reduced damage taken.", Buff_Speed = "Increased evasion and turn priority.",
 	Buff_Willpower = "Increased crit and survival chance.", Debuff_Strength = "Reduced damage dealt.",
-	Debuff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
+	Buff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance."
 }
 
@@ -354,24 +354,52 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	turnTimerLabel = Instance.new("TextLabel")
 	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
+	turnTimerLabel.Position = UDim2.new(0, 0, 0, -5)
 	turnTimerLabel.BackgroundTransparency = 1
 	turnTimerLabel.Font = Enum.Font.GothamBlack
 	turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 	turnTimerLabel.TextScaled = true
-	turnTimerLabel.ZIndex = 30
+	turnTimerLabel.ZIndex = 50
 	turnTimerLabel.Text = "Time Remaining: --s"
-	turnTimerLabel.LayoutOrder = -1 -- Forces the text label to sit at the absolute top of the container
 	turnTimerLabel.Visible = false
-	turnTimerLabel.Parent = combatUI.ContentContainer
+	turnTimerLabel.Parent = combatUI.MainFrame
+	Instance.new("UITextSizeConstraint", turnTimerLabel).MaxTextSize = 26
+
+	combatResourceLabel = Instance.new("TextLabel")
+	combatResourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
+	combatResourceLabel.BackgroundTransparency = 1
+	combatResourceLabel.Font = Enum.Font.GothamBold
+	combatResourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
+	combatResourceLabel.TextScaled = true
+	combatResourceLabel.ZIndex = 22
+	combatResourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
+	combatResourceLabel.LayoutOrder = 2 
+	combatResourceLabel.Visible = false
+	combatResourceLabel.Parent = combatUI.ContentContainer
+	Instance.new("UITextSizeConstraint", combatResourceLabel).MaxTextSize = 18
+
+	waitingLabel = Instance.new("TextLabel")
+	waitingLabel.Name = "WaitingLabel"
+	waitingLabel.Size = UDim2.new(1, 0, 0.25, 0)
+	waitingLabel.BackgroundTransparency = 1
+	waitingLabel.Font = Enum.Font.GothamMedium
+	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+	waitingLabel.TextScaled = true
+	waitingLabel.Text = "Waiting for opponent..."
+	waitingLabel.Visible = false
+	waitingLabel.ZIndex = 22
+	waitingLabel.LayoutOrder = 6
+	waitingLabel.Parent = combatUI.ContentContainer
+	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
 
 	-- ==========================================================
 	-- BETTING AREA (Spectator Mode)
 	-- ==========================================================
 	bettingArea = Instance.new("Frame")
 	bettingArea.Name = "BettingArea"
-	bettingArea.Size = UDim2.new(1, 0, 0.12, 0)
+	bettingArea.Size = UDim2.new(1, 0, 0.18, 0)
 	bettingArea.BackgroundTransparency = 1
-	bettingArea.LayoutOrder = 0 -- Forces the betting area to stack immediately below the turn timer
+	bettingArea.LayoutOrder = 4
 	bettingArea.ZIndex = 32
 	bettingArea.Visible = false
 	bettingArea.Parent = combatUI.ContentContainer
@@ -480,32 +508,26 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	betT1Btn.MouseButton1Click:Connect(function() TryPlaceBet(1) end)
 	betT2Btn.MouseButton1Click:Connect(function() TryPlaceBet(2) end)
 
-	combatResourceLabel = Instance.new("TextLabel")
-	combatResourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	combatResourceLabel.BackgroundTransparency = 1
-	combatResourceLabel.Font = Enum.Font.GothamBold
-	combatResourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	combatResourceLabel.TextScaled = true
-	combatResourceLabel.ZIndex = 22
-	combatResourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
-	combatResourceLabel.LayoutOrder = 2 
-	combatResourceLabel.Visible = false
-	combatResourceLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", combatResourceLabel).MaxTextSize = 18
+	local function SetCombatMode(inCombat, spec)
+		combatUI.AlliesContainer.Parent.Visible = inCombat
+		combatUI.AbilitiesArea.Visible = inCombat and not spec
+		bettingArea.Visible = inCombat and spec
+		combatResourceLabel.Visible = inCombat and not spec
+		turnTimerLabel.Visible = inCombat
+		waitingLabel.Visible = false
 
-	waitingLabel = Instance.new("TextLabel")
-	waitingLabel.Name = "WaitingLabel"
-	waitingLabel.Size = UDim2.new(1, 0, 0.25, 0)
-	waitingLabel.BackgroundTransparency = 1
-	waitingLabel.Font = Enum.Font.GothamMedium
-	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	waitingLabel.TextScaled = true
-	waitingLabel.Text = "Waiting for opponent..."
-	waitingLabel.Visible = false
-	waitingLabel.ZIndex = 22
-	waitingLabel.LayoutOrder = 6
-	waitingLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
+		if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
+			if inCombat then
+				if spec then
+					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.28, 0)
+				else
+					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.13, 0)
+				end
+			else
+				combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.40, 0)
+			end
+		end
+	end
 
 	task.spawn(function()
 		while task.wait(0.2) do
@@ -521,6 +543,8 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	mainContainer:GetPropertyChangedSignal("Visible"):Connect(function()
 		if mainContainer.Visible and lobbyContainer.Visible then Network.ArenaAction:FireServer("RequestLobbies") end
 	end)
+
+	ArenaTab.SetCombatMode = SetCombatMode
 end
 
 function ArenaTab.HandleUpdate(action, data)
@@ -675,37 +699,12 @@ function ArenaTab.HandleUpdate(action, data)
 		currentDeadline = data.Deadline or 0
 		lobbyContainer.Visible = false
 		combatContainer.Visible = true
-		waitingLabel.Visible = false
 
 		isSpectating = data.State.IsSpectator
 		currentMatchId = data.State.MatchId
 
 		task.delay(0.05, function()
-			combatUI.AlliesContainer.Parent.Visible = true
-			combatResourceLabel.Visible = not isSpectating
-			bettingArea.Visible = isSpectating
-			turnTimerLabel.Visible = true
-
-			if isSpectating then
-				betInput.Text = ""
-				betInput.Visible = true
-				betT1Btn.Text = "Bet Team 1"
-				betT1Btn.Visible = true
-				betT2Btn.Text = "Bet Team 2"
-				betT2Btn.Visible = true
-				bettingStatusLbl.Visible = false
-
-				pool1Lbl.Text = "Pool 1: ¥" .. (data.State.Pool1 or 0)
-				pool2Lbl.Text = "Pool 2: ¥" .. (data.State.Pool2 or 0)
-
-				if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
-					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.40, 0)
-				end
-			else
-				if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
-					combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.18, 0)
-				end
-			end
+			if ArenaTab.SetCombatMode then ArenaTab.SetCombatMode(true, false) end
 
 			combatUI.ChatText.Text = ""
 			AppendLog("<font color='#FFD700'><b>" .. data.LogMsg .. "</b></font>")
@@ -713,9 +712,35 @@ function ArenaTab.HandleUpdate(action, data)
 			ArenaTab.UpdateCombatState(data.State)
 
 			if not isSpectating then 
-				combatUI.AbilitiesArea.Visible = true
 				ArenaTab.RenderSkills(data.State) 
 			end
+		end)
+
+	elseif action == "SpectateStart" then
+		if forceTabFocus then forceTabFocus() end
+		lobbyContainer.Visible = false
+		combatContainer.Visible = true
+		isSpectating = true
+		currentMatchId = data.MatchId
+
+		task.delay(0.05, function()
+			if ArenaTab.SetCombatMode then ArenaTab.SetCombatMode(true, true) end
+
+			combatUI.ChatText.Text = ""
+			AppendLog("<font color='#55FFFF'><b>SPECTATING: " .. data.State.P1.Name .. " VS " .. data.State.P2.Name .. "</b></font>")
+
+			betInput.Text = ""
+			betInput.Visible = true
+			betT1Btn.Text = "Bet Team 1"
+			betT1Btn.Visible = true
+			betT2Btn.Text = "Bet Team 2"
+			betT2Btn.Visible = true
+			bettingStatusLbl.Visible = false
+
+			pool1Lbl.Text = "Pool 1: ¥" .. (data.State.Pool1 or 0)
+			pool2Lbl.Text = "Pool 2: ¥" .. (data.State.Pool2 or 0)
+
+			ArenaTab.UpdateCombatState(data.State)
 		end)
 
 	elseif action == "Waiting" then
@@ -889,15 +914,27 @@ function ArenaTab.UpdateCombatState(state)
 
 				if not fObj.Frame:GetAttribute("TargetHooked") then
 					fObj.Frame:SetAttribute("TargetHooked", true)
-					fObj.Frame.InputBegan:Connect(function(input)
-						if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-							if pData.HP > 0 then
-								SFXManager.Play("Click")
-								selectedTargetId = pData.UserId
-								ArenaTab.UpdateCombatState(state) 
-							end
+
+					local function hookTarget(child)
+						if child then
+							local btn = Instance.new("TextButton")
+							btn.Size = UDim2.new(1, 0, 1, 0)
+							btn.BackgroundTransparency = 1
+							btn.Text = ""
+							btn.ZIndex = 50
+							btn.Parent = child
+							btn.MouseButton1Click:Connect(function()
+								if pData.HP > 0 then
+									SFXManager.Play("Click")
+									selectedTargetId = pData.UserId
+									ArenaTab.UpdateCombatState(state) 
+								end
+							end)
 						end
-					end)
+					end
+
+					hookTarget(fObj.Frame:FindFirstChild("IconBox"))
+					hookTarget(fObj.Frame:FindFirstChild("InfoArea"))
 				end
 			end
 		end
@@ -928,7 +965,6 @@ end
 function ArenaTab.RenderSkills(state)
 	if isSpectating then return end
 	combatUI:ClearAbilities()
-	combatUI.AbilitiesArea.Visible = true
 	waitingLabel.Visible = false
 
 	local myState = nil
@@ -985,12 +1021,10 @@ function ArenaTab.RenderSkills(state)
 						btn.Text = "Confirm Flee?"
 						btn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
 						task.delay(3, function()
-							if isConfirmingFlee then
+							if isConfirmingFlee and btn and btn.Parent then
 								isConfirmingFlee = false
-								if btn and btn.Parent then
-									btn.Text = sk.Name
-									btn.BackgroundColor3 = c
-								end
+								btn.Text = sk.Name
+								btn.BackgroundColor3 = c
 							end
 						end)
 					else
