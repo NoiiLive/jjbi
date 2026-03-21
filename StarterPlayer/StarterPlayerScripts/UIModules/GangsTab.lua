@@ -13,7 +13,7 @@ local GangUpdate = Network:WaitForChild("GangUpdate")
 
 local mainContainer, noGangContainer, hasGangContainer, pagesContainer, tabContainer
 local infoPage, upgPage, ordPage, settingsPage
-local titleLabel, mottoLabel, emblemImage, repLabel, treasuryLabel, levelLabel, joinModeBtn
+local titleLabel, mottoLabel, emblemImage, repLabel, infoTreasuryLabel, upgTreasuryLabel, levelLabel, joinModeBtn
 local membersList, browserList, requestsList, buildingList, ordersList
 local membersCard, requestsCard, settingsCard
 local leaveBtn, boostsBtn, donateInput, donateBtn, ordersTimerLbl
@@ -204,7 +204,6 @@ local function BuildCodeTemplates()
 	makeReqBtn("YesBtn", 0.75, "Y", Color3.fromRGB(40, 140, 40))
 	makeReqBtn("NoBtn", 1, "N", Color3.fromRGB(140, 40, 40))
 
-	-- Upgrades List Template (Proper Scale Height)
 	buildTpl = Instance.new("Frame")
 	buildTpl.Size = UDim2.new(1, 0, 0.17, 0) 
 	buildTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
@@ -257,7 +256,6 @@ local function BuildCodeTemplates()
 	AddBtnStroke(bUpBtn, 100, 255, 100, 1)
 	Instance.new("UITextSizeConstraint", bUpBtn).MaxTextSize = 16
 
-	-- Orders List Template (Proper Scale Height)
 	ordTpl = Instance.new("Frame")
 	ordTpl.Size = UDim2.new(1, 0, 0.18, 0)
 	ordTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
@@ -308,6 +306,7 @@ local function BuildCodeTemplates()
 	oReroll.BackgroundColor3 = Color3.fromRGB(140, 40, 140)
 	oReroll.Font = Enum.Font.GothamBold; oReroll.TextColor3 = Color3.new(1,1,1)
 	oReroll.TextScaled = true; oReroll.RichText = true
+	oReroll.Text = "Reroll 1M" -- FIXED: Now says Reroll instead of "Button"
 	oReroll.ZIndex = 23
 	Instance.new("UICorner", oReroll).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(oReroll, 180, 80, 180, 1)
@@ -687,17 +686,19 @@ local function BuildHasGangViews()
 	repLabel.ZIndex = 24
 	Instance.new("UITextSizeConstraint", repLabel).MaxTextSize = 12
 
-	treasuryLabel = Instance.new("TextLabel", infoBox)
-	treasuryLabel.Size = UDim2.new(0.5, 0, 0.25, 0)
-	treasuryLabel.Position = UDim2.new(0, 0, 0.75, 0)
-	treasuryLabel.BackgroundTransparency = 1
-	treasuryLabel.Font = Enum.Font.GothamBold
-	treasuryLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
-	treasuryLabel.TextScaled = true
-	treasuryLabel.RichText = true
-	treasuryLabel.TextXAlignment = Enum.TextXAlignment.Left
-	treasuryLabel.ZIndex = 22
-	Instance.new("UITextSizeConstraint", treasuryLabel).MaxTextSize = 16
+	-- FIXED: Splitting the Treasury Variable
+	infoTreasuryLabel = Instance.new("TextLabel", infoBox)
+	infoTreasuryLabel.Size = UDim2.new(0.5, 0, 0.25, 0)
+	infoTreasuryLabel.Position = UDim2.new(0, 0, 0.75, 0)
+	infoTreasuryLabel.BackgroundTransparency = 1
+	infoTreasuryLabel.Font = Enum.Font.GothamBold
+	infoTreasuryLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
+	infoTreasuryLabel.TextScaled = true
+	infoTreasuryLabel.RichText = true
+	infoTreasuryLabel.TextXAlignment = Enum.TextXAlignment.Left
+	infoTreasuryLabel.Text = "Treasury: ¥0"
+	infoTreasuryLabel.ZIndex = 22
+	Instance.new("UITextSizeConstraint", infoTreasuryLabel).MaxTextSize = 16
 
 	leaveBtn = Instance.new("TextButton", infoBox)
 	leaveBtn.Size = UDim2.new(0.2, 0, 0.25, 0)
@@ -815,17 +816,19 @@ local function BuildHasGangViews()
 	dLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	dLayout.Padding = UDim.new(0.02, 0)
 
-	treasuryLabel = Instance.new("TextLabel", donationCard)
-	treasuryLabel.Size = UDim2.new(0.2, 0, 1, 0)
-	treasuryLabel.BackgroundTransparency = 1
-	treasuryLabel.Font = Enum.Font.GothamBold
-	treasuryLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
-	treasuryLabel.TextScaled = true
-	treasuryLabel.RichText = true
-	treasuryLabel.TextXAlignment = Enum.TextXAlignment.Left
-	treasuryLabel.ZIndex = 22
-	treasuryLabel.LayoutOrder = 1
-	Instance.new("UITextSizeConstraint", treasuryLabel).MaxTextSize = 16
+	-- FIXED: Second unique variable
+	upgTreasuryLabel = Instance.new("TextLabel", donationCard)
+	upgTreasuryLabel.Size = UDim2.new(0.2, 0, 1, 0)
+	upgTreasuryLabel.BackgroundTransparency = 1
+	upgTreasuryLabel.Font = Enum.Font.GothamBold
+	upgTreasuryLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
+	upgTreasuryLabel.TextScaled = true
+	upgTreasuryLabel.RichText = true
+	upgTreasuryLabel.TextXAlignment = Enum.TextXAlignment.Left
+	upgTreasuryLabel.Text = "Treasury: ¥0"
+	upgTreasuryLabel.ZIndex = 22
+	upgTreasuryLabel.LayoutOrder = 1
+	Instance.new("UITextSizeConstraint", upgTreasuryLabel).MaxTextSize = 16
 
 	donateInput = Instance.new("TextBox", donationCard)
 	donateInput.Size = UDim2.new(0.35, 0, 1, 0)
@@ -924,6 +927,7 @@ local function BuildHasGangViews()
 	settingsCard.BackgroundTransparency = 1
 	settingsCard.ScrollBarThickness = 6
 	settingsCard.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
+	settingsCard.CanvasSize = UDim2.new(0, 0, 0, 0)
 	settingsCard.ZIndex = 22
 
 	local stLayout = Instance.new("UIListLayout", settingsCard)
@@ -931,6 +935,10 @@ local function BuildHasGangViews()
 	stLayout.Padding = UDim.new(0, 10)
 	local stPad = Instance.new("UIPadding", settingsCard)
 	stPad.PaddingTop = UDim.new(0, 5); stPad.PaddingLeft = UDim.new(0, 5); stPad.PaddingRight = UDim.new(0, 10)
+
+	stLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		settingsCard.CanvasSize = UDim2.new(0, 0, 0, stLayout.AbsoluteContentSize.Y + 10)
+	end)
 
 	local function BuildSettingsField(order, title, placeholder, isNumeric, actionKey)
 		local row = CreateCard("Set_"..order, settingsCard, UDim2.new(1, 0, 0, 50), nil)
@@ -1261,7 +1269,10 @@ function GangsTab.HandleUpdate(action, data)
 	local level = GetGangLevel(gData.Rep or 0)
 	currentBoostText = GetBoostText(gData.Buildings)
 	if levelLabel then levelLabel.Text = "<b>Lv. " .. level .. "</b>" end
-	if treasuryLabel then treasuryLabel.Text = "Treasury: <b>¥" .. FormatNumber(gData.Treasury or 0) .. "</b>" end
+
+	-- FIXED: Updates both distinct variables so neither says "Label"
+	if infoTreasuryLabel then infoTreasuryLabel.Text = "Treasury: <b>¥" .. FormatNumber(gData.Treasury or 0) .. "</b>" end
+	if upgTreasuryLabel then upgTreasuryLabel.Text = "Treasury: <b>¥" .. FormatNumber(gData.Treasury or 0) .. "</b>" end
 
 	if joinModeBtn then
 		if gData.JoinMode == "Open" then 
