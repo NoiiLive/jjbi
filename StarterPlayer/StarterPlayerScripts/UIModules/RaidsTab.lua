@@ -28,6 +28,8 @@ local isFriendsOnly = false
 local currentDeadline = 0
 local cachedTooltipMgr, forceTabFocus
 
+local currentLog = ""
+
 local raidBosses = {
 	{ Id = "Raid_Part1", Name = "Vampire King", Req = 1, Desc = "A deadly raid against the progenitor of the stone mask." },
 	{ Id = "Raid_Part2", Name = "Ultimate Lifeform", Req = 2, Desc = "Face the pinnacle of evolution. Bring Hamon!" },
@@ -139,6 +141,15 @@ local function AddBtnStroke(btn, r, g, b)
 	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	s.Parent = btn
 	return s
+end
+
+local function AppendLog(text, overwrite)
+	if overwrite then
+		currentLog = text
+	else
+		currentLog = currentLog .. "\n" .. text
+	end
+	if combatUI then combatUI:Log(currentLog) end
 end
 
 function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
@@ -929,13 +940,14 @@ function RaidsTab.HandleUpdate(action, data)
 		combatCard.Visible = true
 
 		currentDeadline = data.Deadline or 0
+		currentLog = "" 
 
 		if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
 			combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.13, 0)
 		end
 
 		combatUI.ChatText.Text = ""
-		combatUI:Log("<font color='#FFD700'>" .. data.LogMsg .. "</font>")
+		AppendLog("<font color='#FFD700'>" .. data.LogMsg .. "</font>", true)
 
 		RaidsTab.UpdateCombatState(data.State)
 		RaidsTab.RenderSkills(data.State)
@@ -947,7 +959,7 @@ function RaidsTab.HandleUpdate(action, data)
 			local lines = string.split(data.LogMsg, "\n")
 			for _, line in ipairs(lines) do 
 				if line ~= "" then 
-					combatUI:Log(line) 
+					AppendLog(line, false)
 				end 
 			end
 
@@ -990,7 +1002,7 @@ function RaidsTab.HandleUpdate(action, data)
 		currentDeadline = 0
 		turnTimerLabel.Text = "Raid Over!"
 		combatUI:ClearAbilities()
-		combatUI:Log(data.LogMsg)
+		AppendLog(data.LogMsg, false)
 
 		if data.Result == "Win" then SFXManager.Play("CombatVictory") else SFXManager.Play("CombatDefeat") end
 
