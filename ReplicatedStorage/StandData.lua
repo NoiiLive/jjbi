@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local StandData = {}
 
 StandData.Rarities = {
@@ -150,7 +151,36 @@ StandData.Stands = {
 	["Tusk Act 4"] = { Rarity = "Evolution", Stats = {Power="A", Speed="B", Range="A", Durability="A", Precision="B", Potential="E"} },
 	["D4C Love Train"] = { Rarity = "Evolution", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="C"} },
 
-	["Wonder of U"] = { Rarity = "Unique", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	-- JoJolion
+	["Doggy Style"] = { Rarity = "Common", Stats = {Power="C", Speed="C", Range="A", Durability="A", Precision="C", Potential="D"} },
+	["Fun Fun Fun"] = { Rarity = "Common", Stats = {Power="D", Speed="C", Range="D", Durability="A", Precision="E", Potential="E"} },
+	["California King Bed"] = { Rarity = "Common", Stats = {Power="E", Speed="E", Range="E", Durability="B", Precision="E", Potential="E"} },
+	["Paper Moon King"] = { Rarity = "Common", Stats = {Power="E", Speed="E", Range="C", Durability="C", Precision="C", Potential="E"} },
+	["Space Trucking"] = { Rarity = "Common", Stats = {Power="E", Speed="E", Range="E", Durability="A", Precision="E", Potential="C"} },
+	["Milagro Man"] = { Rarity = "Common", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"} },
+
+	["King Nothing"] = { Rarity = "Uncommon", Stats = {Power="E", Speed="E", Range="A", Durability="E", Precision="E", Potential="E"} },
+	["Walking Heart"] = { Rarity = "Uncommon", Stats = {Power="C", Speed="C", Range="E", Durability="A", Precision="E", Potential="E"} },
+	["Love Love Deluxe"] = { Rarity = "Uncommon", Stats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"} },
+	["Doobie Wah!"] = { Rarity = "Uncommon", Stats = {Power="C", Speed="C", Range="A", Durability="A", Precision="E", Potential="E"} },
+	["Brain Storm"] = { Rarity = "Uncommon", Stats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"} },
+	["Blue Hawaii"] = { Rarity = "Uncommon", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"} },
+
+	["Paisley Park"] = { Rarity = "Rare", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="D", Potential="C"} },
+	["Nut King Call"] = { Rarity = "Rare", Stats = {Power="C", Speed="D", Range="C", Durability="A", Precision="E", Potential="A"} },
+	["Speed King"] = { Rarity = "Rare", Stats = {Power="C", Speed="B", Range="D", Durability="A", Precision="C", Potential="C"} },
+	["I Am a Rock"] = { Rarity = "Rare", Stats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"} },
+	["Vitamin C"] = { Rarity = "Rare", Stats = {Power="E", Speed="E", Range="C", Durability="A", Precision="E", Potential="E"} },
+	["Ozon Baby"] = { Rarity = "Rare", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"} },
+
+	["Soft & Wet"] = { Rarity = "Legendary", Stats = {Power="C", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"} },
+	["Killer Queen (Part 8)"] = { Rarity = "Legendary", Stats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"} },
+	["Born This Way"] = { Rarity = "Legendary", Stats = {Power="C", Speed="B", Range="A", Durability="A", Precision="E", Potential="E"} },
+	["Awaking III Leaves"] = { Rarity = "Legendary", Stats = {Power="C", Speed="B", Range="C", Durability="A", Precision="E", Potential="C"} },
+
+	["Soft & Wet: Go Beyond"] = { Rarity = "Evolution", Stats = {Power="A", Speed="B", Range="C", Durability="B", Precision="A", Potential="A"} },
+
+	["Wonder of U"] = { Rarity = "Mythical", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 }
 
 function StandData.RollStand(luckBoost, pityCount, targetPool)
