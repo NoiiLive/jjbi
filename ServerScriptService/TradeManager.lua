@@ -2,6 +2,7 @@
 -- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PolicyService = game:GetService("PolicyService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -18,6 +19,23 @@ local IncomingRequests = {}
 local ActiveTrades = {} 
 local PlayerSettings = {} 
 
+-- POLICY CHECK FOR TRADING
+local function checkPlayerPolicy(player)
+	local success, result = pcall(function()
+		return PolicyService:GetPolicyInfoForPlayerAsync(player)
+	end)
+	if success and result then
+		player:SetAttribute("PaidItemTradingAllowed", result.IsPaidItemTradingAllowed)
+	else
+		player:SetAttribute("PaidItemTradingAllowed", false) 
+	end
+end
+
+Players.PlayerAdded:Connect(checkPlayerPolicy)
+for _, p in ipairs(Players:GetPlayers()) do
+	task.spawn(checkPlayerPolicy, p)
+end
+
 local function IsKeyItem(name)
 	if name == "Stand Arrow" or name == "Rokakaka" or name == "Heavenly Stand Disc" or name == "Saint's Corpse Part" then
 		return true
@@ -29,6 +47,23 @@ local function IsKeyItem(name)
 	end
 
 	return false
+end
+
+local function IsRestrictedPass(name)
+	local passes = {
+		["2x Battle Speed Pass"] = true,
+		["2x Inventory Pass"] = true,
+		["2x Drop Chance Pass"] = true,
+		["Auto Training Pass"] = true,
+		["Stand Storage Slot 2"] = true,
+		["Stand Storage Slot 3"] = true,
+		["Style Storage Slot 2"] = true,
+		["Style Storage Slot 3"] = true,
+		["Auto-Roll Pass"] = true,
+		["Custom Horse Name"] = true,
+		["Custom Horse Name Pass"] = true
+	}
+	return passes[name] == true
 end
 
 local function CanTrade(plr)
@@ -569,6 +604,14 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if table.find(string.split(lockedItems, ","), itemName) then
 				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade a locked item!</font>")
 				return
+			end
+
+			local opp = (session.P1 == player) and session.P2 or session.P1
+			if IsRestrictedPass(itemName) then
+				if player:GetAttribute("PaidItemTradingAllowed") == false or opp:GetAttribute("PaidItemTradingAllowed") == false then
+					NotificationEvent:FireClient(player, "<font color='#FF5555'>Premium passes cannot be traded due to region compliance!</font>")
+					return
+				end
 			end
 
 			local countInInv = player:GetAttribute(itemName:gsub("[^%w]", "") .. "Count") or 0
