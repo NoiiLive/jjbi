@@ -204,6 +204,24 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	storyEncounterBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.CombatAction:FireServer("EngageStory") end)
 	prestigeBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.PrestigeEvent:FireServer() end)
 
+	local camera = workspace.CurrentCamera
+	local function UpdateLayoutForScreen()
+		if not parentFrame.Parent then return end
+		local vp = camera.ViewportSize
+		local isHorizontalMobile = (vp.X > vp.Y) and (vp.Y <= 600)
+
+		if isHorizontalMobile then
+			resourceLabel.Size = UDim2.new(1, 0, 0.08, 0)
+			buttonContainer.Size = UDim2.new(1, 0, 0.38, 0)
+		else
+			resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
+			buttonContainer.Size = UDim2.new(1, 0, 0.31, 0)
+		end
+	end
+
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
+	UpdateLayoutForScreen()
+
 	local function UpdateStoryUI()
 		local currentPart = player:GetAttribute("CurrentPart") or 1
 		local currentMission = player:GetAttribute("CurrentMission") or 1
@@ -215,11 +233,11 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 			if prestige > 0 and parentFrame.Visible then modifierBubble.Visible = true else modifierBubble.Visible = false end
 		end
 
-		if currentPart >= 8 then
+		if currentPart >= 9 then
 			randomEncounterBtn.Visible = false
 			storyEncounterBtn.Visible = false
 			prestigeBtn.Visible = true
-		elseif currentPart == 7 then
+		elseif currentPart == 8 then
 			randomEncounterBtn.Visible = false
 			storyEncounterBtn.Visible = true
 			prestigeBtn.Visible = true
@@ -356,7 +374,6 @@ function StoryTab.UpdateCombat(status, data)
 				for i = 1, 6 do 
 					local offsetX = math.random(-p, p)
 					local offsetY = math.random(-p, p)
-					-- Absolute pixel offset applied safely 
 					combatUI.MainFrame.Position = UDim2.new(0, offsetX, 0, offsetY)
 					task.wait(0.04) 
 				end
