@@ -9,7 +9,8 @@ EnemyData.Allies = {
 	["Caesar Zeppeli"] = { Name = "Caesar Zeppeli", Health = 150, Strength = 20, Defense = 10, Speed = 15, Willpower = 15, StandStats = emptyStands, Skills = {"Heavy Strike", "Deep Breathing", "Basic Attack"} },
 	["Polnareff"] = { Name = "Jean Pierre Polnareff", Health = 250, Strength = 35, Defense = 15, Speed = 35, Willpower = 20, StandStats = {Power="C", Speed="A", Range="C", Durability="B", Precision="B", Potential="C"}, Skills = {"Silver Rapier", "Armor Off", "Stand Barrage"} },
 	["Okuyasu"] = { Name = "Okuyasu Nijimura", Health = 400, Strength = 50, Defense = 30, Speed = 25, Willpower = 25, StandStats = {Power="B", Speed="B", Range="D", Durability="C", Precision="C", Potential="C"}, Skills = {"Space Erasure", "Erasure Barrage", "Erasure Pull", "Basic Attack"} },
-	["Gyro"] = { Name = "Gyro Zeppeli", Health = 1000, Strength = 150, Defense = 80, Speed = 65, Willpower = 125, Skills = {"Steel Ball Throw", "Wrecking Ball", "Ratio Visualization", "Basic Attack"} }
+	["Gyro"] = { Name = "Gyro Zeppeli", Health = 1000, Strength = 150, Defense = 80, Speed = 65, Willpower = 125, Skills = {"Steel Ball Throw", "Wrecking Ball", "Ratio Visualization", "Basic Attack"} },
+	["Yasuho"] = { Name = "Yasuho Hirose", Health = 8000, Strength = 200, Defense = 150, Speed = 200, Willpower = 150, StandStats = {Power="E", Speed="E", Range="A", Durability="A", Precision="D", Potential="C"}, Skills = {"Direct Route", "Navigation", "Electronic Hack", "Basic Attack"} }
 }
 
 EnemyData.RaidBosses = {
@@ -53,7 +54,13 @@ EnemyData.RaidBosses = {
 		IsBoss = true, Name = "23rd President", Req = 1, 
 		Health = 35000, Strength = 300, Defense = 250, Speed = 260, Willpower = 260, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
 		Skills = {"Dimensional Strike", "Sponge Paradox", "Between Dimensions", "Heavy Strike", "Block"}, 
-		Drops = { Yen = 30000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 15, ["Steel Ball"] = 20, ["Saint's Corpse Part"] = 25, ["Saint's Left Arm"] = 10, ["Saint's Right Eye"] = 10, ["Saint's Heart"] = 1, ["Saint's Spine"] = 1, ["Saint's Pelvis"] = 1, ["Golden Spin Scroll"] = 1, ["Valentine's Revolver"] = 1, ["The First Napkin"] = 1 } } 
+		Drops = { Yen = 30000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 15, ["Steel Ball"] = 20, ["Saint's Corpse Part"] = 20, ["Saint's Left Arm"] = 10, ["Saint's Right Eye"] = 10, ["Saint's Heart"] = 1, ["Saint's Spine"] = 1, ["Saint's Pelvis"] = 1, ["Golden Spin Scroll"] = 1, ["Valentine's Revolver"] = 1, ["The First Napkin"] = 1 } } 
+	},
+	["Raid_Part8"] = { 
+		IsBoss = true, Name = "The Head Doctor", Req = 1, 
+		Health = 40000, Strength = 350, Defense = 300, Speed = 350, Willpower = 300, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
+		Skills = {"Cane Strike", "Flow of Calamity", "Rain of Debris", "Heavy Strike", "Block"}, 
+		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1} } 
 	}
 }
 
@@ -119,6 +126,15 @@ EnemyData.WorldBosses = {
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Star Platinum Disc"] = 1 } 
+		}
+	},
+	["Wonder of U"] = {
+		Name = "Wonder of U", IsBoss = true, 
+		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Skills = {"Flow of Calamity", "Illusory Presence", "Rain of Debris", "Stand Barrage", "Block"},
+		Drops = { 
+			XP = 35000, Yen = 15000, 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1 } 
 		}
 	}
 }
@@ -674,6 +690,109 @@ EnemyData.Parts = {
 			[8] = { Name = "20th Century Boy", Waves = { { Template = "Magenta", Flavor = "Magenta Magenta drops to the ground, becoming completely invincible!" } } },
 			[9] = { Name = "Scary Monsters", Waves = { { Template = "Diego", Flavor = "Diego unleashes his raptors! 'USHAAA!'"} } },
 			[10] = { Name = "D4C", Waves = { { Template = "Valentine", Flavor = "Suppose that you were sitting down at this table..." } } }
+		}
+	},
+
+	[8] = {
+		Boss = { 
+			IsBoss = true, Name = "Tooru", 
+			Health = 18000, Strength = 550, Defense = 350, Speed = 350, Willpower = 300, 
+			StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
+			Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Rain of Debris", "Block"}, 
+			Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 50 } } 
+		},
+		RandomFlavor = {"A %s appears in Morioh!", "A %s steps out from the fruit parlor!"},
+		Mobs = { 
+			{ Name = "Rock Human Thug", 
+				Health = 5000, Strength = 200, Defense = 150, Speed = 120, Willpower = 150, 
+				StandStats = {Power="C", Speed="C", Range="D", Durability="B", Precision="D", Potential="E"}, 
+				Skills = {"Silicon Strike", "Rock Armor", "Basic Attack", "Block"}, 
+				Drops = { Yen = 2000, XP = 10000, ItemChance = { ["Stand Arrow"] = 25, ["Rokakaka"] = 2 } } } 
+		},
+		Templates = {
+			["Ojiro"] = { Name = "Ojiro Sasame", 
+				Health = 5500, Strength = 200, Defense = 150, Speed = 150, Willpower = 150, 
+				StandStats = {Power="D", Speed="C", Range="D", Durability="A", Precision="E", Potential="E"}, 
+				Skills = {"Above You", "Mark", "Puppeteer", "Block"}, 
+				Drops = { Yen = 3000, XP = 14000 } },
+
+			["Daiya"] = { Name = "Daiya Higashikata", 
+				Health = 6000, Strength = 220, Defense = 160, Speed = 160, Willpower = 160, 
+				StandStats = {Power="E", Speed="E", Range="E", Durability="B", Precision="E", Potential="E"}, 
+				Skills = {"Sneak Attack", "Memory Theft", "Rule Enforcement", "Block"}, 
+				Drops = { Yen = 3500, XP = 15500 } },
+
+			["Tsurugi"] = { Name = "Tsurugi Higashikata", 
+				Health = 6500, Strength = 240, Defense = 170, Speed = 170, Willpower = 170, 
+				StandStats = {Power="E", Speed="E", Range="C", Durability="C", Precision="C", Potential="E"}, 
+				Skills = {"Origami Strike", "Sensory Illusion", "Swarm", "Block"}, 
+				Drops = { Yen = 4000, XP = 17000 } },
+
+			["Yotsuyu"] = { Name = "Yotsuyu Yagiyama", 
+				Health = 7000, Strength = 260, Defense = 180, Speed = 180, Willpower = 180, 
+				StandStats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"}, 
+				Skills = {"Gravity Pull", "Attract Objects", "Spike Rain", "Block"}, 
+				Drops = { Yen = 4500, XP = 18500 } },
+
+			["Aisho"] = { Name = "Aisho Dainenjiyama", 
+				Health = 7500, Strength = 280, Defense = 190, Speed = 190, Willpower = 190, 
+				StandStats = {Power="C", Speed="C", Range="A", Durability="A", Precision="E", Potential="E"}, 
+				Skills = {"Tornado Strike", "Breath Tracking", "Suffocate", "Block"}, 
+				Drops = { Yen = 5000, XP = 20000 } },
+
+			["Damo"] = { Name = "Tamaki Damo", 
+				Health = 8500, Strength = 320, Defense = 220, Speed = 210, Willpower = 210, 
+				StandStats = {Power="E", Speed="E", Range="C", Durability="A", Precision="E", Potential="E"}, 
+				Skills = {"Soft Strike", "Liquefy", "Melt Down", "Block"}, 
+				Drops = { Yen = 6500, XP = 24000 } },
+
+			["Urban"] = { Name = "Urban Guerrilla", 
+				Health = 9500, Strength = 350, Defense = 240, Speed = 230, Willpower = 230, 
+				StandStats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"}, 
+				Skills = {"Toxin Touch", "Cellular Breakdown", "Melt", "Block"}, 
+				Drops = { Yen = 7500, XP = 27000 } },
+
+			["Dolomite"] = { Name = "Dolomite", 
+				Health = 10500, Strength = 380, Defense = 260, Speed = 240, Willpower = 240, 
+				StandStats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"}, 
+				Skills = {"Zombie Strike", "Mind Controlling", "Relentless Pursuit", "Block"}, 
+				Drops = { Yen = 8500, XP = 30000 } },
+
+			["Jobin"] = { Name = "Jobin Higashikata", 
+				Health = 12500, Strength = 420, Defense = 280, Speed = 280, Willpower = 280, 
+				StandStats = {Power="C", Speed="B", Range="D", Durability="A", Precision="C", Potential="C"}, 
+				Skills = {"Heat Strike", "Boiling Point", "Combustion", "Block"}, 
+				Drops = { Yen = 10000, XP = 35000 } },
+
+			["Tooru"] = { IsBoss = true, Name = "Tooru", 
+				Health = 18000, Strength = 550, Defense = 350, Speed = 350, Willpower = 300, 
+				StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
+				Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Rain of Debris", "Block"}, 
+				Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Saint's Corpse Part"] = 100, ["Rokakaka"] = 50 } } }
+		},
+		Missions = {
+			[1] = { Name = "Fun Fun Fun", Waves = { { Template = "Ojiro", Flavor = "You are ambushed in the apartment! Fun Fun Fun takes control." } } },
+			[2] = { Name = "California King Bed", Waves = { { Template = "Daiya", Flavor = "You broke a rule. Daiya attempts to steal your memories." } } },
+			[3] = { Name = "Paper Moon King", Waves = { { Template = "Tsurugi", Flavor = "Everything looks the same! An origami frog attacks!" } } },
+			[4] = { Name = "I Am a Rock", Waves = { { Template = "Yotsuyu", Flavor = "A rock human surfaces! The architect attacks." } } },
+			[5] = { Name = "Doobie Wah!", Waves = { { Template = "Aisho", Flavor = "A tornado chases your every breath. Survive!" } } },
+			[6] = { Name = "Vitamin C", Waves = { { Template = "Damo", Flavor = "The room is melting. Tamaki Damo reveals himself!" } } },
+			[7] = { Name = "Brain Storm", Waves = { { Template = "Urban", Flavor = "Cells pop like bubbles! The doctor strikes.", Ally = "Yasuho" } } },
+			[8] = { Name = "Blue Hawaii", Waves = { { Template = "Dolomite", Flavor = "Zombies are relentlessly pursuing you. Find the source!" } } },
+			[9] = { Name = "Speed King", Waves = { { Template = "Jobin", Flavor = "The temperature rises drastically. Jobin stands in your way." } } },
+			[10] = { Name = "Wonder of U", Waves = { { Template = "Tooru", Flavor = "You shouldn't have pursued him. A calamity approaches." } } }
+		},
+		PrestigeMissions = {
+			[1] = { Name = "Fun Fun Fun", Waves = { { Template = "Ojiro", Flavor = "You are ambushed in the apartment! Fun Fun Fun takes control." } } },
+			[2] = { Name = "California King Bed", Waves = { { Template = "Daiya", Flavor = "You broke a rule. Daiya attempts to steal your memories." } } },
+			[3] = { Name = "Paper Moon King", Waves = { { Template = "Tsurugi", Flavor = "Everything looks the same! An origami frog attacks!" } } },
+			[4] = { Name = "I Am a Rock", Waves = { { Template = "Yotsuyu", Flavor = "A rock human surfaces! The architect attacks." } } },
+			[5] = { Name = "Doobie Wah!", Waves = { { Template = "Aisho", Flavor = "A tornado chases your every breath. Survive!" } } },
+			[6] = { Name = "Vitamin C", Waves = { { Template = "Damo", Flavor = "The room is melting. Tamaki Damo reveals himself!" } } },
+			[7] = { Name = "Brain Storm", Waves = { { Template = "Urban", Flavor = "Cells pop like bubbles! The doctor strikes.", Ally = "Yasuho" } } },
+			[8] = { Name = "Blue Hawaii", Waves = { { Template = "Dolomite", Flavor = "Zombies are relentlessly pursuing you. Find the source!" } } },
+			[9] = { Name = "Speed King", Waves = { { Template = "Jobin", Flavor = "The temperature rises drastically. Jobin stands in your way." } } },
+			[10] = { Name = "Wonder of U", Waves = { { Template = "Tooru", Flavor = "You shouldn't have pursued him. A calamity approaches." } } }
 		}
 	}
 }
