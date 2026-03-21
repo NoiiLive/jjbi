@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local UpdatesTab = {}
 
 local UpdatesData = {
@@ -128,24 +127,6 @@ function UpdatesTab.Init(parentFrame, tooltipMgr)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
-	local camera = workspace.CurrentCamera
-	local function UpdateLayoutForScreen()
-		if not parentFrame.Parent then return end
-		local vp = camera.ViewportSize
-		if vp.X >= 1050 then
-			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		elseif vp.X >= 600 and vp.X < 1050 then
-			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-		else
-			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-		end
-	end
-	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
-	UpdateLayoutForScreen()
-
 	local innerContent = Instance.new("Frame")
 	innerContent.Name = "InnerContent"
 	innerContent.Size = UDim2.new(1, 0, 1, 0)
@@ -228,6 +209,31 @@ function UpdatesTab.Init(parentFrame, tooltipMgr)
 	listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 20)
 	end)
+
+	local camera = workspace.CurrentCamera
+	local resizeConn
+
+	local function UpdateLayoutForScreen()
+		if not parentFrame.Parent then
+			if resizeConn then resizeConn:Disconnect() end
+			return
+		end
+
+		local vp = camera.ViewportSize
+		if vp.X >= 1050 then
+			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		elseif vp.X >= 600 and vp.X < 1050 then
+			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		else
+			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		end
+	end
+
+	resizeConn = camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
+	UpdateLayoutForScreen()
 end
 
 return UpdatesTab
