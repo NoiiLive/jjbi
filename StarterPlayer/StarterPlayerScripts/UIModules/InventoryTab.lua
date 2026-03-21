@@ -659,21 +659,17 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	bgPattern.Parent = mainPanel
 
 	local camera = workspace.CurrentCamera
-	local function UpdateLayoutForScreen()
-		if not parentFrame.Parent then return end
-		local vp = camera.ViewportSize
-		if vp.X >= 1050 then mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0); mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		elseif vp.X >= 600 and vp.X < 1050 then mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0); mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-		else mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0); mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) end
-	end
-	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
-	UpdateLayoutForScreen()
+	local UpdateLayoutForScreen
 
-	local innerContent = Instance.new("Frame")
+	local innerContent = Instance.new("ScrollingFrame")
 	innerContent.Name = "InnerContent"
 	innerContent.Size = UDim2.new(1, 0, 1, 0)
 	innerContent.BackgroundTransparency = 1
 	innerContent.ZIndex = 17
+	innerContent.ScrollBarThickness = 6
+	innerContent.ScrollBarImageColor3 = Color3.fromRGB(150, 100, 200)
+	innerContent.ScrollingDirection = Enum.ScrollingDirection.Y
+	innerContent.BorderSizePixel = 0
 	innerContent.Parent = mainPanel
 
 	local mainPad = Instance.new("UIPadding", innerContent)
@@ -899,6 +895,38 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local btnRArrow = createRollBtn("RollArrowBtn", "Use Arrow", Color3.fromRGB(200, 150, 0), 3)
 	local btnRCorpse = createRollBtn("RollCorpseBtn", "Use Corpse", Color3.fromRGB(200, 50, 150), 4)
 	local btnRRoka = createRollBtn("RollRokaBtn", "Use Roka", Color3.fromRGB(200, 50, 50), 5)
+
+	UpdateLayoutForScreen = function()
+		if not parentFrame.Parent then return end
+		local vp = camera.ViewportSize
+
+		if vp.X >= 1050 then 
+			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		elseif vp.X >= 600 and vp.X < 1050 then 
+			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		else 
+			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) 
+		end
+
+		local panelAbsHeight = vp.Y * mainPanel.Size.Y.Scale
+		local minHeight = 600
+
+		if panelAbsHeight < minHeight then
+			innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
+			innerContent.ScrollBarImageTransparency = 0
+			innerContent.ScrollingEnabled = true
+		else
+			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
+			innerContent.ScrollBarImageTransparency = 1
+			innerContent.ScrollingEnabled = false
+		end
+	end
+
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
+	UpdateLayoutForScreen()
 
 	invTabBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
