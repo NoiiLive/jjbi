@@ -112,33 +112,43 @@ end
 local function BuildCodeTemplates()
 	memTemplate = Instance.new("Frame")
 	memTemplate.Size = UDim2.new(1, 0, 0, 40)
-	memTemplate.BackgroundTransparency = 1
+	memTemplate.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+	memTemplate.ZIndex = 22
+	Instance.new("UICorner", memTemplate).CornerRadius = UDim.new(0, 8)
+	AddBtnStroke(memTemplate, 90, 50, 120, 1)
+
 	local mName = Instance.new("TextLabel", memTemplate)
 	mName.Name = "NameLabel"
 	mName.Size = UDim2.new(0.4, 0, 1, 0)
+	mName.Position = UDim2.new(0, 10, 0, 0)
 	mName.BackgroundTransparency = 1
 	mName.Font = Enum.Font.GothamBold
 	mName.TextColor3 = Color3.new(1,1,1)
 	mName.TextScaled = true; mName.RichText = true
 	mName.TextXAlignment = Enum.TextXAlignment.Left
+	mName.ZIndex = 23
 	Instance.new("UITextSizeConstraint", mName).MaxTextSize = 14
+
 	local mTime = Instance.new("TextLabel", memTemplate)
 	mTime.Name = "TimeLabel"
 	mTime.Size = UDim2.new(0.3, 0, 1, 0)
-	mTime.Position = UDim2.new(0.4, 0, 0, 0)
+	mTime.Position = UDim2.new(0.45, 0, 0, 0)
 	mTime.BackgroundTransparency = 1
 	mTime.Font = Enum.Font.GothamMedium
 	mTime.TextColor3 = Color3.fromRGB(200, 200, 200)
 	mTime.TextScaled = true; mTime.RichText = true
 	mTime.TextXAlignment = Enum.TextXAlignment.Left
+	mTime.ZIndex = 23
 	Instance.new("UITextSizeConstraint", mTime).MaxTextSize = 14
+
 	local function makeMemBtn(n, p, c)
 		local b = Instance.new("TextButton", memTemplate)
 		b.Name = n; b.Size = UDim2.new(0.1, 0, 0.7, 0)
-		b.Position = UDim2.new(p, 0, 0.5, 0)
+		b.Position = UDim2.new(p, -5, 0.5, 0)
 		b.AnchorPoint = Vector2.new(1, 0.5)
 		b.BackgroundColor3 = c; b.Font = Enum.Font.GothamBold
 		b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.Visible = false
+		b.ZIndex = 23
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
 		AddBtnStroke(b, c.R*200, c.G*200, c.B*200, 1)
 		Instance.new("UITextSizeConstraint", b).MaxTextSize = 12
@@ -149,16 +159,23 @@ local function BuildCodeTemplates()
 
 	reqTemplate = Instance.new("Frame")
 	reqTemplate.Size = UDim2.new(1, -8, 0, 40)
-	reqTemplate.BackgroundTransparency = 1
+	reqTemplate.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+	reqTemplate.ZIndex = 22
+	Instance.new("UICorner", reqTemplate).CornerRadius = UDim.new(0, 8)
+	AddBtnStroke(reqTemplate, 90, 50, 120, 1)
+
 	local rName = Instance.new("TextLabel", reqTemplate)
 	rName.Name = "NameLabel"
 	rName.Size = UDim2.new(0.5, 0, 1, 0)
+	rName.Position = UDim2.new(0, 10, 0, 0)
 	rName.BackgroundTransparency = 1
 	rName.Font = Enum.Font.GothamMedium
 	rName.TextColor3 = Color3.new(1, 1, 1)
 	rName.TextScaled = true; rName.RichText = true
 	rName.TextXAlignment = Enum.TextXAlignment.Left
+	rName.ZIndex = 23
 	Instance.new("UITextSizeConstraint", rName).MaxTextSize = 14
+
 	local function makeReqBtn(n, p, txt, c)
 		local b = Instance.new("TextButton", reqTemplate)
 		b.Name = n; b.Size = UDim2.new(0.22, 0, 0.7, 0)
@@ -167,6 +184,7 @@ local function BuildCodeTemplates()
 		b.BackgroundColor3 = c; b.Font = Enum.Font.GothamBold
 		b.TextColor3 = Color3.new(1, 1, 1); b.TextScaled = true
 		b.RichText = true; b.Text = txt
+		b.ZIndex = 23
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
 		AddBtnStroke(b, c.R*200, c.G*200, c.B*200, 1)
 		Instance.new("UITextSizeConstraint", b).MaxTextSize = 14
@@ -177,18 +195,22 @@ local function BuildCodeTemplates()
 	buildTpl = Instance.new("Frame")
 	buildTpl.Size = UDim2.new(0, 0, 0, 0) 
 	buildTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+	buildTpl.ZIndex = 22
 	Instance.new("UICorner", buildTpl).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(buildTpl, 90, 50, 120, 1)
 	local bPad = Instance.new("UIPadding", buildTpl)
 	bPad.PaddingTop = UDim.new(0, 5); bPad.PaddingBottom = UDim.new(0, 5)
 	bPad.PaddingLeft = UDim.new(0, 10); bPad.PaddingRight = UDim.new(0, 10)
+
 	local bName = Instance.new("TextLabel", buildTpl)
 	bName.Name = "NameLabel"
 	bName.Size = UDim2.new(0.7, 0, 0.3, 0)
 	bName.BackgroundTransparency = 1
 	bName.Font = Enum.Font.GothamBlack; bName.TextColor3 = Color3.fromRGB(255, 215, 50)
 	bName.TextScaled = true; bName.RichText = true; bName.TextXAlignment = Enum.TextXAlignment.Left
+	bName.ZIndex = 23
 	Instance.new("UITextSizeConstraint", bName).MaxTextSize = 16
+
 	local bDesc = Instance.new("TextLabel", buildTpl)
 	bDesc.Name = "DescLbl"
 	bDesc.Size = UDim2.new(1, 0, 0.4, 0)
@@ -196,7 +218,9 @@ local function BuildCodeTemplates()
 	bDesc.BackgroundTransparency = 1
 	bDesc.Font = Enum.Font.GothamMedium; bDesc.TextColor3 = Color3.fromRGB(200, 200, 200)
 	bDesc.TextScaled = true; bDesc.RichText = true; bDesc.TextXAlignment = Enum.TextXAlignment.Left
+	bDesc.ZIndex = 23
 	Instance.new("UITextSizeConstraint", bDesc).MaxTextSize = 12
+
 	local bUpBtn = Instance.new("TextButton", buildTpl)
 	bUpBtn.Name = "UpgradeBtn"
 	bUpBtn.Size = UDim2.new(0.4, 0, 0.25, 0)
@@ -204,6 +228,7 @@ local function BuildCodeTemplates()
 	bUpBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
 	bUpBtn.Font = Enum.Font.GothamBold; bUpBtn.TextColor3 = Color3.new(1,1,1)
 	bUpBtn.TextScaled = true; bUpBtn.RichText = true
+	bUpBtn.ZIndex = 23
 	Instance.new("UICorner", bUpBtn).CornerRadius = UDim.new(0, 4)
 	AddBtnStroke(bUpBtn, 100, 255, 100, 1)
 	Instance.new("UITextSizeConstraint", bUpBtn).MaxTextSize = 14
@@ -211,36 +236,45 @@ local function BuildCodeTemplates()
 	ordTpl = Instance.new("Frame")
 	ordTpl.Size = UDim2.new(1, 0, 0, 60)
 	ordTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+	ordTpl.ZIndex = 22
 	Instance.new("UICorner", ordTpl).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(ordTpl, 90, 50, 120, 1)
 	local oPad = Instance.new("UIPadding", ordTpl)
 	oPad.PaddingTop = UDim.new(0, 5); oPad.PaddingBottom = UDim.new(0, 5)
 	oPad.PaddingLeft = UDim.new(0, 10); oPad.PaddingRight = UDim.new(0, 10)
+
 	local oTask = Instance.new("TextLabel", ordTpl)
 	oTask.Name = "TaskLbl"
 	oTask.Size = UDim2.new(0.6, 0, 0.6, 0)
 	oTask.BackgroundTransparency = 1
 	oTask.Font = Enum.Font.GothamBold; oTask.TextColor3 = Color3.new(1,1,1)
 	oTask.TextScaled = true; oTask.RichText = true; oTask.TextXAlignment = Enum.TextXAlignment.Left
+	oTask.ZIndex = 23
 	Instance.new("UITextSizeConstraint", oTask).MaxTextSize = 14
+
 	local oBg = Instance.new("Frame", ordTpl)
 	oBg.Name = "ProgBg"
 	oBg.Size = UDim2.new(0.6, 0, 0.3, 0)
 	oBg.Position = UDim2.new(0, 0, 0.7, 0)
 	oBg.BackgroundColor3 = Color3.fromRGB(20, 10, 20)
+	oBg.ZIndex = 23
 	Instance.new("UICorner", oBg).CornerRadius = UDim.new(0, 4)
 	local oFill = Instance.new("Frame", oBg)
 	oFill.Name = "Fill"
 	oFill.Size = UDim2.new(0, 0, 1, 0)
 	oFill.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+	oFill.ZIndex = 24
 	Instance.new("UICorner", oFill).CornerRadius = UDim.new(0, 4)
+
 	local oTxt = Instance.new("TextLabel", oBg)
 	oTxt.Name = "ProgTxt"
 	oTxt.Size = UDim2.new(1, 0, 1, 0)
 	oTxt.BackgroundTransparency = 1
 	oTxt.Font = Enum.Font.GothamBold; oTxt.TextColor3 = Color3.new(1,1,1)
 	oTxt.TextScaled = true; oTxt.RichText = true
+	oTxt.ZIndex = 25
 	Instance.new("UITextSizeConstraint", oTxt).MaxTextSize = 12
+
 	local oReroll = Instance.new("TextButton", ordTpl)
 	oReroll.Name = "RerollBtn"
 	oReroll.Size = UDim2.new(0.2, 0, 0.6, 0)
@@ -249,6 +283,7 @@ local function BuildCodeTemplates()
 	oReroll.BackgroundColor3 = Color3.fromRGB(140, 40, 140)
 	oReroll.Font = Enum.Font.GothamBold; oReroll.TextColor3 = Color3.new(1,1,1)
 	oReroll.TextScaled = true; oReroll.RichText = true; oReroll.Text = "Reroll (¥1M)"
+	oReroll.ZIndex = 23
 	Instance.new("UICorner", oReroll).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(oReroll, 180, 80, 180, 1)
 	Instance.new("UITextSizeConstraint", oReroll).MaxTextSize = 12
@@ -256,17 +291,21 @@ local function BuildCodeTemplates()
 	brTemplate = Instance.new("Frame")
 	brTemplate.Size = UDim2.new(1, 0, 0, 60)
 	brTemplate.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+	brTemplate.ZIndex = 22
 	Instance.new("UICorner", brTemplate).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(brTemplate, 90, 50, 120, 1)
 	local brPad = Instance.new("UIPadding", brTemplate)
 	brPad.PaddingLeft = UDim.new(0, 10); brPad.PaddingRight = UDim.new(0, 10)
+
 	local brName = Instance.new("TextLabel", brTemplate)
 	brName.Name = "NameLabel"
 	brName.Size = UDim2.new(0.65, 0, 1, 0)
 	brName.BackgroundTransparency = 1
 	brName.Font = Enum.Font.GothamMedium; brName.TextColor3 = Color3.new(1,1,1)
 	brName.TextScaled = true; brName.RichText = true; brName.TextXAlignment = Enum.TextXAlignment.Left
+	brName.ZIndex = 23
 	Instance.new("UITextSizeConstraint", brName).MaxTextSize = 16
+
 	local brJoin = Instance.new("TextButton", brTemplate)
 	brJoin.Name = "JoinBtn"
 	brJoin.Size = UDim2.new(0.2, 0, 0.7, 0)
@@ -274,6 +313,7 @@ local function BuildCodeTemplates()
 	brJoin.AnchorPoint = Vector2.new(1, 0.5)
 	brJoin.Font = Enum.Font.GothamBold; brJoin.TextColor3 = Color3.new(1,1,1)
 	brJoin.TextScaled = true; brJoin.RichText = true
+	brJoin.ZIndex = 23
 	Instance.new("UICorner", brJoin).CornerRadius = UDim.new(0, 4)
 	Instance.new("UITextSizeConstraint", brJoin).MaxTextSize = 14
 end
@@ -593,26 +633,16 @@ local function BuildHasGangViews()
 	Instance.new("UICorner", repFill).CornerRadius = UDim.new(0, 4)
 
 	repLabel = Instance.new("TextLabel", repBg)
-	repLabel.Size = UDim2.new(1, 0, 1, 0)
+	repLabel.Size = UDim2.new(1, -10, 1, 0)
+	repLabel.Position = UDim2.new(0, 5, 0, 0)
 	repLabel.BackgroundTransparency = 1
 	repLabel.Font = Enum.Font.GothamBold
 	repLabel.TextColor3 = Color3.new(1, 1, 1)
 	repLabel.TextScaled = true
 	repLabel.RichText = true
+	repLabel.TextXAlignment = Enum.TextXAlignment.Left
 	repLabel.ZIndex = 24
 	Instance.new("UITextSizeConstraint", repLabel).MaxTextSize = 12
-
-	treasuryLabel = Instance.new("TextLabel", infoBox)
-	treasuryLabel.Size = UDim2.new(0.5, 0, 0.25, 0)
-	treasuryLabel.Position = UDim2.new(0, 0, 0.75, 0)
-	treasuryLabel.BackgroundTransparency = 1
-	treasuryLabel.Font = Enum.Font.GothamBold
-	treasuryLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
-	treasuryLabel.TextScaled = true
-	treasuryLabel.RichText = true
-	treasuryLabel.TextXAlignment = Enum.TextXAlignment.Left
-	treasuryLabel.ZIndex = 22
-	Instance.new("UITextSizeConstraint", treasuryLabel).MaxTextSize = 16
 
 	leaveBtn = Instance.new("TextButton", infoBox)
 	leaveBtn.Size = UDim2.new(0.2, 0, 0.25, 0)
@@ -730,15 +760,28 @@ local function BuildHasGangViews()
 	dLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	dLayout.Padding = UDim.new(0.02, 0)
 
+	treasuryLabel = Instance.new("TextLabel", donationCard)
+	treasuryLabel.Size = UDim2.new(0.2, 0, 1, 0)
+	treasuryLabel.BackgroundTransparency = 1
+	treasuryLabel.Font = Enum.Font.GothamBold
+	treasuryLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
+	treasuryLabel.TextScaled = true
+	treasuryLabel.RichText = true
+	treasuryLabel.TextXAlignment = Enum.TextXAlignment.Left
+	treasuryLabel.ZIndex = 22
+	treasuryLabel.LayoutOrder = 1
+	Instance.new("UITextSizeConstraint", treasuryLabel).MaxTextSize = 16
+
 	donateInput = Instance.new("TextBox", donationCard)
-	donateInput.Size = UDim2.new(0.4, 0, 1, 0)
+	donateInput.Size = UDim2.new(0.35, 0, 1, 0)
 	donateInput.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 	donateInput.Font = Enum.Font.GothamBold
 	donateInput.TextColor3 = Color3.fromRGB(85, 255, 85)
-	donateInput.PlaceholderText = "Amount to Donate (Min 1,000)"
+	donateInput.PlaceholderText = "Amount to Donate (Min 1k)"
 	donateInput.Text = ""
 	donateInput.TextScaled = true
 	donateInput.ZIndex = 22
+	donateInput.LayoutOrder = 2
 	Instance.new("UICorner", donateInput).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(donateInput, 50, 150, 50, 1)
 
@@ -750,6 +793,7 @@ local function BuildHasGangViews()
 	donateBtn.TextScaled = true
 	donateBtn.Text = "Deposit Yen"
 	donateBtn.ZIndex = 22
+	donateBtn.LayoutOrder = 3
 	Instance.new("UICorner", donateBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(donateBtn, 100, 255, 100, 1)
 
@@ -767,6 +811,7 @@ local function BuildHasGangViews()
 	boostsBtn.TextScaled = true
 	boostsBtn.Text = "View Boosts"
 	boostsBtn.ZIndex = 22
+	boostsBtn.LayoutOrder = 4
 	Instance.new("UICorner", boostsBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(boostsBtn, 255, 215, 50, 1)
 
@@ -1176,7 +1221,7 @@ function GangsTab.HandleUpdate(action, data)
 	local shouldShowRequests = (myPower >= RolePower["Caporegime"]) and (gData.JoinMode == "Request")
 	if requestsCard then
 		if shouldShowRequests then 
-			requestsCard.Visible = true; membersCard.Size = UDim2.new(0.58, 0, 1, 0)
+			requestsCard.Visible = true; membersCard.Size = UDim2.new(0.68, 0, 1, 0)
 		else 
 			requestsCard.Visible = false; membersCard.Size = UDim2.new(1, 0, 1, 0) 
 		end
