@@ -1,15 +1,14 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
+local PolicyService = game:GetService("PolicyService")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 
 local GameDataStore = DataStoreService:GetDataStore("JojoRPG_Alpha_V8")
 
--- Prevent UI Infinite Yields from missing folders
 local UITemplates = ReplicatedStorage:FindFirstChild("UITemplates")
 if not UITemplates then
 	UITemplates = Instance.new("Folder")
@@ -106,6 +105,10 @@ local DefaultData = {
 	HasAutoRoll = false, HasHorseNamePass = false,
 
 	HasStyleSlot2 = false, HasStyleSlot3 = false,
+
+	-- Compliance Attributes
+	PaidRandomItemsRestricted = false,
+	PaidItemTradingAllowed = true,
 
 	Stats = { Health = 1, Strength = 1, Defense = 1, Speed = 1, Stamina = 1, Willpower = 1 },
 	EquippedWeapon = "None", EquippedAccessory = "None",
@@ -273,6 +276,19 @@ local function SavePlayerData(player)
 	if not success then warn("Failed to save data for " .. player.Name .. ": ", err) end
 end
 
+local function checkPlayerCompliance(player)
+	local success, result = pcall(function()
+		return PolicyService:GetPolicyInfoForPlayerAsync(player)
+	end)
+	if success and result then
+		player:SetAttribute("PaidRandomItemsRestricted", result.ArePaidRandomItemsRestricted)
+		player:SetAttribute("PaidItemTradingAllowed", result.IsPaidItemTradingAllowed)
+	else
+		player:SetAttribute("PaidRandomItemsRestricted", true)
+		player:SetAttribute("PaidItemTradingAllowed", false)
+	end
+end
+
 Players.PlayerAdded:Connect(function(player)
 	local success, savedData = pcall(function() return GameDataStore:GetAsync(player.UserId) end)
 	if success and savedData then
@@ -281,6 +297,8 @@ Players.PlayerAdded:Connect(function(player)
 	else
 		SetupLeaderstats(player, DefaultData)
 	end
+
+	checkPlayerCompliance(player) -- Apply Compliance settings
 
 	local currentPrestige = player.leaderstats.Prestige.Value
 	local statCap = GameData.GetStatCap(currentPrestige)
@@ -359,3 +377,5 @@ task.spawn(function()
 		end
 	end
 end)
+
+return {}
