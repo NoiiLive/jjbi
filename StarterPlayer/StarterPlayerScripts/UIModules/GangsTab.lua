@@ -204,8 +204,9 @@ local function BuildCodeTemplates()
 	makeReqBtn("YesBtn", 0.75, "Y", Color3.fromRGB(40, 140, 40))
 	makeReqBtn("NoBtn", 1, "N", Color3.fromRGB(140, 40, 40))
 
+	-- Upgrades List Template (Proper Scale Height)
 	buildTpl = Instance.new("Frame")
-	buildTpl.Size = UDim2.new(1, 0, 0.18, 0) 
+	buildTpl.Size = UDim2.new(1, 0, 0.17, 0) 
 	buildTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
 	buildTpl.ZIndex = 22
 	Instance.new("UICorner", buildTpl).CornerRadius = UDim.new(0, 8)
@@ -256,6 +257,7 @@ local function BuildCodeTemplates()
 	AddBtnStroke(bUpBtn, 100, 255, 100, 1)
 	Instance.new("UITextSizeConstraint", bUpBtn).MaxTextSize = 16
 
+	-- Orders List Template (Proper Scale Height)
 	ordTpl = Instance.new("Frame")
 	ordTpl.Size = UDim2.new(1, 0, 0.18, 0)
 	ordTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
@@ -305,7 +307,7 @@ local function BuildCodeTemplates()
 	oReroll.AnchorPoint = Vector2.new(1, 0.5)
 	oReroll.BackgroundColor3 = Color3.fromRGB(140, 40, 140)
 	oReroll.Font = Enum.Font.GothamBold; oReroll.TextColor3 = Color3.new(1,1,1)
-	oReroll.TextScaled = true; oReroll.RichText = true; oReroll.Text = "Reroll\n(¥1M)"
+	oReroll.TextScaled = true; oReroll.RichText = true
 	oReroll.ZIndex = 23
 	Instance.new("UICorner", oReroll).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(oReroll, 180, 80, 180, 1)
@@ -320,9 +322,20 @@ local function BuildCodeTemplates()
 	local brPad = Instance.new("UIPadding", brTemplate)
 	brPad.PaddingLeft = UDim.new(0, 10); brPad.PaddingRight = UDim.new(0, 10)
 
+	local brEmblem = Instance.new("ImageLabel", brTemplate)
+	brEmblem.Name = "EmblemImage"
+	brEmblem.Size = UDim2.new(0, 40, 0, 40)
+	brEmblem.Position = UDim2.new(0, 0, 0.5, 0)
+	brEmblem.AnchorPoint = Vector2.new(0, 0.5)
+	brEmblem.BackgroundTransparency = 1
+	brEmblem.ScaleType = Enum.ScaleType.Fit
+	brEmblem.ZIndex = 23
+	Instance.new("UICorner", brEmblem).CornerRadius = UDim.new(0, 6)
+
 	local brName = Instance.new("TextLabel", brTemplate)
 	brName.Name = "NameLabel"
-	brName.Size = UDim2.new(0.65, 0, 1, 0)
+	brName.Size = UDim2.new(0.65, -50, 1, 0)
+	brName.Position = UDim2.new(0, 50, 0, 0)
 	brName.BackgroundTransparency = 1
 	brName.Font = Enum.Font.GothamMedium; brName.TextColor3 = Color3.new(1,1,1)
 	brName.TextScaled = true; brName.RichText = true; brName.TextXAlignment = Enum.TextXAlignment.Left
@@ -385,13 +398,19 @@ local function BuildNoGangView()
 	noGangContainer.BackgroundTransparency = 1
 	noGangContainer.Visible = false
 
-	local createCard = CreateCard("CreateCard", noGangContainer, UDim2.new(0.3, 0, 0.48, 0), UDim2.new(0, 0, 0, 0))
+	local createCard = CreateCard("CreateCard", noGangContainer, UDim2.new(0.3, 0, 1, 0), UDim2.new(0, 0, 0, 0))
 	local cPad = Instance.new("UIPadding", createCard)
 	cPad.PaddingTop = UDim.new(0.05, 0); cPad.PaddingBottom = UDim.new(0.05, 0)
 	cPad.PaddingLeft = UDim.new(0.05, 0); cPad.PaddingRight = UDim.new(0.05, 0)
 
+	local cLayout = Instance.new("UIListLayout", createCard)
+	cLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	cLayout.Padding = UDim.new(0, 20)
+	cLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	cLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
 	local cTitle = Instance.new("TextLabel", createCard)
-	cTitle.Size = UDim2.new(1, 0, 0.2, 0)
+	cTitle.Size = UDim2.new(1, 0, 0, 35)
 	cTitle.BackgroundTransparency = 1
 	cTitle.Font = Enum.Font.GothamBlack
 	cTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
@@ -399,12 +418,12 @@ local function BuildNoGangView()
 	cTitle.RichText = true
 	cTitle.Text = "CREATE A GANG"
 	cTitle.ZIndex = 22
+	cTitle.LayoutOrder = 1
 	Instance.new("UITextSizeConstraint", cTitle).MaxTextSize = 24
 
 	local nameInput = Instance.new("TextBox", createCard)
 	nameInput.Name = "NameInput"
-	nameInput.Size = UDim2.new(0.9, 0, 0.2, 0)
-	nameInput.Position = UDim2.new(0.05, 0, 0.25, 0)
+	nameInput.Size = UDim2.new(1, 0, 0, 45)
 	nameInput.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
 	nameInput.Font = Enum.Font.GothamBold
 	nameInput.TextColor3 = Color3.new(1,1,1)
@@ -412,12 +431,12 @@ local function BuildNoGangView()
 	nameInput.Text = ""
 	nameInput.TextScaled = true
 	nameInput.ZIndex = 22
+	nameInput.LayoutOrder = 2
 	Instance.new("UICorner", nameInput).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(nameInput, 150, 100, 200, 1)
 
 	local costLbl = Instance.new("TextLabel", createCard)
-	costLbl.Size = UDim2.new(1, 0, 0.05, 0)
-	costLbl.Position = UDim2.new(0, 0, 0.48, 0)
+	costLbl.Size = UDim2.new(1, 0, 0, 25)
 	costLbl.BackgroundTransparency = 1
 	costLbl.Font = Enum.Font.GothamMedium
 	costLbl.TextColor3 = Color3.fromRGB(85, 255, 85)
@@ -425,12 +444,12 @@ local function BuildNoGangView()
 	costLbl.RichText = true
 	costLbl.Text = "Cost: ¥500,000"
 	costLbl.ZIndex = 22
+	costLbl.LayoutOrder = 3
 	Instance.new("UITextSizeConstraint", costLbl).MaxTextSize = 16
 
 	local createBtn = Instance.new("TextButton", createCard)
 	createBtn.Name = "CreateBtn"
-	createBtn.Size = UDim2.new(0.8, 0, 0.2, 0)
-	createBtn.Position = UDim2.new(0.1, 0, 0.6, 0)
+	createBtn.Size = UDim2.new(1, 0, 0, 45)
 	createBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
 	createBtn.Font = Enum.Font.GothamBold
 	createBtn.TextColor3 = Color3.new(1,1,1)
@@ -438,6 +457,7 @@ local function BuildNoGangView()
 	createBtn.RichText = true
 	createBtn.Text = "Form Gang"
 	createBtn.ZIndex = 22
+	createBtn.LayoutOrder = 4
 	Instance.new("UICorner", createBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(createBtn, 100, 255, 100, 1)
 	Instance.new("UITextSizeConstraint", createBtn).MaxTextSize = 20
@@ -667,6 +687,18 @@ local function BuildHasGangViews()
 	repLabel.ZIndex = 24
 	Instance.new("UITextSizeConstraint", repLabel).MaxTextSize = 12
 
+	treasuryLabel = Instance.new("TextLabel", infoBox)
+	treasuryLabel.Size = UDim2.new(0.5, 0, 0.25, 0)
+	treasuryLabel.Position = UDim2.new(0, 0, 0.75, 0)
+	treasuryLabel.BackgroundTransparency = 1
+	treasuryLabel.Font = Enum.Font.GothamBold
+	treasuryLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
+	treasuryLabel.TextScaled = true
+	treasuryLabel.RichText = true
+	treasuryLabel.TextXAlignment = Enum.TextXAlignment.Left
+	treasuryLabel.ZIndex = 22
+	Instance.new("UITextSizeConstraint", treasuryLabel).MaxTextSize = 16
+
 	leaveBtn = Instance.new("TextButton", infoBox)
 	leaveBtn.Size = UDim2.new(0.2, 0, 0.25, 0)
 	leaveBtn.Position = UDim2.new(0.8, 0, 0.75, 0)
@@ -695,8 +727,8 @@ local function BuildHasGangViews()
 
 	local dualContainer = Instance.new("Frame", infoPage)
 	dualContainer.Name = "DualContainer"
-	dualContainer.Size = UDim2.new(1, 0, 0.62, 0)
-	dualContainer.Position = UDim2.new(0, 0, 0.38, 0)
+	dualContainer.Size = UDim2.new(1, 0, 0.65, 0)
+	dualContainer.Position = UDim2.new(0, 0, 0.35, 0)
 	dualContainer.BackgroundTransparency = 1
 
 	membersCard = CreateCard("MembersCard", dualContainer, UDim2.new(0.68, 0, 1, 0), UDim2.new(0, 0, 0, 0))
@@ -705,7 +737,7 @@ local function BuildHasGangViews()
 	mcPad.PaddingLeft = UDim.new(0.04, 0); mcPad.PaddingRight = UDim.new(0.04, 0)
 
 	local mcTop = Instance.new("Frame", membersCard)
-	mcTop.Size = UDim2.new(1, 0, 0.15, 0)
+	mcTop.Size = UDim2.new(1, 0, 0, 30)
 	mcTop.BackgroundTransparency = 1
 	mcTop.ZIndex = 22
 
@@ -722,8 +754,8 @@ local function BuildHasGangViews()
 	Instance.new("UITextSizeConstraint", mTitle).MaxTextSize = 20
 
 	membersList = Instance.new("ScrollingFrame", membersCard)
-	membersList.Size = UDim2.new(1, 0, 0.85, 0)
-	membersList.Position = UDim2.new(0, 0, 0.15, 0)
+	membersList.Size = UDim2.new(1, 0, 1, -30)
+	membersList.Position = UDim2.new(0, 0, 0, 30)
 	membersList.BackgroundTransparency = 1
 	membersList.ScrollBarThickness = 6
 	membersList.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
@@ -741,7 +773,7 @@ local function BuildHasGangViews()
 	rcPad.PaddingLeft = UDim.new(0.04, 0); rcPad.PaddingRight = UDim.new(0.04, 0)
 
 	local rTitle = Instance.new("TextLabel", requestsCard)
-	rTitle.Size = UDim2.new(1, 0, 0.15, 0)
+	rTitle.Size = UDim2.new(1, 0, 0, 30)
 	rTitle.BackgroundTransparency = 1
 	rTitle.Font = Enum.Font.GothamBlack
 	rTitle.TextColor3 = Color3.fromRGB(255, 140, 0)
@@ -753,8 +785,8 @@ local function BuildHasGangViews()
 	Instance.new("UITextSizeConstraint", rTitle).MaxTextSize = 20
 
 	requestsList = Instance.new("ScrollingFrame", requestsCard)
-	requestsList.Size = UDim2.new(1, 0, 0.85, 0)
-	requestsList.Position = UDim2.new(0, 0, 0.15, 0)
+	requestsList.Size = UDim2.new(1, 0, 1, -30)
+	requestsList.Position = UDim2.new(0, 0, 0, 30)
 	requestsList.BackgroundTransparency = 1
 	requestsList.ScrollBarThickness = 6
 	requestsList.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
@@ -1099,8 +1131,15 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 				local row = brTemplate:Clone()
 				row.Visible = true
 				row.Parent = browserList
+
+				local emb = row:FindFirstChild("EmblemImage")
+				if emb then
+					emb.Image = (g.Emblem and g.Emblem ~= "" and g.Emblem ~= "0") and g.Emblem or "rbxassetid://133872443057434"
+				end
+
 				local reqText = (g.Req and g.Req > 0) and " <font color='#FFAA00'>[Pres " .. g.Req .. "+]</font>" or ""
-				row:FindFirstChild("NameLabel").Text = "<b>" .. g.Name .. "</b>" .. reqText
+				row:FindFirstChild("NameLabel").Text = "<b>" .. g.Name .. "</b> <font size='12' color='#AAAAAA'>(" .. g.Members .. "/30)</font>" .. reqText .. "\n<font size='12' color='#CCCCCC'><i>" .. (g.Motto or "No motto set.") .. "</i></font>"
+
 				row:FindFirstChild("JoinBtn").Text = g.Mode == "Open" and "Join" or "Request"
 				row:FindFirstChild("JoinBtn").BackgroundColor3 = g.Mode == "Open" and Color3.fromRGB(40, 140, 40) or Color3.fromRGB(200, 150, 0)
 				row:FindFirstChild("JoinBtn").MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("RequestJoin", g.Name) end)
@@ -1235,9 +1274,9 @@ function GangsTab.HandleUpdate(action, data)
 	local shouldShowRequests = (myPower >= RolePower["Caporegime"]) and (gData.JoinMode == "Request")
 	if requestsCard then
 		if shouldShowRequests then 
-			requestsCard.Visible = true; membersCard.Size = UDim2.new(0.68, 0, 0.62, 0)
+			requestsCard.Visible = true; membersCard.Size = UDim2.new(0.68, 0, 1, 0)
 		else 
-			requestsCard.Visible = false; membersCard.Size = UDim2.new(1, 0, 0.62, 0) 
+			requestsCard.Visible = false; membersCard.Size = UDim2.new(1, 0, 1, 0) 
 		end
 	end
 
