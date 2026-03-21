@@ -94,6 +94,7 @@ ItemData.Consumables = {
 	["Steel Ball"] = { Description = "A perfect sphere. Unlocks the Spin fighting style.", Rarity = "Mythical", Cost = 400000 },
 	["Perfect Aja Mask"] = { Description = "A stone mask with the Red Stone embedded. Evolves Pillarman into the Ultimate Lifeform.", Rarity = "Mythical", Cost = 450000 },
 	["Golden Spin Scroll"] = { Description = "The secret of infinite rotation. Evolves the Spin style into Golden Spin.", Rarity = "Mythical", Cost = 450000 },
+	["Rokakaka Fruit"] = { Description = "A mysterious fruit from the Higashikata orchard. Consuming it transforms your biology into that of a Rock Human.", Rarity = "Mythical", Cost = 450000 },
 
 	["Saint's Pelvis"] = { Description = "A mummified pelvis. Evolves Tusk Act 3 into Act 4.", Rarity = "Mythical", Cost = 500000 },
 	["Saint's Heart"] = { Description = "A mummified heart. Evolves Dirty Deeds Done Dirt Cheap into Love Train.", Rarity = "Mythical", Cost = 500000 },
