@@ -123,6 +123,7 @@ StandData.Stands = {
 
 	["Steel Platinum"] = { Rarity = "Unique", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 
+	-- SBR
 	["TATOO YOU!"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="None", Speed="E", Range="C", Durability="B", Precision="E", Potential="E"} },
 	["Tubular Bells"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="D", Speed="D", Range="D", Durability="A", Precision="E", Potential="B"} },
 	["Hey Ya!"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="E", Durability="B", Precision="E", Potential="E"} },
@@ -152,7 +153,7 @@ StandData.Stands = {
 	["D4C Love Train"] = { Rarity = "Evolution", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="C"} },
 
 	-- JoJolion
-	["Doggy Style"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="A", Durability="A", Precision="C", Potential="D"} },
+	["Canine Style"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="A", Durability="A", Precision="C", Potential="D"} },
 	["Fun Fun Fun"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="D", Speed="C", Range="D", Durability="A", Precision="E", Potential="E"} },
 	["California King Bed"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="E", Durability="B", Precision="E", Potential="E"} },
 	["Paper Moon King"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="C", Durability="C", Precision="C", Potential="E"} },
