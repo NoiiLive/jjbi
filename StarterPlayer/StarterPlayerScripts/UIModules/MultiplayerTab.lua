@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local MultiplayerTab = {}
 
 local player = game.Players.LocalPlayer
@@ -95,12 +94,22 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
+	local innerContent = Instance.new("ScrollingFrame")
+	innerContent.Name = "InnerContent"
+	innerContent.Size = UDim2.new(1, 0, 1, 0)
+	innerContent.BackgroundTransparency = 1
+	innerContent.ZIndex = 17
+	innerContent.ScrollBarImageColor3 = Color3.fromRGB(150, 100, 200)
+	innerContent.ScrollingDirection = Enum.ScrollingDirection.Y
+	innerContent.BorderSizePixel = 0
+	innerContent.Parent = mainPanel
+
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
 	subNav.Size = UDim2.new(1, 0, 0, 55)
 	subNav.BackgroundTransparency = 1
 	subNav.ZIndex = 20
-	subNav.Parent = mainPanel
+	subNav.Parent = innerContent
 
 	local subNavCenter = Instance.new("Frame")
 	subNavCenter.Name = "CenterContainer"
@@ -120,6 +129,8 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	navLayout.Parent = subNavCenter
 
 	local camera = workspace.CurrentCamera
+	local UpdateLayoutForScreen
+
 	local function UpdateLayoutForScreen()
 		if not parentFrame.Parent then return end
 		local vp = camera.ViewportSize
@@ -135,6 +146,21 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) 
 			subNavCenter.Size = UDim2.new(0.98, 0, 1, -10)
+		end
+
+		local panelAbsHeight = vp.Y * mainPanel.Size.Y.Scale
+		local minHeight = 600
+
+		if panelAbsHeight < minHeight then
+			innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
+			innerContent.ScrollBarImageTransparency = 0
+			innerContent.ScrollBarThickness = 6
+			innerContent.ScrollingEnabled = true
+		else
+			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
+			innerContent.ScrollBarImageTransparency = 1
+			innerContent.ScrollBarThickness = 0
+			innerContent.ScrollingEnabled = false
 		end
 	end
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
@@ -188,7 +214,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	tabContainer.Position = UDim2.new(0, 0, 0, 75)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.ZIndex = 17
-	tabContainer.Parent = mainPanel
+	tabContainer.Parent = innerContent
 
 	local function CreateSubFrame(name, needsPadding)
 		local frame = Instance.new("Frame")
