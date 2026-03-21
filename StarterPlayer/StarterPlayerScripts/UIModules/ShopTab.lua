@@ -191,30 +191,14 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
-	local camera = workspace.CurrentCamera
-	local function UpdateLayoutForScreen()
-		if not parentFrame.Parent then return end
-		local vp = camera.ViewportSize
-		if vp.X >= 1050 then 
-			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		elseif vp.X >= 600 and vp.X < 1050 then 
-			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-		else 
-			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) 
-		end
-	end
-
-	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
-	UpdateLayoutForScreen()
-
-	local innerContent = Instance.new("Frame")
+	local innerContent = Instance.new("ScrollingFrame")
 	innerContent.Name = "InnerContent"
 	innerContent.Size = UDim2.new(1, 0, 1, 0)
 	innerContent.BackgroundTransparency = 1
 	innerContent.ZIndex = 17
+	innerContent.ScrollBarImageColor3 = Color3.fromRGB(150, 100, 200)
+	innerContent.ScrollingDirection = Enum.ScrollingDirection.Y
+	innerContent.BorderSizePixel = 0
 	innerContent.Parent = mainPanel
 
 	local mainPad = Instance.new("UIPadding")
@@ -320,11 +304,11 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	mTL.Padding = UDim.new(0.02, 0)
 	mTL.Parent = marketTabContent
 
-	-- Top: Stock Card (50% layout for huge chunk buttons)
+	-- Top: Stock Card
 	local stockCard = CreateCard("StockCard", marketTabContent, UDim2.new(1, 0, 0.50, 0), 1)
 
 	local scTop = Instance.new("Frame")
-	scTop.Size = UDim2.new(1, 0, 0, 20)
+	scTop.Size = UDim2.new(1, 0, 0, 45) -- Expanded to hold restock buttons safely
 	scTop.BackgroundTransparency = 1
 	scTop.ZIndex = 21
 	scTop.Parent = stockCard
@@ -333,7 +317,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	shopTitle.TextXAlignment = Enum.TextXAlignment.Left
 
 	timerLabel = Instance.new("TextLabel")
-	timerLabel.Size = UDim2.new(0.3, 0, 1, 0)
+	timerLabel.Size = UDim2.new(0.3, 0, 0.45, 0)
 	timerLabel.Position = UDim2.new(0.5, 0, 0, 0)
 	timerLabel.AnchorPoint = Vector2.new(0.5, 0)
 	timerLabel.BackgroundTransparency = 1
@@ -349,7 +333,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	tUic.Parent = timerLabel
 
 	yenLabel = Instance.new("TextLabel")
-	yenLabel.Size = UDim2.new(0.3, 0, 1, 0)
+	yenLabel.Size = UDim2.new(0.3, 0, 0.45, 0)
 	yenLabel.Position = UDim2.new(1, 0, 0, 0)
 	yenLabel.AnchorPoint = Vector2.new(1, 0)
 	yenLabel.BackgroundTransparency = 1
@@ -366,9 +350,67 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	yUic.MaxTextSize = 13
 	yUic.Parent = yenLabel
 
+	-- Restock Container Area
+	local restockArea = Instance.new("Frame")
+	restockArea.Size = UDim2.new(0.65, 0, 0.5, 0)
+	restockArea.Position = UDim2.new(0.5, 0, 1, 0)
+	restockArea.AnchorPoint = Vector2.new(0.5, 1)
+	restockArea.BackgroundTransparency = 1
+	restockArea.ZIndex = 22
+	restockArea.Parent = scTop
+
+	local raLayout = Instance.new("UIListLayout")
+	raLayout.FillDirection = Enum.FillDirection.Horizontal
+	raLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	raLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	raLayout.Padding = UDim.new(0.04, 0)
+	raLayout.Parent = restockArea
+
+	local function createRestockBtn(name, text, color)
+		local btn = Instance.new("TextButton")
+		btn.Name = name
+		btn.Size = UDim2.new(0.48, 0, 1, 0)
+		btn.BackgroundColor3 = color
+		btn.Font = Enum.Font.GothamBold
+		btn.TextColor3 = Color3.new(1, 1, 1)
+		btn.TextScaled = true
+		btn.Text = text
+		btn.ZIndex = 23
+		btn.Parent = restockArea
+
+		local uic = Instance.new("UICorner")
+		uic.CornerRadius = UDim.new(0, 4)
+		uic.Parent = btn
+
+		local str = Instance.new("UIStroke")
+		str.Color = Color3.new(1, 1, 1)
+		str.Thickness = 1
+		str.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		str.Parent = btn
+
+		local tConstraint = Instance.new("UITextSizeConstraint")
+		tConstraint.MaxTextSize = 12
+		tConstraint.Parent = btn
+
+		return btn
+	end
+
+	local restockYenBtn = createRestockBtn("RestockYenBtn", "Refresh (100k ¥)", Color3.fromRGB(40, 140, 40))
+	local restockRobuxBtn = createRestockBtn("RestockRobuxBtn", "Refresh (10 R$)", Color3.fromRGB(20, 100, 180))
+
+	restockYenBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("RestockYen")
+	end)
+
+	restockRobuxBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		MarketplaceService:PromptProductPurchase(player, PREMIUM_RESTOCK_PRODUCT_ID)
+	end)
+
 	shopContainer = Instance.new("Frame")
-	shopContainer.Size = UDim2.new(1, 0, 1, -25)
-	shopContainer.Position = UDim2.new(0, 0, 0, 25)
+	shopContainer.Size = UDim2.new(1, 0, 1, -50)
+	shopContainer.Position = UDim2.new(0, 0, 0, 50)
 	shopContainer.BackgroundTransparency = 1
 	shopContainer.ZIndex = 21
 	shopContainer.Parent = stockCard
@@ -379,7 +421,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	sGL.SortOrder = Enum.SortOrder.LayoutOrder
 	sGL.Parent = shopContainer
 
-	-- Middle: Rates Card (30% vertical height)
+	-- Middle: Rates Card
 	local ratesCard = CreateCard("RatesCard", marketTabContent, UDim2.new(1, 0, 0.30, 0), 2)
 	CreateTitle(ratesCard, "DROP RATES")
 
@@ -446,7 +488,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	traitRatesCol.ZIndex = 23
 	traitRatesCol.Parent = traitRatesScroll
 
-	-- Bottom: Codes Card (16% to perfectly anchor to bottom)
+	-- Bottom: Codes Card
 	local codesCard = CreateCard("CodesCard", marketTabContent, UDim2.new(1, 0, 0.16, 0), 3)
 	CreateTitle(codesCard, "CODES")
 
@@ -1003,6 +1045,49 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	task.delay(1, function() 
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
 	end)
+
+	-- ========================================================
+	-- RESPONSIVE LAYOUT LOGIC
+	-- ========================================================
+	local camera = workspace.CurrentCamera
+	local resizeConn
+
+	local function UpdateLayoutForScreen()
+		if not parentFrame.Parent then
+			if resizeConn then resizeConn:Disconnect() end
+			return
+		end
+
+		local vp = camera.ViewportSize
+		if vp.X >= 1050 then
+			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		elseif vp.X >= 600 and vp.X < 1050 then
+			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		else
+			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) 
+		end
+
+		local panelAbsHeight = vp.Y * mainPanel.Size.Y.Scale
+		local minHeight = 600
+
+		if panelAbsHeight < minHeight then
+			innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
+			innerContent.ScrollBarImageTransparency = 0
+			innerContent.ScrollBarThickness = 6
+			innerContent.ScrollingEnabled = true
+		else
+			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
+			innerContent.ScrollBarImageTransparency = 1
+			innerContent.ScrollBarThickness = 0
+			innerContent.ScrollingEnabled = false
+		end
+	end
+
+	resizeConn = camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
+	UpdateLayoutForScreen()
 end
 
 return ShopTab
