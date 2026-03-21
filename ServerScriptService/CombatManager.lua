@@ -55,8 +55,8 @@ local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentP
 	local scaleHP, scaleStr, scaleDef, scaleSpd, scaleWill, xpScale = 1, 1, 1, 1, 1, 1
 
 	if prestige and prestige > 0 then
-		local statMult = (currentPart == 7) and 0.10 or 0.15
-		local minorMult = (currentPart == 7) and 0.03 or 0.05 
+		local statMult = (currentPart == 7 or currentPart == 8) and 0.10 or 0.15
+		local minorMult = (currentPart == 7 or currentPart == 8) and 0.03 or 0.05 
 
 		local b = 1 + (prestige * statMult)
 		local minorB = 1 + (prestige * minorMult) 
