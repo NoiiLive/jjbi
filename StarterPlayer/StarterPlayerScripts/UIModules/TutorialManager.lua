@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local TutorialManager = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,20 +24,124 @@ local highlightConn
 local isSkipped = false
 local skipEvent = Instance.new("BindableEvent")
 
-local function LinkUI()
-	tutorialContainer = player.PlayerGui:WaitForChild("TutorialGui")
+local function BuildTutorialUI()
+	if player.PlayerGui:FindFirstChild("TutorialGui") then
+		player.PlayerGui.TutorialGui:Destroy()
+	end
 
-	topMask = tutorialContainer:WaitForChild("TopMask")
-	bottomMask = tutorialContainer:WaitForChild("BottomMask")
-	leftMask = tutorialContainer:WaitForChild("LeftMask")
-	rightMask = tutorialContainer:WaitForChild("RightMask")
+	tutorialContainer = Instance.new("ScreenGui")
+	tutorialContainer.Name = "TutorialGui"
+	tutorialContainer.DisplayOrder = 100
+	tutorialContainer.IgnoreGuiInset = true
+	tutorialContainer.Parent = player:WaitForChild("PlayerGui")
 
-	dialogueFrame = tutorialContainer:WaitForChild("DialogueFrame")
-	dialogueText = dialogueFrame:WaitForChild("DialogueText")
-	nextButton = dialogueFrame:WaitForChild("NextBtn")
+	local function MakeMask(name)
+		local m = Instance.new("Frame")
+		m.Name = name
+		m.BackgroundColor3 = Color3.new(0,0,0)
+		m.BackgroundTransparency = 0.5
+		m.BorderSizePixel = 0
+		m.Active = true 
+		m.ZIndex = 1
+		m.Parent = tutorialContainer
+		return m
+	end
 
-	highlightFrame = tutorialContainer:WaitForChild("HighlightFrame")
-	local skipBtn = tutorialContainer:WaitForChild("SkipBtn")
+	topMask = MakeMask("TopMask")
+	topMask.Size = UDim2.new(1, 0, 1, 0)
+
+	bottomMask = MakeMask("BottomMask")
+	leftMask = MakeMask("LeftMask")
+	rightMask = MakeMask("RightMask")
+
+	highlightFrame = Instance.new("Frame")
+	highlightFrame.Name = "HighlightFrame"
+	highlightFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+	highlightFrame.BackgroundTransparency = 0.8
+	highlightFrame.BorderSizePixel = 0
+	highlightFrame.ZIndex = 2
+	highlightFrame.Parent = tutorialContainer
+
+	local hStroke = Instance.new("UIStroke", highlightFrame)
+	hStroke.Color = Color3.fromRGB(255, 255, 0)
+	hStroke.Thickness = 3
+	hStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	local skipBtn = Instance.new("TextButton")
+	skipBtn.Name = "SkipBtn"
+	skipBtn.Size = UDim2.new(0, 140, 0, 45)
+	skipBtn.Position = UDim2.new(1, -160, 0, 20)
+	skipBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+	skipBtn.Text = "Skip Tutorial"
+	skipBtn.Font = Enum.Font.GothamBold
+	skipBtn.TextColor3 = Color3.new(1, 1, 1)
+	skipBtn.TextScaled = true
+	skipBtn.ZIndex = 10
+	skipBtn.Parent = tutorialContainer
+
+	Instance.new("UICorner", skipBtn).CornerRadius = UDim.new(0, 6)
+	local sp = Instance.new("UIPadding", skipBtn)
+	sp.PaddingTop = UDim.new(0, 8); sp.PaddingBottom = UDim.new(0, 8)
+	sp.PaddingLeft = UDim.new(0, 8); sp.PaddingRight = UDim.new(0, 8)
+
+	local sStroke = Instance.new("UIStroke", skipBtn)
+	sStroke.Color = Color3.fromRGB(255, 150, 150)
+	sStroke.Thickness = 2
+	sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	dialogueFrame = Instance.new("Frame")
+	dialogueFrame.Name = "DialogueFrame"
+	dialogueFrame.Size = UDim2.new(0.6, 0, 0.18, 0)
+	dialogueFrame.Position = UDim2.new(0.2, 0, 0.78, 0)
+	dialogueFrame.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+	dialogueFrame.ZIndex = 10
+	dialogueFrame.Parent = tutorialContainer
+
+	Instance.new("UICorner", dialogueFrame).CornerRadius = UDim.new(0, 8)
+	local dStroke = Instance.new("UIStroke", dialogueFrame)
+	dStroke.Color = Color3.fromRGB(255, 215, 50)
+	dStroke.Thickness = 2
+	dStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	dialogueText = Instance.new("TextLabel")
+	dialogueText.Name = "DialogueText"
+	dialogueText.Size = UDim2.new(1, -40, 1, -70) 
+	dialogueText.Position = UDim2.new(0, 20, 0, 20)
+	dialogueText.BackgroundTransparency = 1
+	dialogueText.Text = ""
+	dialogueText.Font = Enum.Font.GothamBold
+	dialogueText.TextColor3 = Color3.new(1, 1, 1)
+	dialogueText.TextScaled = true
+	dialogueText.TextWrapped = true
+	dialogueText.TextXAlignment = Enum.TextXAlignment.Left
+	dialogueText.TextYAlignment = Enum.TextYAlignment.Top
+	dialogueText.ZIndex = 11
+	dialogueText.Parent = dialogueFrame
+
+	local dtConstraint = Instance.new("UITextSizeConstraint", dialogueText)
+	dtConstraint.MaxTextSize = 24
+	dtConstraint.MinTextSize = 12
+
+	nextButton = Instance.new("TextButton")
+	nextButton.Name = "NextBtn"
+	nextButton.Size = UDim2.new(0, 120, 0, 40)
+	nextButton.Position = UDim2.new(1, -140, 1, -55) 
+	nextButton.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
+	nextButton.Text = "Next >"
+	nextButton.Font = Enum.Font.GothamBold
+	nextButton.TextColor3 = Color3.fromRGB(255, 215, 50)
+	nextButton.TextScaled = true
+	nextButton.Visible = false
+	nextButton.ZIndex = 11
+	nextButton.Parent = dialogueFrame
+
+	Instance.new("UICorner", nextButton).CornerRadius = UDim.new(0, 6)
+	local nStroke = Instance.new("UIStroke", nextButton)
+	nStroke.Color = Color3.fromRGB(255, 215, 50)
+	nStroke.Thickness = 2
+	nStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	local np = Instance.new("UIPadding", nextButton)
+	np.PaddingTop = UDim.new(0, 5); np.PaddingBottom = UDim.new(0, 5)
 
 	skipBtn.MouseButton1Click:Connect(function()
 		if isSkipped then return end
@@ -61,22 +166,7 @@ local function GetCleanText(txt)
 end
 
 local function GetTabButton(tabName)
-	local targetText = string.upper(tabName)
-	local result = nil
-	local function search(node)
-		for _, child in ipairs(node:GetChildren()) do
-			if child:IsA("TextButton") and child.Visible then
-				if GetCleanText(child.Text) == targetText and child:FindFirstChild("ButtonStar") then
-					result = child
-					return
-				end
-			end
-			search(child)
-			if result then return end
-		end
-	end
-	search(guiRoot)
-	return result
+	return guiRoot:FindFirstChild(tabName .. "Button", true) or guiRoot:FindFirstChild(tabName .. "TabBtn", true)
 end
 
 local function FindContentButton(partialText)
@@ -85,8 +175,20 @@ local function FindContentButton(partialText)
 	local function search(node)
 		for _, child in ipairs(node:GetChildren()) do
 			if child:IsA("TextButton") and child.Visible then
-				if not child:FindFirstChild("ButtonStar") and string.find(GetCleanText(child.Text), targetText, 1, true) then
-					table.insert(results, child)
+				local isNav = false
+				local p = child
+				while p and p ~= guiRoot do
+					if p.Name == "NavBar" or p.Name == "TabContainer" or p.Name == "NavContainer" then
+						isNav = true
+						break
+					end
+					p = p.Parent
+				end
+
+				if not isNav then
+					if string.find(GetCleanText(child.Text), targetText, 1, true) then
+						table.insert(results, child)
+					end
 				end
 			end
 			search(child)
@@ -124,17 +226,22 @@ local function FindStrengthPlus5Button()
 end
 
 local function FindItemUseButton(itemName)
-	local search = string.upper(itemName)
+	local searchTxt = string.upper(itemName)
 	local result = nil
 	local function searchTree(node)
 		for _, child in ipairs(node:GetChildren()) do
-			if child:IsA("TextLabel") and child.Text and string.find(string.upper(child.Text), search, 1, true) then
+			if child:IsA("TextLabel") and child.Text and string.find(string.upper(child.Text), searchTxt, 1, true) then
 				local parentRow = child.Parent
 				if parentRow and parentRow.Name ~= "DialogueFrame" then
-					local useBtn = parentRow:FindFirstChild("UseBtn")
-					if useBtn and useBtn.Visible and useBtn:IsA("TextButton") then
-						result = useBtn
-						return
+					for _, sibling in ipairs(parentRow:GetChildren()) do
+						if sibling:IsA("Frame") then
+							for _, btn in ipairs(sibling:GetChildren()) do
+								if btn:IsA("TextButton") and (string.find(string.upper(btn.Text), "USE") or string.find(string.upper(btn.Text), "CONFIRM")) then
+									result = btn
+									return
+								end
+							end
+						end
 					end
 				end
 			end
@@ -169,47 +276,38 @@ local function AutoScrollTo(targetBtn)
 	end
 end
 
-local function ShowDialogue(text, showNext)
-	if isSkipped then return end
-	dialogueText.Text = ""
-	nextButton.Visible = false
-
-	for i = 1, #text do
-		if isSkipped then return end
-		dialogueText.Text = string.sub(text, 1, i)
-		task.wait(0.015)
-	end
-
-	if showNext and not isSkipped then
-		nextButton.Visible = true
-	end
-end
-
 local function ClearHighlight()
-	if not highlightFrame or not highlightFrame.Parent then return end
-	highlightFrame.Visible = false
 	if highlightConn then
 		highlightConn:Disconnect()
 		highlightConn = nil
 	end
+	if highlightFrame then highlightFrame.Visible = false end
 
-	topMask.Size = UDim2.new(1, 0, 1, 0); topMask.Position = UDim2.new(0, 0, 0, 0)
-	bottomMask.Size = UDim2.new(0, 0, 0, 0)
-	leftMask.Size = UDim2.new(0, 0, 0, 0)
-	rightMask.Size = UDim2.new(0, 0, 0, 0)
+	if topMask and topMask.Parent then
+		topMask.Size = UDim2.new(1, 0, 1, 0)
+		topMask.Position = UDim2.new(0, 0, 0, 0)
+		topMask.Visible = true
+		topMask.Active = true 
+		bottomMask.Visible = false
+		leftMask.Visible = false
+		rightMask.Visible = false
+	end
 end
 
 local function HighlightDynamicTarget(findFunc, allowScrolling)
 	ClearHighlight()
 	if isSkipped then return end
 
-	if allowScrolling then
-		topMask.Visible = false; bottomMask.Visible = false
-		leftMask.Visible = false; rightMask.Visible = false
-	else
-		topMask.Visible = true; bottomMask.Visible = true
-		leftMask.Visible = true; rightMask.Visible = true
-	end
+	topMask.Visible = true
+	bottomMask.Visible = true
+	leftMask.Visible = true
+	rightMask.Visible = true
+
+	local activeState = not allowScrolling
+	topMask.Active = activeState
+	bottomMask.Active = activeState
+	leftMask.Active = activeState
+	rightMask.Active = activeState
 
 	highlightConn = RunService.RenderStepped:Connect(function()
 		local targetBtn = findFunc()
@@ -233,8 +331,29 @@ local function HighlightDynamicTarget(findFunc, allowScrolling)
 
 			if isClipped then
 				highlightFrame.Visible = false
+				if not allowScrolling then
+					topMask.Size = UDim2.new(1, 0, 1, 0)
+					topMask.Position = UDim2.new(0, 0, 0, 0)
+					topMask.Visible = true
+					bottomMask.Visible = false
+					leftMask.Visible = false
+					rightMask.Visible = false
+				else
+					topMask.Visible = false
+					bottomMask.Visible = false
+					leftMask.Visible = false
+					rightMask.Visible = false
+				end
 			else
 				highlightFrame.Visible = true
+				if not allowScrolling then
+					topMask.Visible = true; bottomMask.Visible = true
+					leftMask.Visible = true; rightMask.Visible = true
+				else
+					topMask.Visible = false; bottomMask.Visible = false
+					leftMask.Visible = false; rightMask.Visible = false
+				end
+
 				local inset = GuiService:GetGuiInset()
 				local tX = targetBtn.AbsolutePosition.X - 5
 				local tY = targetBtn.AbsolutePosition.Y + inset.Y - 5
@@ -261,20 +380,53 @@ local function HighlightDynamicTarget(findFunc, allowScrolling)
 		else
 			highlightFrame.Visible = false
 			if not allowScrolling then
-				topMask.Size = UDim2.new(1, 0, 1, 0); topMask.Position = UDim2.new(0, 0, 0, 0)
-				bottomMask.Size = UDim2.new(0, 0, 0, 0); leftMask.Size = UDim2.new(0, 0, 0, 0); rightMask.Size = UDim2.new(0, 0, 0, 0)
+				topMask.Size = UDim2.new(1, 0, 1, 0)
+				topMask.Position = UDim2.new(0, 0, 0, 0)
+				topMask.Visible = true
+				bottomMask.Visible = false
+				leftMask.Visible = false
+				rightMask.Visible = false
+			else
+				topMask.Visible = false; bottomMask.Visible = false
+				leftMask.Visible = false; rightMask.Visible = false
 			end
 		end
 	end)
 end
 
 local function SetUIHidden(isHidden)
-	if isSkipped or not dialogueFrame or not dialogueFrame.Parent then return end
+	if not dialogueFrame or not topMask then return end
 	dialogueFrame.Visible = not isHidden
 	topMask.Visible = not isHidden
-	bottomMask.Visible = not isHidden
-	leftMask.Visible = not isHidden
-	rightMask.Visible = not isHidden
+
+	if not isHidden then
+		topMask.Size = UDim2.new(1, 0, 1, 0)
+		topMask.Position = UDim2.new(0, 0, 0, 0)
+	end
+
+	bottomMask.Visible = false
+	leftMask.Visible = false
+	rightMask.Visible = false
+	if highlightFrame then highlightFrame.Visible = false end
+end
+
+local function ShowDialogue(text, showNext)
+	if isSkipped then return end
+	ClearHighlight()
+	SetUIHidden(false) 
+
+	dialogueText.Text = ""
+	nextButton.Visible = false
+
+	for i = 1, #text do
+		if isSkipped then return end
+		dialogueText.Text = string.sub(text, 1, i)
+		task.wait(0.015)
+	end
+
+	if showNext and not isSkipped then
+		nextButton.Visible = true
+	end
 end
 
 local function WaitNext()
@@ -322,6 +474,16 @@ local function WaitForRealClick(findFunc)
 	ClearHighlight()
 end
 
+local function PromptInteraction(dialogueTextStr, findTargetFunc, allowScroll)
+	ShowDialogue(dialogueTextStr, true)
+	WaitNext()
+	if isSkipped then return end
+
+	dialogueFrame.Visible = false 
+	HighlightDynamicTarget(findTargetFunc, allowScroll)
+	WaitForRealClick(findTargetFunc)
+end
+
 local function RunTutorial()
 	task.wait(2)
 	if isSkipped then return end
@@ -329,19 +491,13 @@ local function RunTutorial()
 	ShowDialogue("Welcome to Bizarre Incremental! Let's get you ready for your bizarre adventure.", true)
 	WaitNext(); if isSkipped then return end
 
-	ShowDialogue("Your journey begins in the COMBAT tab. Click it to open the combat menu!", false)
-	local function getCombatTab() return GetTabButton("COMBAT") end
-	HighlightDynamicTarget(getCombatTab, false)
-	WaitForRealClick(getCombatTab); if isSkipped then return end
+	PromptInteraction("Your journey begins in the SINGLEPLAYER tab. Click it to open the combat menu!", function() return GetTabButton("Singleplayer") end, false)
+	if isSkipped then return end
 
-	ShowDialogue("Click an ENCOUNTER button to start your first fight!", true)
-	WaitNext(); if isSkipped then return end
+	PromptInteraction("Click an ENCOUNTER button to start your first fight!", function() return FindContentButton("ENCOUNTER")[1] end, true)
+	if isSkipped then return end
 
-	SetUIHidden(true)
-	local function getEncBtn() return FindContentButton("ENCOUNTER")[1] end
-	HighlightDynamicTarget(getEncBtn, true)
-	WaitForRealClick(getEncBtn); if isSkipped then return end
-	SetUIHidden(false)
+	SetUIHidden(true) 
 
 	ShowDialogue("Defeat the enemy by clicking your skills! I'll step back while you fight.", false)
 	task.wait(3.5); if isSkipped then return end
@@ -361,34 +517,24 @@ local function RunTutorial()
 	end
 	c:Disconnect()
 	if isSkipped then return end
-	SetUIHidden(false)
 
-	ShowDialogue("Ouch, that was tough! You need more stats to win. Click the TRAINING tab.", false)
-	local function getTrainTab() return GetTabButton("TRAINING") end
-	HighlightDynamicTarget(getTrainTab, false)
-	WaitForRealClick(getTrainTab); if isSkipped then return end
+	PromptInteraction("Ouch, that was tough! You need more stats to win. Click the TRAINING tab.", function() return GetTabButton("Training") end, false)
+	if isSkipped then return end
 
-	ShowDialogue("Click the 'TRAIN' button to start passively gaining XP!", true)
-	WaitNext(); if isSkipped then return end
-
-	SetUIHidden(true)
-	local function getTrainBtn() return FindContentButton("TRAIN")[1] end
-	HighlightDynamicTarget(getTrainBtn, true)
-	WaitForRealClick(getTrainBtn); if isSkipped then return end
-	SetUIHidden(false)
+	PromptInteraction("Click the 'TRAIN' button to start passively gaining XP!", function() return FindContentButton("START TRAINING")[1] or FindContentButton("TRAIN")[1] end, true)
+	if isSkipped then return end
 
 	ShowDialogue("While you train, let's use some free XP I'm giving you to upgrade immediately!", true)
 	Network:WaitForChild("TutorialAction"):FireServer("GiveXP")
 	WaitNext(); if isSkipped then return end
 
-	ShowDialogue("Click the INVENTORY tab to view your stats.", false)
-	local function getInvTab() return GetTabButton("INVENTORY") end
-	HighlightDynamicTarget(getInvTab, false)
-	WaitForRealClick(getInvTab); if isSkipped then return end
+	PromptInteraction("Click the INVENTORY tab to view your stats.", function() return GetTabButton("Inventory") end, false)
+	if isSkipped then return end
 
-	ShowDialogue("Click the '+5' button next to STRENGTH to spend your XP! I'll wait.", false)
+	ShowDialogue("Click the '+5' button next to STRENGTH to spend your XP! I'll wait.", true)
+	WaitNext(); if isSkipped then return end
 
-	task.wait(0.5) 
+	dialogueFrame.Visible = false
 	HighlightDynamicTarget(FindStrengthPlus5Button, false)
 
 	local startStrength = player:GetAttribute("Strength") or 1
@@ -398,18 +544,15 @@ local function RunTutorial()
 	ClearHighlight()
 	if isSkipped then return end
 
-	ShowDialogue("Awesome! You're getting stronger. Let's return to the battle.", false)
-	HighlightDynamicTarget(getCombatTab, false)
-	WaitForRealClick(getCombatTab); if isSkipped then return end
+	PromptInteraction("Awesome! You're getting stronger. Let's return to the battle. Click SINGLEPLAYER.", function() return GetTabButton("Singleplayer") end, false)
+	if isSkipped then return end
 
 	local wonSecondBattle = false
 	while not wonSecondBattle and not isSkipped do
-		ShowDialogue("Click ENCOUNTER and defeat this enemy! If you lose, try again.", true)
-		WaitNext(); if isSkipped then return end
+		PromptInteraction("Click ENCOUNTER and defeat this enemy! If you lose, try again.", function() return FindContentButton("ENCOUNTER")[1] end, true)
+		if isSkipped then return end
 
 		SetUIHidden(true)
-		HighlightDynamicTarget(getEncBtn, true)
-		WaitForRealClick(getEncBtn); if isSkipped then return end
 
 		local c2Done = false
 		local c2Result = "End"
@@ -426,8 +569,6 @@ local function RunTutorial()
 		c2:Disconnect()
 		if isSkipped then return end
 
-		SetUIHidden(false)
-
 		if c2Result == "Victory" then
 			wonSecondBattle = true
 		else
@@ -441,14 +582,16 @@ local function RunTutorial()
 	ShowDialogue("Great job! As a reward, you got a Stand Arrow from the enemy.", true)
 	WaitNext(); if isSkipped then return end
 
-	ShowDialogue("Click the INVENTORY tab to view your items.", false)
-	HighlightDynamicTarget(getInvTab, false)
-	WaitForRealClick(getInvTab); if isSkipped then return end
+	PromptInteraction("Click the INVENTORY tab to use it.", function() return GetTabButton("Inventory") end, false)
+	if isSkipped then return end
 
-	ShowDialogue("Scroll down to find your 'Stand Arrow' and click to use it! If a confirmation appears, click Yes.", true)
+	PromptInteraction("Click the 'STAND & STYLE' sub-tab to view your special items.", function() return FindContentButton("STAND & STYLE")[1] end, false)
+	if isSkipped then return end
+
+	ShowDialogue("Scroll down to find your 'Stand Arrow' and click Use! Click Confirm if prompted.", true)
 	WaitNext(); if isSkipped then return end
 
-	SetUIHidden(true)
+	dialogueFrame.Visible = false
 
 	local arrowBtn = nil
 	local findArrowTimeout = 0
@@ -467,10 +610,10 @@ local function RunTutorial()
 		end, true)
 	end
 
-	local waitTimer = 0
-	while waitTimer < 6 and not isSkipped do
+	local standWaitTimer = 0
+	while player:GetAttribute("Stand") == "None" and standWaitTimer < 20 and not isSkipped do
 		task.wait(1)
-		waitTimer += 1
+		standWaitTimer += 1
 	end
 
 	ClearHighlight()
@@ -481,18 +624,14 @@ local function RunTutorial()
 	ShowDialogue("Whoa... you feel a new power awakening!", true)
 	WaitNext(); if isSkipped then return end
 
-	ShowDialogue("Let's head back to the COMBAT tab one last time.", false)
-	HighlightDynamicTarget(getCombatTab, false)
-	WaitForRealClick(getCombatTab); if isSkipped then return end
+	PromptInteraction("Let's head back to the SINGLEPLAYER tab one last time.", function() return GetTabButton("Singleplayer") end, false)
+	if isSkipped then return end
 
 	ShowDialogue("Now that you have a Stand, you are ready for Story Missions!", true)
 	WaitNext(); if isSkipped then return end
 
-	ShowDialogue("Attempt the 'Story Encounter' when you feel ready. Good luck on your Bizarre Adventure!", true)
-	local function getStoryBtn() return FindContentButton("STORY")[1] end
-	HighlightDynamicTarget(getStoryBtn, false)
-
-	WaitNext(); if isSkipped then return end
+	PromptInteraction("Attempt the 'Story Encounter' when you feel ready. Good luck on your Bizarre Adventure!", function() return FindContentButton("STORY")[1] end, false)
+	if isSkipped then return end
 
 	ClearHighlight()
 	Network:WaitForChild("TutorialAction"):FireServer("Complete")
@@ -507,13 +646,15 @@ function TutorialManager.Init(parentGui, switchTabFunc)
 	if not ls then return end 
 	task.wait(1) 
 
-	if (player:GetAttribute("TutorialStep") or 0) > 0 then return end
+	if (player:GetAttribute("TutorialStep") or 0) > 0 then 
+		return 
+	end
 
 	guiRoot = parentGui
 	switchTabFuncRef = switchTabFunc
 	isSkipped = false 
 
-	LinkUI()
+	BuildTutorialUI()
 
 	tutorialContainer.Enabled = true
 	task.spawn(RunTutorial)
