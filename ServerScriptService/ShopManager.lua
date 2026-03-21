@@ -234,7 +234,6 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 				end
 			end
 			yen.Value += sellPrice
-			NotificationEvent:FireClient(player, "<font color='#55FF55'>Sold " .. itemName .. " for ¥" .. sellPrice .. "!</font>")
 		end
 	end
 end)
