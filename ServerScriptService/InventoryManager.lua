@@ -253,7 +253,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			return
 		end
 
-		local isStandItem = (itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Stand Disc" or itemName == "Requiem Arrow" or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" or itemName == "Rokakaka" or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
+		local isStandItem = (itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Stand Disc" or itemName == "Requiem Arrow" or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "New Rokakaka" or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
 		local isStyleItem = (itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" or itemName == "Golden Spin Scroll")
 
 		if isStandItem and player:GetAttribute("StandLocked") then
@@ -432,6 +432,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			player:SetAttribute("Stand", "The World"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken The World!"
 		elseif itemName == "Star Platinum Disc" then
 			player:SetAttribute("Stand", "Star Platinum"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken Star Platinum!"
+		elseif itemName == "Wonder of U Disc" then
+			player:SetAttribute("Stand", "Wonder of U"); player:SetAttribute("StandTrait", "None"); message = "You insert the disc into your head and awaken Wonder of U!"
 
 		elseif itemName == "Requiem Arrow" then
 			if prestige >= 5 then
@@ -484,6 +486,10 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			elseif myStand == "Star Platinum: The World" then EvolveStand("Star Platinum: Over Heaven"); message = "Your stand has evolved into Star Platinum: Over Heaven!"
 			else message = "The Corpse Part has no reaction to this stand."; itemConsumed = false end
 
+		elseif itemName == "Rokakaka Branch" then
+			if myStand == "Soft & Wet" then EvolveStand("Soft & Wet: Go Beyond"); message = "The miraculous branch fuses with your Stand. Your bubbles now push beyond logic!"
+			else message = "The branch has no reaction to this stand."; itemConsumed = false end
+
 		elseif itemName == "Strange Arrow" then
 			if myStand == "Killer Queen" then EvolveStand("Killer Queen BTD"); message = "Your Stand evolved into Killer Queen BTD!"
 			elseif myStand == "Echoes Act 1" then EvolveStand("Echoes Act 2"); message = "Your Stand evolved into Echoes Act 2!"
@@ -519,6 +525,10 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 				local traitDisplay = newTrait ~= "None" and "<font color='"..traitColor.."'>["..newTrait.."]</font>" or "None"
 				message = "You consumed the Rokakaka! Your Stand's trait is now: " .. traitDisplay .. "!"
 			end
+
+		elseif itemName == "New Rokakaka" then
+			itemConsumed = false
+			message = "Coming Soon."
 		else
 			itemConsumed = false
 		end
