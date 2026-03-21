@@ -1,13 +1,29 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PolicyService = game:GetService("PolicyService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
 
 local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
 NotificationEvent.Name = "NotificationEvent"
+
+local function checkPlayerPolicy(player)
+	local success, result = pcall(function()
+		return PolicyService:GetPolicyInfoForPlayerAsync(player)
+	end)
+	if success and result then
+		player:SetAttribute("PaidRandomItemsRestricted", result.ArePaidRandomItemsRestricted)
+	else
+		player:SetAttribute("PaidRandomItemsRestricted", false)
+	end
+end
+
+game.Players.PlayerAdded:Connect(checkPlayerPolicy)
+for _, p in ipairs(game.Players:GetPlayers()) do
+	task.spawn(checkPlayerPolicy, p)
+end
 
 local function GrantItem(player, itemName, amount)
 	local grantAmount = amount or 1
@@ -235,20 +251,61 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		SendPurchaseMsg("Johnny Pack")
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
+	if productId == 3560802297 then
+		if receiver:GetAttribute("PaidRandomItemsRestricted") then
+			local ls = receiver:FindFirstChild("leaderstats")
+			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 10000000 end
+			SendPurchaseMsg("10M Yen (Region Compliance Compensation)")
+		else
+			GrantItem(receiver, "Rokakaka", 25)
+		end
+		PromptStandClaim(receiver, "Soft & Wet", "Lethal")
+		SendPurchaseMsg("Gappy Pack")
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
 
+	if productId == 3560808666 then
+		if receiver:GetAttribute("PaidRandomItemsRestricted") then
+			local ls = receiver:FindFirstChild("leaderstats")
+			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 10000000 end
+			SendPurchaseMsg("10M Yen (Region Compliance Compensation)")
+		else
+			GrantItem(receiver, "Mythical Giftbox", 1)
+			SendPurchaseMsg("Mythical Giftbox")
+		end
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
 	if productId == 3550862625 then
-		GrantItem(receiver, "Stand Arrow", 25)
-		SendPurchaseMsg("25x Stand Arrows")
+		if receiver:GetAttribute("PaidRandomItemsRestricted") then
+			local ls = receiver:FindFirstChild("leaderstats")
+			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 10000000 end
+			SendPurchaseMsg("10M Yen (Region Compliance Compensation)")
+		else
+			GrantItem(receiver, "Stand Arrow", 25)
+			SendPurchaseMsg("25x Stand Arrows")
+		end
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
 	if productId == 3550862858 then
-		GrantItem(receiver, "Rokakaka", 5)
-		SendPurchaseMsg("5x Rokakakas")
+		if receiver:GetAttribute("PaidRandomItemsRestricted") then
+			local ls = receiver:FindFirstChild("leaderstats")
+			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 10000000 end
+			SendPurchaseMsg("10M Yen (Region Compliance Compensation)")
+		else
+			GrantItem(receiver, "Rokakaka", 5)
+			SendPurchaseMsg("5x Rokakakas")
+		end
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
 	if productId == 3553771635 then
-		GrantItem(receiver, "Saint's Corpse Part", 10)
-		SendPurchaseMsg("10x Saint's Corpse Parts")
+		if receiver:GetAttribute("PaidRandomItemsRestricted") then
+			local ls = receiver:FindFirstChild("leaderstats")
+			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 10000000 end
+			SendPurchaseMsg("10M Yen (Region Compliance Compensation)")
+		else
+			GrantItem(receiver, "Saint's Corpse Part", 10)
+			SendPurchaseMsg("10x Saint's Corpse Parts")
+		end
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
 
