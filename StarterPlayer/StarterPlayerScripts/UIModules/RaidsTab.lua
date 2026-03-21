@@ -35,7 +35,7 @@ local raidBosses = {
 	{ Id = "Raid_Part4", Name = "Serial Killer", Req = 4, Desc = "An elusive murderer with explosive tendencies." },
 	{ Id = "Raid_Part5", Name = "Mafia Boss", Req = 5, Desc = "The boss of Passione. Time will erase." },
 	{ Id = "Raid_Part6", Name = "Gravity Priest", Req = 6, Desc = "Gravity is shifting. The universe accelerates." },
-	{ Id = "Raid_Part7", Name = "23rd President", Req = 7, Desc = "He has taken the first napkin. Beware his dimensional shifts." }
+	{ Id = "Raid_Part7", Name = "23rd President", Req = 7, Desc = "He has taken the first napkin. Beware his dimensional shifts." },
 	{ Id = "Raid_Part8", Name = "The Head Doctor", Req = 8, Desc = "Something is off, calamity follows the doctor as you start to pursue." }
 }
 
