@@ -14,7 +14,7 @@ local GangUpdate = Network:WaitForChild("GangUpdate")
 local mainContainer, noGangContainer, hasGangContainer, pagesContainer, tabContainer
 local infoPage, upgPage, ordPage, settingsPage
 local titleLabel, mottoLabel, emblemImage, repLabel, treasuryLabel, levelLabel, joinModeBtn
-local membersList, browserList, requestsList, buildingScroll, ordersScroll
+local membersList, browserList, requestsList, buildingList, ordersList
 local membersCard, requestsCard, settingsCard
 local leaveBtn, boostsBtn, donateInput, donateBtn, ordersTimerLbl
 local reqInput, reqBtn
@@ -131,8 +131,8 @@ local function BuildCodeTemplates()
 
 	local mTime = Instance.new("TextLabel", memTemplate)
 	mTime.Name = "TimeLabel"
-	mTime.Size = UDim2.new(0.3, 0, 1, 0)
-	mTime.Position = UDim2.new(0.45, 0, 0, 0)
+	mTime.Size = UDim2.new(0.25, 0, 1, 0)
+	mTime.Position = UDim2.new(0.4, 0, 0, 0)
 	mTime.BackgroundTransparency = 1
 	mTime.Font = Enum.Font.GothamMedium
 	mTime.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -141,21 +141,33 @@ local function BuildCodeTemplates()
 	mTime.ZIndex = 23
 	Instance.new("UITextSizeConstraint", mTime).MaxTextSize = 14
 
-	local function makeMemBtn(n, p, c)
-		local b = Instance.new("TextButton", memTemplate)
-		b.Name = n; b.Size = UDim2.new(0.1, 0, 0.7, 0)
-		b.Position = UDim2.new(p, -5, 0.5, 0)
-		b.AnchorPoint = Vector2.new(1, 0.5)
+	local actContainer = Instance.new("Frame", memTemplate)
+	actContainer.Name = "Actions"
+	actContainer.Size = UDim2.new(0.35, 0, 1, 0)
+	actContainer.Position = UDim2.new(1, -10, 0, 0)
+	actContainer.AnchorPoint = Vector2.new(1, 0)
+	actContainer.BackgroundTransparency = 1
+
+	local actLayout = Instance.new("UIListLayout", actContainer)
+	actLayout.FillDirection = Enum.FillDirection.Horizontal
+	actLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	actLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	actLayout.Padding = UDim.new(0, 5)
+	actLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+	local function makeMemBtn(n, sizeX, c, txt, order)
+		local b = Instance.new("TextButton", actContainer)
+		b.Name = n; b.Size = UDim2.new(sizeX, 0, 0.7, 0)
 		b.BackgroundColor3 = c; b.Font = Enum.Font.GothamBold
 		b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.Visible = false
-		b.ZIndex = 23
+		b.Text = txt; b.ZIndex = 23; b.LayoutOrder = order
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
 		AddBtnStroke(b, c.R*200, c.G*200, c.B*200, 1)
-		Instance.new("UITextSizeConstraint", b).MaxTextSize = 12
+		Instance.new("UITextSizeConstraint", b).MaxTextSize = 14
 	end
-	makeMemBtn("KickBtn", 1, Color3.fromRGB(140, 40, 40))
-	makeMemBtn("PromoteBtn", 0.88, Color3.fromRGB(40, 140, 40))
-	makeMemBtn("DemoteBtn", 0.76, Color3.fromRGB(180, 100, 40))
+	makeMemBtn("DemoteBtn", 0.15, Color3.fromRGB(180, 100, 40), "▼", 1)
+	makeMemBtn("PromoteBtn", 0.15, Color3.fromRGB(40, 140, 40), "▲", 2)
+	makeMemBtn("KickBtn", 0.4, Color3.fromRGB(140, 40, 40), "Kick", 3)
 
 	reqTemplate = Instance.new("Frame")
 	reqTemplate.Size = UDim2.new(1, -8, 0, 40)
@@ -193,7 +205,7 @@ local function BuildCodeTemplates()
 	makeReqBtn("NoBtn", 1, "N", Color3.fromRGB(140, 40, 40))
 
 	buildTpl = Instance.new("Frame")
-	buildTpl.Size = UDim2.new(0, 0, 0, 0) 
+	buildTpl.Size = UDim2.new(1, 0, 0.18, 0) 
 	buildTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
 	buildTpl.ZIndex = 22
 	Instance.new("UICorner", buildTpl).CornerRadius = UDim.new(0, 8)
@@ -204,7 +216,7 @@ local function BuildCodeTemplates()
 
 	local bName = Instance.new("TextLabel", buildTpl)
 	bName.Name = "NameLabel"
-	bName.Size = UDim2.new(0.7, 0, 0.3, 0)
+	bName.Size = UDim2.new(0.7, 0, 0.35, 0)
 	bName.BackgroundTransparency = 1
 	bName.Font = Enum.Font.GothamBlack; bName.TextColor3 = Color3.fromRGB(255, 215, 50)
 	bName.TextScaled = true; bName.RichText = true; bName.TextXAlignment = Enum.TextXAlignment.Left
@@ -213,28 +225,39 @@ local function BuildCodeTemplates()
 
 	local bDesc = Instance.new("TextLabel", buildTpl)
 	bDesc.Name = "DescLbl"
-	bDesc.Size = UDim2.new(1, 0, 0.4, 0)
-	bDesc.Position = UDim2.new(0, 0, 0.3, 0)
+	bDesc.Size = UDim2.new(0.7, 0, 0.35, 0)
+	bDesc.Position = UDim2.new(0, 0, 0.35, 0)
 	bDesc.BackgroundTransparency = 1
 	bDesc.Font = Enum.Font.GothamMedium; bDesc.TextColor3 = Color3.fromRGB(200, 200, 200)
 	bDesc.TextScaled = true; bDesc.RichText = true; bDesc.TextXAlignment = Enum.TextXAlignment.Left
 	bDesc.ZIndex = 23
 	Instance.new("UITextSizeConstraint", bDesc).MaxTextSize = 12
 
+	local bCost = Instance.new("TextLabel", buildTpl)
+	bCost.Name = "CostLbl"
+	bCost.Size = UDim2.new(0.7, 0, 0.3, 0)
+	bCost.Position = UDim2.new(0, 0, 0.7, 0)
+	bCost.BackgroundTransparency = 1
+	bCost.Font = Enum.Font.GothamBold; bCost.TextColor3 = Color3.fromRGB(85, 255, 85)
+	bCost.TextScaled = true; bCost.RichText = true; bCost.TextXAlignment = Enum.TextXAlignment.Left
+	bCost.ZIndex = 23
+	Instance.new("UITextSizeConstraint", bCost).MaxTextSize = 14
+
 	local bUpBtn = Instance.new("TextButton", buildTpl)
 	bUpBtn.Name = "UpgradeBtn"
-	bUpBtn.Size = UDim2.new(0.4, 0, 0.25, 0)
-	bUpBtn.Position = UDim2.new(0.6, 0, 0.75, 0)
+	bUpBtn.Size = UDim2.new(0.25, 0, 1, 0)
+	bUpBtn.Position = UDim2.new(1, 0, 0.5, 0)
+	bUpBtn.AnchorPoint = Vector2.new(1, 0.5)
 	bUpBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
 	bUpBtn.Font = Enum.Font.GothamBold; bUpBtn.TextColor3 = Color3.new(1,1,1)
 	bUpBtn.TextScaled = true; bUpBtn.RichText = true
 	bUpBtn.ZIndex = 23
-	Instance.new("UICorner", bUpBtn).CornerRadius = UDim.new(0, 4)
+	Instance.new("UICorner", bUpBtn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(bUpBtn, 100, 255, 100, 1)
-	Instance.new("UITextSizeConstraint", bUpBtn).MaxTextSize = 14
+	Instance.new("UITextSizeConstraint", bUpBtn).MaxTextSize = 16
 
 	ordTpl = Instance.new("Frame")
-	ordTpl.Size = UDim2.new(1, 0, 0, 60)
+	ordTpl.Size = UDim2.new(1, 0, 0.18, 0)
 	ordTpl.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
 	ordTpl.ZIndex = 22
 	Instance.new("UICorner", ordTpl).CornerRadius = UDim.new(0, 8)
@@ -245,7 +268,7 @@ local function BuildCodeTemplates()
 
 	local oTask = Instance.new("TextLabel", ordTpl)
 	oTask.Name = "TaskLbl"
-	oTask.Size = UDim2.new(0.6, 0, 0.6, 0)
+	oTask.Size = UDim2.new(0.7, 0, 0.6, 0)
 	oTask.BackgroundTransparency = 1
 	oTask.Font = Enum.Font.GothamBold; oTask.TextColor3 = Color3.new(1,1,1)
 	oTask.TextScaled = true; oTask.RichText = true; oTask.TextXAlignment = Enum.TextXAlignment.Left
@@ -254,8 +277,8 @@ local function BuildCodeTemplates()
 
 	local oBg = Instance.new("Frame", ordTpl)
 	oBg.Name = "ProgBg"
-	oBg.Size = UDim2.new(0.6, 0, 0.3, 0)
-	oBg.Position = UDim2.new(0, 0, 0.7, 0)
+	oBg.Size = UDim2.new(0.7, 0, 0.35, 0)
+	oBg.Position = UDim2.new(0, 0, 0.65, 0)
 	oBg.BackgroundColor3 = Color3.fromRGB(20, 10, 20)
 	oBg.ZIndex = 23
 	Instance.new("UICorner", oBg).CornerRadius = UDim.new(0, 4)
@@ -276,17 +299,17 @@ local function BuildCodeTemplates()
 	Instance.new("UITextSizeConstraint", oTxt).MaxTextSize = 12
 
 	local oReroll = Instance.new("TextButton", ordTpl)
-	oReroll.Name = "RerollBtn"
-	oReroll.Size = UDim2.new(0.2, 0, 0.6, 0)
+	oReroll.Name = "ActionBtn"
+	oReroll.Size = UDim2.new(0.25, 0, 1, 0)
 	oReroll.Position = UDim2.new(1, 0, 0.5, 0)
 	oReroll.AnchorPoint = Vector2.new(1, 0.5)
 	oReroll.BackgroundColor3 = Color3.fromRGB(140, 40, 140)
 	oReroll.Font = Enum.Font.GothamBold; oReroll.TextColor3 = Color3.new(1,1,1)
-	oReroll.TextScaled = true; oReroll.RichText = true; oReroll.Text = "Reroll (¥1M)"
+	oReroll.TextScaled = true; oReroll.RichText = true; oReroll.Text = "Reroll\n(¥1M)"
 	oReroll.ZIndex = 23
-	Instance.new("UICorner", oReroll).CornerRadius = UDim.new(0, 6)
+	Instance.new("UICorner", oReroll).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(oReroll, 180, 80, 180, 1)
-	Instance.new("UITextSizeConstraint", oReroll).MaxTextSize = 12
+	Instance.new("UITextSizeConstraint", oReroll).MaxTextSize = 16
 
 	brTemplate = Instance.new("Frame")
 	brTemplate.Size = UDim2.new(1, 0, 0, 60)
@@ -699,8 +722,8 @@ local function BuildHasGangViews()
 	Instance.new("UITextSizeConstraint", mTitle).MaxTextSize = 20
 
 	membersList = Instance.new("ScrollingFrame", membersCard)
-	membersList.Size = UDim2.new(1, 0, 0.8, 0)
-	membersList.Position = UDim2.new(0, 0, 0.2, 0)
+	membersList.Size = UDim2.new(1, 0, 0.85, 0)
+	membersList.Position = UDim2.new(0, 0, 0.15, 0)
 	membersList.BackgroundTransparency = 1
 	membersList.ScrollBarThickness = 6
 	membersList.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
@@ -730,8 +753,8 @@ local function BuildHasGangViews()
 	Instance.new("UITextSizeConstraint", rTitle).MaxTextSize = 20
 
 	requestsList = Instance.new("ScrollingFrame", requestsCard)
-	requestsList.Size = UDim2.new(1, 0, 0.8, 0)
-	requestsList.Position = UDim2.new(0, 0, 0.2, 0)
+	requestsList.Size = UDim2.new(1, 0, 0.85, 0)
+	requestsList.Position = UDim2.new(0, 0, 0.15, 0)
 	requestsList.BackgroundTransparency = 1
 	requestsList.ScrollBarThickness = 6
 	requestsList.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
@@ -818,20 +841,15 @@ local function BuildHasGangViews()
 	boostsBtn.MouseEnter:Connect(function() if cachedTooltipMgr and cachedTooltipMgr.Show then cachedTooltipMgr.Show(currentBoostText) end end)
 	boostsBtn.MouseLeave:Connect(function() if cachedTooltipMgr and cachedTooltipMgr.Hide then cachedTooltipMgr.Hide() end end)
 
-	buildingScroll = Instance.new("ScrollingFrame", upgPage)
-	buildingScroll.Size = UDim2.new(1, 0, 0.82, 0)
-	buildingScroll.Position = UDim2.new(0, 0, 0.18, 0)
-	buildingScroll.BackgroundTransparency = 1
-	buildingScroll.ScrollBarThickness = 6
-	buildingScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	buildingScroll.ZIndex = 22
+	buildingList = Instance.new("Frame", upgPage)
+	buildingList.Size = UDim2.new(1, 0, 0.82, 0)
+	buildingList.Position = UDim2.new(0, 0, 0.18, 0)
+	buildingList.BackgroundTransparency = 1
+	buildingList.ZIndex = 22
 
-	local usLayout = Instance.new("UIGridLayout", buildingScroll)
-	usLayout.CellSize = UDim2.new(0.48, 0, 0, 100)
-	usLayout.CellPadding = UDim2.new(0.04, 0, 0, 15)
+	local usLayout = Instance.new("UIListLayout", buildingList)
 	usLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	local usPad = Instance.new("UIPadding", buildingScroll)
-	usPad.PaddingTop = UDim.new(0, 5); usPad.PaddingLeft = UDim.new(0, 5); usPad.PaddingRight = UDim.new(0, 10)
+	usLayout.Padding = UDim.new(0.015, 0)
 
 	-- ORDERS PAGE
 	ordPage = Instance.new("Frame", pagesContainer)
@@ -851,19 +869,15 @@ local function BuildHasGangViews()
 	ordersTimerLbl.ZIndex = 22
 	Instance.new("UITextSizeConstraint", ordersTimerLbl).MaxTextSize = 24
 
-	ordersScroll = Instance.new("ScrollingFrame", ordPage)
-	ordersScroll.Size = UDim2.new(1, 0, 0.88, 0)
-	ordersScroll.Position = UDim2.new(0, 0, 0.12, 0)
-	ordersScroll.BackgroundTransparency = 1
-	ordersScroll.ScrollBarThickness = 6
-	ordersScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	ordersScroll.ZIndex = 22
+	ordersList = Instance.new("Frame", ordPage)
+	ordersList.Size = UDim2.new(1, 0, 0.88, 0)
+	ordersList.Position = UDim2.new(0, 0, 0.12, 0)
+	ordersList.BackgroundTransparency = 1
+	ordersList.ZIndex = 22
 
-	local osLayout = Instance.new("UIListLayout", ordersScroll)
+	local osLayout = Instance.new("UIListLayout", ordersList)
 	osLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	osLayout.Padding = UDim.new(0, 10)
-	local osPad = Instance.new("UIPadding", ordersScroll)
-	osPad.PaddingTop = UDim.new(0, 5); osPad.PaddingLeft = UDim.new(0, 5); osPad.PaddingRight = UDim.new(0, 10)
+	osLayout.Padding = UDim.new(0.015, 0)
 
 	-- SETTINGS PAGE
 	settingsPage = Instance.new("Frame", pagesContainer)
@@ -1152,8 +1166,8 @@ function GangsTab.HandleUpdate(action, data)
 		activeUpgradeBtnRef = nil
 		for _, c in pairs(membersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
 		for _, c in pairs(requestsList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-		for _, c in pairs(buildingScroll:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-		for _, c in pairs(ordersScroll:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		for _, c in pairs(buildingList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		for _, c in pairs(ordersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
 		return
 	end
 
@@ -1221,9 +1235,9 @@ function GangsTab.HandleUpdate(action, data)
 	local shouldShowRequests = (myPower >= RolePower["Caporegime"]) and (gData.JoinMode == "Request")
 	if requestsCard then
 		if shouldShowRequests then 
-			requestsCard.Visible = true; membersCard.Size = UDim2.new(0.68, 0, 1, 0)
+			requestsCard.Visible = true; membersCard.Size = UDim2.new(0.68, 0, 0.62, 0)
 		else 
-			requestsCard.Visible = false; membersCard.Size = UDim2.new(1, 0, 1, 0) 
+			requestsCard.Visible = false; membersCard.Size = UDim2.new(1, 0, 0.62, 0) 
 		end
 	end
 
@@ -1257,23 +1271,26 @@ function GangsTab.HandleUpdate(action, data)
 		end)
 		row.MouseLeave:Connect(function() if cachedTooltipMgr and cachedTooltipMgr.Hide then cachedTooltipMgr.Hide() end end)
 
-		local kBtn = row:FindFirstChild("KickBtn"); local pBtn = row:FindFirstChild("PromoteBtn"); local dBtn = row:FindFirstChild("DemoteBtn")
+		local acts = row:FindFirstChild("Actions")
+		if acts then
+			local kBtn = acts:FindFirstChild("KickBtn"); local pBtn = acts:FindFirstChild("PromoteBtn"); local dBtn = acts:FindFirstChild("DemoteBtn")
 
-		if uIdStr ~= tostring(player.UserId) then
-			if myRole == "Boss" then
-				kBtn.Visible = true; pBtn.Visible = (mem.Role ~= "Consigliere"); dBtn.Visible = (mem.Role ~= "Grunt")
-			elseif myRole == "Consigliere" and targetPower <= RolePower["Caporegime"] then
-				kBtn.Visible = true
+			if uIdStr ~= tostring(player.UserId) then
+				if myRole == "Boss" then
+					kBtn.Visible = true; pBtn.Visible = (mem.Role ~= "Consigliere"); dBtn.Visible = (mem.Role ~= "Grunt")
+				elseif myRole == "Consigliere" and targetPower <= RolePower["Caporegime"] then
+					kBtn.Visible = true
+				end
+
+				local pk = false
+				kBtn.MouseButton1Click:Connect(function()
+					SFXManager.Play("Click")
+					if pk then Network.GangAction:FireServer("Kick", mem.UserId)
+					else pk = true; kBtn.Text = "Sure?"; task.delay(3, function() if pk then pk = false; kBtn.Text = "Kick" end end) end
+				end)
+				pBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Promote", mem.UserId) end)
+				dBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Demote", mem.UserId) end)
 			end
-
-			local pk = false
-			kBtn.MouseButton1Click:Connect(function()
-				SFXManager.Play("Click")
-				if pk then Network.GangAction:FireServer("Kick", mem.UserId)
-				else pk = true; kBtn.Text = "Sure?"; task.delay(3, function() if pk then pk = false; kBtn.Text = "Kick" end end) end
-			end)
-			pBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Promote", mem.UserId) end)
-			dBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Demote", mem.UserId) end)
 		end
 	end
 	task.delay(0.05, function()
@@ -1297,7 +1314,7 @@ function GangsTab.HandleUpdate(action, data)
 		end)
 	end
 
-	for _, c in pairs(buildingScroll:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+	for _, c in pairs(buildingList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
 	local bConfigs = {
 		{Id = "Vault", Name = "The Vault", Desc = "+5% Yen Gain per level.", Max = 10, ReqLevel = 1},
 		{Id = "Dojo", Name = "Training Hall", Desc = "+5% XP Gain per level.", Max = 10, ReqLevel = 2},
@@ -1311,34 +1328,38 @@ function GangsTab.HandleUpdate(action, data)
 	activeUpgradeBtnRef = nil
 
 	for _, conf in ipairs(bConfigs) do
-		local row = buildTpl:Clone(); row.Visible = true; row.Parent = buildingScroll
+		local row = buildTpl:Clone(); row.Visible = true; row.Parent = buildingList
 		local cLvl = (gData.Buildings and gData.Buildings[conf.Id]) or 0
 		row:FindFirstChild("NameLabel").Text = conf.Name .. " <font color='#FFFFFF'>(Lv."..cLvl.."/"..conf.Max..")</font>"
 		row:FindFirstChild("DescLbl").Text = conf.Desc
-		local uBtn = row:FindFirstChild("UpgradeBtn")
-		if activeUpgradeId == conf.Id then activeUpgradeBtnRef = uBtn; uBtn.Text = "Starting..."; uBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 20)
-		elseif activeUpgradeId ~= nil then uBtn.Text = "Busy"; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-		elseif level < conf.ReqLevel then uBtn.Text = "Requires Gang Lv." .. conf.ReqLevel; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-		elseif cLvl >= conf.Max then uBtn.Text = "MAXED"; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-		else uBtn.Text = "Upgrade (¥100M)"; uBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("UpgradeBuilding", conf.Id) end) end
-		if myPower < RolePower["Consigliere"] then uBtn.Visible = false end
-	end
-	task.delay(0.05, function()
-		local l = buildingScroll:FindFirstChildWhichIsA("UIGridLayout")
-		if l then buildingScroll.CanvasSize = UDim2.new(0, 0, 0, math.ceil(#buildingScroll:GetChildren()/2) * 115 + 10) end
-	end)
 
-	for _, c in pairs(ordersScroll:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		local uBtn = row:FindFirstChild("UpgradeBtn")
+		local costLbl = row:FindFirstChild("CostLbl")
+
+		if cLvl < conf.Max then
+			costLbl.Text = "Cost: ¥100,000,000"
+			if activeUpgradeId == conf.Id then activeUpgradeBtnRef = uBtn; uBtn.Text = "Starting..."; uBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 20)
+			elseif activeUpgradeId ~= nil then uBtn.Text = "Busy"; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+			elseif level < conf.ReqLevel then uBtn.Text = "Requires Gang Lv." .. conf.ReqLevel; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+			else uBtn.Text = "Upgrade"; uBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("UpgradeBuilding", conf.Id) end) end
+			if myPower < RolePower["Consigliere"] then uBtn.Visible = false end
+		else
+			costLbl.Text = "<font color='#FFD700'>MAX LEVEL REACHED</font>"
+			uBtn.Visible = false
+		end
+	end
+
+	for _, c in pairs(ordersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
 	if gData.Orders then
 		for i, ord in ipairs(gData.Orders) do
 			local row = ordTpl:Clone()
 			row.Visible = true 
-			row.Parent = ordersScroll
+			row.Parent = ordersList
 			row:FindFirstChild("ProgBg"):FindFirstChild("Fill").Size = UDim2.new(math.clamp(ord.Progress / ord.Target, 0, 1), 0, 1, 0)
 			row:FindFirstChild("ProgBg"):FindFirstChild("ProgTxt").Text = FormatNumber(ord.Progress) .. " / " .. FormatNumber(ord.Target)
 
 			local taskLbl = row:FindFirstChild("TaskLbl")
-			local rBtn = row:FindFirstChild("RerollBtn")
+			local rBtn = row:FindFirstChild("ActionBtn")
 
 			if ord.Completed then
 				taskLbl.Text = "<b>" .. ord.Desc .. "</b>\n<font size='12' color='#55FF55'>[COMPLETED!]</font>"
@@ -1360,10 +1381,6 @@ function GangsTab.HandleUpdate(action, data)
 			end
 		end
 	end
-	task.delay(0.05, function()
-		local l = ordersScroll:FindFirstChildWhichIsA("UIListLayout")
-		if l then ordersScroll.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
-	end)
 
 	if myRole == "Boss" and settingsCard then
 		for k, v in pairs(gData.RoleNames) do
