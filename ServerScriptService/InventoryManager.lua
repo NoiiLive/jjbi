@@ -254,7 +254,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 		end
 
 		local isStandItem = (itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Stand Disc" or itemName == "Requiem Arrow" or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "New Rokakaka" or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
-		local isStyleItem = (itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" or itemName == "Golden Spin Scroll")
+		local isStyleItem = (itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit")
 
 		if isStandItem and player:GetAttribute("StandLocked") then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Stand is locked! Unlock it to use this item.</font>")
@@ -403,6 +403,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			player:SetAttribute("FightingStyle", "Pillarman"); message = "Awakened ancient biology! Gained Pillarman Style."
 		elseif itemName == "Steel Ball" then
 			player:SetAttribute("FightingStyle", "Spin"); message = "You grasped the rotation! Gained Spin Style."
+		elseif itemName == "Locacaca Fruit" then
+			player:SetAttribute("FightingStyle", "Rock Human"); message = "You consumed the Locacaca Fruit. Your body hardens as you become a Rock Human!"
 		elseif itemName == "Perfect Aja Mask" then
 			if player:GetAttribute("FightingStyle") == "Pillarman" then
 				player:SetAttribute("FightingStyle", "Ultimate Lifeform")
