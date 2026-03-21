@@ -258,8 +258,8 @@ SkillData.Skills = {
 	["Iron Jail"] = { Requirement = "Steel Platinum", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 15, Effect = "Stun", Duration = 3, Cooldown = 6, Order = 13, Description = "Lock the weak-willed behind bars of steel." },
 
 	["MUDA MUDA MUDA! (High Voltage)"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 0.8, Hits = 3, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "A ruthless barrage of punches from the alternate universe." },
-	["Checkmate"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 12, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 12, Description = "Throws a flurry of knives in stopped time, causing severe Bleeding." },
-	["Gasoline Ignition"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 10, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 13, Description = "Douses the enemy in gasoline and throws a match, inflicting heavy Burn damage." },
+	["Checkmate"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 12, Effect = "Bleed", Duration = 2, Cooldown = 6, Order = 12, Description = "Throws a flurry of knives in stopped time, causing severe Bleeding." },
+	["Gasoline Ignition"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 10, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 13, Description = "Douses the enemy in gasoline and throws a match, inflicting heavy Burn damage." },
 	["ZA WARUDO! (High Voltage)"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "TimeStop", Duration = 2, Cooldown = 6, Order = 14, Description = "Stops time completely, freezing the enemy in place to set up a lethal trap." },
 
 	["Primary Bomb (BTD)"] = { Requirement = "Killer Queen BTD", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Turns the enemy into a bomb and detonates them." },
@@ -297,6 +297,7 @@ SkillData.Skills = {
 	["Rewrite Truth"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 5, Cooldown = 7, Order = 13, Description = "Rewrites the truth to enforce your absolute victory, shattering their defense." },
 	["Time Stop (Over Heaven)"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "TimeStop", Duration = 3, Cooldown = 10, Order = 14, Description = "Stops time on a universal scale, completely freezing the enemy." },
 
+	-- SBR
 	["Assassination Shot"] = { Requirement = "TATOO YOU!", Type = "Stand", Mult = 1.9, StaminaCost = 0, EnergyCost = 5, Order = 11, Description = "A calculated shot from a hidden angle." },
 	["Eleven Men Swarm"] = { Requirement = "TATOO YOU!", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 8, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 12, Description = "Assassins emerge from your back to ambush the target, causing Bleed." },
 	["Hide in the Canvas"] = { Requirement = "TATOO YOU!", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 7, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Retreats into the tattoo dimension, drastically increasing Speed." },
@@ -397,9 +398,9 @@ SkillData.Skills = {
 	["Dimensional Clone"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Heal", HealPercent = 0.50, Cooldown = 10, Order = 14, Description = "Transfers consciousness to a fresh clone, instantly healing 50% Max HP." },
 	
 	-- PART 8
-	["Peel"] = { Requirement = "Doggy Style", Type = "Stand", Mult = 1.1, Hits = 2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Peels off your skin like an apple to strike the enemy." },
-	["Wire Trap"] = { Requirement = "Doggy Style", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 12, Description = "Sets a wire trap made of your own skin, stunning the target." },
-	["Sling"] = { Requirement = "Doggy Style", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 20, Cooldown = 3, Order = 13, Description = "Slingshots yourself using your peeled limbs for a heavy strike." },
+	["Peel"] = { Requirement = "Canine Style", Type = "Stand", Mult = 1.1, Hits = 2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Peels off your skin like an apple to strike the enemy." },
+	["Wire Trap"] = { Requirement = "Canine Style", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 12, Description = "Sets a wire trap made of your own skin, stunning the target." },
+	["Sling"] = { Requirement = "Canine Style", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 20, Cooldown = 3, Order = 13, Description = "Slingshots yourself using your peeled limbs for a heavy strike." },
 
 	["Above You"] = { Requirement = "Fun Fun Fun", Type = "Stand", Mult = 2.1, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A calculated strike from directly above the target." },
 	["Mark"] = { Requirement = "Fun Fun Fun", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Debuff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Marks the enemy's limbs, breaking down their defensive stance." },
@@ -495,9 +496,9 @@ SkillData.Skills = {
 	["Go Beyond Barrage"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 14, Description = "A devastating barrage of logic-defying explosive bubbles." },
 
 	["Cane Strike"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A simple, yet impossibly painful strike with a cane." },
-	["Flow of Calamity"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 3, Cooldown = 6, Order = 12, Description = "Manipulates the logic of the world to make the target succeptible to attacks." },
-	["Illusory Presence"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Confusion", Duration = 2, Cooldown = 6, Order = 13, Description = "Appears in the corner of their eye, Confusing them completely." },
-	["Rain of Debris"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 35, Effect = "Bleed", Duration = 3, Cooldown = 6, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing Bleed." },
+	["Flow of Calamity"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 5, Cooldown = 6, Order = 12, Description = "Manipulates the logic of the world to make the target succeptible to attacks." },
+	["Illusory Presence"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Confusion", Duration = 3, Cooldown = 6, Order = 13, Description = "Appears in the corner of their eye, Confusing them completely." },
+	["Rain of Debris"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0.6, Hits = 5, StaminaCost = 0, EnergyCost = 35, Effect = "Status_Random", Duration = 5, Cooldown = 6, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing random effects." },
 }
 
 return SkillData
