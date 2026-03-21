@@ -19,7 +19,8 @@ GameData.StyleBonuses = {
 	["Pillarman"] = { Health = 40, Strength = 20 },
 	["Ultimate Lifeform"] = { Health = 85, Defense = 55 },
 	["Spin"] = { Strength = 45, Speed = 35 },
-	["Golden Spin"] = { Strength = 85, Willpower = 55 }, 
+	["Golden Spin"] = { Strength = 85, Willpower = 55 },
+	["Rock Human"] = { Strength = 65, Defense = 40 },
 	["Man of Steel"] = { Defense = 50, Health = 50 },
 }
 
