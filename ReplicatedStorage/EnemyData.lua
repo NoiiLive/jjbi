@@ -60,7 +60,7 @@ EnemyData.RaidBosses = {
 		IsBoss = true, Name = "The Head Doctor", Req = 1, 
 		Health = 40000, Strength = 350, Defense = 300, Speed = 350, Willpower = 300, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
 		Skills = {"Cane Strike", "Flow of Calamity", "Rain of Debris", "Heavy Strike", "Block"}, 
-		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1} } 
+		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1, ["Rokakaka Fruit"] = 1} } 
 	}
 }
 
