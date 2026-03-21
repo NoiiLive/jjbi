@@ -257,7 +257,7 @@ SkillData.Skills = {
 
 	["Primary Bomb (BTD)"] = { Requirement = "Killer Queen BTD", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Turns the enemy into a bomb and detonates them." },
 	["Sheer Heart Attack (BTD)"] = { Requirement = "Killer Queen BTD", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 12, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 12, Description = "Deploys an explosive tank that causes severe Burns." },
-	["Air Bomb"] = { Requirement = "Killer Queen BTD", Type = "Stand", Mult = 3.2, StaminaCost = 0, EnergyCost = 14, Effect = "Debuff_Defense", Duration = 4, Cooldown = 5, Order = 13, Description = "Fires an invisible explosive air bubble that shatters the enemy's Defense." },
+	["Air Bomb"] = { Requirement = "Killer Queen BTD", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 14, Effect = "Debuff_Defense", Duration = 4, Cooldown = 5, Order = 13, Description = "Fires an invisible explosive air bubble that shatters the enemy's Defense." },
 	["Bites the Dust"] = { Requirement = "Killer Queen BTD", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "TimeRewind", Cooldown = 10, Order = 14, Description = "Rewinds time, restoring 50% of lost health and clearing ailments." },
 
 	["Speed Slice"] = { Requirement = "Made in Heaven", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "A high-speed strike that is nearly impossible to track." },
