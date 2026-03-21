@@ -2,6 +2,17 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.0 - JoJolion Update PART 1 (March 21st)</font></b>
+
+<font color='#55FF55'>[+]</font> <b>New Stands:</b> Added Soft & Wet, Wonder of U, and many other Part 8 Stands!
+<font color='#55FF55'>[+]</font> <b>Go Beyond:</b> Soft & Wet can now evolve into Soft & Wet: Go Beyond using the Rokakaka Branch!
+<font color='#55FF55'>[+]</font> <b>New Combat Style:</b> Rock Human style has been added!
+<font color='#55FF55'>[+]</font> <b>Story Expansion:</b> Part 8 Story Expansion is now playable after completing Part 7.
+<font color='#55FF55'>[+]</font> <b>New Raid:</b> Added the Part 8 Raid (The Head Doctor) which drops a new accessory, weapon, and the Rokakaka Branch.
+<font color='#55FF55'>[+]</font> <b>New World Boss:</b> Wonder of U is now a World Boss! Defeat him for a chance at his Stand Disc and the New Rokakaka.
+
+Use code <b><font color='#FF55FF'>JOJOLIONPART1</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v1.9 - UI Rework Update (March 20th)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>UI Rework:</b> Updated all the in-game UI to be cleaner and more visually interesting.
