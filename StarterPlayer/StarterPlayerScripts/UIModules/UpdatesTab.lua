@@ -1,19 +1,23 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v1.9 - UI Rework Update (March 20th)</font></b>
+
+<font color='#55FF55'>[+]</font> <b>UI Rework:</b> Updated all the in-game UI to be cleaner and more visually interesting.
+<font color='#55FF55'>[+]</font> <b>World Boss:</b> World Boss now gives a stand arrow even if you die.
+<font color='#55FF55'>[+]</font> <b>Inventory Changes:</b> All consumables are now considered 'key items' (no longer take inventory space). Prestige inventory space has been removed.
+<font color='#55FF55'>[+]</font> <b>Combat Pace:</b> Turn deadlines in multiplayer combat have been cut down significantly.
+
+Use code <b><font color='#FF55FF'>GUIREWORK</font></b> and <b><font color='#FF55FF'>250KVISITS</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v1.8 - Gangs & QoL Update (March 16th)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>Gang Overhaul:</b> Added Gang Emblems, Mottos, and collaborative Orders for loot, treasury, and rep rewards.
 <font color='#55FF55'>[+]</font> <b>Gang Infrastructure:</b> Buildings (Armory, HQ, etc.) now provide passive bonuses and are unlocked via Gang Level.
-<font color='#55FF55'>[+]</font> <b>Gang Management:</b> Redesigned menu (Info/Upgrades/Orders) and added recruitment Prestige requirements.
-<font color='#55FF55'>[+]</font> <b>Roll Security:</b> Added Stand/Trait Locking to prevent rolling past targets. New Auto-Roll gamepass added.
-<font color='#55FF55'>[+]</font> <b>Physical Gamepasses:</b> Gamepasses can now be purchased as tradeable items via the Gift Menu.
 <font color='#55FF55'>[+]</font> <b>New Stand:</b> Added King Crimson Requiem as an evolvable stand.
-<font color='#55FF55'>[+]</font> <b>SBR Scaling:</b> SBR rewards now scale by player count. Servers with 5 or fewer players receive reduced rewards.
-<font color='#55FF55'>[+]</font> <b>QoL & Fixes:</b> Added stat breakdowns to leaderboard hover, fixed renaming bugs, and enforced stat caps.
-
-Use code <b><font color='#FF55FF'>GANGSUPD</font></b> and <b><font color='#FF55FF'>250KVISITS</font></b> for free rewards!]],
+<font color='#55FF55'>[+]</font> <b>QoL & Fixes:</b> SBR scaling by player count, physical gamepass trading, and stat cap enforcements.]],
 
 	[[<b><font color='#FFD700'>v1.7 - Steel Ball Run Update PART 2 (March 13th)</font></b>
 
