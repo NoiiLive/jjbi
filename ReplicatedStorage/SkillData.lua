@@ -388,6 +388,109 @@ SkillData.Skills = {
 	["Misfortune Redirection"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 18, Effect = "Burn", Duration = 4, Cooldown = 8, Order = 12, Description = "Pushes bad luck into the target, causing them to spontaneously ignite." },
 	["Wall of Light"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 16, Effect = "Buff_Defense", Duration = 5, Cooldown = 6, Order = 13, Description = "Hides behind the gap in space, becoming almost entirely immune to damage." },
 	["Dimensional Clone"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Heal", HealPercent = 0.50, Cooldown = 10, Order = 14, Description = "Transfers consciousness to a fresh clone, instantly healing 50% Max HP." },
+	
+	-- PART 8
+	["Peel"] = { Requirement = "Doggy Style", Type = "Stand", Mult = 1.1, Hits = 2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Peels off your skin like an apple to strike the enemy." },
+	["Wire Trap"] = { Requirement = "Doggy Style", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 12, Description = "Sets a wire trap made of your own skin, stunning the target." },
+	["Sling"] = { Requirement = "Doggy Style", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 20, Cooldown = 3, Order = 13, Description = "Slingshots yourself using your peeled limbs for a heavy strike." },
+
+	["Above You"] = { Requirement = "Fun Fun Fun", Type = "Stand", Mult = 2.1, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A calculated strike from directly above the target." },
+	["Mark"] = { Requirement = "Fun Fun Fun", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Debuff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Marks the enemy's limbs, breaking down their defensive stance." },
+	["Puppeteer"] = { Requirement = "Fun Fun Fun", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 30, Effect = "Confusion", Duration = 2, Cooldown = 5, Order = 13, Description = "Takes control of the marked limbs, forcing the enemy to attack themselves." },
+
+	["Sneak Attack"] = { Requirement = "California King Bed", Type = "Stand", Mult = 1.9, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A sly, underhanded physical attack." },
+	["Memory Theft"] = { Requirement = "California King Bed", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Debuff_Strength", Duration = 3, Cooldown = 5, Order = 12, Description = "Steals a crucial memory of how to fight, lowering their Strength." },
+	["Rule Enforcement"] = { Requirement = "California King Bed", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 30, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 13, Description = "Punishes the enemy for breaking a rule, stunning them." },
+
+	["Origami Strike"] = { Requirement = "Paper Moon King", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Slashes the enemy with an impossibly sharp folded paper." },
+	["Sensory Illusion"] = { Requirement = "Paper Moon King", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Confusion", Duration = 2, Cooldown = 5, Order = 12, Description = "Alters the target's facial recognition, deeply confusing them." },
+	["Swarm"] = { Requirement = "Paper Moon King", Type = "Stand", Mult = 0.8, Hits = 3, StaminaCost = 0, EnergyCost = 20, Cooldown = 4, Order = 13, Description = "Sends a swarm of origami frogs to bite the target." },
+
+	["Card Conceal"] = { Requirement = "Space Trucking", Type = "Stand", Mult = 2.1, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Slices the enemy with a rigid playing card." },
+	["Store Away"] = { Requirement = "Space Trucking", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Buff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Hides yourself between playing cards, increasing Defense." },
+	["Eject Object"] = { Requirement = "Space Trucking", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 20, Cooldown = 4, Order = 13, Description = "Violently ejects a stored heavy object into the target." },
+
+	["Cash Bash"] = { Requirement = "Milagro Man", Type = "Stand", Mult = 2.3, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A heavy strike fueled by a cursed wad of cash." },
+	["Overwhelming Wealth"] = { Requirement = "Milagro Man", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Speed", Duration = 3, Cooldown = 5, Order = 12, Description = "Burdens the enemy with infinitely multiplying money, lowering their Speed." },
+	["Crushing Debt"] = { Requirement = "Milagro Man", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 13, Description = "Crushes the opponent under the physical weight of the curse." },
+
+	["Jigsaw Strike"] = { Requirement = "King Nothing", Type = "Stand", Mult = 2.1, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A fast strike from a puzzle-piece fist." },
+	["Scent Tracking"] = { Requirement = "King Nothing", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 12, Description = "Tracks the enemy's scent perfectly, increasing your Speed and evasion." },
+	["Dismantling"] = { Requirement = "King Nothing", Type = "Stand", Mult = 1.3, Hits = 2, StaminaCost = 0, EnergyCost = 25, Cooldown = 4, Order = 13, Description = "Breaks into puzzle pieces to surround and strike the target twice." },
+
+	["Heel Spike"] = { Requirement = "Walking Heart", Type = "Stand", Mult = 2.3, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A brutal kick using hardened heel spikes." },
+	["Wall Walk"] = { Requirement = "Walking Heart", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 12, Description = "Uses the spikes to traverse walls, greatly boosting Speed." },
+	["Impale"] = { Requirement = "Walking Heart", Type = "Stand", Mult = 2.7, StaminaCost = 0, EnergyCost = 30, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 13, Description = "Deeply impales the target's foot, causing severe Bleeding." },
+
+	["Hair Whip"] = { Requirement = "Love Love Deluxe", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Whips the enemy with extended strands of hair." },
+	["Tangle"] = { Requirement = "Love Love Deluxe", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 12, Description = "Grows hair over the enemy's body, stunning them in place." },
+	["Strangle"] = { Requirement = "Love Love Deluxe", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 25, Cooldown = 4, Order = 13, Description = "Constricts the overgrown hair for heavy damage." },
+
+	["Tornado Strike"] = { Requirement = "Doobie Wah!", Type = "Stand", Mult = 1.2, Hits = 2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A rapid double-strike using miniature tornadoes." },
+	["Breath Tracking"] = { Requirement = "Doobie Wah!", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "The tornado hunts their breath, tearing away their defensive armor." },
+	["Suffocate"] = { Requirement = "Doobie Wah!", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 30, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 13, Description = "Forces the tornado into their lungs, causing massive internal Burn damage." },
+
+	["Toxin Touch"] = { Requirement = "Brain Storm", Type = "Stand", Mult = 2.1, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A light touch that begins the breakdown process." },
+	["Cellular Breakdown"] = { Requirement = "Brain Storm", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 12, Description = "Infects the enemy, causing their cells to pop like bubbles (Poison)." },
+	["Melt"] = { Requirement = "Brain Storm", Type = "Stand", Mult = 1.3, Hits = 2, StaminaCost = 0, EnergyCost = 25, Cooldown = 4, Order = 13, Description = "Spreads the infection rapidly, dealing two waves of heavy damage." },
+
+	["Zombie Strike"] = { Requirement = "Blue Hawaii", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A relentless, unfeeling physical attack from an infected host." },
+	["Mind Controlling"] = { Requirement = "Blue Hawaii", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "Confusion", Duration = 2, Cooldown = 5, Order = 12, Description = "Infects the target's blood, Confusing them into attacking themselves." },
+	["Relentless Pursuit"] = { Requirement = "Blue Hawaii", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 13, Description = "Commands all infected hosts to pile onto the target at once." },
+
+	["Direct Route"] = { Requirement = "Paisley Park", Type = "Stand", Mult = 2.3, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Finds the exact path of least resistance to strike." },
+	["Navigation"] = { Requirement = "Paisley Park", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 12, Description = "Hacks the environment to map out enemy attacks, boosting Speed." },
+	["Electronic Hack"] = { Requirement = "Paisley Park", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 13, Description = "Takes over a nearby electronic device to shock and Stun the target." },
+
+	["Nut & Bolt Punch"] = { Requirement = "Nut King Call", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A solid punch that implants a nut and bolt into the enemy." },
+	["Dismantle Limbs"] = { Requirement = "Nut King Call", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Strength", Duration = 3, Cooldown = 5, Order = 12, Description = "Unscrews the bolts holding the enemy's arms together, crippling Strength." },
+	["Screw Off"] = { Requirement = "Nut King Call", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 30, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 13, Description = "Violently removes the nuts and bolts, causing severe Bleeding." },
+
+	["Heat Strike"] = { Requirement = "Speed King", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A fast strike that slightly raises the target's temperature." },
+	["Boiling Point"] = { Requirement = "Speed King", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 12, Description = "Accumulates extreme heat inside the target's blood, causing Burn." },
+	["Combustion"] = { Requirement = "Speed King", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 13, Description = "Instantly detonates all stored heat for massive damage." },
+
+	["Gravity Pull"] = { Requirement = "I Am a Rock", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A heavy strike utilizing the target's own gravity." },
+	["Attract Objects"] = { Requirement = "I Am a Rock", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Forces heavy debris to stick to the enemy, lowering their Defense." },
+	["Spike Rain"] = { Requirement = "I Am a Rock", Type = "Stand", Mult = 0.9, Hits = 3, StaminaCost = 0, EnergyCost = 30, Cooldown = 4, Order = 13, Description = "Pulls a swarm of sharp rocks directly into the target's center of gravity." },
+
+	["Soft Strike"] = { Requirement = "Vitamin C", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A seemingly harmless punch that leaves a handprint." },
+	["Liquefy"] = { Requirement = "Vitamin C", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Softens the target's body into a liquid state, destroying their Defense." },
+	["Melt Down"] = { Requirement = "Vitamin C", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 30, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 13, Description = "The target's liquefied form begins to break down, taking Poison damage." },
+
+	["Pressure Push"] = { Requirement = "Ozon Baby", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A blast of highly pressurized air." },
+	["Depressurize"] = { Requirement = "Ozon Baby", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Speed", Duration = 3, Cooldown = 5, Order = 12, Description = "Lowers the atmospheric pressure, making the target sluggish and slow." },
+	["Crush"] = { Requirement = "Ozon Baby", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 13, Description = "Instantly restores pressure to normal, crushing the target's internal organs." },
+
+	["Bubble Strike"] = { Requirement = "Soft & Wet", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A fast punch accompanied by a floating soap bubble." },
+	["Plunder Vision"] = { Requirement = "Soft & Wet", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 12, Description = "A bubble pops on the target's face, stealing their sight and Stunning them." },
+	["Plunder Friction"] = { Requirement = "Soft & Wet", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Speed", Duration = 3, Cooldown = 5, Order = 13, Description = "Steals the friction from the floor, causing the target to slip and lose Speed." },
+	["Soap Bubble Barrage"] = { Requirement = "Soft & Wet", Type = "Stand", Mult = 0.9, Hits = 3, StaminaCost = 0, EnergyCost = 30, Cooldown = 4, Order = 14, Description = "A relentless barrage of physical punches and explosive bubbles." },
+
+	["Hook Punch"] = { Requirement = "Killer Queen (Part 8)", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A precise, methodical punch." },
+	["Sheer Heart Attack (Part 8)"] = { Requirement = "Killer Queen (Part 8)", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 30, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 12, Description = "Deploys multiple miniature explosive tanks that track the target, causing Burns." },
+	["Bubble Bomb Trap"] = { Requirement = "Killer Queen (Part 8)", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Buff_Defense", Duration = 3, Cooldown = 6, Order = 13, Description = "Surrounds yourself in a defensive perimeter of explosive bubbles." },
+	["Detonate"] = { Requirement = "Killer Queen (Part 8)", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Burn", Duration = 3, Cooldown = 6, Order = 14, Description = "Instantly detonates all active bubble bombs for massive burst damage." },
+
+	["Frost Strike"] = { Requirement = "Born This Way", Type = "Stand", Mult = 2.7, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A heavy, freezing strike." },
+	["Freezing Wind"] = { Requirement = "Born This Way", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "Freeze", Duration = 1, Cooldown = 4, Order = 12, Description = "Unleashes a sub-zero wind that completely Freezes the target." },
+	["Motorcycle Charge"] = { Requirement = "Born This Way", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 13, Description = "Rams the target at full speed with a frozen motorcycle." },
+	["Cold Front"] = { Requirement = "Born This Way", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Speed", Duration = 3, Cooldown = 6, Order = 14, Description = "Drops the temperature drastically, slowing the target's Speed." },
+
+	["Vector Punch"] = { Requirement = "Awaking III Leaves", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A punch guided by perfectly aligned vectors." },
+	["Vector Arrow"] = { Requirement = "Awaking III Leaves", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 25, Cooldown = 4, Order = 12, Description = "Places an arrow in space, redirecting massive force into the target." },
+	["Repel"] = { Requirement = "Awaking III Leaves", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Buff_Defense", Duration = 3, Cooldown = 6, Order = 13, Description = "Creates a barrier of outward-facing vectors, increasing Defense." },
+	["Vector Tornado"] = { Requirement = "Awaking III Leaves", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 35, Cooldown = 5, Order = 14, Description = "Combines multiple vectors into a destructive, multi-hit whirlwind." },
+
+	["Spinning Bubble"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Fires a bubble imbued with explosive rotational energy." },
+	["Explosive Spin"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "Burn", Duration = 3, Cooldown = 6, Order = 12, Description = "Harness the power of your fused stand to create devastating explosions." },
+	["Invisible Bubble"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Bleed", Duration = 3, Cooldown = 6, Order = 13, Description = "Fires an infinitely thin, spinning bubble that ignores logic, causing massive Bleed." },
+	["Go Beyond Barrage"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 14, Description = "A devastating barrage of logic-defying explosive bubbles." },
+
+	["Cane Strike"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A simple, yet impossibly painful strike with a cane." },
+	["Flow of Calamity"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 3, Cooldown = 6, Order = 12, Description = "Manipulates the logic of the world to make the target succeptible to attacks." },
+	["Illusory Presence"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Confusion", Duration = 2, Cooldown = 6, Order = 13, Description = "Appears in the corner of their eye, Confusing them completely." },
+	["Rain of Debris"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 35, Effect = "Bleed", Duration = 3, Cooldown = 6, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing Bleed." },
 }
 
 return SkillData
