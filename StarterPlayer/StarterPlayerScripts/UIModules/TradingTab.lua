@@ -38,6 +38,23 @@ local rarityColors = {
 
 local rarityOrder = { Common = 1, Uncommon = 2, Rare = 3, Legendary = 4, Mythical = 5, Unique = 6 }
 
+local function IsRestrictedPass(name)
+	local passes = {
+		["2x Battle Speed Pass"] = true,
+		["2x Inventory Pass"] = true,
+		["2x Drop Chance Pass"] = true,
+		["Auto Training Pass"] = true,
+		["Stand Storage Slot 2"] = true,
+		["Stand Storage Slot 3"] = true,
+		["Style Storage Slot 2"] = true,
+		["Style Storage Slot 3"] = true,
+		["Auto-Roll Pass"] = true,
+		["Custom Horse Name"] = true,
+		["Custom Horse Name Pass"] = true
+	}
+	return passes[name] == true
+end
+
 local KnownItems = {"Any / Offers"}
 
 for itemName, _ in pairs(ItemData.Consumables) do table.insert(KnownItems, itemName) end
@@ -216,6 +233,10 @@ local function InitMultiSelectGrid(frame, defaultText, itemsList)
 	mainBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); listFrame.Visible = not listFrame.Visible end)
 
 	for _, itemName in ipairs(itemsList) do
+		if IsRestrictedPass(itemName) and player:GetAttribute("PaidItemTradingAllowed") == false then
+			continue
+		end
+
 		local iData = ItemData.Consumables[itemName] or ItemData.Equipment[itemName]
 		local rarity = iData and iData.Rarity or "Common"
 		local sCol = itemName == "Any / Offers" and Color3.new(1,1,1) or rarityColors[rarity]
@@ -243,7 +264,7 @@ local function InitMultiSelectGrid(frame, defaultText, itemsList)
 		end)
 	end
 
-	listFrame.CanvasSize = UDim2.new(0, 0, 0, math.ceil(#itemsList / 2) * 35 + 10)
+	listFrame.CanvasSize = UDim2.new(0, 0, 0, math.ceil(#listFrame:GetChildren() / 2) * 35 + 10)
 
 	return function() 
 		if #selectedItems == 0 then return defaultText end return table.concat(selectedItems, ", ") 
@@ -1016,6 +1037,10 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 		for _, c in pairs(myInvList:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
 		for _, itemName in ipairs(KnownItems) do
 			if itemName == "Any / Offers" or itemName == "Stands" then continue end
+			if IsRestrictedPass(itemName) and player:GetAttribute("PaidItemTradingAllowed") == false then
+				continue
+			end
+
 			local count = player:GetAttribute(itemName:gsub("[^%w]", "") .. "Count") or 0
 
 			local iData = ItemData.Equipment[itemName]
