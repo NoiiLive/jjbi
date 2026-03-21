@@ -289,7 +289,7 @@ EnemyData.Parts = {
 		},
 		Missions = {
 			[1] = { Name = "New York Cafe", Waves = { { Template = "Straizo", Flavor = "Straizo betrays you! He fires his stingy eyes across the cafe." } } },
-			[2] = { Name = "Mexican Base", Waves = { { Template = "Pillar Man Thrall", Flavor = "Nazis have awakened a monster." }, { Template = "Santana", Flavor = "Santana absorbs a soldier and targets you!" } } },
+			[2] = { Name = "Mexican Base", Waves = { { Template = "Pillar Man Thrall", Flavor = "The soldiers have awakened a monster." }, { Template = "Santana", Flavor = "Santana absorbs a soldier and targets you!" } } },
 			[3] = { Name = "Rome Underground", Waves = { { Template = "Vampire Soldier", Flavor = "Vampires block the ancient entrance." }, { Template = "Wamuu Base", Flavor = "The masters awaken. Wamuu steps forward to test your strength.", Ally = "Caesar Zeppeli" } } },
 			[4] = { Name = "Hell Climb Pillar", Waves = { { Template = "Pillar Man Thrall", Flavor = "A rogue thrall attacks during your climb!" }, { Template = "Loggins", Flavor = "Your master Loggins tests your Hamon control!" } } },
 			[5] = { Name = "Air Tights Training", Waves = { { Template = "Esidisi", Flavor = "Esidisi infiltrates the island! He cries uncontrollably, then attacks with boiling blood!" } } },
