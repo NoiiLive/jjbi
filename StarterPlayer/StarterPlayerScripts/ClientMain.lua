@@ -31,6 +31,7 @@ local TrainingTab = require(UIModules:WaitForChild("TrainingTab"))
 local ShopTab = require(UIModules:WaitForChild("ShopTab"))
 local GiftManager = require(UIModules:WaitForChild("GiftManager"))
 local MultiplayerTab = require(UIModules:WaitForChild("MultiplayerTab"))
+local TutorialManager = require(UIModules:WaitForChild("TutorialManager"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
@@ -46,7 +47,6 @@ NotificationEvent.OnClientEvent:Connect(function(msg)
 	NotificationManager.Show(msg)
 end)
 
--- CATCH-ALL FOR SHOP/CODE NOTIFICATIONS
 Network:WaitForChild("RedeemCode").OnClientEvent:Connect(function(msg)
 	if type(msg) == "string" then
 		NotificationManager.Show(msg)
@@ -66,7 +66,6 @@ end)
 CombatUpdate.OnClientEvent:Connect(function(action, data)
 	if action == "SystemMessage" then
 		CombatTab.SystemMessage(data)
-		-- Removed the duplicate NotificationManager.Show(data) here so the server can safely trigger both without double popups!
 	elseif action == "TrainingTick" then
 		TrainingTab.OnTick(data)
 	else
@@ -80,7 +79,6 @@ DungeonUpdate.OnClientEvent:Connect(function(action, data)
 	end
 end)
 
--- Multiplayer Update Listeners
 local function safeCall(func, action, data)
 	if func then func(action, data) end
 end
@@ -381,9 +379,6 @@ toggleBtnStroke.Thickness = 1
 toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 toggleBtnStroke.Parent = navToggleBtn
 
--- ========================================================
--- REACTIVE MUTE STATE
--- ========================================================
 local function applyMuteState()
 	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
 	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
@@ -408,9 +403,6 @@ muteBtn.MouseButton1Click:Connect(function()
 	Network:WaitForChild("ToggleMute"):FireServer(newState)
 end)
 
--- ========================================================
--- ACTIVE BOOSTS TOOLTIP
--- ========================================================
 local function GetActiveBoostsText()
 	local text = "<b><font color='#FFD700'>GLOBAL BOOSTS</font></b>\n____________________\n\n"
 
@@ -765,4 +757,5 @@ ShopTab.Init(TabFrames["Shop"], TooltipManager)
 -- Initialize Multiplayer Tab last so all UI modules exist
 MultiplayerTab.Init(TabFrames["Multiplayer"], TooltipManager, SwitchTab)
 
+TutorialManager.Init(mainFrame, SwitchTab)
 SwitchTab("Updates")
