@@ -8,6 +8,7 @@ SkillData.Skills = {
 	["Rest"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Rest", Order = 4, Description = "Skip your turn to rapidly recover 20 Stamina and 20 Energy." },
 	["Flee"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Flee", Order = 5, Description = "Escape from the current battle." },
 
+	-- Styles
 	["Haymaker"] = { Requirement = "Boxing", Type = "Style", Mult = 1.6, StaminaCost = 6, EnergyCost = 0, Order = 6, Description = "A devastating boxing punch." },
 	["Liver Blow"] = { Requirement = "Boxing", Type = "Style", Mult = 1.3, StaminaCost = 8, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 4, Order = 7, Description = "A precise hook that stuns the enemy for 2 turns." },
 	["Footwork"] = { Requirement = "Boxing", Type = "Style", Mult = 0, StaminaCost = 5, EnergyCost = 0, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 8, Description = "Increases evasion and Speed for 3 turns." },
@@ -46,6 +47,12 @@ SkillData.Skills = {
 	["Horseback Spin"] = { Requirement = "Golden Spin", Type = "Style", Mult = 0, StaminaCost = 10, EnergyCost = 0, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 8, Description = "Uses the horse's power to perfectly align with the golden ratio, massively boosting Speed." },
 	["Hemispatial Neglect"] = { Requirement = "Golden Spin", Type = "Style", Mult = 2.3, StaminaCost = 8, EnergyCost = 0, Effect = "Confusion", Duration = 2, Cooldown = 7, Order = 9, Description = "Strikes the enemy's nerves with a spinning steel ball, confusing them for 2 turns." },
 
+	["Silicon Strike"] = { Requirement = "Rock Human", Type = "Style", Mult = 2.3, StaminaCost = 8, EnergyCost = 0, Cooldown = 0, Order = 6, Description = "A dense, heavy strike using your silicon-based biology." },
+	["Rock Armor"] = { Requirement = "Rock Human", Type = "Style", Mult = 0, StaminaCost = 12, EnergyCost = 0, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 7, Description = "Hardens your skin into impenetrable rock, massively boosting Defense." },
+	["Parasitic Shedding"] = { Requirement = "Rock Human", Type = "Style", Mult = 2.6, StaminaCost = 15, EnergyCost = 0, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 8, Description = "Sheds toxic, rock-like scales that burrow into the enemy, causing Poison." },
+	["Hibernation"] = { Requirement = "Rock Human", Type = "Style", Mult = 0, StaminaCost = 10, EnergyCost = 0, Effect = "Heal", HealPercent = 0.35, Cooldown = 8, Order = 9, Description = "Enters a brief state of rock hibernation, instantly restoring 35% of Max HP." },
+	
+	-- Stands
 	["Stand Barrage"] = { Requirement = "AnyStand", Type = "Stand", Mult = 0.4, Hits = 3, StaminaCost = 0, EnergyCost = 10, Cooldown = 3, Order = 10, Description = "A rapid flurry of 3 Stand punches." },
 
 	["Spirit Photo"] = { Requirement = "Hermit Purple", Type = "Stand", Mult = 1.4, StaminaCost = 0, EnergyCost = 3, Order = 11, Description = "Uses the environment to strike with spirit vines." },
