@@ -48,6 +48,7 @@ ItemData.Equipment = {
 	["Doppio's Phone"] = { Slot = "Weapon", Bonus = { Stand_Precision = 100, Stand_Potential = 50 }, Rarity = "Mythical", Cost = 900000 },
 	["DIO's Bone"] = { Slot = "Weapon", Bonus = { Stand_Potential = 150, Willpower = 100 }, Rarity = "Mythical", Cost = 1250000 },
 	["Valentine's Revolver"] = { Slot = "Weapon", Bonus = { Stand_Precision = 150, Stand_Power = 100, Speed = 80 }, Rarity = "Mythical", Cost = 1500000 },
+	["Wonder of U's Cane"] = { Slot = "Weapon", Bonus = { Stand_Speed = 150, Stand_Power = 120, Defense = 80 }, Rarity = "Mythical", Cost = 1750000 },
 
 	["Dio's Head Jar"] = { Slot = "Accessory", Bonus = { Defense = 60, Willpower = 40 }, Rarity = "Mythical", Cost = 500000 },
 	["Kars' Horn"] = { Slot = "Accessory", Bonus = { Stand_Range = 60, Stand_Precision = 40, Speed = 20 }, Rarity = "Mythical", Cost = 550000 },
@@ -56,6 +57,7 @@ ItemData.Equipment = {
 	["Passione Badge"] = { Slot = "Accessory", Bonus = { Stand_Power = 50, Stand_Potential = 50, Health = 40 }, Rarity = "Mythical", Cost = 900000 },
 	["Priest's Rosary"] = { Slot = "Accessory", Bonus = { Stand_Durability = 100, Willpower = 50, Defense = 30 }, Rarity = "Mythical", Cost = 1250000 },
 	["The First Napkin"] = { Slot = "Accessory", Bonus = { Stand_Power = 100, Stand_Durability = 100, Defense = 80 }, Rarity = "Mythical", Cost = 1500000 },
+	["Rock Insect"] = { Slot = "Accessory", Bonus = { Stand_Durability = 150, Defense = 100, Strength = 80 }, Rarity = "Mythical", Cost = 1750000 },
 
 	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Unique", Cost = 1 },
 	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 99 }, Rarity = "Unique", Cost = 1 },
@@ -83,8 +85,11 @@ ItemData.Consumables = {
 	["Metallica Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
 	["The World Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
 	["Star Platinum Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["Wonder of U Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
 
 	["Rokakaka"] = { Description = "An equivalent exchange fruit. Rerolls your Stand's trait.", Rarity = "Mythical", Cost = 300000 },
+	["Saint's Corpse Part"] = { Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Mythical", Cost = 500000 },
+	
 	["Heavenly Stand Disc"] = { Description = "Call upon the powers of Made in Heaven to reset the universe and its modifiers.", Rarity = "Mythical", Cost = 350000},
 	["Steel Ball"] = { Description = "A perfect sphere. Unlocks the Spin fighting style.", Rarity = "Mythical", Cost = 400000 },
 	["Perfect Aja Mask"] = { Description = "A stone mask with the Red Stone embedded. Evolves Pillarman into the Ultimate Lifeform.", Rarity = "Mythical", Cost = 450000 },
@@ -93,10 +98,11 @@ ItemData.Consumables = {
 	["Saint's Pelvis"] = { Description = "A mummified pelvis. Evolves Tusk Act 3 into Act 4.", Rarity = "Mythical", Cost = 500000 },
 	["Saint's Heart"] = { Description = "A mummified heart. Evolves Dirty Deeds Done Dirt Cheap into Love Train.", Rarity = "Mythical", Cost = 500000 },
 	["Saint's Spine"] = { Description = "A mummified spine. Evolves The World and Star Platinum into Over Heaven!", Rarity = "Mythical", Cost = 500000 },
+	["Rokakaka Branch"] = { Description = "A miraculously grafted branch. Evolves Soft & Wet to push its bubbles beyond logic.", Rarity = "Mythical", Cost = 500000},
 
-	["Saint's Corpse Part"] = { Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Mythical", Cost = 500000 },
 	["Requiem Arrow"] = { Description = "An arrow with a bizzare beetle design. Pushes your stand beyond anything ever seen.", Rarity = "Mythical", Cost = 500000},
-	
+	["New Rokakaka"] = { Description = "The ultimate fruit of equivalent exchange. Fuses two of your Stands into a powerful hybrid.", Rarity = "Mythical", Cost = 500000},
+
 	["Legendary Giftbox"] = { Description = "Supplies you with a random Legendary-tier item!", Rarity = "Unique", Cost = 30000 },
 	["Mythical Giftbox"] = { Description = "Supplies you with a random Mythical-tier item!", Rarity = "Unique", Cost = 50000 },
 	
