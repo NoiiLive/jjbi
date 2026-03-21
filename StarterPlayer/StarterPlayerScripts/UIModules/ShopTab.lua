@@ -31,16 +31,18 @@ local premiumItems = {
 	{ Type = "Product", Id = 3553771635, Name = "Saint's Corpse Part (x10)", Price = 400, Desc = "<b><font color='#FFD700'>Saint's Corpse Part (x10)</font></b>\nGives you <font color='#55FF55'>x10 Saint's Corpse Parts</font>." },
 	{ Type = "Product", Id = 3550862625, Name = "Stand Arrow (x25)", Price = 250, Desc = "<b><font color='#FFD700'>Stand Arrow (x25)</font></b>\nGives you <font color='#55FF55'>x25 Stand Arrows</font>." },
 	{ Type = "Product", Id = 3550862858, Name = "Rokakaka (x5)", Price = 100, Desc = "<b><font color='#FFD700'>Rokakaka (x5)</font></b>\nGives you <font color='#55FF55'>x5 Rokakakas</font>." },
+	{ Type = "Product", Id = 3560808666, Name = "Mythical Giftbox", Price = 400, Desc = "<b><font color='#FFD700'>Mythical Giftbox</font></b>\nGives you 1 random <font color='#FF55FF'>Mythical Item</font>." },
 
-	{ Type = "Product", Id = 3553767064, Name = "Johnny Pack", Price = 1500, Desc = "<b><font color='#FFD700'>Johnny Bundle</font></b>\n<b>Tusk Act 1</b> <font color='#FF55FF'>[Cheerful]</font>, L. Arm, & R. Eye." },
-	{ Type = "Product", Id = 3547646706, Name = "DIO Pack", Price = 1500, Desc = "<b><font color='#FFD700'>DIO Bundle</font></b>\n<b>The World</b> <font color='#FF55FF'>[Vampiric]</font>, Vamp Style, Cape & Knives." },
-	{ Type = "Product", Id = 3550839948, Name = "Pucci Pack", Price = 1500, Desc = "<b><font color='#FFD700'>Pucci Bundle</font></b>\n<b>Whitesnake</b> <font color='#FF55FF'>[Blessed]</font>, Green Baby, & Diary." },
-	{ Type = "Product", Id = 3547646703, Name = "Jotaro Pack", Price = 1500, Desc = "<b><font color='#FFD700'>Jotaro Bundle</font></b>\n<b>Star Platinum</b> <font color='#FF55FF'>[Overwhelming]</font>, Hat & Diary." },
+	{ Type = "Product", Id = 3560802297, Name = "Gappy Pack", Price = 1500, Desc = "<b><font color='#FFD700'>Gappy Bundle</font></b>\n<b>Soft & Wet</b> <font color='#FF55FF'>[Lethal]</font>, & x25 Rokakaka" },
+	{ Type = "Product", Id = 3553767064, Name = "Johnny Pack", Price = 1500, Desc = "<b><font color='#FFD700'>Johnny Bundle</font></b>\n<b>Tusk Act 1</b> <font color='#FF55FF'>[Cheerful]</font>, Saint's Left Arm, & Saint's Right Eye." },
+	{ Type = "Product", Id = 3547646706, Name = "DIO Pack", Price = 1500, Desc = "<b><font color='#FFD700'>DIO Bundle</font></b>\n<b>The World</b> <font color='#FF55FF'>[Vampiric]</font>, Vampirism Style, Vampire Cape & Dio's Throwing Knives." },
+	{ Type = "Product", Id = 3550839948, Name = "Pucci Pack", Price = 1500, Desc = "<b><font color='#FFD700'>Pucci Bundle</font></b>\n<b>Whitesnake</b> <font color='#FF55FF'>[Blessed]</font>, Green Baby, & Dio's Diary." },
+	{ Type = "Product", Id = 3547646703, Name = "Jotaro Pack", Price = 1500, Desc = "<b><font color='#FFD700'>Jotaro Bundle</font></b>\n<b>Star Platinum</b> <font color='#FF55FF'>[Overwhelming]</font>, Jotaro's Hat & Dio's Diary." },
 
 	{ Type = "Product", Id = 3553764779, Name = "Spin Pack", Price = 200, Desc = "<b><font color='#FFD700'>Spin Bundle</font></b>\n<font color='#5FE625'>Spin Style</font> & Saint's Right Eye." },
-	{ Type = "Product", Id = 3548207626, Name = "Hamon Pack", Price = 200, Desc = "<b><font color='#FFD700'>Hamon Bundle</font></b>\n<font color='#FF8855'>Hamon Style</font>, Clackers, & Mask." },
+	{ Type = "Product", Id = 3548207626, Name = "Hamon Pack", Price = 200, Desc = "<b><font color='#FFD700'>Hamon Bundle</font></b>\n<font color='#FF8855'>Hamon Style</font>, Hamon Clackers, & Hamon Breathing Mask." },
 	{ Type = "Product", Id = 3548207336, Name = "Vampire Pack", Price = 200, Desc = "<b><font color='#FFD700'>Vampire Bundle</font></b>\n<font color='#AA00AA'>Vampire Style</font> & Vampire Cape." },
-	{ Type = "Product", Id = 3548207175, Name = "Pillarman Pack", Price = 200, Desc = "<b><font color='#FFD700'>Pillarman Bundle</font></b>\n<font color='#FF5555'>Pillarman Style</font> & Aja Stone." },
+	{ Type = "Product", Id = 3548207175, Name = "Pillarman Pack", Price = 200, Desc = "<b><font color='#FFD700'>Pillarman Bundle</font></b>\n<font color='#FF5555'>Pillarman Style</font> & Red Stone of Aja." },
 
 	{ Type = "Pass", Id = 1731694181, GiftId = 3552102461, Name = "2x Speed", Price = 200, Desc = "<b><font color='#55FFFF'>2x Battle Speed</font></b>\nBattles play out <font color='#55FF55'>twice as fast!</font>", Attr = "Has2xBattleSpeed" },
 	{ Type = "Pass", Id = 1732900742, GiftId = 3552102647, Name = "2x Inventory", Price = 100, Desc = "<b><font color='#55FFFF'>2x Inventory</font></b>\nIncreases slots to <font color='#55FF55'>30</font>.", Attr = "Has2xInventory" },
@@ -48,8 +50,8 @@ local premiumItems = {
 	{ Type = "Pass", Id = 1749484465, GiftId = 3557500443, Name = "Auto-Roll", Price = 400, Desc = "<b><font color='#55FFFF'>Auto-Roll</font></b>\nInstantly roll for target Stands/Traits!", Attr = "HasAutoRoll" },
 	{ Type = "Pass", Id = 1733160695, GiftId = 3552103567, Name = "Stand Slot 2", Price = 150, Desc = "<b><font color='#55FFFF'>Stand Storage 2</font></b>\nUnlocks the <font color='#FFD700'>second</font> stand slot.", Attr = "HasStandSlot2" },
 	{ Type = "Pass", Id = 1732844091, GiftId = 3552103754, Name = "Stand Slot 3", Price = 300, Desc = "<b><font color='#55FFFF'>Stand Storage 3</font></b>\nUnlocks the <font color='#FFD700'>third</font> stand slot.", Attr = "HasStandSlot3" },
-	{ Type = "Pass", Id = 1746853452, GiftId = 3554936785, Name = "Style Slot 2", Price = 50, Desc = "<b><font color='#FF8C00'>Style Storage 2</font></b>\nUnlocks the <font color='#55FF55'>second</font> style slot.", Attr = "HasStyleSlot2" },
-	{ Type = "Pass", Id = 1745969849, GiftId = 3554936823, Name = "Style Slot 3", Price = 100, Desc = "<b><font color='#FF8C00'>Style Storage 3</font></b>\nUnlocks the <font color='#55FF55'>third</font> style slot.", Attr = "HasStyleSlot3" },
+	{ Type = "Pass", Id = 1746853452, GiftId = 3554936785, Name = "Style Slot 2", Price = 50, Desc = "<b><font color='#55FFFF'>Style Storage 2</font></b>\nUnlocks the <font color='#55FF55'>second</font> style slot.", Attr = "HasStyleSlot2" },
+	{ Type = "Pass", Id = 1745969849, GiftId = 3554936823, Name = "Style Slot 3", Price = 100, Desc = "<b><font color='#55FFFF'>Style Storage 3</font></b>\nUnlocks the <font color='#55FF55'>third</font> style slot.", Attr = "HasStyleSlot3" },
 	{ Type = "Pass", Id = 1732129582, GiftId = 3552103397, Name = "Auto Train", Price = 40, Desc = "<b><font color='#55FFFF'>Auto Training</font></b>\nAuto-starts training on join!", Attr = "HasAutoTraining" },
 	{ Type = "Pass", Id = 1749586333, GiftId = 3557535781, Name = "Custom Horse", Price = 40, Desc = "<b><font color='#55FFFF'>Horse Name</font></b>\nAbility to <font color='#55FF55'>name your horse</font>!", Attr = "HasHorseNamePass" },
 }
@@ -308,7 +310,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local stockCard = CreateCard("StockCard", marketTabContent, UDim2.new(1, 0, 0.50, 0), 1)
 
 	local scTop = Instance.new("Frame")
-	scTop.Size = UDim2.new(1, 0, 0, 45) -- Expanded to hold restock buttons safely
+	scTop.Size = UDim2.new(1, 0, 0, 45)
 	scTop.BackgroundTransparency = 1
 	scTop.ZIndex = 21
 	scTop.Parent = stockCard
@@ -621,8 +623,11 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 
 	-- Build Premium Items
 	local premLabels = {}
+	local gachaBtns = {}
+
 	for i, pInfo in ipairs(premiumItems) do
 		local isPass = (pInfo.Type == "Pass")
+		local isGacha = (pInfo.Id == 3553771635 or pInfo.Id == 3550862625 or pInfo.Id == 3550862858 or pInfo.Id == 3560808666)
 		local targetScroll = isPass and passScroll or prodScroll
 
 		local itemFrm = Instance.new("Frame")
@@ -689,6 +694,8 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		buyBtn.ZIndex = 24
 		buyBtn.Parent = itemFrm
 
+		if isGacha then table.insert(gachaBtns, {Btn = buyBtn, Price = pInfo.Price, DescLbl = dLbl, OrigDesc = pInfo.Desc}) end
+
 		local bCorner = Instance.new("UICorner")
 		bCorner.CornerRadius = UDim.new(0, 4)
 		bCorner.Parent = buyBtn
@@ -709,6 +716,8 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			giftBtn.ZIndex = 24
 			giftBtn.Parent = itemFrm
 
+			if isGacha then table.insert(gachaBtns, {Btn = giftBtn, IsGift = true}) end
+
 			local gCorner = Instance.new("UICorner")
 			gCorner.CornerRadius = UDim.new(0, 4)
 			gCorner.Parent = giftBtn
@@ -722,6 +731,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			buyBtn.AnchorPoint = Vector2.new(1, 0)
 
 			giftBtn.MouseButton1Click:Connect(function()
+				if isGacha and player:GetAttribute("PaidRandomItemsRestricted") then SFXManager.Play("CombatBlock"); return end
 				SFXManager.Play("Click")
 				GiftManager.OpenGiftModal(pInfo)
 			end)
@@ -731,9 +741,8 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		end
 
 		buyBtn.MouseButton1Click:Connect(function()
-			if pInfo.Attr and player:GetAttribute(pInfo.Attr) then
-				return 
-			end 
+			if isGacha and player:GetAttribute("PaidRandomItemsRestricted") then SFXManager.Play("CombatBlock"); return end
+			if pInfo.Attr and player:GetAttribute(pInfo.Attr) then return end 
 			SFXManager.Play("Click")
 			Network.ShopAction:FireServer("SetGiftTarget", 0)
 			task.wait(0.1) 
@@ -748,6 +757,36 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			premLabels[pInfo.Attr] = {Btn = buyBtn, Price = pInfo.Price} 
 		end
 	end
+
+	local function UpdateRestrictedUI()
+		local restricted = player:GetAttribute("PaidRandomItemsRestricted")
+		for _, gData in ipairs(gachaBtns) do
+			if restricted then
+				gData.Btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+				if gData.IsGift then
+					gData.Btn.Text = "BLOCKED"
+				else
+					gData.Btn.Text = "RESTRICTED"
+					if gData.DescLbl then
+						gData.DescLbl.Text = gData.OrigDesc .. "\n\n<font color='#FF5555'><b>RESTRICTED IN YOUR REGION</b></font>"
+					end
+				end
+			else
+				if gData.IsGift then
+					gData.Btn.BackgroundColor3 = Color3.fromRGB(180, 80, 20)
+					gData.Btn.Text = "Gift"
+				else
+					gData.Btn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
+					gData.Btn.Text = tostring(gData.Price) .. " R$"
+					if gData.DescLbl then
+						gData.DescLbl.Text = gData.OrigDesc
+					end
+				end
+			end
+		end
+	end
+	player:GetAttributeChangedSignal("PaidRandomItemsRestricted"):Connect(UpdateRestrictedUI)
+	UpdateRestrictedUI()
 
 	task.spawn(function()
 		task.wait(0.1)
