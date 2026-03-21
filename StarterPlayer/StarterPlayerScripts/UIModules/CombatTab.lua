@@ -99,12 +99,22 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
+	local innerContent = Instance.new("ScrollingFrame")
+	innerContent.Name = "InnerContent"
+	innerContent.Size = UDim2.new(1, 0, 1, 0)
+	innerContent.BackgroundTransparency = 1
+	innerContent.ZIndex = 17
+	innerContent.ScrollBarImageColor3 = Color3.fromRGB(150, 100, 200)
+	innerContent.ScrollingDirection = Enum.ScrollingDirection.Y
+	innerContent.BorderSizePixel = 0
+	innerContent.Parent = mainPanel
+
 	local subNav = Instance.new("Frame")
 	subNav.Name = "SubNav"
 	subNav.Size = UDim2.new(1, 0, 0, 55)
 	subNav.BackgroundTransparency = 1
 	subNav.ZIndex = 20
-	subNav.Parent = mainPanel
+	subNav.Parent = innerContent
 
 	local subNavCenter = Instance.new("Frame")
 	subNavCenter.Name = "CenterContainer"
@@ -174,7 +184,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	modifierBubble.TextColor3 = Color3.fromRGB(255, 215, 50)
 	modifierBubble.TextScaled = true
 	modifierBubble.ZIndex = 30
-	modifierBubble.Parent = mainPanel
+	modifierBubble.Parent = innerContent
 
 	local modCorner = Instance.new("UICorner")
 	modCorner.CornerRadius = UDim.new(1, 0)
@@ -199,7 +209,7 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	contentArea.Position = UDim2.new(0, 0, 0, 75)
 	contentArea.BackgroundTransparency = 1
 	contentArea.ZIndex = 17
-	contentArea.Parent = mainPanel
+	contentArea.Parent = innerContent
 
 	local storyFrame = Instance.new("Frame")
 	storyFrame.Name = "StoryFrame"
@@ -272,11 +282,13 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local camera = workspace.CurrentCamera
 	local resizeConn
-	resizeConn = camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+
+	local function UpdateLayoutForScreen()
 		if not parentFrame.Parent then
-			resizeConn:Disconnect()
+			if resizeConn then resizeConn:Disconnect() end
 			return
 		end
+
 		local vp = camera.ViewportSize
 		if vp.X >= 1050 then
 			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
@@ -291,22 +303,25 @@ function CombatTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
 			subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
 		end
-	end)
 
-	local vpInit = camera.ViewportSize
-	if vpInit.X >= 1050 then
-		mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-		subNavCenter.Size = UDim2.new(0.5, 0, 1, -10)
-	elseif vpInit.X >= 600 and vpInit.X < 1050 then
-		mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-		subNavCenter.Size = UDim2.new(0.65, 0, 1, -10)
-	else
-		mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
-		mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-		subNavCenter.Size = UDim2.new(0.75, 0, 1, -10)
+		local panelAbsHeight = vp.Y * mainPanel.Size.Y.Scale
+		local minHeight = 600
+
+		if panelAbsHeight < minHeight then
+			innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
+			innerContent.ScrollBarImageTransparency = 0
+			innerContent.ScrollBarThickness = 6
+			innerContent.ScrollingEnabled = true
+		else
+			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
+			innerContent.ScrollBarImageTransparency = 1
+			innerContent.ScrollBarThickness = 0
+			innerContent.ScrollingEnabled = false
+		end
 	end
+
+	resizeConn = camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
+	UpdateLayoutForScreen()
 end
 
 return CombatTab
