@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local MultiplayerTab = {}
 
 local player = game.Players.LocalPlayer
@@ -128,6 +129,7 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	navLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	navLayout.Parent = subNavCenter
 
+	local currentActiveTab = "Gangs"
 	local camera = workspace.CurrentCamera
 	local UpdateLayoutForScreen
 
@@ -151,18 +153,30 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		local panelAbsHeight = vp.Y * mainPanel.Size.Y.Scale
 		local minHeight = 600
 
-		if panelAbsHeight < minHeight then
-			innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
-			innerContent.ScrollBarImageTransparency = 0
-			innerContent.ScrollBarThickness = 6
-			innerContent.ScrollingEnabled = true
-		else
+		-- [[ FIXED: DYNAMIC SCROLLING ]]
+		-- The main menu only suspends its scroll wrapper if you are on RaidsTab.
+		-- This guarantees RaidsTab can smoothly scroll nested content, 
+		-- but perfectly restores the normal 600px minimum scale so Trading/Gangs don't squish!
+		if currentActiveTab == "Raids" then
 			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
 			innerContent.ScrollBarImageTransparency = 1
 			innerContent.ScrollBarThickness = 0
 			innerContent.ScrollingEnabled = false
+		else
+			if panelAbsHeight < minHeight then
+				innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
+				innerContent.ScrollBarImageTransparency = 0
+				innerContent.ScrollBarThickness = 6
+				innerContent.ScrollingEnabled = true
+			else
+				innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
+				innerContent.ScrollBarImageTransparency = 1
+				innerContent.ScrollBarThickness = 0
+				innerContent.ScrollingEnabled = false
+			end
 		end
 	end
+
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 	UpdateLayoutForScreen()
 
@@ -251,6 +265,10 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 
 	local function ForceSubTabFocus(target)
 		if switchTabFunc then switchTabFunc("Multiplayer") end
+
+		-- Update state and dynamically correct the scroll bounds!
+		currentActiveTab = target
+		UpdateLayoutForScreen()
 
 		gangsFrame.Visible = (target == "Gangs")
 		sbrFrame.Visible = (target == "Event")
