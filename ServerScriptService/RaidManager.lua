@@ -59,6 +59,25 @@ local function BuildPlayerStruct(player)
 	if playerTrait == "Focused" then pStamina *= 1.1; pStandEnergy *= 1.1 end
 	local activeBoosts = CombatCore.GetPlayerBoosts(player)
 
+	local validSkills = {}
+	local sName = player:GetAttribute("Stand") or "None"
+	local fStyle = player:GetAttribute("FightingStyle") or "None"
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
+			table.insert(validSkills, n)
+		end
+	end
+
 	return {
 		Player = player, UserId = player.UserId, Name = player.Name,
 		Trait = playerTrait, GlobalDmgBoost = activeBoosts.Damage, Boosts = activeBoosts,
@@ -69,7 +88,7 @@ local function BuildPlayerStruct(player)
 		TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
 		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, 
-		Cooldowns = {}, SelectedSkill = nil
+		Cooldowns = {}, SelectedSkill = nil, Skills = validSkills
 	}
 end
 
@@ -417,13 +436,7 @@ RaidAction.OnServerEvent:Connect(function(player, action, data)
 			for _, p in ipairs(m.Party) do
 				if p.Player == player then
 					local skill = SkillData.Skills[data]
-					if skill and skill.Requirement ~= "None" then
-						if skill.Requirement == "AnyStand" then
-							if p.Stand == "None" then break end
-						elseif skill.Requirement ~= p.Stand and skill.Requirement ~= p.Style then
-							break
-						end
-					end
+					if not table.find(p.Skills, data) then break end
 					if skill and p.Stamina >= (skill.StaminaCost or 0) and p.StandEnergy >= (skill.EnergyCost or 0) then
 						p.SelectedSkill = data
 						RaidUpdate:FireClient(player, "Waiting")
