@@ -158,6 +158,27 @@ local function StartDungeon(player, dungeonId)
 		pStamina *= 1.1; pStandEnergy *= 1.1
 	end
 
+	-- [[ NEW FUSION SKILL LOGIC FOR SERVER ]] --
+	local validSkills = {}
+	local sName = player:GetAttribute("Stand") or "None"
+	local fStyle = player:GetAttribute("FightingStyle") or "None"
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
+			table.insert(validSkills, n)
+		end
+	end
+	-- [[ END FUSION SKILL LOGIC ]] --
+
 	local firstEnemy = isEndless and GenerateRandomEndlessEnemy(1) or GenerateDungeonEnemy(waves[1], dungeonId)
 	local activeBoosts = CombatCore.GetPlayerBoosts(player)
 
@@ -170,7 +191,9 @@ local function StartDungeon(player, dungeonId)
 			HP = pHP * 10, MaxHP = pHP * 10, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
 			TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd, TotalWillpower = pWill,
 			TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
-			BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, Cooldowns = {}
+			BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, 
+			Cooldowns = {},
+			Skills = validSkills -- Assigned to player!
 		},
 		Enemy = firstEnemy
 	}
@@ -207,13 +230,8 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		return
 	end
 
-	if skill and skill.Requirement ~= "None" then
-		if skill.Requirement == "AnyStand" then
-			if dungeon.Player.Stand == "None" then return end
-		elseif skill.Requirement ~= dungeon.Player.Stand and skill.Requirement ~= dungeon.Player.Style then
-			return
-		end
-	end
+	-- [[ FIXED ANTI-EXPLOIT CHECK ]]
+	if not table.find(dungeon.Player.Skills, skillName) then return end
 
 	if not skill or dungeon.Player.Stamina < (skill.StaminaCost or 0) or dungeon.Player.StandEnergy < (skill.EnergyCost or 0) then return end
 	if dungeon.Player.Cooldowns[skillName] and dungeon.Player.Cooldowns[skillName] > 0 then return end
