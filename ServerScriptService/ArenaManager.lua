@@ -97,6 +97,25 @@ local function BuildPlayerStruct(player)
 	local elo = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Elo") and player.leaderstats.Elo.Value or 1000
 	local eloDmgBoost = elo >= 5000 and 1.05 or 1.0
 	local gangDmgBoost = player:GetAttribute("GangDmgBoost") or 1.0
+	
+	local validSkills = {}
+	local sName = player:GetAttribute("Stand") or "None"
+	local fStyle = player:GetAttribute("FightingStyle") or "None"
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
+			table.insert(validSkills, n)
+		end
+	end
 
 	return {
 		Player = player, PlayerObj = player, UserId = player.UserId, Name = player.Name,
@@ -111,7 +130,7 @@ local function BuildPlayerStruct(player)
 		TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
 		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
-		Cooldowns = {}, SelectedSkill = nil, SelectedTargetId = nil
+		Cooldowns = {}, SelectedSkill = nil, SelectedTargetId = nil, Skills = validSkills
 	}
 end
 
@@ -493,13 +512,7 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 		local targetId = data.TargetUserId
 		local skill = SkillData.Skills[skillName]
 
-		if skill and skill.Requirement ~= "None" then
-			if skill.Requirement == "AnyStand" then
-				if combatant.Stand == "None" then return end
-			elseif skill.Requirement ~= combatant.Stand and skill.Requirement ~= combatant.Style then
-				return
-			end
-		end
+		if not table.find(combatant.Skills, skillName) then return end
 
 		if not skill or combatant.Stamina < (skill.StaminaCost or 0) or combatant.StandEnergy < (skill.EnergyCost or 0) or (combatant.Cooldowns[skillName] and combatant.Cooldowns[skillName] > 0) then return end
 
