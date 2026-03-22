@@ -13,6 +13,7 @@ local ActiveCodes = {
 	["250KVISITS"] = {Items = {["Stand Arrow"] = 250, ["Rokakaka"] = 250, ["Saint's Corpse Part"] = 100}},
 	["GUIREWORK"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 25, ["Rokakaka"] = 15, ["Saint's Corpse Part"] = 10}},
 	["JOJOLIONPART1"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 25, ["Rokakaka"] = 15, ["Saint's Corpse Part"] = 10}},
+	["JOJOLIONPART2"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 25, ["Rokakaka"] = 15, ["Saint's Corpse Part"] = 10}},
 	["STEELPIPE"] = {Items = {["Steel Pipe (x400)"] = 1}},
 }
 
