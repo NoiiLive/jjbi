@@ -306,7 +306,7 @@ local function BuildCodeTemplates()
 	oReroll.BackgroundColor3 = Color3.fromRGB(140, 40, 140)
 	oReroll.Font = Enum.Font.GothamBold; oReroll.TextColor3 = Color3.new(1,1,1)
 	oReroll.TextScaled = true; oReroll.RichText = true
-	oReroll.Text = "Reroll 1M" -- FIXED: Now says Reroll instead of "Button"
+	oReroll.Text = "Reroll 1M" 
 	oReroll.ZIndex = 23
 	Instance.new("UICorner", oReroll).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(oReroll, 180, 80, 180, 1)
@@ -686,7 +686,6 @@ local function BuildHasGangViews()
 	repLabel.ZIndex = 24
 	Instance.new("UITextSizeConstraint", repLabel).MaxTextSize = 12
 
-	-- FIXED: Splitting the Treasury Variable
 	infoTreasuryLabel = Instance.new("TextLabel", infoBox)
 	infoTreasuryLabel.Size = UDim2.new(0.5, 0, 0.25, 0)
 	infoTreasuryLabel.Position = UDim2.new(0, 0, 0.75, 0)
@@ -816,7 +815,6 @@ local function BuildHasGangViews()
 	dLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	dLayout.Padding = UDim.new(0.02, 0)
 
-	-- FIXED: Second unique variable
 	upgTreasuryLabel = Instance.new("TextLabel", donationCard)
 	upgTreasuryLabel.Size = UDim2.new(0.2, 0, 1, 0)
 	upgTreasuryLabel.BackgroundTransparency = 1
@@ -1011,10 +1009,11 @@ local function BuildHasGangViews()
 		if actionKey == "UpdatePrestigeReq" then reqInput = input; reqBtn = saveBtn end
 	end
 
-	BuildSettingsField(0, "Join Mode", "", false, "ToggleJoinMode")
-	BuildSettingsField(1, "Gang Motto", "Enter motto...", false, "UpdateMotto")
-	BuildSettingsField(2, "Emblem ID", "Enter image ID...", false, "UpdateEmblem")
-	BuildSettingsField(3, "Prestige Req.", "Current: 0", true, "UpdatePrestigeReq")
+	BuildSettingsField(0, "Rename (10M Treasury)", "Enter new name...", false, "Rename")
+	BuildSettingsField(1, "Join Mode", "", false, "ToggleJoinMode")
+	BuildSettingsField(2, "Gang Motto", "Enter motto...", false, "UpdateMotto")
+	BuildSettingsField(3, "Emblem ID", "Enter image ID...", false, "UpdateEmblem")
+	BuildSettingsField(4, "Prestige Req.", "Current: 0", true, "UpdatePrestigeReq")
 
 	local function BuildRoleSet(order, rKey, title)
 		local row = CreateCard("SetRole_"..order, settingsCard, UDim2.new(1, 0, 0, 50), nil)
@@ -1074,10 +1073,10 @@ local function BuildHasGangViews()
 		end)
 	end
 
-	BuildRoleSet(4, "Boss", "Boss")
-	BuildRoleSet(5, "Consigliere", "Consigliere")
-	BuildRoleSet(6, "Caporegime", "Caporegime")
-	BuildRoleSet(7, "Grunt", "Grunt")
+	BuildRoleSet(5, "Boss", "Boss")
+	BuildRoleSet(6, "Consigliere", "Consigliere")
+	BuildRoleSet(7, "Caporegime", "Caporegime")
+	BuildRoleSet(8, "Grunt", "Grunt")
 
 	local disBtn = Instance.new("TextButton", settingsCard)
 	disBtn.Size = UDim2.new(1, 0, 0, 40)
@@ -1270,7 +1269,6 @@ function GangsTab.HandleUpdate(action, data)
 	currentBoostText = GetBoostText(gData.Buildings)
 	if levelLabel then levelLabel.Text = "<b>Lv. " .. level .. "</b>" end
 
-	-- FIXED: Updates both distinct variables so neither says "Label"
 	if infoTreasuryLabel then infoTreasuryLabel.Text = "Treasury: <b>¥" .. FormatNumber(gData.Treasury or 0) .. "</b>" end
 	if upgTreasuryLabel then upgTreasuryLabel.Text = "Treasury: <b>¥" .. FormatNumber(gData.Treasury or 0) .. "</b>" end
 
