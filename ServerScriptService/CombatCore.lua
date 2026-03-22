@@ -1,10 +1,12 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
+local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 
 function CombatCore.HasModifier(modStr, modName)
 	if not modStr or modStr == "None" or modStr == "" then return false end
@@ -12,6 +14,37 @@ function CombatCore.HasModifier(modStr, modName)
 		if m == modName then return true end
 	end
 	return false
+end
+
+-- NEW: Dynamically counts how many of a specific trait are equipped
+function CombatCore.CountTrait(combatant, traitName)
+	local count = 0
+	if combatant.Trait == traitName then count += 1 end
+
+	if type(combatant.Traits) == "table" then
+		for _, t in ipairs(combatant.Traits) do
+			if t == traitName then count += 1 end
+		end
+	end
+
+	if combatant.IsPlayer and combatant.PlayerObj then
+		local sTrait = combatant.PlayerObj:GetAttribute("StandTrait")
+		if sTrait == "Fused" then
+			local t1 = combatant.PlayerObj:GetAttribute("Active_FusedTrait1")
+			local t2 = combatant.PlayerObj:GetAttribute("Active_FusedTrait2")
+			if t1 == traitName then count += 1 end
+			if t2 == traitName then count += 1 end
+		elseif sTrait == traitName then
+			count += 1
+		end
+	end
+
+	return count
+end
+
+-- Fallback for simple boolean checks
+function CombatCore.HasTrait(combatant, traitName)
+	return CombatCore.CountTrait(combatant, traitName) > 0
 end
 
 function CombatCore.GetEquipBonus(player, statName)
@@ -76,7 +109,8 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 		if CombatCore.HasModifier(uniModStr, "Experience Surge") then baseDmg *= 1.25 end
 	end
 
-	local defBypass = attacker.Trait == "Overwhelming" and 0.30 or 0
+	local overCount = CombatCore.CountTrait(attacker, "Overwhelming")
+	local defBypass = math.min(1, overCount * 0.30)
 	local effectiveArmor = ((defender.TotalDefense or 0) * defBuff * defDebuff) * (1 - defBypass)
 
 	if defender.IsPlayer then
@@ -91,8 +125,11 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	local defenseMultiplier = 100 / (100 + effectiveDefense)
 	local finalDmg = baseDmg * defenseMultiplier
 
-	if defender.Trait == "Armored" then finalDmg *= 0.85 end
-	if defender.Trait == "Indomitable" and (defender.HP / defender.MaxHP) <= 0.3 then finalDmg *= 0.75 end
+	local armCount = CombatCore.CountTrait(defender, "Armored")
+	if armCount > 0 then finalDmg *= (0.85 ^ armCount) end
+
+	local indomCount = CombatCore.CountTrait(defender, "Indomitable")
+	if indomCount > 0 and (defender.HP / defender.MaxHP) <= 0.3 then finalDmg *= (0.75 ^ indomCount) end
 
 	if CombatCore.HasModifier(uniModStr, "Fragile Mortality") then finalDmg *= 1.50 end
 	if CombatCore.HasModifier(uniModStr, "Iron Skin") then finalDmg *= 0.75 end
@@ -131,8 +168,9 @@ function CombatCore.TakeDamageWithWillpower(combatant, damage)
 		local survivalChance = math.clamp(defWill * 0.7, 0, 45)
 
 		if (combatant.WillpowerSurvivals or 0) < 1 and math.random(1, 100) <= survivalChance then
-			if combatant.Trait == "Perseverance" then
-				combatant.HP = math.max(1, combatant.MaxHP * 0.25)
+			local persCount = CombatCore.CountTrait(combatant, "Perseverance")
+			if persCount > 0 then
+				combatant.HP = math.max(1, combatant.MaxHP * math.min(1, 0.25 * persCount))
 			else
 				combatant.HP = 1
 			end
@@ -151,11 +189,13 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		statusDmgMod = statusDmgMod * 0.85
 	end
 
+	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
+
 	if combatant.Statuses.Bleed > 0 then
 		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Bleed -= 1
-		local svMsg = survived and (combatant.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#FF0000'>"..combatant.Name.." bled for "..math.floor(dmg).." damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 	end
@@ -165,7 +205,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Poison -= 1
-		local svMsg = survived and (combatant.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#AA00AA'>"..combatant.Name.." took "..math.floor(dmg).." Poison damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 	end
@@ -175,7 +215,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Burn -= 1
-		local svMsg = survived and (combatant.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#FF5500'>"..combatant.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 	end
@@ -185,7 +225,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Freeze -= 1
-		local svMsg = survived and (combatant.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#00FFFF'>"..combatant.Name.." took "..math.floor(dmg).." Freeze damage and is frozen solid!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 		if combatant.HP < 1 then return end
@@ -346,10 +386,10 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local dodgeChance = math.clamp(5 + (defSpd - atkSpd) * 0.2, 5, 50)
 		dodgeChance = math.max(0, dodgeChance - ((attacker.TotalRange or 0) * 0.1))
 
-		if t.Trait == "Swift" then dodgeChance += 10 end
-		if t.Trait == "Evasive" then dodgeChance += 20 end
-		if t.Trait == "Lucky" then dodgeChance += 5 end
-		if t.Trait == "Blessed" then dodgeChance += 25 end
+		dodgeChance += (10 * CombatCore.CountTrait(t, "Swift"))
+		dodgeChance += (20 * CombatCore.CountTrait(t, "Evasive"))
+		dodgeChance += (5 * CombatCore.CountTrait(t, "Lucky"))
+		dodgeChance += (25 * CombatCore.CountTrait(t, "Blessed"))
 
 		local dodged = false
 		if not isUnavoidable and (t.Statuses and t.Statuses.Stun or 0) == 0 and (t.Statuses and t.Statuses.Freeze or 0) == 0 and math.random(1, 100) <= dodgeChance then
@@ -371,19 +411,22 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		end
 
 		local critChance = math.clamp(5 + (atkWill * 0.5) + ((attacker.TotalPrecision or 0) * 0.2), 5, 75)
-		if attacker.Trait == "Brutal" then critChance += 15 end
-		if attacker.Trait == "Lucky" then critChance += 5 end
-		if attacker.Trait == "Blessed" then critChance += 25 end
+		critChance += (15 * CombatCore.CountTrait(attacker, "Brutal"))
+		critChance += (5 * CombatCore.CountTrait(attacker, "Lucky"))
+		critChance += (25 * CombatCore.CountTrait(attacker, "Blessed"))
 
 		local isCrit = math.random(1, 100) <= critChance
-		local critMult = 1.5
-		if attacker.Trait == "Lethal" then critMult += 1.5 end 
-		if attacker.IsPlayer and CombatCore.HasModifier(uniModStr, "Lethal Precision") then critMult += 0.5 end
+		local critMult = 1.5 + (1.5 * CombatCore.CountTrait(attacker, "Lethal"))
 
 		local mult = skill.Mult * (isCrit and critMult or 1.0)
-		if attacker.Trait == "Relentless" then mult *= 1.15 end
-		if attacker.Trait == "Overheaven" then mult *= 1.30 end
-		if attacker.Trait == "Requiem" then mult *= 1.50 end
+		local relCount = CombatCore.CountTrait(attacker, "Relentless")
+		if relCount > 0 then mult *= (1.15 ^ relCount) end
+
+		local ohCount = CombatCore.CountTrait(attacker, "Overheaven")
+		if ohCount > 0 then mult *= (1.30 ^ ohCount) end
+
+		local reqCount = CombatCore.CountTrait(attacker, "Requiem")
+		if reqCount > 0 then mult *= (1.50 ^ reqCount) end
 
 		local isBlocking = (t.BlockTurns or 0) > 0
 		local damage = CombatCore.CalculateDamage(attacker, t, mult, isBlocking, uniModStr)
@@ -394,39 +437,53 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local hitMsg = hitsToDo == 1 and (msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> and dealt " .. math.floor(damage) .. " damage to " .. tName .. "!") or ("- Hit " .. i .. " dealt " .. math.floor(damage) .. " damage")
 		if isBlocking then hitMsg = hitMsg .. " <font color='#AAAAAA'>(Blocked)</font>" end
 		if isCrit then hitMsg = hitMsg .. " <font color='#FFAA00'>(CRIT!)</font>" end
+
 		if survivalTriggered then 
-			if t.Trait == "Perseverance" then
-				hitMsg = hitMsg .. " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED! (+25% HP)</font>"
+			local persCount = CombatCore.CountTrait(t, "Perseverance")
+			if persCount > 0 then
+				hitMsg = hitMsg .. " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED! (+".. (25 * persCount) .."% HP)</font>"
 			else
 				hitMsg = hitMsg .. " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>"
 			end
 		end
 
 		local postMsg = ""
-		if attacker.Trait == "Vampiric" and damage > 0 then
-			local vHeal = damage * 0.20; attacker.HP = math.min(attacker.MaxHP, attacker.HP + vHeal)
+		local vampCount = CombatCore.CountTrait(attacker, "Vampiric")
+		if vampCount > 0 and damage > 0 then
+			local vHeal = damage * (0.20 * vampCount); attacker.HP = math.min(attacker.MaxHP, attacker.HP + vHeal)
 			postMsg = postMsg .. " <font color='#AA00AA'>(Healed " .. math.floor(vHeal) .. ")</font>"
 		end
+
 		if CombatCore.HasModifier(uniModStr, "Vampiric Night") and not attacker.IsPlayer and not attacker.IsAlly and damage > 0 then
 			local nHeal = damage * 0.05; attacker.HP = math.min(attacker.MaxHP, attacker.HP + nHeal)
 			postMsg = postMsg .. " <font color='#AA00AA'>(Night Heal: " .. math.floor(nHeal) .. ")</font>"
 		end
 
 		if damage > 0 and not isBlocking then
-			if attacker.Trait == "Electric" and math.random(1, 100) <= 10 then postMsg = postMsg .. ApplyCC("Stun", 1, t, "#FFFF55", "Shocked")
-			elseif attacker.Trait == "Frozen" and math.random(1, 100) <= 10 then postMsg = postMsg .. ApplyCC("Freeze", 1, t, "#00FFFF", "Frozen")
-			elseif attacker.Trait == "Flaming" and math.random(1, 100) <= 10 then postMsg = postMsg .. ApplyCC("Burn", 3, t, "#FF5500", "Ignited")
-			elseif attacker.Trait == "Toxic" and math.random(1, 100) <= 10 then postMsg = postMsg .. ApplyCC("Poison", 3, t, "#AA00AA", "Infected")
-			elseif attacker.Trait == "Serrated" and math.random(1, 100) <= 10 then postMsg = postMsg .. ApplyCC("Bleed", 3, t, "#FF0000", "Bled")
-			elseif attacker.Trait == "Disorienting" and math.random(1, 100) <= 10 then postMsg = postMsg .. ApplyCC("Confusion", 1, t, "#FF55FF", "Confused")
-			elseif attacker.Trait == "Gambler" and math.random(1, 100) <= 10 then
+			local elecCount = CombatCore.CountTrait(attacker, "Electric")
+			local frozCount = CombatCore.CountTrait(attacker, "Frozen")
+			local flameCount = CombatCore.CountTrait(attacker, "Flaming")
+			local toxCount = CombatCore.CountTrait(attacker, "Toxic")
+			local serrCount = CombatCore.CountTrait(attacker, "Serrated")
+			local disCount = CombatCore.CountTrait(attacker, "Disorienting")
+			local gamCount = CombatCore.CountTrait(attacker, "Gambler")
+			local glCount = CombatCore.CountTrait(attacker, "Gloomy")
+			local chCount = CombatCore.CountTrait(attacker, "Cheerful")
+
+			if elecCount > 0 and math.random(1, 100) <= (10 * elecCount) then postMsg = postMsg .. ApplyCC("Stun", 1, t, "#FFFF55", "Shocked")
+			elseif frozCount > 0 and math.random(1, 100) <= (10 * frozCount) then postMsg = postMsg .. ApplyCC("Freeze", 1, t, "#00FFFF", "Frozen")
+			elseif flameCount > 0 and math.random(1, 100) <= (10 * flameCount) then postMsg = postMsg .. ApplyCC("Burn", 3, t, "#FF5500", "Ignited")
+			elseif toxCount > 0 and math.random(1, 100) <= (10 * toxCount) then postMsg = postMsg .. ApplyCC("Poison", 3, t, "#AA00AA", "Infected")
+			elseif serrCount > 0 and math.random(1, 100) <= (10 * serrCount) then postMsg = postMsg .. ApplyCC("Bleed", 3, t, "#FF0000", "Bled")
+			elseif disCount > 0 and math.random(1, 100) <= (10 * disCount) then postMsg = postMsg .. ApplyCC("Confusion", 1, t, "#FF55FF", "Confused")
+			elseif gamCount > 0 and math.random(1, 100) <= (10 * gamCount) then
 				local pick = ({{ "Bleed", "#FF0000" }, { "Poison", "#AA00AA" }, { "Burn", "#FF5500" }, { "Confusion", "#FF55FF" }, { "Stun", "#FFFF55" }, { "Freeze", "#00FFFF" }})[math.random(1, 6)]
 				postMsg = postMsg .. ApplyCC(pick[1], 2, t, pick[2], "Gambler: " .. pick[1])
-			elseif attacker.Trait == "Gloomy" and math.random(1, 100) <= 10 then
+			elseif glCount > 0 and math.random(1, 100) <= (10 * glCount) then
 				local s = {"Strength", "Defense", "Speed", "Willpower"}
 				t.Statuses["Debuff_"..s[math.random(1,4)]] = 3
 				postMsg = postMsg .. " <font color='#FF5555'>(Gloomy Debuff!)</font>"
-			elseif attacker.Trait == "Cheerful" and math.random(1, 100) <= 10 then
+			elseif chCount > 0 and math.random(1, 100) <= (10 * chCount) then
 				local s = {"Strength", "Defense", "Speed", "Willpower"}
 				b.Statuses["Buff_"..s[math.random(1,4)]] = 3
 				postMsg = postMsg .. " <font color='#55FF55'>(Cheerful Buff!)</font>"
