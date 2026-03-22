@@ -10,6 +10,7 @@ local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local SFXManager = require(script.Parent:WaitForChild("SFXManager"))
 local CombatTemplate = require(script.Parent:WaitForChild("CombatTemplate"))
+local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 
 local combatUI
 local activeFighters = {}
@@ -237,7 +238,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 			randomEncounterBtn.Visible = false
 			storyEncounterBtn.Visible = false
 			prestigeBtn.Visible = true
-		elseif currentPart == 8 then
+		elseif currentPart >= 7 then
 			randomEncounterBtn.Visible = false
 			storyEncounterBtn.Visible = true
 			prestigeBtn.Visible = true
@@ -279,9 +280,22 @@ function StoryTab.RenderSkills(battleData)
 
 	local myStand, myStyle = battleData.Player.Stand or "None", battleData.Player.Style or "None"
 	local valid = {}
-	for n, s in pairs(SkillData.Skills) do
-		if s.Requirement == "None" or s.Requirement == myStand or s.Requirement == myStyle or (s.Requirement == "AnyStand" and myStand ~= "None") then table.insert(valid, {Name = n, Data = s}) end
+
+	if myStand == "Fused Stand" then
+		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(valid, sk) end
 	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == myStand and myStand ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == myStyle or (s.Requirement == "AnyStand" and myStand ~= "None") then 
+			table.insert(valid, {Name = n, Data = s}) 
+		end
+	end
+
 	table.sort(valid, function(a, b) return (a.Data.Order or 99) < (b.Data.Order or 99) end)
 
 	for _, sk in ipairs(valid) do
