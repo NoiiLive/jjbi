@@ -403,8 +403,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			player:SetAttribute("FightingStyle", "Pillarman"); message = "Awakened ancient biology! Gained Pillarman Style."
 		elseif itemName == "Steel Ball" then
 			player:SetAttribute("FightingStyle", "Spin"); message = "You grasped the rotation! Gained Spin Style."
-		elseif itemName == "Locacaca Fruit" then
-			player:SetAttribute("FightingStyle", "Rock Human"); message = "You consumed the Locacaca Fruit. Your body hardens as you become a Rock Human!"
+		elseif itemName == "Rokakaka Fruit" then
+			player:SetAttribute("FightingStyle", "Rock Human"); message = "You consumed the Rokakaka Fruit. Your body hardens as you become a Rock Human!"
 		elseif itemName == "Perfect Aja Mask" then
 			if player:GetAttribute("FightingStyle") == "Pillarman" then
 				player:SetAttribute("FightingStyle", "Ultimate Lifeform")
@@ -529,10 +529,14 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			end
 
 		elseif itemName == "New Rokakaka" then
-			itemConsumed = false
-			message = "Coming Soon."
-		else
-			itemConsumed = false
+			local fusionEvent = Network:FindFirstChild("OpenFusionUI")
+			if fusionEvent then
+				fusionEvent:FireClient(player)
+				itemConsumed = false
+			else
+				message = "The fusion system is currently unavailable."
+				itemConsumed = false
+			end
 		end
 
 		if itemConsumed then
