@@ -156,6 +156,25 @@ local function StartBossBattle(player)
 	local pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
 	if playerTrait == "Focused" then pStamina *= 1.1; pStandEnergy *= 1.1 end
 
+	local validSkills = {}
+	local sName = player:GetAttribute("Stand") or "None"
+	local fStyle = player:GetAttribute("FightingStyle") or "None"
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
+			table.insert(validSkills, n)
+		end
+	end
+
 	local activeBoosts = CombatCore.GetPlayerBoosts(player)
 
 	local bossEntity = {
@@ -181,7 +200,8 @@ local function StartBossBattle(player)
 			TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd, TotalWillpower = pWill,
 			TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
 			BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, 
-			Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, Cooldowns = {}
+			Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, 
+			Cooldowns = {}, Skills = validSkills
 		},
 		Enemy = bossEntity
 	}
@@ -205,13 +225,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	local skillName = actionData.SkillName
 	local skill = SkillData.Skills[skillName]
 
-	if skill and skill.Requirement ~= "None" then
-		if skill.Requirement == "AnyStand" then
-			if battle.Player.Stand == "None" then return end
-		elseif skill.Requirement ~= battle.Player.Stand and skill.Requirement ~= battle.Player.Style then
-			return
-		end
-	end
+	if not table.find(battle.Player.Skills, skillName) then return end
 
 	local stamCost, nrgCost = skill.StaminaCost or 0, skill.EnergyCost or 0
 	if not skill or battle.Player.Stamina < stamCost or battle.Player.StandEnergy < nrgCost then return end
