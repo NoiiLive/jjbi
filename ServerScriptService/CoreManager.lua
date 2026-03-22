@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -52,7 +53,8 @@ local requiredRemotes = {
 	"RaidAction",
 	"RaidUpdate",
 	"SBRAction",
-	"SBRUpdate"
+	"SBRUpdate",
+	"ExecuteFusion"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
@@ -125,6 +127,14 @@ local DefaultData = {
 	StoredStyle1 = "None",
 	StoredStyle2 = "None",
 	StoredStyle3 = "None",
+
+	-- Slot-Specific Fused Data
+	Active_FusedStand1 = "None", Active_FusedStand2 = "None", Active_FusedTrait1 = "None", Active_FusedTrait2 = "None",
+	StoredStand1_FusedStand1 = "None", StoredStand1_FusedStand2 = "None", StoredStand1_FusedTrait1 = "None", StoredStand1_FusedTrait2 = "None",
+	StoredStand2_FusedStand1 = "None", StoredStand2_FusedStand2 = "None", StoredStand2_FusedTrait1 = "None", StoredStand2_FusedTrait2 = "None",
+	StoredStand3_FusedStand1 = "None", StoredStand3_FusedStand2 = "None", StoredStand3_FusedTrait1 = "None", StoredStand3_FusedTrait2 = "None",
+	StoredStand4_FusedStand1 = "None", StoredStand4_FusedStand2 = "None", StoredStand4_FusedTrait1 = "None", StoredStand4_FusedTrait2 = "None",
+	StoredStand5_FusedStand1 = "None", StoredStand5_FusedStand2 = "None", StoredStand5_FusedTrait1 = "None", StoredStand5_FusedTrait2 = "None",
 
 	HorseName = "", HorseSpeed = 1, HorseEndurance = 1, HorseTrait = "None",
 	HorseUpgradeEnd = 0, HorseUpgradeStat = "None"
@@ -229,6 +239,9 @@ local function SavePlayerData(player)
 		HasStyleSlot2 = player:GetAttribute("HasStyleSlot2") or false,
 		HasStyleSlot3 = player:GetAttribute("HasStyleSlot3") or false,
 
+		PaidRandomItemsRestricted = player:GetAttribute("PaidRandomItemsRestricted") or false,
+		PaidItemTradingAllowed = player:GetAttribute("PaidItemTradingAllowed") or true,
+
 		Stand = player:GetAttribute("Stand"), StandTrait = player:GetAttribute("StandTrait") or "None",
 		FightingStyle = player:GetAttribute("FightingStyle"),
 		EquippedWeapon = player:GetAttribute("EquippedWeapon"), EquippedAccessory = player:GetAttribute("EquippedAccessory"),
@@ -249,6 +262,32 @@ local function SavePlayerData(player)
 		StoredStyle1 = player:GetAttribute("StoredStyle1") or "None",
 		StoredStyle2 = player:GetAttribute("StoredStyle2") or "None",
 		StoredStyle3 = player:GetAttribute("StoredStyle3") or "None",
+
+		-- Slot-Specific Fused Data
+		Active_FusedStand1 = player:GetAttribute("Active_FusedStand1") or "None",
+		Active_FusedStand2 = player:GetAttribute("Active_FusedStand2") or "None",
+		Active_FusedTrait1 = player:GetAttribute("Active_FusedTrait1") or "None",
+		Active_FusedTrait2 = player:GetAttribute("Active_FusedTrait2") or "None",
+		StoredStand1_FusedStand1 = player:GetAttribute("StoredStand1_FusedStand1") or "None",
+		StoredStand1_FusedStand2 = player:GetAttribute("StoredStand1_FusedStand2") or "None",
+		StoredStand1_FusedTrait1 = player:GetAttribute("StoredStand1_FusedTrait1") or "None",
+		StoredStand1_FusedTrait2 = player:GetAttribute("StoredStand1_FusedTrait2") or "None",
+		StoredStand2_FusedStand1 = player:GetAttribute("StoredStand2_FusedStand1") or "None",
+		StoredStand2_FusedStand2 = player:GetAttribute("StoredStand2_FusedStand2") or "None",
+		StoredStand2_FusedTrait1 = player:GetAttribute("StoredStand2_FusedTrait1") or "None",
+		StoredStand2_FusedTrait2 = player:GetAttribute("StoredStand2_FusedTrait2") or "None",
+		StoredStand3_FusedStand1 = player:GetAttribute("StoredStand3_FusedStand1") or "None",
+		StoredStand3_FusedStand2 = player:GetAttribute("StoredStand3_FusedStand2") or "None",
+		StoredStand3_FusedTrait1 = player:GetAttribute("StoredStand3_FusedTrait1") or "None",
+		StoredStand3_FusedTrait2 = player:GetAttribute("StoredStand3_FusedTrait2") or "None",
+		StoredStand4_FusedStand1 = player:GetAttribute("StoredStand4_FusedStand1") or "None",
+		StoredStand4_FusedStand2 = player:GetAttribute("StoredStand4_FusedStand2") or "None",
+		StoredStand4_FusedTrait1 = player:GetAttribute("StoredStand4_FusedTrait1") or "None",
+		StoredStand4_FusedTrait2 = player:GetAttribute("StoredStand4_FusedTrait2") or "None",
+		StoredStand5_FusedStand1 = player:GetAttribute("StoredStand5_FusedStand1") or "None",
+		StoredStand5_FusedStand2 = player:GetAttribute("StoredStand5_FusedStand2") or "None",
+		StoredStand5_FusedTrait1 = player:GetAttribute("StoredStand5_FusedTrait1") or "None",
+		StoredStand5_FusedTrait2 = player:GetAttribute("StoredStand5_FusedTrait2") or "None",
 
 		HorseName = player:GetAttribute("HorseName") or "",
 		HorseSpeed = player:GetAttribute("HorseSpeed") or 1,
@@ -298,7 +337,7 @@ Players.PlayerAdded:Connect(function(player)
 		SetupLeaderstats(player, DefaultData)
 	end
 
-	checkPlayerCompliance(player) -- Apply Compliance settings
+	checkPlayerCompliance(player)
 
 	local currentPrestige = player.leaderstats.Prestige.Value
 	local statCap = GameData.GetStatCap(currentPrestige)
