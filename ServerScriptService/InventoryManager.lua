@@ -118,10 +118,16 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		return
 	end
 
-	if rollType == "Roka" and newStand == "None" then
-		NotificationEvent:FireClient(player, "<font color='#FF5555'>You don't have a Stand to reroll!</font>")
-		player:SetAttribute("IsAutoRolling", false)
-		return
+	if rollType == "Roka" then
+		if newStand == "None" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You don't have a Stand to reroll!</font>")
+			player:SetAttribute("IsAutoRolling", false)
+			return
+		elseif newStand == "Fused Stand" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot Auto-Roll traits on a Fused Stand! Disassemble it first.</font>")
+			player:SetAttribute("IsAutoRolling", false)
+			return
+		end
 	end
 
 	local pBoosts = GetPlayerBoosts(player)
@@ -522,6 +528,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 		elseif itemName == "Rokakaka" then
 			if myStand == "None" then
 				message = "You don't have a Stand to reroll!"; itemConsumed = false
+			elseif myStand == "Fused Stand" then
+				message = "You cannot use a Rokakaka on a Fused Stand!"; itemConsumed = false
 			else
 				local pBoosts = GetPlayerBoosts(player)
 				local currentTraitPity = player:GetAttribute("TraitPity") or 0
@@ -538,19 +546,30 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			end
 
 		elseif itemName == "New Rokakaka" then
-			local fusionEvent = Network:FindFirstChild("OpenFusionUI")
-			if fusionEvent then
-				fusionEvent:FireClient(player)
-				itemConsumed = false
+			if prestige >= 15 then
+				local fusionEvent = Network:FindFirstChild("OpenFusionUI")
+				if fusionEvent then
+					fusionEvent:FireClient(player)
+					itemConsumed = false
+				else
+					message = "The fusion system is currently unavailable."
+					itemConsumed = false
+				end
 			else
-				NotificationEvent:FireClient(player, "<font color='#FF5555'>The fusion system is currently unavailable.</font>")
+				message = "You must be at least Prestige 15 to use the New Rokakaka!"
 				itemConsumed = false
 			end
 		end
 
 		if itemConsumed then
 			player:SetAttribute(attrName, itemCount - 1)
-			NotificationEvent:FireClient(player, "<font color='#FF55FF'>" .. message .. "</font>")
+			if message ~= "" then
+				NotificationEvent:FireClient(player, "<font color='#FF55FF'>" .. message .. "</font>")
+			end
+		else
+			if message ~= "" then
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. message .. "</font>")
+			end
 		end
 	end
 end)
