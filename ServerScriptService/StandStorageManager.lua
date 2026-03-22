@@ -56,6 +56,30 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 			end
 		end
 
+		local function SwapFusedData(slot)
+			local aS1 = player:GetAttribute("Active_FusedStand1") or "None"
+			local aS2 = player:GetAttribute("Active_FusedStand2") or "None"
+			local aT1 = player:GetAttribute("Active_FusedTrait1") or "None"
+			local aT2 = player:GetAttribute("Active_FusedTrait2") or "None"
+
+			local sS1 = player:GetAttribute("StoredStand"..slot.."_FusedStand1") or "None"
+			local sS2 = player:GetAttribute("StoredStand"..slot.."_FusedStand2") or "None"
+			local sT1 = player:GetAttribute("StoredStand"..slot.."_FusedTrait1") or "None"
+			local sT2 = player:GetAttribute("StoredStand"..slot.."_FusedTrait2") or "None"
+
+			player:SetAttribute("Active_FusedStand1", sS1)
+			player:SetAttribute("Active_FusedStand2", sS2)
+			player:SetAttribute("Active_FusedTrait1", sT1)
+			player:SetAttribute("Active_FusedTrait2", sT2)
+
+			player:SetAttribute("StoredStand"..slot.."_FusedStand1", aS1)
+			player:SetAttribute("StoredStand"..slot.."_FusedStand2", aS2)
+			player:SetAttribute("StoredStand"..slot.."_FusedTrait1", aT1)
+			player:SetAttribute("StoredStand"..slot.."_FusedTrait2", aT2)
+		end
+
+		SwapFusedData(slotNum)
+
 		player:SetAttribute("StoredStand"..slotNum, currentStand)
 		player:SetAttribute("StoredStand"..slotNum.."_Trait", currentTrait)
 
