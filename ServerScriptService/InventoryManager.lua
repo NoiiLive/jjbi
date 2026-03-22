@@ -456,17 +456,22 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			end
 
 		elseif itemName == "Dio's Diary" then
-			if myStand == "Star Platinum" then EvolveStand("Star Platinum: The World"); message = "Your Stand evolved into Star Platinum: The World!"
-			elseif myStand == "C-Moon" then EvolveStand("Made in Heaven"); message = "Your Stand evolved into Made in Heaven!"
+			if myStand == "Star Platinum" then 
+				EvolveStand("Star Platinum: The World"); 
+				message = "Your Stand evolved into Star Platinum: The World!"
+			elseif myStand == "C-Moon" then 
+				EvolveStand("Made in Heaven"); 
+				message = "Your Stand evolved into Made in Heaven!"
 			else
-				local bonusXP = math.floor((3000 * (1 + prestige)))
-				player:SetAttribute("XP", (player:GetAttribute("XP") or 0) + bonusXP)
-				message = "You read the diary. Gained " .. bonusXP .. " XP!"
 				if (myStand ~= "Star Platinum: The World" and myStand ~= "Star Platinum: Over Heaven" and myStand ~= "The World" and myStand ~= "The World: Over Heaven" and myStand ~= "None") then
 					if (math.random(1,100) <= 5) then
 						player:SetAttribute("StandTrait", "Overheaven")
 						message = "You begin to understand the writing, you unlock forbidden knowledge... Your stand has evolved into Over Heaven!"
+					else	
+						message = "You fail to understand the writings..."
 					end
+				else	
+					message = "You've already gained the knowledge from these writings."
 				end
 			end
 
