@@ -31,11 +31,11 @@ if not AdminWipeEvent then
 	AdminWipeEvent.Parent = ReplicatedStorage
 end
 
-local ProgressOrderEvent = ReplicatedStorage:FindFirstChild("AddGangOrderProgress")
+local ProgressOrderEvent = Network:FindFirstChild("AddGangOrderProgress")
 if not ProgressOrderEvent then
 	ProgressOrderEvent = Instance.new("BindableEvent")
 	ProgressOrderEvent.Name = "AddGangOrderProgress"
-	ProgressOrderEvent.Parent = ReplicatedStorage
+	ProgressOrderEvent.Parent = Network 
 end
 
 local GangRepEvent = ReplicatedStorage:FindFirstChild("AwardGangReputation")
@@ -131,7 +131,6 @@ local function GetClientGangData(player)
 
 	local membersList = {}
 	for uIdStr, m in pairs(gData.Members) do
-		-- SAFELY EXTRACT USER ID TO PREVENT NIL ERRORS FROM LEGACY DATA
 		local uid = tonumber(uIdStr) or m.UserId
 		local p = uid and Players:GetPlayerByUserId(uid) or nil
 
@@ -227,7 +226,6 @@ local function LoadGangData(gangName)
 		if not data.Requests then data.Requests = {} end
 		if not data.CustomRoles then data.CustomRoles = { Boss = "Boss", Consigliere = "Consigliere", Caporegime = "Caporegime", Grunt = "Grunt" } end
 
-		-- NORMALIZE OLD GANG DATA TO HAVE USER ID IN MEMBER BLOCKS
 		for uIdStr, memData in pairs(data.Members) do
 			if not memData.UserId then
 				memData.UserId = tonumber(uIdStr)
@@ -567,8 +565,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 
 	elseif action == "Rename" then
 		if pRole ~= "Boss" then return end
-		local yen = player.leaderstats.Yen
-		if yen.Value < 500000 then return end
+
+		local oldData = ActiveGangs[pGangName]
+		if not oldData or (oldData.Treasury or 0) < 10000000 then 
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You need ¥10,000,000 in the Treasury to rename your gang!</font>")
+			return 
+		end
 
 		local displayGangName = tostring(value)
 		local newKey = string.lower(displayGangName)
@@ -584,11 +586,9 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			return 
 		end
 
-		yen.Value -= 500000
-
-		local oldData = ActiveGangs[oldKey]
 		local oldDisplayName = oldData.Name
 		oldData.Name = displayGangName
+		oldData.Treasury = (oldData.Treasury or 0) - 10000000
 
 		local success, err = pcall(function()
 			GangStore:SetAsync(newKey, oldData)
@@ -615,6 +615,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			SyncGangToMembers(newKey)
 		else
 			oldData.Name = oldDisplayName
+			oldData.Treasury = (oldData.Treasury or 0) + 10000000
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Database Error while renaming.</font>")
 		end
 
@@ -743,8 +744,8 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 
 	elseif action == "RenameRole" then
 		if pRole ~= "Boss" then return end
-		local targetRole = tostring(value)
-		local newRoleName = tostring(extraValue)
+		local newRoleName = tostring(value)
+		local targetRole = tostring(extraValue)
 
 		if not RolePower[targetRole] then return end
 		if string.len(newRoleName) < 3 or string.len(newRoleName) > 15 or not string.match(newRoleName, "^[a-zA-Z ]+$") then 
