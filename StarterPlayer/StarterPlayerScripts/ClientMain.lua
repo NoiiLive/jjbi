@@ -32,11 +32,13 @@ local ShopTab = require(UIModules:WaitForChild("ShopTab"))
 local GiftManager = require(UIModules:WaitForChild("GiftManager"))
 local MultiplayerTab = require(UIModules:WaitForChild("MultiplayerTab"))
 local TutorialManager = require(UIModules:WaitForChild("TutorialManager"))
+local FusionModal = require(UIModules:WaitForChild("FusionModal"))
 
 SFXManager.Init()
 TooltipManager.Init(screenGui)
 NotificationManager.Init(screenGui)
 GiftManager.Init(screenGui)
+FusionModal.Init(screenGui)
 
 local Network = ReplicatedStorage:WaitForChild("Network")
 local NotificationEvent = Network:WaitForChild("NotificationEvent")
@@ -747,14 +749,11 @@ end
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
--- Initialize Tabs
 CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
 InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
 UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
 TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
 ShopTab.Init(TabFrames["Shop"], TooltipManager)
-
--- Initialize Multiplayer Tab last so all UI modules exist
 MultiplayerTab.Init(TabFrames["Multiplayer"], TooltipManager, SwitchTab)
 
 TutorialManager.Init(mainFrame, SwitchTab)
