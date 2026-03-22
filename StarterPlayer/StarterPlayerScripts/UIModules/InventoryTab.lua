@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local InventoryTab = {}
 
 local player = game.Players.LocalPlayer
@@ -29,6 +30,7 @@ local currentStorageMode = "Stand"
 
 local targetAutoStand = "Any"
 local targetAutoTrait = "Any"
+local currentUpgradeAmount = 1
 
 local rarityColors = {
 	Common = Color3.fromRGB(150, 150, 150),
@@ -66,12 +68,16 @@ local function GetCombinedBonus(statName)
 	return bonus
 end
 
-local function GetUpgradeCosts(currentStat, baseVal, prestige, maxCap)
-	local cost1 = GameData.CalculateStatCost(currentStat, baseVal, prestige)
-	local cost5, cost10 = 0, 0
-	for i = 0, 4 do if currentStat + i >= maxCap then break end cost5 += GameData.CalculateStatCost(currentStat + i, baseVal, prestige) end
-	for i = 0, 9 do if currentStat + i >= maxCap then break end cost10 += GameData.CalculateStatCost(currentStat + i, baseVal, prestige) end
-	return cost1, cost5, cost10
+local function GetUpgradeCostForAmount(currentStat, baseVal, prestige, maxCap, amount)
+	if amount == "MAX" then return 0 end
+	local cost = 0
+	local added = 0
+	for i = 0, amount - 1 do
+		if currentStat + added >= maxCap then break end
+		cost += GameData.CalculateStatCost(currentStat + added, baseVal, prestige)
+		added += 1
+	end
+	return cost
 end
 
 local function UpdateStatTooltip()
@@ -233,10 +239,10 @@ local function CreateStatRow(statName, parent, isStand)
 
 	local rowPad = Instance.new("UIPadding", row)
 	rowPad.PaddingLeft = UDim.new(0, 5)
-	rowPad.PaddingRight = UDim.new(0, 15)
+	rowPad.PaddingRight = UDim.new(0, 5)
 
 	local statLabel = Instance.new("TextLabel", row)
-	statLabel.Size = UDim2.new(0.38, 0, 1, 0)
+	statLabel.Size = UDim2.new(0.55, 0, 1, 0)
 	statLabel.BackgroundTransparency = 1
 	statLabel.Font = Enum.Font.GothamBold
 	statLabel.TextColor3 = isStand and Color3.fromRGB(200, 150, 255) or Color3.fromRGB(220, 220, 220)
@@ -248,7 +254,7 @@ local function CreateStatRow(statName, parent, isStand)
 	Instance.new("UITextSizeConstraint", statLabel).MaxTextSize = 13
 
 	local btnContainer = Instance.new("Frame", row)
-	btnContainer.Size = UDim2.new(0.62, 0, 1, 0)
+	btnContainer.Size = UDim2.new(0.45, 0, 1, 0)
 	btnContainer.Position = UDim2.new(1, 0, 0, 0)
 	btnContainer.AnchorPoint = Vector2.new(1, 0)
 	btnContainer.BackgroundTransparency = 1
@@ -258,13 +264,17 @@ local function CreateStatRow(statName, parent, isStand)
 	blL.FillDirection = Enum.FillDirection.Horizontal
 	blL.HorizontalAlignment = Enum.HorizontalAlignment.Right
 	blL.VerticalAlignment = Enum.VerticalAlignment.Center
-	blL.Padding = UDim.new(0.02, 0)
+	blL.Padding = UDim.new(0, 6)
 	blL.SortOrder = Enum.SortOrder.LayoutOrder
 
-	local function makeBtn(text, order, scaleW)
+	local function makeBtn(text, order, widthScaleYY)
 		local b = Instance.new("TextButton", btnContainer)
 		b.LayoutOrder = order
-		b.Size = UDim2.new(scaleW, 0, 0.85, 0)
+
+		-- PERFECT WIDTH CONTROL: RelativeYY makes X-Scale a multiplier of the Y-Height!
+		b.SizeConstraint = Enum.SizeConstraint.RelativeYY
+		b.Size = UDim2.new(widthScaleYY, 0, 0.85, 0) 
+
 		b.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
 		b.Text = text
 		b.Font = Enum.Font.GothamBold
@@ -274,27 +284,27 @@ local function CreateStatRow(statName, parent, isStand)
 		b.ZIndex = 23
 		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
 		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(120, 60, 180); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
+		Instance.new("UITextSizeConstraint", b).MaxTextSize = 14
 		return b
 	end
 
-	local b1 = makeBtn("+1", 1, 0.15)
-	local b5 = makeBtn("+5", 2, 0.15)
-	local b10 = makeBtn("+10", 3, 0.22)
-	local bMax = makeBtn("MAX", 4, 0.30)
+	-- 1.0 makes + a perfect square. 1.8 makes MAX comfortably rectangular.
+	local bAdd = makeBtn("+", 1, 1.0) 
+	local bMax = makeBtn("MAX", 2, 1.8)
 
-	local function hookUpgradeHover(btn, amt)
-		btn.MouseEnter:Connect(function() showUpgradeTooltip(statName, amt) end)
+	local function hookUpgradeHover(btn, isMax)
+		btn.MouseEnter:Connect(function() 
+			if isMax then showUpgradeTooltip(statName, "MAX")
+			else showUpgradeTooltip(statName, currentUpgradeAmount) end
+		end)
 		btn.MouseLeave:Connect(function()
 			currentlyHoveredUpgrade = false
 			if currentlyHoveredStat == statName then UpdateStatTooltip() else cachedTooltipMgr.Hide() end
 		end)
 	end
 
-	hookUpgradeHover(b1, 1)
-	hookUpgradeHover(b5, 5)
-	hookUpgradeHover(b10, 10)
-	hookUpgradeHover(bMax, "MAX")
+	hookUpgradeHover(bAdd, false)
+	hookUpgradeHover(bMax, true)
 
 	row.MouseEnter:Connect(function() 
 		currentlyHoveredStat = statName
@@ -307,12 +317,10 @@ local function CreateStatRow(statName, parent, isStand)
 		end 
 	end)
 
-	b1.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, 1) end)
-	b5.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, 5) end)
-	b10.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, 10) end)
+	bAdd.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, currentUpgradeAmount) end)
 	bMax.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UpgradeStat"):FireServer(statName, "MAX") end)
 
-	return { Label = statLabel, Btn1 = b1, Btn5 = b5, Btn10 = b10, BtnMax = bMax }
+	return { Label = statLabel, BtnAdd = bAdd, BtnMax = bMax }
 end
 
 local function BuildDropdownList(parentBtn, listFrame, dataTable, isStand)
@@ -357,21 +365,20 @@ local function RefreshStatTexts()
 		local val = player:GetAttribute(statName) or 1
 		local cleanName = statName:gsub("_Val", "")
 		local base = (prestige == 0) and (GameData.BaseStats[cleanName] or 0) or (prestige * 5)
-		local cost1, cost5, cost10 = GetUpgradeCosts(val, base, prestige, statCap)
+
+		local costAmt = GetUpgradeCostForAmount(val, base, prestige, statCap, currentUpgradeAmount)
+		local cost1 = GetUpgradeCostForAmount(val, base, prestige, statCap, 1)
+
 		local bonusAmount = GetCombinedBonus(cleanName)
 		local bonusText = bonusAmount > 0 and " <font color='#55FF55'>(+" .. bonusAmount .. ")</font>" or ""
 
 		if val >= statCap then
 			data.Label.Text = cleanName:gsub("Stand_", "") .. ": " .. val .. bonusText .. " <font color='#FF5555'>[MAX]</font>"
-			setUpgradeBtnState(data.Btn1, false)
-			setUpgradeBtnState(data.Btn5, false)
-			setUpgradeBtnState(data.Btn10, false)
+			setUpgradeBtnState(data.BtnAdd, false)
 			setUpgradeBtnState(data.BtnMax, false)
 		else
 			data.Label.Text = cleanName:gsub("Stand_", "") .. ": " .. val .. bonusText
-			setUpgradeBtnState(data.Btn1, currentXP >= cost1)
-			setUpgradeBtnState(data.Btn5, currentXP >= cost5)
-			setUpgradeBtnState(data.Btn10, currentXP >= cost10)
+			setUpgradeBtnState(data.BtnAdd, currentXP >= costAmt and costAmt > 0)
 			setUpgradeBtnState(data.BtnMax, currentXP >= cost1)
 		end
 	end
@@ -831,28 +838,125 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local itemsAreaCard = CreateCard("ItemsAreaCard", invTabContent, UDim2.new(1, 0, 0.35, 0), 2)
 	local autoSellCard = CreateCard("AutoSellCard", invTabContent, UDim2.new(1, 0, 0.20, 0), 3)
 
-	local sacL = Instance.new("UIListLayout", statsAreaCard)
-	sacL.FillDirection = Enum.FillDirection.Horizontal; sacL.Padding = UDim.new(0, 0)
+	-- [[ PERFECTED STATS AREA UI STRUCTURE ]] --
+	-- 1. Main Stats Container (Takes up full 100% of Card Height since controls are floating)
+	local statsMain = Instance.new("Frame", statsAreaCard)
+	statsMain.Size = UDim2.new(1, 0, 1, 0) 
+	statsMain.BackgroundTransparency = 1
 
-	local pStats = Instance.new("Frame", statsAreaCard)
-	pStats.Size = UDim2.new(0.5, -1, 1, 0); pStats.BackgroundTransparency = 1; pStats.LayoutOrder = 1
+	local smLayout = Instance.new("UIListLayout", statsMain)
+	smLayout.FillDirection = Enum.FillDirection.Horizontal
+	smLayout.Padding = UDim.new(0, 0)
+
+	-- Left Side (Player Stats)
+	local pStats = Instance.new("Frame", statsMain)
+	pStats.Size = UDim2.new(0.5, -1, 1, 0)
+	pStats.BackgroundTransparency = 1
 	CreateTitle(pStats, "PLAYER STATS")
+
 	pStatsContainer = Instance.new("Frame", pStats)
-	pStatsContainer.Size = UDim2.new(1, 0, 1, -24); pStatsContainer.Position = UDim2.new(0,0,0,24); pStatsContainer.BackgroundTransparency = 1; pStatsContainer.ZIndex = 21; pStatsContainer.LayoutOrder = 2
+	pStatsContainer.Size = UDim2.new(1, 0, 1, -24)
+	pStatsContainer.Position = UDim2.new(0, 0, 0, 24)
+	pStatsContainer.BackgroundTransparency = 1
+	pStatsContainer.ZIndex = 21
 	Instance.new("UIListLayout", pStatsContainer).Padding = UDim.new(0, 0)
 
-	local sSep1 = Instance.new("Frame", statsAreaCard)
-	sSep1.Size = UDim2.new(0, 2, 1, 0); sSep1.BackgroundColor3 = Color3.fromRGB(90, 50, 120); sSep1.BorderSizePixel = 0; sSep1.LayoutOrder = 2; sSep1.ZIndex = 22
+	-- Separator Line
+	local sSep1 = Instance.new("Frame", statsMain)
+	sSep1.Size = UDim2.new(0, 2, 1, 0)
+	sSep1.BackgroundColor3 = Color3.fromRGB(90, 50, 120)
+	sSep1.BorderSizePixel = 0
 
-	local sStats = Instance.new("Frame", statsAreaCard)
-	sStats.Size = UDim2.new(0.5, -1, 1, 0); sStats.BackgroundTransparency = 1; sStats.LayoutOrder = 3
+	-- Right Side (Stand Stats)
+	local sStats = Instance.new("Frame", statsMain)
+	sStats.Size = UDim2.new(0.5, -1, 1, 0)
+	sStats.BackgroundTransparency = 1
 	CreateTitle(sStats, "STAND STATS")
+
 	sStatsContainer = Instance.new("Frame", sStats)
-	sStatsContainer.Size = UDim2.new(1, 0, 1, -24); sStatsContainer.Position = UDim2.new(0,0,0,24); sStatsContainer.BackgroundTransparency = 1; sStatsContainer.ZIndex = 21; sStatsContainer.LayoutOrder = 2
+	sStatsContainer.Size = UDim2.new(1, 0, 1, -24)
+	sStatsContainer.Position = UDim2.new(0, 0, 0, 24)
+	sStatsContainer.BackgroundTransparency = 1
+	sStatsContainer.ZIndex = 21
 	Instance.new("UIListLayout", sStatsContainer).Padding = UDim.new(0, 0)
 
 	for _, stat in ipairs(playerStatsList) do statLabels[stat] = CreateStatRow(stat, pStatsContainer, false) end
 	for _, stat in ipairs(standStatsList) do statLabels[stat] = CreateStatRow(stat, sStatsContainer, true) end
+
+	-- 2. The Floating Controls Bar (Absolutely positioned to sit perfectly on the same line as the Titles)
+	local statsTopControls = Instance.new("Frame", statsAreaCard)
+	statsTopControls.Size = UDim2.new(0.4, 0, 0, 18) -- Fits cleanly in the right side
+	statsTopControls.Position = UDim2.new(1, 0, 0, 0)
+	statsTopControls.AnchorPoint = Vector2.new(1, 0)
+	statsTopControls.BackgroundTransparency = 1
+	statsTopControls.ZIndex = 25
+
+	local topLayout = Instance.new("UIListLayout", statsTopControls)
+	topLayout.FillDirection = Enum.FillDirection.Horizontal
+	topLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	topLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	topLayout.Padding = UDim.new(0, 5)
+	topLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+	local upgradeLbl = Instance.new("TextLabel", statsTopControls)
+	upgradeLbl.Size = UDim2.new(0, 65, 1, 0)
+	upgradeLbl.BackgroundTransparency = 1
+	upgradeLbl.Font = Enum.Font.GothamMedium
+	upgradeLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+	upgradeLbl.Text = "Pts:"
+	upgradeLbl.TextScaled = true
+	upgradeLbl.LayoutOrder = 1
+	upgradeLbl.ZIndex = 26
+	Instance.new("UITextSizeConstraint", upgradeLbl).MaxTextSize = 12
+
+	local amtBox = Instance.new("TextBox", statsTopControls)
+	amtBox.Size = UDim2.new(0, 35, 1, 0)
+	amtBox.BackgroundColor3 = Color3.fromRGB(30, 20, 40)
+	amtBox.TextColor3 = Color3.new(1,1,1)
+	amtBox.Font = Enum.Font.GothamBold
+	amtBox.TextScaled = true
+	amtBox.Text = "1"
+	amtBox.PlaceholderText = "#"
+	amtBox.LayoutOrder = 2
+	amtBox.ZIndex = 26
+	Instance.new("UICorner", amtBox).CornerRadius = UDim.new(0, 3)
+	local amtStroke = Instance.new("UIStroke", amtBox)
+	amtStroke.Color = Color3.fromRGB(120, 60, 180)
+	amtStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	Instance.new("UITextSizeConstraint", amtBox).MaxTextSize = 12
+
+	amtBox.FocusLost:Connect(function()
+		local val = tonumber(amtBox.Text)
+		if val and val > 0 then
+			currentUpgradeAmount = math.floor(val)
+		else
+			currentUpgradeAmount = 1
+		end
+		amtBox.Text = tostring(currentUpgradeAmount)
+		RefreshStatTexts()
+	end)
+
+	local allBtn = Instance.new("TextButton", statsTopControls)
+	allBtn.Size = UDim2.new(0, 45, 1, 0)
+	allBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20)
+	allBtn.TextColor3 = Color3.new(1,1,1)
+	allBtn.Font = Enum.Font.GothamBold
+	allBtn.TextScaled = true
+	allBtn.Text = "ALL"
+	allBtn.LayoutOrder = 3
+	allBtn.ZIndex = 26
+	Instance.new("UICorner", allBtn).CornerRadius = UDim.new(0, 3)
+	local allStroke = Instance.new("UIStroke", allBtn)
+	allStroke.Color = Color3.fromRGB(255, 200, 50)
+	allStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	Instance.new("UITextSizeConstraint", allBtn).MaxTextSize = 12
+
+	allBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		local UpgradeAllEvent = Network:FindFirstChild("UpgradeAllStats")
+		if UpgradeAllEvent then UpgradeAllEvent:FireServer(currentUpgradeAmount) end
+	end)
+	-- [[ END NEW STATS AREA UI STRUCTURE ]] --
 
 	local riTop = Instance.new("Frame", itemsAreaCard)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
