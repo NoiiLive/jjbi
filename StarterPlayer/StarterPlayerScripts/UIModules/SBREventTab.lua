@@ -13,6 +13,7 @@ local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local NotificationManager = require(script.Parent:WaitForChild("NotificationManager"))
 local CombatTemplate = require(script.Parent:WaitForChild("CombatTemplate"))
+local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 
 local REROLL_ROBUX_PRODUCT_ID = 3554941196
 
@@ -736,11 +737,22 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 		local myStand, myStyle = pData.Stand or "None", pData.Style or "None"
 		local valid = {}
+
+		if myStand == "Fused Stand" then
+			local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+			local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+			local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+			local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+			for _, sk in ipairs(fusedSkills) do table.insert(valid, sk) end
+		end
+
 		for n, s in pairs(SkillData.Skills) do
-			if s.Requirement == "None" or s.Requirement == myStand or s.Requirement == myStyle or (s.Requirement == "AnyStand" and myStand ~= "None") then 
+			local isStandReq = (s.Requirement == myStand and myStand ~= "Fused Stand")
+			if s.Requirement == "None" or isStandReq or s.Requirement == myStyle or (s.Requirement == "AnyStand" and myStand ~= "None") then 
 				table.insert(valid, {Name = n, Data = s}) 
 			end
 		end
+
 		table.sort(valid, function(a, b) return (a.Data.Order or 99) < (b.Data.Order or 99) end)
 
 		local function submitAttack(skName)
