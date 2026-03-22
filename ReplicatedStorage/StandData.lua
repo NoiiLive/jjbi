@@ -182,6 +182,8 @@ StandData.Stands = {
 	["Soft & Wet: Go Beyond"] = { Rarity = "Evolution", Stats = {Power="A", Speed="B", Range="C", Durability="B", Precision="A", Potential="A"} },
 
 	["Wonder of U"] = { Rarity = "Mythical", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	
+	["Fused Stand"] = { Rarity = "Unique", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 }
 
 function StandData.RollStand(luckBoost, pityCount, targetPool)
