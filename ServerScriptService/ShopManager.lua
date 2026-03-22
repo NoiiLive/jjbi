@@ -197,14 +197,14 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		end
 
 	elseif action == "RestockYen" then
-		local cost = 50000
+		local cost = 100000
 		if yen.Value >= cost then
 			yen.Value -= cost
 			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
 			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Yen", cost) end
 
 			player:SetAttribute("ShopRefreshTime", 0) 
-			NotificationEvent:FireClient(player, "<font color='#55FF55'>Restocked Shop for 50k Yen!</font>")
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Restocked Shop for 100k Yen!</font>")
 		else
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen to restock!</font>")
 		end
