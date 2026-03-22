@@ -184,6 +184,25 @@ local function StartBattle(player, encounterType)
 
 	if playerTrait == "Focused" then pStamina *= 1.1; pStandEnergy *= 1.1 end
 
+	local validSkills = {}
+	local sName = player:GetAttribute("Stand") or "None"
+	local fStyle = player:GetAttribute("FightingStyle") or "None"
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
+			table.insert(validSkills, n)
+		end
+	end
+
 	local generatedEnemy = GenerateNPCEntity(enemyTemplate, false, prestige, uniModStr, currentPart)
 	local activeBoosts = CombatCore.GetPlayerBoosts(player)
 
@@ -191,11 +210,13 @@ local function StartBattle(player, encounterType)
 		EncounterType = encounterType, Context = battleContext, IsProcessing = false, Boosts = activeBoosts,
 		Player = {
 			IsPlayer = true, IsAlly = false, Name = player.Name, Trait = playerTrait, GlobalDmgBoost = activeBoosts.Damage, PlayerObj = player,
-			Stand = player:GetAttribute("Stand") or "None", Style = player:GetAttribute("FightingStyle") or "None",
+			Stand = sName, Style = fStyle,
 			HP = pHP * 10, MaxHP = pHP * 10, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
 			TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd, TotalWillpower = pWill,
 			TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
-			BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, Cooldowns = {}
+			BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, 
+			Cooldowns = {},
+			Skills = validSkills -- THIS MUST BE ASSIGNED SO THE SERVER RECOGNIZES YOUR ATTACKS
 		},
 		Enemy = generatedEnemy,
 		Ally = allyTemplate and GenerateNPCEntity(allyTemplate, true, prestige, uniModStr, currentPart) or nil,
@@ -215,13 +236,7 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	local skill = SkillData.Skills[skillName]
 	local uniModStr = player:GetAttribute("UniverseModifier") or "None"
 
-	if skill and skill.Requirement ~= "None" then
-		if skill.Requirement == "AnyStand" then
-			if battle.Player.Stand == "None" then return end
-		elseif skill.Requirement ~= battle.Player.Stand and skill.Requirement ~= battle.Player.Style then
-			return
-		end
-	end
+	if not table.find(battle.Player.Skills, skillName) then return end
 
 	local stamCost, nrgCost = skill.StaminaCost or 0, skill.EnergyCost or 0
 	if CombatCore.HasModifier(uniModStr, "Speed of Light") then stamCost *= 1.5; nrgCost *= 1.5 end
