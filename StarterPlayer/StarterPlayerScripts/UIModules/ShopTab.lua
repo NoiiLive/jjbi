@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local ShopTab = {}
 
 local player = game.Players.LocalPlayer
@@ -461,6 +462,11 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	standRatesCol.ZIndex = 23
 	standRatesCol.Parent = standRatesScroll
 
+	-- [[ FIXED: Auto-calculate CanvasSize based on absolute wrapped height ]]
+	standRatesCol:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		standRatesScroll.CanvasSize = UDim2.new(0, 0, 0, standRatesCol.AbsoluteSize.Y + 50)
+	end)
+
 	local sep = Instance.new("Frame")
 	sep.Size = UDim2.new(0, 2, 1, 0)
 	sep.BackgroundColor3 = Color3.fromRGB(90, 50, 120)
@@ -489,6 +495,11 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	traitRatesCol.TextYAlignment = Enum.TextYAlignment.Top
 	traitRatesCol.ZIndex = 23
 	traitRatesCol.Parent = traitRatesScroll
+
+	-- [[ FIXED: Auto-calculate CanvasSize based on absolute wrapped height ]]
+	traitRatesCol:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		traitRatesScroll.CanvasSize = UDim2.new(0, 0, 0, traitRatesCol.AbsoluteSize.Y + 50)
+	end)
 
 	-- Bottom: Codes Card
 	local codesCard = CreateCard("CodesCard", marketTabContent, UDim2.new(1, 0, 0.16, 0), 3)
@@ -893,11 +904,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 
 		standRatesCol.Text = "<b><font size='14'>STAND ARROW RATES</font></b>\n<i><font color='#888888'>Guarantees Rare+ every 25 rolls.</font></i>\n\n" .. BuildPoolString(StandData.Stands, false, currentStand)
 		traitRatesCol.Text = "<b><font size='14'>ROKAKAKA RATES</font></b>\n<i><font color='#888888'>Guarantees Legendary+ every 5 rolls.</font></i>\n\n" .. BuildPoolString(StandData.Traits, true, currentTrait)
-
-		task.delay(0.1, function()
-			standRatesScroll.CanvasSize = UDim2.new(0, 0, 0, standRatesCol.AbsoluteSize.Y + 20)
-			traitRatesScroll.CanvasSize = UDim2.new(0, 0, 0, traitRatesCol.AbsoluteSize.Y + 20)
-		end)
 	end
 
 	player:GetAttributeChangedSignal("Stand"):Connect(RefreshDropRatesText)
