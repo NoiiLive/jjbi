@@ -19,7 +19,7 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 	if slot1 == slot2 then return end 
 	if not targetSlot then return end
 
-	-- Security Check for targetSlot
+	-- Security Check for targetSlot to prevent saving into locked slots
 	if targetSlot == "Slot2" and not player:GetAttribute("HasStandSlot2") then return end
 	if targetSlot == "Slot3" and not player:GetAttribute("HasStandSlot3") then return end
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
@@ -34,22 +34,6 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 		elseif slot == "Slot4" then return player:GetAttribute("StoredStand4") or "None", player:GetAttribute("StoredStand4_Trait") or "None"
 		elseif slot == "Slot5" then return player:GetAttribute("StoredStand5") or "None", player:GetAttribute("StoredStand5_Trait") or "None" end
 		return "None", "None"
-	end
-
-	local function ClearSlot(slot)
-		if slot == "Active" then 
-			player:SetAttribute("Stand", "None"); player:SetAttribute("StandTrait", "None")
-			player:SetAttribute("Active_FusedStand1", "None")
-			player:SetAttribute("Active_FusedStand2", "None")
-			player:SetAttribute("Active_FusedTrait1", "None")
-			player:SetAttribute("Active_FusedTrait2", "None")
-		else
-			player:SetAttribute("Stored" .. slot, "None"); player:SetAttribute("Stored" .. slot .. "_Trait", "None")
-			player:SetAttribute("StoredStand"..slot.."_FusedStand1", "None")
-			player:SetAttribute("StoredStand"..slot.."_FusedStand2", "None")
-			player:SetAttribute("StoredStand"..slot.."_FusedTrait1", "None")
-			player:SetAttribute("StoredStand"..slot.."_FusedTrait2", "None")
-		end
 	end
 
 	local stand1, trait1 = GetStandDataFromSlot(slot1)
@@ -68,13 +52,30 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 	-- Consume Roka
 	player:SetAttribute("NewRokakakaCount", rokaCount - 1)
 
+	local function ClearSlot(slot)
+		if slot == "Active" then 
+			player:SetAttribute("Stand", "None"); player:SetAttribute("StandTrait", "None")
+			player:SetAttribute("Active_FusedStand1", "None")
+			player:SetAttribute("Active_FusedStand2", "None")
+			player:SetAttribute("Active_FusedTrait1", "None")
+			player:SetAttribute("Active_FusedTrait2", "None")
+		else
+			local num = slot:gsub("Slot", "")
+			player:SetAttribute("StoredStand" .. num, "None"); player:SetAttribute("StoredStand" .. num .. "_Trait", "None")
+			player:SetAttribute("StoredStand"..num.."_FusedStand1", "None")
+			player:SetAttribute("StoredStand"..num.."_FusedStand2", "None")
+			player:SetAttribute("StoredStand"..num.."_FusedTrait1", "None")
+			player:SetAttribute("StoredStand"..num.."_FusedTrait2", "None")
+		end
+	end
+
 	-- We must clear the source slots BEFORE assigning the target slot, 
-	-- just in case targetSlot IS slot1 or slot2.
+	-- just in case targetSlot is the same as slot1 or slot2!
 	ClearSlot(slot1)
 	ClearSlot(slot2)
 
-	-- Set Fused Attributes to the TARGET slot
-	local prefix = (targetSlot == "Active") and "Active_" or ("StoredStand" .. targetSlot .. "_")
+	-- Set Fused Attributes to the TARGET slot safely
+	local prefix = (targetSlot == "Active") and "Active_" or ("StoredStand" .. targetSlot:gsub("Slot", "") .. "_")
 
 	player:SetAttribute(prefix .. "FusedStand1", stand1)
 	player:SetAttribute(prefix .. "FusedStand2", stand2)
@@ -90,8 +91,8 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 		local rankToNum = {["None"]=0, ["E"]=1, ["D"]=2, ["C"]=3, ["B"]=4, ["A"]=5, ["S"]=6}
 		local numToRank = { [0]="None", [1]="E", [2]="D", [3]="C", [4]="B", [5]="A", [6]="S" }
 
-		local baseData1 = StandData.Stands[stand1].Stats
-		local baseData2 = StandData.Stands[stand2].Stats
+		local baseData1 = StandData.Stands[stand1] and StandData.Stands[stand1].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
+		local baseData2 = StandData.Stands[stand2] and StandData.Stands[stand2].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
 
 		for _, stat in ipairs(statsList) do
 			local val1 = rankToNum[baseData1[stat]] or 0
@@ -100,9 +101,11 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 			player:SetAttribute("Stand_" .. stat, numToRank[avg] or "C")
 		end
 	else
-		player:SetAttribute("Stored" .. targetSlot, "Fused Stand")
-		player:SetAttribute("Stored" .. targetSlot .. "_Trait", "Fused")
+		local num = targetSlot:gsub("Slot", "")
+		player:SetAttribute("StoredStand" .. num, "Fused Stand")
+		player:SetAttribute("StoredStand" .. num .. "_Trait", "Fused")
 	end
 
-	NotificationEvent:FireClient(player, "<font color='#FF55FF'>Equivalent Exchange complete. Your Stands have fused into " .. targetSlot .. "!</font>")
+	local targetName = (targetSlot == "Active") and "Active Stand" or "Storage " .. targetSlot:gsub("Slot", "")
+	NotificationEvent:FireClient(player, "<font color='#FF55FF'>Equivalent Exchange complete. Your Stands have fused into " .. targetName .. "!</font>")
 end)
