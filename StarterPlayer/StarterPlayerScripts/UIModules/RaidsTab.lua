@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local RaidsTab = {}
 
 local player = game.Players.LocalPlayer
@@ -173,6 +174,10 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	mfLayout.Padding = UDim.new(0, 10)
 	mfLayout.Parent = menuFrame
 
+	-- [[ FIXED: BYPASS ROBLOX UI BUGS WITH ABSOLUTE MATH ]]
+	-- 80px per row + 10px padding = 90px per item. Plus 300px of extra clearance for mobile screens!
+	menuFrame.CanvasSize = UDim2.new(0, 0, 0, (#raidBosses * 90) + 300)
+
 	local mfPad = Instance.new("UIPadding")
 	mfPad.PaddingTop = UDim.new(0.02, 0)
 	mfPad.PaddingBottom = UDim.new(0.02, 0)
@@ -255,10 +260,6 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 		uiElements[rInfo.Id] = {Row = row, Status = status, Btn = playBtn, Stroke = pStroke, Info = rInfo}
 	end
-
-	task.delay(0.1, function()
-		menuFrame.CanvasSize = UDim2.new(0, 0, 0, mfLayout.AbsoluteContentSize.Y + 20)
-	end)
 
 	task.spawn(function()
 		local pObj = player:WaitForChild("leaderstats", 10)
@@ -865,6 +866,9 @@ function RaidsTab.HandleUpdate(action, data)
 			local eUic = Instance.new("UITextSizeConstraint", empty)
 			eUic.MaxTextSize = 16
 			eUic.MinTextSize = 10
+
+			-- Mathematical Canvas Size for Empty Lobbies
+			lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, 200)
 			return
 		end
 
@@ -936,14 +940,8 @@ function RaidsTab.HandleUpdate(action, data)
 			end
 		end
 
-		task.delay(0.05, function()
-			if lobbyContainer then
-				local lcLayout = lobbyContainer:FindFirstChildWhichIsA("UIListLayout")
-				if lcLayout then
-					lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, lcLayout.AbsoluteContentSize.Y + 20)
-				end
-			end
-		end)
+		-- Mathematical Canvas Size for Lobbies
+		lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, (#lobbies * 70) + 300)
 
 	elseif action == "MatchStart" then
 		if forceTabFocus then forceTabFocus() end 
