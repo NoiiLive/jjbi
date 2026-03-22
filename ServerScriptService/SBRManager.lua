@@ -112,16 +112,35 @@ local function BuildPlayerCombatStruct(player)
 	local pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
 	if playerTrait == "Focused" then pStamina *= 1.1; pStandEnergy *= 1.1 end
 
+	local validSkills = {}
+	local sName = player:GetAttribute("Stand") or "None"
+	local fStyle = player:GetAttribute("FightingStyle") or "None"
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
+			table.insert(validSkills, n)
+		end
+	end
+
 	return {
 		IsPlayer = true, IsAlly = false, Name = player.Name, Trait = playerTrait, PlayerObj = player, UserId = player.UserId,
-		Stand = player:GetAttribute("Stand") or "None", Style = player:GetAttribute("FightingStyle") or "None",
+		Stand = sName, Style = fStyle,
 		HP = pHP * 10, MaxHP = pHP * 10, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
 		TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd, TotalWillpower = pWill,
 		TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), 
 		TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
 		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
-		Cooldowns = {}
+		Cooldowns = {}, Skills = validSkills
 	}
 end
 
@@ -741,6 +760,8 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 	elseif action == "CombatAttack" then
 		local r = EventState.Racers[player.UserId]
 		if r and r.Battle and not r.Battle.IsProcessing and not r.Battle.PlayerSelectedSkill then
+			if not table.find(r.Battle.Player.Skills, data) then return end
+
 			r.Battle.PlayerSelectedSkill = data
 			if r.Battle.OpponentRacer then
 				r.Battle.PlayerReady = true
