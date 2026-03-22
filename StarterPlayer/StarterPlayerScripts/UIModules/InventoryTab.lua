@@ -8,6 +8,7 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 local UIModules = script.Parent
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
@@ -428,15 +429,41 @@ local function RefreshStorageList()
 				local storedName = player:GetAttribute("StoredStand"..slotData.Backend) or "None"
 				local storedTrait = player:GetAttribute("StoredStand"..slotData.Backend.."_Trait") or "None"
 				local traitDisplay = ""
-				if storedTrait ~= "None" then
-					local tCol = StandData.Traits[storedTrait] and StandData.Traits[storedTrait].Color or "#FFFFFF"
-					traitDisplay = " <font color='" .. tCol .. "'>[" .. storedTrait:upper() .. "]</font>"
+
+				if storedName == "Fused Stand" then
+					local fs1 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedStand1") or "Unknown"
+					local fs2 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedStand2") or "Unknown"
+					local ft1 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedTrait1") or "None"
+					local ft2 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedTrait2") or "None"
+
+					storedName = FusionUtility.CalculateFusedName(fs1, fs2)
+
+					local tCol1 = StandData.Traits[ft1] and StandData.Traits[ft1].Color or "#FFFFFF"
+					local tCol2 = StandData.Traits[ft2] and StandData.Traits[ft2].Color or "#FFFFFF"
+
+					if ft1 == "None" and ft2 == "None" then
+						traitDisplay = ""
+					elseif ft1 == "None" then
+						traitDisplay = " <font color='" .. tCol2 .. "'>[" .. ft2:upper() .. "]</font>"
+					elseif ft2 == "None" then
+						traitDisplay = " <font color='" .. tCol1 .. "'>[" .. ft1:upper() .. "]</font>"
+					else
+						traitDisplay = " <font color='" .. tCol1 .. "'>[" .. ft1:upper() .. "]</font> & <font color='" .. tCol2 .. "'>[" .. ft2:upper() .. "]</font>"
+					end
+				else
+					if storedTrait ~= "None" then
+						local tCol = StandData.Traits[storedTrait] and StandData.Traits[storedTrait].Color or "#FFFFFF"
+						traitDisplay = " <font color='" .. tCol .. "'>[" .. storedTrait:upper() .. "]</font>"
+					end
 				end
+
 				nameLabel.Text = "S"..visualNum..": <font color='#A020F0'>" .. storedName .. "</font>" .. traitDisplay
-				if storedName == "None" and (player:GetAttribute("Stand") or "None") == "None" then
+
+				local realStoredName = player:GetAttribute("StoredStand"..slotData.Backend) or "None"
+				if realStoredName == "None" and (player:GetAttribute("Stand") or "None") == "None" then
 					btn.Text = "Empty"; btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 				else
-					btn.Text = storedName == "None" and "Store" or "Swap"; btn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+					btn.Text = realStoredName == "None" and "Store" or "Swap"; btn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
 					btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("StandStorageAction"):FireServer("Swap", slotData.Backend) end)
 				end
 			else
@@ -604,9 +631,32 @@ local function UpdateTopDisplays()
 	local acc = player:GetAttribute("EquippedAccessory") or "None"
 
 	local traitDisplay = ""
-	if sTrait ~= "None" then
-		local color = StandData.Traits[sTrait] and StandData.Traits[sTrait].Color or "#FFFFFF"
-		traitDisplay = " <font color='" .. color .. "'>[" .. sTrait:upper() .. "]</font>"
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "Unknown"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "Unknown"
+		local ft1 = player:GetAttribute("Active_FusedTrait1") or "None"
+		local ft2 = player:GetAttribute("Active_FusedTrait2") or "None"
+
+		sName = FusionUtility.CalculateFusedName(fs1, fs2)
+
+		local tCol1 = StandData.Traits[ft1] and StandData.Traits[ft1].Color or "#FFFFFF"
+		local tCol2 = StandData.Traits[ft2] and StandData.Traits[ft2].Color or "#FFFFFF"
+
+		if ft1 == "None" and ft2 == "None" then
+			traitDisplay = ""
+		elseif ft1 == "None" then
+			traitDisplay = " <font color='" .. tCol2 .. "'>[" .. ft2:upper() .. "]</font>"
+		elseif ft2 == "None" then
+			traitDisplay = " <font color='" .. tCol1 .. "'>[" .. ft1:upper() .. "]</font>"
+		else
+			traitDisplay = " <font color='" .. tCol1 .. "'>[" .. ft1:upper() .. "]</font> & <font color='" .. tCol2 .. "'>[" .. ft2:upper() .. "]</font>"
+		end
+	else
+		if sTrait ~= "None" then
+			local color = StandData.Traits[sTrait] and StandData.Traits[sTrait].Color or "#FFFFFF"
+			traitDisplay = " <font color='" .. color .. "'>[" .. sTrait:upper() .. "]</font>"
+		end
 	end
 
 	standLabel.Text = "<b>STAND:</b> <font color='#A020F0'>" .. sName:upper() .. "</font>" .. traitDisplay
@@ -1009,6 +1059,28 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		local sName = player:GetAttribute("Stand") or "None"
 		local sTrait = player:GetAttribute("StandTrait") or "None"
 		if sName == "None" then return end
+		if sName == "Fused Stand" then
+			local fs1 = player:GetAttribute("Active_FusedStand1") or "Unknown"
+			local fs2 = player:GetAttribute("Active_FusedStand2") or "Unknown"
+			local ft1 = player:GetAttribute("Active_FusedTrait1") or "None"
+			local ft2 = player:GetAttribute("Active_FusedTrait2") or "None"
+
+			local display = FusionUtility.CalculateFusedName(fs1, fs2)
+			local tData1 = StandData.Traits[ft1]
+			local tData2 = StandData.Traits[ft2]
+			local desc1 = tData1 and tData1.Desc or ""
+			local desc2 = tData2 and tData2.Desc or ""
+			local color1 = tData1 and tData1.Color or "#FFFFFF"
+			local color2 = tData2 and tData2.Color or "#FFFFFF"
+
+			local combinedDesc = "Fused Stand\n\n"
+			if ft1 ~= "None" then combinedDesc = combinedDesc .. "<font color='"..color1.."'>["..ft1.."]</font>: " .. desc1 .. "\n" end
+			if ft2 ~= "None" then combinedDesc = combinedDesc .. "<font color='"..color2.."'>["..ft2.."]</font>: " .. desc2 .. "\n" end
+
+			cachedTooltipMgr.Show("<b><font color='#A020F0'>" .. display .. "</font></b>\n____________________\n\n" .. combinedDesc)
+			return
+		end
+
 		local tData = StandData.Traits[sTrait]
 		local desc = tData and tData.Desc or "No special traits."
 		local color = tData and tData.Color or "#FFFFFF"
