@@ -62,3 +62,57 @@ UpgradeRemote.OnServerEvent:Connect(function(player, statToUpgrade, amount)
 		player:SetAttribute(statToUpgrade, currentStat)
 	end
 end)
+
+local UpgradeAllEvent = Network:FindFirstChild("UpgradeAllStats")
+if not UpgradeAllEvent then
+	UpgradeAllEvent = Instance.new("RemoteEvent")
+	UpgradeAllEvent.Name = "UpgradeAllStats"
+	UpgradeAllEvent.Parent = Network
+end
+
+UpgradeAllEvent.OnServerEvent:Connect(function(player, amount)
+	if type(amount) ~= "number" or amount <= 0 then return end
+
+	local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+	local prestige = prestigeObj and prestigeObj.Value or 0
+	local statCap = GameData.GetStatCap(prestige)
+
+	local statsList = {
+		"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower", 
+		"Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", 
+		"Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"
+	}
+
+	local totalUpgrades = 0
+
+	for i = 1, amount do
+		local didUpgradeThisRound = false
+
+		for _, statName in ipairs(statsList) do
+			local currentStat = player:GetAttribute(statName) or 1
+			if currentStat >= statCap then continue end
+
+			local cleanName = statName:gsub("_Val", "")
+			local base = (prestige == 0) and (GameData.BaseStats[cleanName] or 0) or (prestige * 5)
+			local cost = GameData.CalculateStatCost(currentStat, base, prestige)
+
+			local currentXP = player:GetAttribute("XP") or 0
+			if currentXP >= cost then
+				player:SetAttribute("XP", currentXP - cost)
+				player:SetAttribute(statName, currentStat + 1)
+				didUpgradeThisRound = true
+				totalUpgrades += 1
+			end
+		end
+		if not didUpgradeThisRound then break end
+	end
+
+	local NotificationEvent = Network:FindFirstChild("NotificationEvent")
+	if NotificationEvent then
+		if totalUpgrades > 0 then
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Equally leveled stats " .. totalUpgrades .. " total times!</font>") 
+		else
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough XP or stats are already maxed!</font>") 
+		end
+	end
+end)
