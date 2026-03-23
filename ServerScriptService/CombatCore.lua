@@ -111,7 +111,6 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
 		pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
 	else
-		-- Equalized Level 100 Stats
 		pHP = 100 + CombatCore.GetEquipBonus(player, "Health")
 		pStyleStr = 100 + CombatCore.GetEquipBonus(player, "Strength")
 		pStandStr = 100 + CombatCore.GetEquipBonus(player, "Stand_Power")
