@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -536,7 +537,8 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local statusLayout = Instance.new("UIGridLayout")
 		statusLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		statusLayout.CellPadding = UDim2.new(0, 4, 0, 4)
-		statusLayout.CellSize = UDim2.new(0, 20, 0, 20)
+		-- [[ FIXED: Status effect boxes are now 10% larger (20x20 -> 22x22) ]]
+		statusLayout.CellSize = UDim2.new(0, 22, 0, 22)
 		statusLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 		statusLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 		statusLayout.Parent = statusContainer
@@ -575,7 +577,17 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 				sCorner.Parent = existing
 
 				local sStroke = Instance.new("UIStroke")
-				sStroke.Color = isImmunity and Color3.fromRGB(150, 150, 150) or Color3.fromRGB(255, 215, 50)
+
+				local strokeColor = Color3.fromRGB(255, 215, 50)
+				if isImmunity then
+					strokeColor = Color3.fromRGB(150, 150, 150)
+				elseif string.sub(statusId, 1, 5) == "Buff_" then
+					strokeColor = Color3.fromRGB(50, 255, 50)
+				elseif string.sub(statusId, 1, 7) == "Debuff_" then
+					strokeColor = Color3.fromRGB(255, 50, 50)
+				end
+
+				sStroke.Color = strokeColor
 				sStroke.Thickness = 1
 				sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 				sStroke.Parent = existing
