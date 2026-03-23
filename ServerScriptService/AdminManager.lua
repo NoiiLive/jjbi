@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -47,80 +48,93 @@ local function FindPlayer(nameStr)
 	return nil
 end
 
+-- [[ NEW: Universal String Cleaner (Handles '&' vs 'and' nicely) ]]
+local function CleanStr(str)
+	if not str then return "" end
+	local s = string.lower(str)
+	s = string.gsub(s, "&amp;", "and") -- Catch Roblox chat filtering
+	s = string.gsub(s, "&", "and")     -- Catch raw ampersands
+	s = string.gsub(s, "[%p%s]", "")   -- Strip all remaining punctuation and spaces
+	return s
+end
+
 local function GetProperItemName(inputStr)
-	local search = string.lower(inputStr)
-	for key, _ in pairs(ItemData.Equipment) do
-		if string.lower(key) == search then return key end
-	end
-	for key, _ in pairs(ItemData.Consumables) do
-		if string.lower(key) == search then return key end
-	end
+	local search = CleanStr(inputStr)
+
+	-- 1. Exact Match Check
+	for key, _ in pairs(ItemData.Equipment) do if CleanStr(key) == search then return key end end
+	for key, _ in pairs(ItemData.Consumables) do if CleanStr(key) == search then return key end end
+
+	-- 2. Partial Match Check (Fallback)
+	for key, _ in pairs(ItemData.Equipment) do if string.find(CleanStr(key), search, 1, true) then return key end end
+	for key, _ in pairs(ItemData.Consumables) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
 
 local function GetProperStandName(inputStr)
-	local search = string.lower(inputStr)
-	for key, _ in pairs(StandData.Stands) do
-		if string.lower(key) == search then return key end
-	end
+	local search = CleanStr(inputStr)
+
+	-- 1. Exact Match Check
+	for key, _ in pairs(StandData.Stands) do if CleanStr(key) == search then return key end end
+
+	-- 2. Partial Match Check (Fallback)
+	for key, _ in pairs(StandData.Stands) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
 
 local function GetProperStyleName(inputStr)
-	local search = string.lower(inputStr)
+	local search = CleanStr(inputStr)
 	if search == "none" then return "None" end
-	for key, _ in pairs(GameData.StyleBonuses) do
-		if string.lower(key) == search then return key end
-	end
+
+	for key, _ in pairs(GameData.StyleBonuses) do if CleanStr(key) == search then return key end end
+	for key, _ in pairs(GameData.StyleBonuses) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
 
 local function GetProperTraitName(inputStr)
-	local search = string.lower(inputStr)
-	local validTraits = {
-		"None", 
-		"Swift", "Tough", "Fierce", "Focused", "Lucky",
-		"Armored", "Brutal", "Vigorous", "Evasive",
-		"Indomitable", "Relentless", "Flaming", "Toxic", "Electric", "Frozen", "Serrated", "Disorienting",
-		"Lethal", "Vampiric", "Overwhelming", "Gambler", "Gloomy", "Cheerful", "Blessed", 
-		"Perseverance", "Requiem", "Overheaven"
-	}
+	local search = CleanStr(inputStr)
+	if search == "none" then return "None" end
 
-	for _, t in ipairs(validTraits) do
-		if string.lower(t) == search then return t end
-	end
+	-- [[ FIXED: Dynamically references StandData.Traits! ]]
+	for key, _ in pairs(StandData.Traits) do if CleanStr(key) == search then return key end end
+	for key, _ in pairs(StandData.Traits) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
 
 local function GetProperStatName(inputStr)
-	local search = string.lower(inputStr)
-	local validStats = {"Yen", "Prestige", "Elo", "Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}
-	for _, s in ipairs(validStats) do
-		if string.lower(s) == search then return s end
-	end
-	return nil
+	local search = CleanStr(inputStr)
+	local validStats = {
+		yen = "Yen", prestige = "Prestige", elo = "Elo", xp = "XP",
+		health = "Health", strength = "Strength", defense = "Defense", speed = "Speed", stamina = "Stamina", willpower = "Willpower",
+		standpowerval = "Stand_Power_Val", standspeedval = "Stand_Speed_Val", standrangeval = "Stand_Range_Val",
+		standdurabilityval = "Stand_Durability_Val", standprecisionval = "Stand_Precision_Val", standpotentialval = "Stand_Potential_Val",
+		standpower = "Stand_Power_Val", standspeed = "Stand_Speed_Val", standrange = "Stand_Range_Val",
+		standdurability = "Stand_Durability_Val", standprecision = "Stand_Precision_Val", standpotential = "Stand_Potential_Val"
+	}
+
+	return validStats[search]
 end
 
 local function GetProperWorldBossName(inputStr)
-	if not inputStr then return nil end
-	local search = string.lower(inputStr)
-	for key, _ in pairs(EnemyData.WorldBosses) do
-		if string.lower(key) == search then return key end
-	end
+	local search = CleanStr(inputStr)
+	for key, _ in pairs(EnemyData.WorldBosses) do if CleanStr(key) == search then return key end end
+	for key, _ in pairs(EnemyData.WorldBosses) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
 
 local function GetProperPassAttr(inputStr)
-	local search = string.gsub(string.lower(inputStr), " ", "")
+	local search = CleanStr(inputStr)
 	local passMap = {
-		["2xspeed"] = "Has2xBattleSpeed", 
-		["2xinventory"] = "Has2xInventory",
-		["2xdrops"] = "Has2xDropChance",
-		["autotrain"] = "HasAutoTraining",
+		["2xspeed"] = "Has2xBattleSpeed", ["2xbattlespeed"] = "Has2xBattleSpeed", ["2xbattlespeedpass"] = "Has2xBattleSpeed",
+		["2xinventory"] = "Has2xInventory", ["2xinventorypass"] = "Has2xInventory",
+		["2xdrops"] = "Has2xDropChance", ["2xdropchance"] = "Has2xDropChance", ["2xdropchancepass"] = "Has2xDropChance",
+		["autotrain"] = "HasAutoTraining", ["autotraining"] = "HasAutoTraining", ["autotrainingpass"] = "HasAutoTraining",
 		["styleslot2"] = "HasStyleSlot2", ["standslot2"] = "HasStandSlot2",
 		["styleslot3"] = "HasStyleSlot3", ["standslot3"] = "HasStandSlot3",
-		["autoroll"] = "HasAutoRoll",
-		["horsename"] = "HasHorseNamePass"
+		["standstorageslot2"] = "HasStandSlot2", ["standstorageslot3"] = "HasStandSlot3",
+		["stylestorageslot2"] = "HasStyleSlot2", ["stylestorageslot3"] = "HasStyleSlot3",
+		["autoroll"] = "HasAutoRoll", ["autorollpass"] = "HasAutoRoll",
+		["horsename"] = "HasHorseNamePass", ["customhorsename"] = "HasHorseNamePass", ["customhorsenamepass"] = "HasHorseNamePass"
 	}
 	return passMap[search]
 end
