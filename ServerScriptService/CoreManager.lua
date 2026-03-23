@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -108,7 +107,6 @@ local DefaultData = {
 
 	HasStyleSlot2 = false, HasStyleSlot3 = false,
 
-	-- Compliance Attributes
 	PaidRandomItemsRestricted = false,
 	PaidItemTradingAllowed = true,
 
@@ -128,7 +126,6 @@ local DefaultData = {
 	StoredStyle2 = "None",
 	StoredStyle3 = "None",
 
-	-- Slot-Specific Fused Data
 	Active_FusedStand1 = "None", Active_FusedStand2 = "None", Active_FusedTrait1 = "None", Active_FusedTrait2 = "None",
 	StoredStand1_FusedStand1 = "None", StoredStand1_FusedStand2 = "None", StoredStand1_FusedTrait1 = "None", StoredStand1_FusedTrait2 = "None",
 	StoredStand2_FusedStand1 = "None", StoredStand2_FusedStand2 = "None", StoredStand2_FusedTrait1 = "None", StoredStand2_FusedTrait2 = "None",
@@ -263,7 +260,6 @@ local function SavePlayerData(player)
 		StoredStyle2 = player:GetAttribute("StoredStyle2") or "None",
 		StoredStyle3 = player:GetAttribute("StoredStyle3") or "None",
 
-		-- Slot-Specific Fused Data
 		Active_FusedStand1 = player:GetAttribute("Active_FusedStand1") or "None",
 		Active_FusedStand2 = player:GetAttribute("Active_FusedStand2") or "None",
 		Active_FusedTrait1 = player:GetAttribute("Active_FusedTrait1") or "None",
