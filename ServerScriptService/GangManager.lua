@@ -669,7 +669,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local bConfigs = {
 			Vault = {Max = 10, ReqLevel = 1},
 			Dojo = {Max = 10, ReqLevel = 2},
-			Market = {Max = 3, ReqLevel = 3},
+			Market = {Max = 7, ReqLevel = 3},
 			Shrine = {Max = 3, ReqLevel = 4},
 			Armory = {Max = 5, ReqLevel = 5}
 		}
