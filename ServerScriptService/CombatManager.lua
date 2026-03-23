@@ -152,7 +152,7 @@ local function StartBattle(player, encounterType)
 
 	local generatedEnemy = GenerateNPCEntity(enemyTemplate, false, prestige, uniModStr, currentPart)
 
-	local pData = CombatCore.BuildPlayerStruct(player)
+	local pData = CombatCore.BuildPlayerStruct(player, true)
 
 	if CombatCore.HasModifier(uniModStr, "Endless Stamina") then pData.MaxHP *= 0.75; pData.HP *= 0.75 end
 	if CombatCore.HasModifier(uniModStr, "Heavy Gravity") then pData.TotalSpeed *= 0.75; pData.TotalStrength *= 1.25 end
