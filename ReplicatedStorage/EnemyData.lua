@@ -104,7 +104,7 @@ EnemyData.WorldBosses = {
 	["Giorno Giovanna"] = {
 		Name = "Giorno Giovanna", IsBoss = true, 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"Life Alteration", "Return to Zero", "Apex Vitality", "Stand Barrage", "Block"},
+		Skills = {"Truth Unveiled", "Revert to Zero", "Apex Vitality", "Infinite Retribution", "Stand Barrage", "Block"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Requiem Arrow"] = 1 } 
