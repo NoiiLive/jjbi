@@ -71,19 +71,50 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 	if player:GetAttribute("IsAutoRolling") then return end
 	player:SetAttribute("IsAutoRolling", true)
 
-	if rollType == "Roka" then
-		targetStand = "Any"
-	end
+	if rollType == "Arrow" or rollType == "Corpse" then rollType = "Stand" end
+	if rollType == "Roka" then rollType = "Trait" end
 
 	local itemReq = ""
-	local expectedPool = "Arrow"
+	local poolType = "Arrow"
 
-	if rollType == "Arrow" then 
-		itemReq = "Stand Arrow"; expectedPool = "Arrow"
-	elseif rollType == "Corpse" then 
-		itemReq = "Saint's Corpse Part"; expectedPool = "Corpse"
-	elseif rollType == "Roka" then 
-		itemReq = "Rokakaka" 
+	if rollType == "Stand" then
+		if targetStand == "Any" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Please select a specific Stand to roll for!</font>")
+			player:SetAttribute("IsAutoRolling", false)
+			return
+		end
+
+		local sData = StandData.Stands[targetStand]
+		if not sData then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Invalid Stand selected!</font>")
+			player:SetAttribute("IsAutoRolling", false)
+			return
+		end
+
+		if sData.Rarity == "Evolution" or sData.Rarity == "Unique" or sData.Rarity == "Mythical" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. targetStand .. " cannot be rolled from items!</font>")
+			player:SetAttribute("IsAutoRolling", false)
+			return
+		end
+
+		if sData.Pool == "Corpse" then
+			itemReq = "Saint's Corpse Part"
+			poolType = "Corpse"
+		else
+			itemReq = "Stand Arrow"
+			poolType = "Arrow"
+		end
+
+	elseif rollType == "Trait" then
+		if targetTrait == "Any" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Please select a specific Trait to roll for!</font>")
+			player:SetAttribute("IsAutoRolling", false)
+			return
+		end
+		itemReq = "Rokakaka"
+	else
+		player:SetAttribute("IsAutoRolling", false)
+		return
 	end
 
 	local attr = itemReq:gsub("[^%w]", "") .. "Count"
@@ -95,23 +126,6 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		return 
 	end
 
-	if targetStand ~= "Any" and (rollType == "Arrow" or rollType == "Corpse") then
-		local sData = StandData.Stands[targetStand]
-		if sData then
-			if sData.Rarity == "Evolution" or sData.Rarity == "Unique" or sData.Rarity == "Mythical" then
-				NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. targetStand .. " cannot be rolled from items!</font>")
-				player:SetAttribute("IsAutoRolling", false)
-				return
-			end
-			local reqPool = sData.Pool or "Arrow"
-			if reqPool ~= expectedPool then
-				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot get " .. targetStand .. " from a " .. itemReq .. "!</font>")
-				player:SetAttribute("IsAutoRolling", false)
-				return
-			end
-		end
-	end
-
 	local newStand = player:GetAttribute("Stand") or "None"
 	local newTrait = player:GetAttribute("StandTrait") or "None"
 
@@ -121,7 +135,7 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		return
 	end
 
-	if rollType == "Roka" then
+	if rollType == "Trait" then
 		if newStand == "None" then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>You don't have a Stand to reroll!</font>")
 			player:SetAttribute("IsAutoRolling", false)
@@ -143,30 +157,20 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		count -= 1
 		rollsDone += 1
 
-		if rollType == "Arrow" or rollType == "Corpse" then
-			local isCorpse = (rollType == "Corpse")
-			newStand = StandData.RollStand(pBoosts.Luck, sPity, isCorpse and "Corpse" or "Arrow")
+		if rollType == "Stand" then
+			newStand = StandData.RollStand(pBoosts.Luck, sPity, poolType)
 			newTrait = StandData.RollTrait(pBoosts.Luck, tPity)
-		elseif rollType == "Roka" then
+		elseif rollType == "Trait" then
 			newTrait = StandData.RollTrait(pBoosts.Luck, tPity)
 		end
 
 		if StandData.Stands[newStand] and StandData.Stands[newStand].Rarity == "Legendary" then sPity = 0 else sPity += 1 end
 		if StandData.Traits[newTrait] and (StandData.Traits[newTrait].Rarity == "Mythical" or StandData.Traits[newTrait].Rarity == "Legendary") then tPity = 0 else tPity += 1 end
 
-		local wantStand = (targetStand ~= "Any")
-		local wantTrait = (targetTrait ~= "Any")
-		local standMatch = (newStand == targetStand)
-		local traitMatch = (newTrait == targetTrait)
-
-		if wantStand and wantTrait then
-			if standMatch and traitMatch then hit = true; break end
-		elseif wantStand then
-			if standMatch then hit = true; break end
-		elseif wantTrait then
-			if traitMatch then hit = true; break end
-		else
-			hit = true; break
+		if rollType == "Stand" and newStand == targetStand then 
+			hit = true; break 
+		elseif rollType == "Trait" and newTrait == targetTrait then 
+			hit = true; break 
 		end
 
 		if rollsDone % 100 == 0 then task.wait() end
