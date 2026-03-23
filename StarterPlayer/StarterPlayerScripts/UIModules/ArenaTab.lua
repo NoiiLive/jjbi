@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local ArenaTab = {}
 
 local player = game.Players.LocalPlayer
@@ -31,6 +30,8 @@ local turnTimerLabel, combatResourceLabel, waitingLabel
 local bettingArea, betInput, betT1Btn, betT2Btn, leaveSpecBtn, bettingStatusLbl
 local pool1Lbl, pool2Lbl
 
+local templates
+
 local cachedTooltipMgr = nil
 local forceTabFocus = nil
 local currentDeadline = 0
@@ -59,32 +60,6 @@ local StatusDescs = {
 	Debuff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance."
 }
-
-local function CreateCard(name, parent, size, pos)
-	local frame = Instance.new("Frame")
-	frame.Name = name
-	frame.Size = size
-	if pos then frame.Position = pos end
-	frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
-	frame.ZIndex = 20
-	frame.Parent = parent
-	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(90, 50, 120)
-	stroke.Thickness = 1
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = frame
-	return frame
-end
-
-local function AddBtnStroke(btn, r, g, b)
-	local s = Instance.new("UIStroke")
-	s.Color = Color3.fromRGB(r, g, b)
-	s.Thickness = 1.5
-	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	s.Parent = btn
-	return s
-end
 
 local function AppendLog(text)
 	if not text or text == "" then return end
@@ -129,42 +104,13 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
 
-	lobbyContainer = Instance.new("Frame")
-	lobbyContainer.Name = "LobbyContainer"
-	lobbyContainer.Size = UDim2.new(0.96, 0, 0.96, 0)
-	lobbyContainer.Position = UDim2.new(0.02, 0, 0.02, 0)
-	lobbyContainer.BackgroundTransparency = 1
-	lobbyContainer.Visible = true
-	lobbyContainer.Parent = mainContainer
+	templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 
-	profileCard = CreateCard("ProfileCard", lobbyContainer, UDim2.new(0.30, 0, 1, 0), UDim2.new(0, 0, 0, 0))
-	local pPad = Instance.new("UIPadding", profileCard)
-	pPad.PaddingTop = UDim.new(0.04, 0); pPad.PaddingBottom = UDim.new(0.04, 0)
-	pPad.PaddingLeft = UDim.new(0.04, 0); pPad.PaddingRight = UDim.new(0.04, 0)
+	lobbyContainer = mainContainer:WaitForChild("LobbyContainer")
+	profileCard = lobbyContainer:WaitForChild("ProfileCard")
+	eloLbl = profileCard:WaitForChild("EloLbl")
 
-	local pLayout = Instance.new("UIListLayout", profileCard)
-	pLayout.SortOrder = Enum.SortOrder.LayoutOrder; pLayout.Padding = UDim.new(0.03, 0)
-	pLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-	local pTitle = Instance.new("TextLabel", profileCard)
-	pTitle.Size = UDim2.new(1, 0, 0.1, 0); pTitle.BackgroundTransparency = 1
-	pTitle.Font = Enum.Font.GothamBlack; pTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	pTitle.TextScaled = true; pTitle.Text = "ARENA PROFILE"; pTitle.LayoutOrder = 1
-	pTitle.ZIndex = 22; Instance.new("UITextSizeConstraint", pTitle).MaxTextSize = 24
-
-	eloLbl = Instance.new("TextLabel", profileCard)
-	eloLbl.Size = UDim2.new(1, 0, 0.15, 0); eloLbl.BackgroundTransparency = 1
-	eloLbl.Font = Enum.Font.GothamBlack; eloLbl.TextColor3 = Color3.fromRGB(50, 255, 255)
-	eloLbl.TextScaled = true; eloLbl.Text = "1000 ELO"; eloLbl.LayoutOrder = 2
-	eloLbl.ZIndex = 22; Instance.new("UITextSizeConstraint", eloLbl).MaxTextSize = 40
-
-	local milestonesBtn = Instance.new("TextButton", profileCard)
-	milestonesBtn.Size = UDim2.new(0.6, 0, 0.08, 0); milestonesBtn.BackgroundColor3 = Color3.fromRGB(180, 140, 20)
-	milestonesBtn.Font = Enum.Font.GothamBold; milestonesBtn.TextColor3 = Color3.new(1,1,1)
-	milestonesBtn.TextScaled = true; milestonesBtn.Text = "View Milestones"; milestonesBtn.LayoutOrder = 3
-	milestonesBtn.ZIndex = 22; Instance.new("UICorner", milestonesBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(milestonesBtn, 255, 215, 50); Instance.new("UITextSizeConstraint", milestonesBtn).MaxTextSize = 16
-
+	local milestonesBtn = profileCard:WaitForChild("MilestonesBtn")
 	milestonesBtn.MouseEnter:Connect(function()
 		local pObj = player:FindFirstChild("leaderstats")
 		local elo = pObj and pObj:FindFirstChild("Elo") and pObj.Elo.Value or 1000
@@ -172,136 +118,28 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	end)
 	milestonesBtn.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
 
-	local hostArea = Instance.new("Frame", profileCard)
-	hostArea.Size = UDim2.new(1, 0, 0.6, 0); hostArea.BackgroundTransparency = 1; hostArea.LayoutOrder = 4
+	local hostArea = profileCard:WaitForChild("HostArea")
+	viewDefault = hostArea:WaitForChild("ViewDefault")
+	createRoomBtn = viewDefault:WaitForChild("CreateRoomBtn")
 
-	viewDefault = Instance.new("Frame", hostArea)
-	viewDefault.Size = UDim2.new(1, 0, 1, 0); viewDefault.BackgroundTransparency = 1; viewDefault.Visible = true
-	local vdLayout = Instance.new("UIListLayout", viewDefault); vdLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; vdLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	viewSetup = hostArea:WaitForChild("ViewSetup")
+	friendsToggleBtn = viewSetup:WaitForChild("FriendsToggleBtn")
+	casualToggleBtn = viewSetup:WaitForChild("CasualToggleBtn")
+	noHoldsBarredBtn = viewSetup:WaitForChild("NoHoldsBarredBtn")
+	capacityBtn = viewSetup:WaitForChild("CapacityBtn")
+	confirmSetupBtn = viewSetup:WaitForChild("ConfirmSetupBtn")
+	cancelSetupBtn = viewSetup:WaitForChild("CancelSetupBtn")
 
-	createRoomBtn = Instance.new("TextButton", viewDefault)
-	createRoomBtn.Size = UDim2.new(0.8, 0, 0.15, 0); createRoomBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
-	createRoomBtn.Font = Enum.Font.GothamBold; createRoomBtn.TextColor3 = Color3.new(1,1,1)
-	createRoomBtn.TextScaled = true; createRoomBtn.Text = "Create New Room"
-	createRoomBtn.ZIndex = 22; Instance.new("UICorner", createRoomBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(createRoomBtn, 80, 180, 80); Instance.new("UITextSizeConstraint", createRoomBtn).MaxTextSize = 20
+	viewHosting = hostArea:WaitForChild("ViewHosting")
+	hostingLbl = viewHosting:WaitForChild("HostingLbl")
+	cancelLobbyBtn = viewHosting:WaitForChild("CancelLobbyBtn")
 
-	viewSetup = Instance.new("Frame", hostArea)
-	viewSetup.Size = UDim2.new(1, 0, 1, 0); viewSetup.BackgroundTransparency = 1; viewSetup.Visible = false
-	local vsLayout = Instance.new("UIListLayout", viewSetup); vsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; vsLayout.VerticalAlignment = Enum.VerticalAlignment.Center; vsLayout.Padding = UDim.new(0.05, 0)
+	local rightPanel = lobbyContainer:WaitForChild("RightPanel")
+	openQueuesCard = rightPanel:WaitForChild("OpenQueuesCard")
+	openQueuesScroll = openQueuesCard:WaitForChild("OpenQueuesScroll")
 
-	friendsToggleBtn = Instance.new("TextButton", viewSetup)
-	friendsToggleBtn.Size = UDim2.new(0.8, 0, 0.10, 0); friendsToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-	friendsToggleBtn.Font = Enum.Font.GothamBold; friendsToggleBtn.TextColor3 = Color3.new(1,1,1)
-	friendsToggleBtn.TextScaled = true; friendsToggleBtn.Text = "[ ] Friends Only"
-	friendsToggleBtn.ZIndex = 22; Instance.new("UICorner", friendsToggleBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(friendsToggleBtn, 90, 70, 110); Instance.new("UITextSizeConstraint", friendsToggleBtn).MaxTextSize = 16
-
-	casualToggleBtn = Instance.new("TextButton", viewSetup)
-	casualToggleBtn.Size = UDim2.new(0.8, 0, 0.10, 0); casualToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-	casualToggleBtn.Font = Enum.Font.GothamBold; casualToggleBtn.TextColor3 = Color3.new(1,1,1)
-	casualToggleBtn.TextScaled = true; casualToggleBtn.Text = "[ ] Casual Match"
-	casualToggleBtn.ZIndex = 22; Instance.new("UICorner", casualToggleBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(casualToggleBtn, 90, 70, 110); Instance.new("UITextSizeConstraint", casualToggleBtn).MaxTextSize = 16
-
-	noHoldsBarredBtn = Instance.new("TextButton", viewSetup)
-	noHoldsBarredBtn.Size = UDim2.new(0.8, 0, 0.10, 0); noHoldsBarredBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-	noHoldsBarredBtn.Font = Enum.Font.GothamBold; noHoldsBarredBtn.TextColor3 = Color3.new(1,1,1)
-	noHoldsBarredBtn.TextScaled = true; noHoldsBarredBtn.Text = "[ ] No Holds Barred"
-	noHoldsBarredBtn.ZIndex = 22; Instance.new("UICorner", noHoldsBarredBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(noHoldsBarredBtn, 90, 70, 110); Instance.new("UITextSizeConstraint", noHoldsBarredBtn).MaxTextSize = 16
-
-	capacityBtn = Instance.new("TextButton", viewSetup)
-	capacityBtn.Size = UDim2.new(0.8, 0, 0.10, 0); capacityBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
-	capacityBtn.Font = Enum.Font.GothamBold; capacityBtn.TextColor3 = Color3.new(1,1,1)
-	capacityBtn.TextScaled = true; capacityBtn.Text = "Mode: 1v1"
-	capacityBtn.ZIndex = 22; Instance.new("UICorner", capacityBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(capacityBtn, 180, 80, 200); Instance.new("UITextSizeConstraint", capacityBtn).MaxTextSize = 16
-
-	confirmSetupBtn = Instance.new("TextButton", viewSetup)
-	confirmSetupBtn.Size = UDim2.new(0.8, 0, 0.12, 0); confirmSetupBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
-	confirmSetupBtn.Font = Enum.Font.GothamBold; confirmSetupBtn.TextColor3 = Color3.new(1,1,1)
-	confirmSetupBtn.TextScaled = true; confirmSetupBtn.Text = "Host Room"
-	confirmSetupBtn.ZIndex = 22; Instance.new("UICorner", confirmSetupBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(confirmSetupBtn, 80, 180, 80); Instance.new("UITextSizeConstraint", confirmSetupBtn).MaxTextSize = 18
-
-	cancelSetupBtn = Instance.new("TextButton", viewSetup)
-	cancelSetupBtn.Size = UDim2.new(0.8, 0, 0.10, 0); cancelSetupBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
-	cancelSetupBtn.Font = Enum.Font.GothamBold; cancelSetupBtn.TextColor3 = Color3.new(1,1,1)
-	cancelSetupBtn.TextScaled = true; cancelSetupBtn.Text = "Cancel"
-	cancelSetupBtn.ZIndex = 22; Instance.new("UICorner", cancelSetupBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(cancelSetupBtn, 200, 80, 80); Instance.new("UITextSizeConstraint", cancelSetupBtn).MaxTextSize = 16
-
-	viewHosting = Instance.new("Frame", hostArea)
-	viewHosting.Size = UDim2.new(1, 0, 1, 0); viewHosting.BackgroundTransparency = 1; viewHosting.Visible = false
-	local vhLayout = Instance.new("UIListLayout", viewHosting); vhLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; vhLayout.VerticalAlignment = Enum.VerticalAlignment.Center; vhLayout.Padding = UDim.new(0.1, 0)
-
-	hostingLbl = Instance.new("TextLabel", viewHosting)
-	hostingLbl.Size = UDim2.new(1, 0, 0.2, 0); hostingLbl.BackgroundTransparency = 1
-	hostingLbl.Font = Enum.Font.GothamBold; hostingLbl.TextColor3 = Color3.new(1,1,1)
-	hostingLbl.TextScaled = true; hostingLbl.Text = "Team 1: 1/1 | Team 2: 0/1"
-	hostingLbl.ZIndex = 22; Instance.new("UITextSizeConstraint", hostingLbl).MaxTextSize = 18
-
-	cancelLobbyBtn = Instance.new("TextButton", viewHosting)
-	cancelLobbyBtn.Size = UDim2.new(0.8, 0, 0.15, 0); cancelLobbyBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
-	cancelLobbyBtn.Font = Enum.Font.GothamBold; cancelLobbyBtn.TextColor3 = Color3.new(1,1,1)
-	cancelLobbyBtn.TextScaled = true; cancelLobbyBtn.Text = "Disband Room"
-	cancelLobbyBtn.ZIndex = 22; Instance.new("UICorner", cancelLobbyBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(cancelLobbyBtn, 200, 80, 80); Instance.new("UITextSizeConstraint", cancelLobbyBtn).MaxTextSize = 18
-
-	local rightPanel = Instance.new("Frame", lobbyContainer)
-	rightPanel.Size = UDim2.new(0.68, -10, 1, 0); rightPanel.Position = UDim2.new(0.32, 10, 0, 0)
-	rightPanel.BackgroundTransparency = 1
-
-	openQueuesCard = CreateCard("OpenQueuesCard", rightPanel, UDim2.new(1, 0, 0.48, 0), UDim2.new(0, 0, 0, 0))
-	local oqPad = Instance.new("UIPadding", openQueuesCard)
-	oqPad.PaddingTop = UDim.new(0.04, 0); oqPad.PaddingBottom = UDim.new(0.04, 0)
-	oqPad.PaddingLeft = UDim.new(0.04, 0); oqPad.PaddingRight = UDim.new(0.04, 0)
-
-	local oqCardLayout = Instance.new("UIListLayout", openQueuesCard)
-	oqCardLayout.SortOrder = Enum.SortOrder.LayoutOrder; oqCardLayout.Padding = UDim.new(0.02, 0)
-
-	local oqTitle = Instance.new("TextLabel", openQueuesCard)
-	oqTitle.Size = UDim2.new(1, 0, 0.15, 0); oqTitle.BackgroundTransparency = 1
-	oqTitle.Font = Enum.Font.GothamBlack; oqTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	oqTitle.TextScaled = true; oqTitle.Text = "OPEN ROOMS"; oqTitle.TextXAlignment = Enum.TextXAlignment.Left
-	oqTitle.ZIndex = 22; oqTitle.LayoutOrder = 1
-	Instance.new("UITextSizeConstraint", oqTitle).MaxTextSize = 22
-
-	openQueuesScroll = Instance.new("ScrollingFrame", openQueuesCard)
-	openQueuesScroll.Size = UDim2.new(1, 0, 0.83, 0); openQueuesScroll.LayoutOrder = 2
-	openQueuesScroll.BackgroundTransparency = 1; openQueuesScroll.ScrollBarThickness = 8
-	openQueuesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); openQueuesScroll.ZIndex = 21
-	local oqLayout = Instance.new("UIListLayout", openQueuesScroll); oqLayout.SortOrder = Enum.SortOrder.LayoutOrder; oqLayout.Padding = UDim.new(0, 10)
-
-	local oqInnerPad = Instance.new("UIPadding", openQueuesScroll)
-	oqInnerPad.PaddingTop = UDim.new(0, 4); oqInnerPad.PaddingBottom = UDim.new(0, 4)
-	oqInnerPad.PaddingLeft = UDim.new(0, 4); oqInnerPad.PaddingRight = UDim.new(0, 12)
-
-	activeMatchesCard = CreateCard("ActiveMatchesCard", rightPanel, UDim2.new(1, 0, 0.48, 0), UDim2.new(0, 0, 0.52, 0))
-	local amPad = Instance.new("UIPadding", activeMatchesCard)
-	amPad.PaddingTop = UDim.new(0.04, 0); amPad.PaddingBottom = UDim.new(0.04, 0)
-	amPad.PaddingLeft = UDim.new(0.04, 0); amPad.PaddingRight = UDim.new(0.04, 0)
-
-	local amCardLayout = Instance.new("UIListLayout", activeMatchesCard)
-	amCardLayout.SortOrder = Enum.SortOrder.LayoutOrder; amCardLayout.Padding = UDim.new(0.02, 0)
-
-	local amTitle = Instance.new("TextLabel", activeMatchesCard)
-	amTitle.Size = UDim2.new(1, 0, 0.15, 0); amTitle.BackgroundTransparency = 1
-	amTitle.Font = Enum.Font.GothamBlack; amTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	amTitle.TextScaled = true; amTitle.Text = "SPECTATE MATCHES"; amTitle.TextXAlignment = Enum.TextXAlignment.Left
-	amTitle.ZIndex = 22; amTitle.LayoutOrder = 1
-	Instance.new("UITextSizeConstraint", amTitle).MaxTextSize = 22
-
-	activeMatchesScroll = Instance.new("ScrollingFrame", activeMatchesCard)
-	activeMatchesScroll.Size = UDim2.new(1, 0, 0.83, 0); activeMatchesScroll.LayoutOrder = 2
-	activeMatchesScroll.BackgroundTransparency = 1; activeMatchesScroll.ScrollBarThickness = 8
-	activeMatchesScroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); activeMatchesScroll.ZIndex = 21
-	local amLayout = Instance.new("UIListLayout", activeMatchesScroll); amLayout.SortOrder = Enum.SortOrder.LayoutOrder; amLayout.Padding = UDim.new(0, 10)
-
-	local amInnerPad = Instance.new("UIPadding", activeMatchesScroll)
-	amInnerPad.PaddingTop = UDim.new(0, 4); amInnerPad.PaddingBottom = UDim.new(0, 4)
-	amInnerPad.PaddingLeft = UDim.new(0, 4); amInnerPad.PaddingRight = UDim.new(0, 12)
+	activeMatchesCard = rightPanel:WaitForChild("ActiveMatchesCard")
+	activeMatchesScroll = activeMatchesCard:WaitForChild("ActiveMatchesScroll")
 
 	createRoomBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); viewDefault.Visible = false; viewSetup.Visible = true end)
 	cancelSetupBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); viewSetup.Visible = false; viewDefault.Visible = true end)
@@ -350,149 +188,34 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 	end)
 
-	combatContainer = Instance.new("Frame")
-	combatContainer.Name = "CombatContainer"
-	combatContainer.Size = UDim2.new(1, 0, 1, 0)
-	combatContainer.BackgroundTransparency = 1
-	combatContainer.Visible = false
-	combatContainer.Parent = mainContainer
-
+	combatContainer = mainContainer:WaitForChild("CombatContainer")
 	combatUI = CombatTemplate.Create(combatContainer, tooltipMgr)
 
-	turnTimerLabel = Instance.new("TextLabel")
-	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
-	turnTimerLabel.Position = UDim2.new(0, 0, 0, -30) 
-	turnTimerLabel.BackgroundTransparency = 1
-	turnTimerLabel.Font = Enum.Font.GothamBlack
-	turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-	turnTimerLabel.TextScaled = true
-	turnTimerLabel.ZIndex = 50
-	turnTimerLabel.Text = "Time Remaining: --s"
-	turnTimerLabel.Visible = false
-	turnTimerLabel.Parent = combatUI.MainFrame
-	Instance.new("UITextSizeConstraint", turnTimerLabel).MaxTextSize = 26
+	turnTimerLabel = templates:WaitForChild("ArenaTurnTimerTemplate"):Clone()
+	turnTimerLabel.Parent = combatUI.ContentContainer
 
-	combatResourceLabel = Instance.new("TextLabel")
-	combatResourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	combatResourceLabel.BackgroundTransparency = 1
-	combatResourceLabel.Font = Enum.Font.GothamBold
-	combatResourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	combatResourceLabel.TextScaled = true
-	combatResourceLabel.ZIndex = 22
-	combatResourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
-	combatResourceLabel.LayoutOrder = 2 
-	combatResourceLabel.Visible = false
+	combatResourceLabel = templates:WaitForChild("ArenaResourceLabelTemplate"):Clone()
 	combatResourceLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", combatResourceLabel).MaxTextSize = 18
 
-	waitingLabel = Instance.new("TextLabel")
-	waitingLabel.Name = "WaitingLabel"
-	waitingLabel.Size = UDim2.new(1, 0, 0.25, 0)
-	waitingLabel.BackgroundTransparency = 1
-	waitingLabel.Font = Enum.Font.GothamMedium
-	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	waitingLabel.TextScaled = true
-	waitingLabel.Text = "Waiting for opponent..."
-	waitingLabel.Visible = false
-	waitingLabel.ZIndex = 22
-	waitingLabel.LayoutOrder = 6
+	waitingLabel = templates:WaitForChild("ArenaWaitingLabelTemplate"):Clone()
 	waitingLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
 
-	bettingArea = Instance.new("Frame")
-	bettingArea.Name = "BettingArea"
-	bettingArea.Size = UDim2.new(1, 0, 0.18, 0)
-	bettingArea.BackgroundTransparency = 1
-	bettingArea.LayoutOrder = 0 
-	bettingArea.ZIndex = 32
-	bettingArea.Visible = false
+	bettingArea = templates:WaitForChild("ArenaBettingAreaTemplate"):Clone()
 	bettingArea.Parent = combatUI.ContentContainer
 
-	local bLayout = Instance.new("UIListLayout", bettingArea)
-	bLayout.FillDirection = Enum.FillDirection.Horizontal
-	bLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	bLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	bLayout.Padding = UDim.new(0, 15)
+	leaveSpecBtn = bettingArea:WaitForChild("LeaveSpecBtn")
 
-	leaveSpecBtn = Instance.new("TextButton", bettingArea)
-	leaveSpecBtn.Size = UDim2.new(0.15, 0, 0.6, 0)
-	leaveSpecBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
-	leaveSpecBtn.Font = Enum.Font.GothamBold
-	leaveSpecBtn.TextColor3 = Color3.new(1,1,1)
-	leaveSpecBtn.Text = "Exit Spectate"
-	leaveSpecBtn.TextScaled = true
-	leaveSpecBtn.ZIndex = 32
-	Instance.new("UICorner", leaveSpecBtn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(leaveSpecBtn, 255, 100, 100)
-	Instance.new("UITextSizeConstraint", leaveSpecBtn).MaxTextSize = 16
+	local betCol = bettingArea:WaitForChild("BetCol")
+	betInput = betCol:WaitForChild("BetInput")
+	bettingStatusLbl = betCol:WaitForChild("BettingStatusLbl")
 
-	local betCol = Instance.new("Frame", bettingArea)
-	betCol.Size = UDim2.new(0.2, 0, 0.8, 0); betCol.BackgroundTransparency = 1; betCol.ZIndex = 32
-	local bcLayout = Instance.new("UIListLayout", betCol); bcLayout.SortOrder = Enum.SortOrder.LayoutOrder; bcLayout.Padding = UDim.new(0, 5)
-	bcLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	local t1Col = bettingArea:WaitForChild("T1Col")
+	betT1Btn = t1Col:WaitForChild("BetT1Btn")
+	pool1Lbl = t1Col:WaitForChild("Pool1Lbl")
 
-	betInput = Instance.new("TextBox", betCol)
-	betInput.Size = UDim2.new(1, 0, 0.6, 0)
-	betInput.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	betInput.TextColor3 = Color3.fromRGB(255, 215, 0)
-	betInput.Font = Enum.Font.GothamBold
-	betInput.Text = ""
-	betInput.PlaceholderText = "Bet Amount..."
-	betInput.TextScaled = true; betInput.LayoutOrder = 1; betInput.ZIndex = 32
-	Instance.new("UICorner", betInput).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(betInput, 255, 215, 50)
-	Instance.new("UITextSizeConstraint", betInput).MaxTextSize = 20
-
-	bettingStatusLbl = Instance.new("TextLabel", betCol)
-	bettingStatusLbl.Size = UDim2.new(1, 0, 0.35, 0)
-	bettingStatusLbl.BackgroundTransparency = 1
-	bettingStatusLbl.Font = Enum.Font.GothamBold
-	bettingStatusLbl.TextColor3 = Color3.fromRGB(50, 255, 50)
-	bettingStatusLbl.TextScaled = true; bettingStatusLbl.LayoutOrder = 2
-	bettingStatusLbl.Visible = false; bettingStatusLbl.ZIndex = 32
-	Instance.new("UITextSizeConstraint", bettingStatusLbl).MaxTextSize = 14
-
-	local t1Col = Instance.new("Frame", bettingArea)
-	t1Col.Size = UDim2.new(0.25, 0, 0.8, 0); t1Col.BackgroundTransparency = 1; t1Col.ZIndex = 32
-	local t1Layout = Instance.new("UIListLayout", t1Col); t1Layout.SortOrder = Enum.SortOrder.LayoutOrder; t1Layout.Padding = UDim.new(0, 5)
-	t1Layout.VerticalAlignment = Enum.VerticalAlignment.Center
-
-	betT1Btn = Instance.new("TextButton", t1Col)
-	betT1Btn.Size = UDim2.new(1, 0, 0.6, 0)
-	betT1Btn.BackgroundColor3 = Color3.fromRGB(40, 100, 180)
-	betT1Btn.Font = Enum.Font.GothamBold; betT1Btn.TextColor3 = Color3.new(1,1,1)
-	betT1Btn.Text = "Bet Team 1"
-	betT1Btn.TextScaled = true; betT1Btn.LayoutOrder = 1; betT1Btn.ZIndex = 32
-	Instance.new("UICorner", betT1Btn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(betT1Btn, 100, 150, 255)
-	Instance.new("UITextSizeConstraint", betT1Btn).MaxTextSize = 18
-
-	pool1Lbl = Instance.new("TextLabel", t1Col)
-	pool1Lbl.Size = UDim2.new(1, 0, 0.35, 0); pool1Lbl.BackgroundTransparency = 1
-	pool1Lbl.Font = Enum.Font.GothamBold; pool1Lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	pool1Lbl.TextScaled = true; pool1Lbl.Text = "Pool 1: ¥0"; pool1Lbl.LayoutOrder = 2; pool1Lbl.ZIndex = 32
-	Instance.new("UITextSizeConstraint", pool1Lbl).MaxTextSize = 14
-
-	local t2Col = Instance.new("Frame", bettingArea)
-	t2Col.Size = UDim2.new(0.25, 0, 0.8, 0); t2Col.BackgroundTransparency = 1; t2Col.ZIndex = 32
-	local t2Layout = Instance.new("UIListLayout", t2Col); t2Layout.SortOrder = Enum.SortOrder.LayoutOrder; t2Layout.Padding = UDim.new(0, 5)
-	t2Layout.VerticalAlignment = Enum.VerticalAlignment.Center
-
-	betT2Btn = Instance.new("TextButton", t2Col)
-	betT2Btn.Size = UDim2.new(1, 0, 0.6, 0)
-	betT2Btn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
-	betT2Btn.Font = Enum.Font.GothamBold; betT2Btn.TextColor3 = Color3.new(1,1,1)
-	betT2Btn.Text = "Bet Team 2"
-	betT2Btn.TextScaled = true; betT2Btn.LayoutOrder = 1; betT2Btn.ZIndex = 32
-	Instance.new("UICorner", betT2Btn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(betT2Btn, 255, 100, 100)
-	Instance.new("UITextSizeConstraint", betT2Btn).MaxTextSize = 18
-
-	pool2Lbl = Instance.new("TextLabel", t2Col)
-	pool2Lbl.Size = UDim2.new(1, 0, 0.35, 0); pool2Lbl.BackgroundTransparency = 1
-	pool2Lbl.Font = Enum.Font.GothamBold; pool2Lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	pool2Lbl.TextScaled = true; pool2Lbl.Text = "Pool 2: ¥0"; pool2Lbl.LayoutOrder = 2; pool2Lbl.ZIndex = 32
-	Instance.new("UITextSizeConstraint", pool2Lbl).MaxTextSize = 14
+	local t2Col = bettingArea:WaitForChild("T2Col")
+	betT2Btn = t2Col:WaitForChild("BetT2Btn")
+	pool2Lbl = t2Col:WaitForChild("Pool2Lbl")
 
 	leaveSpecBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
@@ -593,10 +316,10 @@ function ArenaTab.HandleUpdate(action, data)
 		end
 
 		for i, lobby in ipairs(data) do
-			local row = CreateCard("QRow_"..i, openQueuesScroll, UDim2.new(1, -4, 0, 60))
+			local row = templates:WaitForChild("ArenaQueueRowTemplate"):Clone()
+			row.Name = "QRow_"..i
 			row.LayoutOrder = i
-			local rowPad = Instance.new("UIPadding", row)
-			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
+			row.Parent = openQueuesScroll
 
 			local modeStr = (lobby.Capacity == 2 and "1v1") or (lobby.Capacity == 4 and "2v2") or "4v4"
 			local infoText = "<b>" .. lobby.HostName .. "'s Room</b> | " .. modeStr .. " | Elo: " .. lobby.Elo
@@ -604,55 +327,34 @@ function ArenaTab.HandleUpdate(action, data)
 			if lobby.Casual then infoText = infoText .. " <font color='#55FFFF'>[Casual]</font>" end
 			if lobby.NoHoldsBarred then infoText = infoText .. " <font color='#FF5555'>[No Holds Barred]</font>" end
 
-			local info = Instance.new("TextLabel", row)
-			info.Size = UDim2.new(0.65, 0, 1, 0); info.Position = UDim2.new(0, 0, 0, 0)
-			info.BackgroundTransparency = 1; info.Font = Enum.Font.GothamMedium
-			info.TextColor3 = Color3.new(1, 1, 1); info.TextScaled = true; info.TextXAlignment = Enum.TextXAlignment.Left
-			info.RichText = true; info.Text = infoText
-			info.ZIndex = 22; Instance.new("UITextSizeConstraint", info).MaxTextSize = 14
+			row:WaitForChild("InfoLabel").Text = infoText
 
 			local maxPerTeam = lobby.Capacity / 2
 
+			local hostLbl = row:WaitForChild("HostLbl")
+			local joinBtn = row:WaitForChild("JoinBtn")
+			local t1Btn = row:WaitForChild("T1Btn")
+			local t2Btn = row:WaitForChild("T2Btn")
+
 			if lobby.HostId == player.UserId then
-				local hostLbl = Instance.new("TextLabel", row)
-				hostLbl.Size = UDim2.new(0.25, 0, 0.6, 0); hostLbl.Position = UDim2.new(1, 0, 0.5, 0); hostLbl.AnchorPoint = Vector2.new(1, 0.5)
-				hostLbl.BackgroundTransparency = 1; hostLbl.Font = Enum.Font.GothamBold; hostLbl.TextColor3 = Color3.fromRGB(150, 150, 150)
-				hostLbl.TextScaled = true; hostLbl.Text = "Hosting..."; hostLbl.ZIndex = 22
-				Instance.new("UITextSizeConstraint", hostLbl).MaxTextSize = 14
-
+				hostLbl.Visible = true
 			elseif lobby.Capacity == 2 then
-				local joinBtn = Instance.new("TextButton", row)
-				joinBtn.Size = UDim2.new(0.25, 0, 0.7, 0); joinBtn.Position = UDim2.new(1, 0, 0.5, 0); joinBtn.AnchorPoint = Vector2.new(1, 0.5)
-				joinBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40); joinBtn.Font = Enum.Font.GothamBold
-				joinBtn.TextColor3 = Color3.new(1, 1, 1); joinBtn.TextScaled = true; joinBtn.Text = "CHALLENGE"
-				joinBtn.ZIndex = 22; Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 6)
-				AddBtnStroke(joinBtn, 255, 100, 100); Instance.new("UITextSizeConstraint", joinBtn).MaxTextSize = 14
-
+				joinBtn.Visible = true
 				joinBtn.MouseButton1Click:Connect(function() 
 					SFXManager.Play("Click")
 					Network.ArenaAction:FireServer("JoinLobby", {HostId = lobby.HostId, TeamIndex = 2}) 
 				end)
 			else
-				local t2Btn = Instance.new("TextButton", row)
-				t2Btn.Size = UDim2.new(0.18, 0, 0.7, 0); t2Btn.Position = UDim2.new(1, 0, 0.5, 0); t2Btn.AnchorPoint = Vector2.new(1, 0.5)
-				t2Btn.BackgroundColor3 = Color3.fromRGB(180, 40, 40); t2Btn.Font = Enum.Font.GothamBold
-				t2Btn.TextColor3 = Color3.new(1, 1, 1); t2Btn.TextScaled = true; t2Btn.Text = "T2 (" .. lobby.T2Count .. "/" .. maxPerTeam .. ")"
-				t2Btn.ZIndex = 22; Instance.new("UICorner", t2Btn).CornerRadius = UDim.new(0, 6)
-				AddBtnStroke(t2Btn, 255, 100, 100); Instance.new("UITextSizeConstraint", t2Btn).MaxTextSize = 12
-
-				t2Btn.MouseButton1Click:Connect(function() 
-					SFXManager.Play("Click"); Network.ArenaAction:FireServer("JoinLobby", {HostId = lobby.HostId, TeamIndex = 2}) 
-				end)
-
-				local t1Btn = Instance.new("TextButton", row)
-				t1Btn.Size = UDim2.new(0.18, 0, 0.7, 0); t1Btn.Position = UDim2.new(0.80, -5, 0.5, 0); t1Btn.AnchorPoint = Vector2.new(1, 0.5)
-				t1Btn.BackgroundColor3 = Color3.fromRGB(40, 100, 180); t1Btn.Font = Enum.Font.GothamBold
-				t1Btn.TextColor3 = Color3.new(1, 1, 1); t1Btn.TextScaled = true; t1Btn.Text = "T1 (" .. lobby.T1Count .. "/" .. maxPerTeam .. ")"
-				t1Btn.ZIndex = 22; Instance.new("UICorner", t1Btn).CornerRadius = UDim.new(0, 6)
-				AddBtnStroke(t1Btn, 100, 150, 255); Instance.new("UITextSizeConstraint", t1Btn).MaxTextSize = 12
-
+				t1Btn.Visible = true
+				t1Btn.Text = "T1 (" .. lobby.T1Count .. "/" .. maxPerTeam .. ")"
 				t1Btn.MouseButton1Click:Connect(function() 
 					SFXManager.Play("Click"); Network.ArenaAction:FireServer("JoinLobby", {HostId = lobby.HostId, TeamIndex = 1}) 
+				end)
+
+				t2Btn.Visible = true
+				t2Btn.Text = "T2 (" .. lobby.T2Count .. "/" .. maxPerTeam .. ")"
+				t2Btn.MouseButton1Click:Connect(function() 
+					SFXManager.Play("Click"); Network.ArenaAction:FireServer("JoinLobby", {HostId = lobby.HostId, TeamIndex = 2}) 
 				end)
 			end
 		end
@@ -672,26 +374,15 @@ function ArenaTab.HandleUpdate(action, data)
 		end
 
 		for i, match in ipairs(data) do
-			local row = CreateCard("MRow_"..i, activeMatchesScroll, UDim2.new(1, -4, 0, 60))
+			local row = templates:WaitForChild("ArenaMatchRowTemplate"):Clone()
+			row.Name = "MRow_"..i
 			row.LayoutOrder = i
-			local rowPad = Instance.new("UIPadding", row)
-			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
+			row.Parent = activeMatchesScroll
 
 			local infoText = "<b>" .. match.HostName .. "'s Match</b> | " .. match.Mode .. "\n<font color='#AAAAAA' size='12'>Pool: ¥" .. (match.Pool1 + match.Pool2) .. " | Spectators: " .. match.SpectatorCount .. "</font>"
-			local info = Instance.new("TextLabel", row)
-			info.Size = UDim2.new(0.7, 0, 1, 0); info.Position = UDim2.new(0, 0, 0, 0)
-			info.BackgroundTransparency = 1; info.Font = Enum.Font.GothamMedium
-			info.TextColor3 = Color3.new(1, 1, 1); info.TextScaled = true; info.TextXAlignment = Enum.TextXAlignment.Left
-			info.RichText = true; info.Text = infoText
-			info.ZIndex = 22; Instance.new("UITextSizeConstraint", info).MaxTextSize = 14
+			row:WaitForChild("InfoLabel").Text = infoText
 
-			local specBtn = Instance.new("TextButton", row)
-			specBtn.Size = UDim2.new(0.25, 0, 0.7, 0); specBtn.Position = UDim2.new(1, 0, 0.5, 0); specBtn.AnchorPoint = Vector2.new(1, 0.5)
-			specBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160); specBtn.Font = Enum.Font.GothamBold
-			specBtn.TextColor3 = Color3.new(1, 1, 1); specBtn.TextScaled = true; specBtn.Text = "SPECTATE"
-			specBtn.ZIndex = 22; Instance.new("UICorner", specBtn).CornerRadius = UDim.new(0, 6)
-			AddBtnStroke(specBtn, 180, 80, 200); Instance.new("UITextSizeConstraint", specBtn).MaxTextSize = 14
-
+			local specBtn = row:WaitForChild("SpecBtn")
 			specBtn.MouseButton1Click:Connect(function() 
 				SFXManager.Play("Click")
 				Network.ArenaAction:FireServer("SpectateMatch", {MatchId = match.MatchId}) 
