@@ -113,223 +113,24 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end)
 	end
 
-	menuContainer = Instance.new("Frame")
-	menuContainer.Name = "MenuContainer"
-	menuContainer.Size = UDim2.new(0.95, 0, 0.95, 0)
-	menuContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-	menuContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-	menuContainer.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	menuContainer.ZIndex = 30
-	menuContainer.Parent = parentFrame
-
-	local mcCorner = Instance.new("UICorner")
-	mcCorner.CornerRadius = UDim.new(0, 12)
-	mcCorner.Parent = menuContainer
-
-	local mcStroke = Instance.new("UIStroke")
-	mcStroke.Color = Color3.fromRGB(90, 50, 120)
-	mcStroke.Thickness = 2
-	mcStroke.Parent = menuContainer
-
-	infoCard = Instance.new("Frame")
-	infoCard.Name = "InfoCard"
-	infoCard.Size = UDim2.new(0.8, 0, 0.65, 0)
-	infoCard.Position = UDim2.new(0.5, 0, 0.5, 0)
-	infoCard.AnchorPoint = Vector2.new(0.5, 0.5)
-	infoCard.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
-	infoCard.ClipsDescendants = true
-	infoCard.ZIndex = 31
-	infoCard.Parent = menuContainer
-
-	local icCorner = Instance.new("UICorner")
-	icCorner.CornerRadius = UDim.new(0, 16)
-	icCorner.Parent = infoCard
-
-	local icStroke = Instance.new("UIStroke")
-	icStroke.Color = Color3.fromRGB(255, 215, 50)
-	icStroke.Thickness = 3
-	icStroke.Parent = infoCard
-
-	local icGrad = Instance.new("UIGradient")
-	icGrad.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(55, 20, 75)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 5, 30))
-	}
-	icGrad.Rotation = 45
-	icGrad.Parent = infoCard
-
-	local icPattern = Instance.new("ImageLabel")
-	icPattern.Size = UDim2.new(1, 0, 1, 0)
-	icPattern.BackgroundTransparency = 1
-	icPattern.Image = "rbxassetid://79623015802180"
-	icPattern.ImageColor3 = Color3.fromRGB(150, 50, 200)
-	icPattern.ImageTransparency = 0.85
-	icPattern.ScaleType = Enum.ScaleType.Tile
-	icPattern.TileSize = UDim2.new(0, 300, 0, 150)
-	icPattern.ZIndex = 31
-	icPattern.Parent = infoCard
-
-	local icCornerPat = Instance.new("UICorner")
-	icCornerPat.CornerRadius = UDim.new(0, 16)
-	icCornerPat.Parent = icPattern
-
-	local warningHeader = Instance.new("TextLabel")
-	warningHeader.Size = UDim2.new(1, 0, 0.1, 0)
-	warningHeader.Position = UDim2.new(0, 0, 0.08, 0)
-	warningHeader.BackgroundTransparency = 1
-	warningHeader.Font = Enum.Font.GothamBlack
-	warningHeader.TextColor3 = Color3.fromRGB(255, 50, 50)
-	warningHeader.TextScaled = true
-	warningHeader.Text = "⚠ GLOBAL RAID EVENT ⚠"
-	warningHeader.ZIndex = 32
-	warningHeader.Parent = infoCard
-
-	local whUic = Instance.new("UITextSizeConstraint")
-	whUic.MaxTextSize = 28
-	whUic.MinTextSize = 14
-	whUic.Parent = warningHeader
-
-	bossNameLabel = Instance.new("TextLabel")
-	bossNameLabel.Name = "BossNameLabel"
-	bossNameLabel.Size = UDim2.new(1, 0, 0.2, 0)
-	bossNameLabel.Position = UDim2.new(0, 0, 0.2, 0)
-	bossNameLabel.BackgroundTransparency = 1
-	bossNameLabel.Font = Enum.Font.GothamBlack
-	bossNameLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
-	bossNameLabel.TextScaled = true
-	bossNameLabel.Text = "UNKNOWN THREAT"
-	bossNameLabel.ZIndex = 32
-	bossNameLabel.Parent = infoCard
-
-	local bnStroke = Instance.new("UIStroke")
-	bnStroke.Color = Color3.fromRGB(0, 0, 0)
-	bnStroke.Thickness = 2
-	bnStroke.Parent = bossNameLabel
-
-	local bnUic = Instance.new("UITextSizeConstraint")
-	bnUic.MaxTextSize = 50
-	bnUic.MinTextSize = 20
-	bnUic.Parent = bossNameLabel
-
-	local lineDivider = Instance.new("Frame")
-	lineDivider.Size = UDim2.new(0.8, 0, 0, 2)
-	lineDivider.Position = UDim2.new(0.5, 0, 0.45, 0)
-	lineDivider.AnchorPoint = Vector2.new(0.5, 0.5)
-	lineDivider.BackgroundColor3 = Color3.fromRGB(90, 40, 120)
-	lineDivider.BorderSizePixel = 0
-	lineDivider.ZIndex = 32
-	lineDivider.Parent = infoCard
-
-	local bossDescLabel = Instance.new("TextLabel")
-	bossDescLabel.Size = UDim2.new(0.9, 0, 0.15, 0)
-	bossDescLabel.Position = UDim2.new(0.5, 0, 0.55, 0)
-	bossDescLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-	bossDescLabel.BackgroundTransparency = 1
-	bossDescLabel.Font = Enum.Font.GothamMedium
-	bossDescLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-	bossDescLabel.TextScaled = true
-	bossDescLabel.RichText = true
-	bossDescLabel.Text = "Deal as much damage as possible within 10 turns. High damage yields higher drop rates for rare loot!"
-	bossDescLabel.ZIndex = 32
-	bossDescLabel.Parent = infoCard
-
-	local bdUic = Instance.new("UITextSizeConstraint")
-	bdUic.MaxTextSize = 18
-	bdUic.MinTextSize = 10
-	bdUic.Parent = bossDescLabel
-
-	timerLabel = Instance.new("TextLabel")
-	timerLabel.Name = "TimerLabel"
-	timerLabel.Size = UDim2.new(1, 0, 0.15, 0)
-	timerLabel.Position = UDim2.new(0, 0, 0.65, 0)
-	timerLabel.BackgroundTransparency = 1
-	timerLabel.Font = Enum.Font.GothamBold
-	timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	timerLabel.TextScaled = true
-	timerLabel.Text = "WAITING..."
-	timerLabel.ZIndex = 32
-	timerLabel.Parent = infoCard
-
-	local tmUic = Instance.new("UITextSizeConstraint")
-	tmUic.MaxTextSize = 24
-	tmUic.MinTextSize = 10
-	tmUic.Parent = timerLabel
-
-	engageBtn = Instance.new("TextButton")
-	engageBtn.Name = "EngageBtn"
-	engageBtn.Size = UDim2.new(0.6, 0, 0.18, 0)
-	engageBtn.Position = UDim2.new(0.5, 0, 0.88, 0)
-	engageBtn.AnchorPoint = Vector2.new(0.5, 0.5)
-	engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	engageBtn.Font = Enum.Font.GothamBold
-	engageBtn.TextColor3 = Color3.new(1, 1, 1)
-	engageBtn.TextScaled = true
-	engageBtn.Text = "WAITING..."
-	engageBtn.ZIndex = 32
-	engageBtn.Parent = infoCard
-
-	local btnGrad = Instance.new("UIGradient")
-	btnGrad.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-		ColorSequenceKeypoint.new(1, Color3.new(0.7, 0.7, 0.7))
-	}
-	btnGrad.Rotation = 90
-	btnGrad.Parent = engageBtn
-
-	local ebCorner = Instance.new("UICorner")
-	ebCorner.CornerRadius = UDim.new(0, 8)
-	ebCorner.Parent = engageBtn
-
-	local ebStroke = Instance.new("UIStroke")
-	ebStroke.Color = Color3.fromRGB(255, 215, 50)
-	ebStroke.Thickness = 2
-	ebStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	ebStroke.Parent = engageBtn
-
-	local ebUic = Instance.new("UITextSizeConstraint")
-	ebUic.MaxTextSize = 30
-	ebUic.MinTextSize = 14
-	ebUic.Parent = engageBtn
+	menuContainer = parentFrame:WaitForChild("MenuContainer")
+	infoCard = menuContainer:WaitForChild("InfoCard")
+	bossNameLabel = infoCard:WaitForChild("BossNameLabel")
+	timerLabel = infoCard:WaitForChild("TimerLabel")
+	engageBtn = infoCard:WaitForChild("EngageBtn")
 
 	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
 	combatUI.MainFrame.Visible = false
 	combatUI.MainFrame.ZIndex = 40
 
-	turnLabel = Instance.new("TextLabel")
-	turnLabel.Name = "TurnLabel"
-	turnLabel.Size = UDim2.new(0.3, 0, 0, 20)
-	turnLabel.Position = UDim2.new(0.5, 0, 0, -22)
-	turnLabel.AnchorPoint = Vector2.new(0.5, 0)
-	turnLabel.BackgroundTransparency = 1
-	turnLabel.Font = Enum.Font.GothamBlack
-	turnLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
-	turnLabel.TextScaled = true
-	turnLabel.TextXAlignment = Enum.TextXAlignment.Center
-	turnLabel.Text = "Turns Remaining: 10/10"
-	turnLabel.ZIndex = 42
+	local templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+	local wbControls = templates:WaitForChild("WorldBossControlsTemplate")
+
+	turnLabel = wbControls:WaitForChild("TurnLabel"):Clone()
 	turnLabel.Parent = combatUI.MainFrame
 
-	local tUic = Instance.new("UITextSizeConstraint")
-	tUic.MaxTextSize = 18
-	tUic.MinTextSize = 10
-	tUic.Parent = turnLabel
-
-	resourceLabel = Instance.new("TextLabel")
-	resourceLabel.Name = "ResourceLabel"
-	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	resourceLabel.BackgroundTransparency = 1
-	resourceLabel.Font = Enum.Font.GothamBold
-	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	resourceLabel.TextScaled = true
-	resourceLabel.Text = ""
-	resourceLabel.LayoutOrder = 2
-	resourceLabel.ZIndex = 42
+	resourceLabel = wbControls:WaitForChild("ResourceLabel"):Clone()
 	resourceLabel.Parent = combatUI.ContentContainer
-
-	local resUic = Instance.new("UITextSizeConstraint")
-	resUic.MaxTextSize = 18
-	resUic.MinTextSize = 10
-	resUic.Parent = resourceLabel
 
 	engageBtn.MouseButton1Click:Connect(function()
 		if engageBtn.Text == "ENGAGE BOSS" then
