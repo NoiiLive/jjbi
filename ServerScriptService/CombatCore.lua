@@ -16,7 +16,7 @@ function CombatCore.HasModifier(modStr, modName)
 	return false
 end
 
--- NEW: Dynamically counts how many of a specific trait are equipped
+-- Dynamically counts how many of a specific trait are equipped
 function CombatCore.CountTrait(combatant, traitName)
 	local count = 0
 	if combatant.Trait == traitName then count += 1 end
@@ -88,6 +88,86 @@ function CombatCore.GetPlayerBoosts(player)
 	if CombatCore.HasModifier(uniModStr, "Unlucky Aura") then boosts.Luck -= 1 end
 
 	return boosts
+end
+
+-- CENTRALIZED STRUCT BUILDER (Used by Raids, Arenas, Dungeons, etc.)
+function CombatCore.BuildPlayerStruct(player)
+	local playerTrait = player:GetAttribute("StandTrait") or "None"
+	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
+
+	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) or 0
+	local sDur = hasStand and (player:GetAttribute("Stand_Durability_Val") or 0) or 0
+	local sSpd = hasStand and (player:GetAttribute("Stand_Speed_Val") or 0) or 0
+	local sPot = hasStand and (player:GetAttribute("Stand_Potential_Val") or 0) or 0
+	local sRan = hasStand and (player:GetAttribute("Stand_Range_Val") or 0) or 0
+	local sPre = hasStand and (player:GetAttribute("Stand_Precision_Val") or 0) or 0
+
+	local pHP = (player:GetAttribute("Health") or 1) + CombatCore.GetEquipBonus(player, "Health")
+	local pStr = (player:GetAttribute("Strength") or 1) + sPow + CombatCore.GetEquipBonus(player, "Strength") + CombatCore.GetEquipBonus(player, "Stand_Power")
+	local pDef = (player:GetAttribute("Defense") or 1) + sDur + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
+	local pSpd = (player:GetAttribute("Speed") or 1) + sSpd + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
+	local pWill = (player:GetAttribute("Willpower") or 1) + CombatCore.GetEquipBonus(player, "Willpower")
+
+	local sName = player:GetAttribute("Stand") or "None"
+	local fStyle = player:GetAttribute("FightingStyle") or "None"
+
+	-- Extract Active Traits (Supporting Fused)
+	local activeTraits = {playerTrait}
+	if sName == "Fused Stand" then
+		activeTraits = {}
+		local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
+		local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
+		if t1 ~= "None" then table.insert(activeTraits, t1) end
+		if t2 ~= "None" then table.insert(activeTraits, t2) end
+	end
+
+	local function cT(tName)
+		local c = 0
+		for _, t in ipairs(activeTraits) do if t == tName then c += 1 end end
+		return c
+	end
+
+	-- Exponential Stacking for Base Stat Modifiers
+	local toughCount, fierceCount, persCount = cT("Tough"), cT("Fierce"), cT("Perseverance")
+	if toughCount > 0 then pHP *= (1.1 ^ toughCount) end
+	if fierceCount > 0 then pStr *= (1.1 ^ fierceCount) end
+	if persCount > 0 then pHP *= (1.5 ^ persCount); pWill *= (1.5 ^ persCount) end
+
+	local pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
+	local pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
+
+	local focCount = cT("Focused")
+	if focCount > 0 then pStamina *= (1.1 ^ focCount); pStandEnergy *= (1.1 ^ focCount) end
+
+	local activeBoosts = CombatCore.GetPlayerBoosts(player)
+	local validSkills = {}
+
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
+		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	end
+
+	for n, s in pairs(SkillData.Skills) do
+		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
+			table.insert(validSkills, n)
+		end
+	end
+
+	return {
+		Player = player, UserId = player.UserId, Name = player.Name, IsPlayer = true, PlayerObj = player,
+		Trait = playerTrait, Traits = activeTraits, GlobalDmgBoost = activeBoosts.Damage, Boosts = activeBoosts,
+		Stand = sName, Style = fStyle,
+		HP = pHP * 10, MaxHP = pHP * 10, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
+		TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd,
+		TotalWillpower = pWill,
+		TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
+		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
+		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, 
+		Cooldowns = {}, SelectedSkill = nil, Skills = validSkills
+	}
 end
 
 function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlocking, uniModStr)
