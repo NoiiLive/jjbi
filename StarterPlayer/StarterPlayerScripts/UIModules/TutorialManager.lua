@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local TutorialManager = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -160,68 +161,35 @@ local function BuildTutorialUI()
 	end)
 end
 
-local function GetCleanText(txt)
-	return string.upper(string.gsub(txt, "<[^>]+>", ""))
-end
-
+-- Explicit Target Finders (Bulletproofed against UI updates)
 local function GetTabButton(tabName)
-	return guiRoot:FindFirstChild(tabName .. "Button", true) or guiRoot:FindFirstChild(tabName .. "TabBtn", true)
+	return guiRoot:FindFirstChild(tabName .. "Button", true)
 end
 
-local function FindContentButton(partialText)
-	local targetText = string.upper(partialText)
-	local results = {}
-	local function search(node)
-		for _, child in ipairs(node:GetChildren()) do
-			if child:IsA("TextButton") and child.Visible then
-				local isNav = false
-				local p = child
-				while p and p ~= guiRoot do
-					if p.Name == "NavBar" or p.Name == "TabContainer" or p.Name == "NavContainer" then
-						isNav = true
-						break
-					end
-					p = p.Parent
-				end
-
-				if not isNav then
-					if string.find(GetCleanText(child.Text), targetText, 1, true) then
-						table.insert(results, child)
-					end
-				end
-			end
-			search(child)
-		end
-	end
-	search(guiRoot)
-	return results
+local function FindRandomEncounterButton()
+	return guiRoot:FindFirstChild("RandomEncounterBtn", true)
 end
 
-local function FindStrengthPlus5Button()
-	local result = nil
-	local function search(node)
-		for _, child in ipairs(node:GetChildren()) do
-			if child:IsA("TextLabel") and string.find(string.upper(child.Text), "STRENGTH") then
-				local parentRow = child.Parent
-				if parentRow then
-					for _, sibling in ipairs(parentRow:GetChildren()) do
-						if sibling:IsA("Frame") then
-							for _, btn in ipairs(sibling:GetChildren()) do
-								if btn:IsA("TextButton") and btn.Text == "+5" then
-									result = btn
-									return
-								end
-							end
-						end
-					end
-				end
+local function FindStoryEncounterButton()
+	return guiRoot:FindFirstChild("StoryEncounterBtn", true)
+end
+
+local function FindToggleTrainButton()
+	return guiRoot:FindFirstChild("ToggleTrainBtn", true)
+end
+
+local function FindStrengthAddButton()
+	local pStatsContainer = guiRoot:FindFirstChild("PlayerStatsCard", true)
+	if pStatsContainer then
+		local strRow = pStatsContainer:FindFirstChild("Strength", true)
+		if strRow then
+			local btnContainer = strRow:FindFirstChild("BtnContainer")
+			if btnContainer then
+				return btnContainer:FindFirstChild("BtnAdd")
 			end
-			search(child)
-			if result then return end
 		end
 	end
-	search(guiRoot)
-	return result
+	return nil
 end
 
 local function FindItemUseButton(itemName)
@@ -229,18 +197,14 @@ local function FindItemUseButton(itemName)
 	local result = nil
 	local function searchTree(node)
 		for _, child in ipairs(node:GetChildren()) do
-			if child:IsA("TextLabel") and child.Text and string.find(string.upper(child.Text), searchTxt, 1, true) then
-				local parentRow = child.Parent
-				if parentRow and parentRow.Name ~= "DialogueFrame" then
-					for _, sibling in ipairs(parentRow:GetChildren()) do
-						if sibling:IsA("Frame") then
-							for _, btn in ipairs(sibling:GetChildren()) do
-								if btn:IsA("TextButton") and (string.find(string.upper(btn.Text), "USE") or string.find(string.upper(btn.Text), "CONFIRM")) then
-									result = btn
-									return
-								end
-							end
-						end
+			if child:IsA("TextLabel") and child.Name == "NameLabel" and string.find(string.upper(child.Text), searchTxt, 1, true) then
+				local itemFrame = child.Parent
+				local wrapper = itemFrame:FindFirstChild("BtnWrapper")
+				if wrapper then
+					local uBtn = wrapper:FindFirstChild("UseBtn")
+					if uBtn then
+						result = uBtn
+						return
 					end
 				end
 			end
@@ -451,11 +415,17 @@ end
 
 local function WaitForRealClick(findFunc)
 	if isSkipped then return end
-	local targetBtn = findFunc()
-	if not targetBtn then 
-		task.wait(2)
-		return 
+
+	local targetBtn = nil
+	local waitTime = 0
+
+	while not targetBtn and waitTime < 10 and not isSkipped do
+		targetBtn = findFunc()
+		task.wait(0.2)
+		waitTime += 0.2
 	end
+
+	if not targetBtn or isSkipped then return end
 
 	local clicked = false
 	local conn = targetBtn.MouseButton1Click:Connect(function()
@@ -493,7 +463,7 @@ local function RunTutorial()
 	PromptInteraction("Your journey begins in the SINGLEPLAYER tab. Click it to open the combat menu!", function() return GetTabButton("Singleplayer") end, false)
 	if isSkipped then return end
 
-	PromptInteraction("Click an ENCOUNTER button to start your first fight!", function() return FindContentButton("ENCOUNTER")[1] end, true)
+	PromptInteraction("Click the 'Random Encounter' button to start your first fight!", FindRandomEncounterButton, true)
 	if isSkipped then return end
 
 	SetUIHidden(true) 
@@ -520,7 +490,7 @@ local function RunTutorial()
 	PromptInteraction("Ouch, that was tough! You need more stats to win. Click the TRAINING tab.", function() return GetTabButton("Training") end, false)
 	if isSkipped then return end
 
-	PromptInteraction("Click the 'TRAIN' button to start passively gaining XP!", function() return FindContentButton("START TRAINING")[1] or FindContentButton("TRAIN")[1] end, true)
+	PromptInteraction("Click the 'Start Training' button to begin passively gaining XP!", FindToggleTrainButton, true)
 	if isSkipped then return end
 
 	ShowDialogue("While you train, let's use some free XP I'm giving you to upgrade immediately!", true)
@@ -530,11 +500,14 @@ local function RunTutorial()
 	PromptInteraction("Click the INVENTORY tab to view your stats.", function() return GetTabButton("Inventory") end, false)
 	if isSkipped then return end
 
-	ShowDialogue("Click the '+5' button next to STRENGTH to spend your XP! I'll wait.", true)
+	PromptInteraction("Click the 'PLAYER' sub-tab to see your character's combat stats.", function() return guiRoot:FindFirstChild("PLAYERButton", true) end, false)
+	if isSkipped then return end
+
+	ShowDialogue("Click the '+' button next to STRENGTH 5 times to spend your XP! I'll wait.", true)
 	WaitNext(); if isSkipped then return end
 
 	dialogueFrame.Visible = false
-	HighlightDynamicTarget(FindStrengthPlus5Button, false)
+	HighlightDynamicTarget(FindStrengthAddButton, false)
 
 	local startStrength = player:GetAttribute("Strength") or 1
 	while (player:GetAttribute("Strength") or 1) < startStrength + 5 and not isSkipped do
@@ -548,7 +521,7 @@ local function RunTutorial()
 
 	local wonSecondBattle = false
 	while not wonSecondBattle and not isSkipped do
-		PromptInteraction("Click ENCOUNTER and defeat this enemy! If you lose, try again.", function() return FindContentButton("ENCOUNTER")[1] end, true)
+		PromptInteraction("Click 'Random Encounter' and defeat this enemy! If you lose, try again.", FindRandomEncounterButton, true)
 		if isSkipped then return end
 
 		SetUIHidden(true)
@@ -584,7 +557,7 @@ local function RunTutorial()
 	PromptInteraction("Click the INVENTORY tab to use it.", function() return GetTabButton("Inventory") end, false)
 	if isSkipped then return end
 
-	PromptInteraction("Click the 'STAND & STYLE' sub-tab to view your special items.", function() return FindContentButton("STAND & STYLE")[1] end, false)
+	PromptInteraction("Click the 'STAND' sub-tab to view your special items.", function() return guiRoot:FindFirstChild("STANDButton", true) end, false)
 	if isSkipped then return end
 
 	ShowDialogue("Scroll down to find your 'Stand Arrow' and click Use! Click Confirm if prompted.", true)
@@ -629,7 +602,7 @@ local function RunTutorial()
 	ShowDialogue("Now that you have a Stand, you are ready for Story Missions!", true)
 	WaitNext(); if isSkipped then return end
 
-	PromptInteraction("Attempt the 'Story Encounter' when you feel ready. Good luck on your Bizarre Adventure!", function() return FindContentButton("STORY")[1] end, false)
+	PromptInteraction("Attempt the 'Story Encounter' when you feel ready. Good luck on your Bizarre Adventure!", FindStoryEncounterButton, false)
 	if isSkipped then return end
 
 	ClearHighlight()
