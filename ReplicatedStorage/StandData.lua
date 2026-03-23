@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local StandData = {}
 
 StandData.Rarities = {
@@ -60,6 +59,7 @@ StandData.Stands = {
 	["Tohth"] = { Rarity = "Common", Stats = {Power="E", Speed="E", Range="E", Durability="A", Precision="E", Potential="E"} },
 	["Six Pistols"] = { Rarity = "Common", Stats = {Power="E", Speed="C", Range="A", Durability="A", Precision="A", Potential="B"} },
 	["Marilyn Manson"] = { Rarity = "Common", Stats = {Power="E", Speed="A", Range="A", Durability="A", Precision="A", Potential="C"} },
+	
 	["Hierophant Green"] = { Rarity = "Uncommon", Stats = {Power="C", Speed="B", Range="A", Durability="B", Precision="C", Potential="D"} },
 	["Magician's Red"] = { Rarity = "Uncommon", Stats = {Power="B", Speed="B", Range="C", Durability="B", Precision="C", Potential="D"} },
 	["Echoes Act 1"] = { Rarity = "Uncommon", Stats = {Power="E", Speed="E", Range="A", Durability="C", Precision="D", Potential="A"} },
@@ -73,6 +73,7 @@ StandData.Stands = {
 	["The Fool"] = { Rarity = "Uncommon", Stats = {Power="B", Speed="C", Range="D", Durability="A", Precision="D", Potential="C"} },
 	["The Sun"] = { Rarity = "Uncommon", Stats = {Power="B", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"} },
 	["Moody Blues"] = { Rarity = "Uncommon", Stats = {Power="C", Speed="C", Range="A", Durability="A", Precision="C", Potential="C"} },
+	
 	["Silver Chariot"] = { Rarity = "Rare", Stats = {Power="C", Speed="A", Range="C", Durability="B", Precision="B", Potential="C"} },
 	["Sticky Fingers"] = { Rarity = "Rare", Stats = {Power="A", Speed="A", Range="E", Durability="D", Precision="C", Potential="D"} },
 	["Purple Haze"] = { Rarity = "Rare", Stats = {Power="A", Speed="B", Range="C", Durability="E", Precision="E", Potential="B"} },
@@ -92,11 +93,13 @@ StandData.Stands = {
 	["Diver Down"] = { Rarity = "Rare", Stats = {Power="A", Speed="A", Range="E", Durability="A", Precision="B", Potential="B"} },
 	["Kiss"] = { Rarity = "Rare", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="C", Potential="A"} },
 	["Bad Company"] = { Rarity = "Rare", Stats = {Power="B", Speed="B", Range="C", Durability="B", Precision="C", Potential="C"} },
+	
 	["Killer Queen"] = { Rarity = "Legendary", Stats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"} },
 	["King Crimson"] = { Rarity = "Legendary", Stats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"} },
 	["Crazy Diamond"] = { Rarity = "Legendary", Stats = {Power="A", Speed="A", Range="D", Durability="B", Precision="B", Potential="C"} },
 	["Gold Experience"] = { Rarity = "Legendary", Stats = {Power="C", Speed="A", Range="C", Durability="D", Precision="C", Potential="A"} },
 	["Whitesnake"] = { Rarity = "Legendary", Stats = {Power="B", Speed="D", Range="C", Durability="A", Precision="None", Potential="None"} },
+	
 	["Star Platinum: The World"] = { Rarity = "Evolution", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="C"} },
 	["Killer Queen BTD"] = { Rarity = "Evolution", Stats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"} },
 	["C-Moon"] = { Rarity = "Evolution", Stats = {Power="None", Speed="B", Range="B", Durability="None", Precision="C", Potential="None"} },
@@ -109,60 +112,74 @@ StandData.Stands = {
 	["Star Platinum: Over Heaven"] = { Rarity = "Evolution", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 	["The World: Over Heaven"] = { Rarity = "Evolution", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 	["King Crimson Requiem"] = { Rarity = "Evolution", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	
 	["Star Platinum"] = { Rarity = "Mythical", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"} },
 	["The World"] = { Rarity = "Mythical", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"} },
 	["Weather Report"] = { Rarity = "Mythical", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="E", Potential="A"} },
 	["Heaven's Door"] = { Rarity = "Mythical", Stats = {Power="D", Speed="B", Range="B", Durability="D", Precision="C", Potential="A"} },
 	["Metallica"] = { Rarity = "Mythical", Stats = {Power="C", Speed="C", Range="C", Durability="A", Precision="C", Potential="C"} },
 	["The Hand"] = { Rarity = "Mythical", Stats = {Power="B", Speed="B", Range="D", Durability="C", Precision="C", Potential="C"} },
-	["Steel Platinum"] = { Rarity = "Unique", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
+	
+	-- SBR
 	["TATOO YOU!"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="None", Speed="E", Range="C", Durability="B", Precision="E", Potential="E"} },
 	["Tubular Bells"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="D", Speed="D", Range="D", Durability="A", Precision="E", Potential="B"} },
 	["Hey Ya!"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="E", Durability="B", Precision="E", Potential="E"} },
 	["Tomb of the Boom"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="C", Durability="B", Precision="C", Potential="C"} },
 	["Wired"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="D", Speed="B", Range="B", Durability="B", Precision="D", Potential="D"} },
 	["Oh! Lonesome Me"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="C", Range="C", Durability="B", Precision="C", Potential="D"} },
+	
 	["Cream Starter"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="D", Speed="C", Range="C", Durability="A", Precision="E", Potential="B"} },
 	["In a Silent Way"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="D", Durability="A", Precision="D", Potential="B"} },
 	["Boku no Rhythm wo Kiitekure"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="B", Speed="C", Range="C", Durability="B", Precision="E", Potential="C"} },
 	["Chocolate Disco"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="None", Speed="C", Range="C", Durability="B", Precision="A", Potential="D"} },
+	
 	["20th Century Boy"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="None", Speed="C", Range="None", Durability="A", Precision="D", Potential="C"} },
 	["Catch the Rainbow"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="B", Durability="B", Precision="B", Potential="D"} },
 	["Civil War"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="None", Speed="C", Range="C", Durability="B", Precision="C", Potential="None"} },
 	["Ticket to Ride"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="E", Durability="C", Precision="E", Potential="C"} },
 	["Sugar Mountain"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="E", Durability="A", Precision="E", Potential="E"} },
+	
 	["Mandom"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="None", Speed="A", Range="None", Durability="E", Precision="None", Potential="C"} },
 	["Dirty Deeds Done Dirt Cheap"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"} },
 	["Scary Monsters"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="B", Speed="B", Range="B", Durability="A", Precision="C", Potential="B"} },
+	
 	["Tusk Act 1"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="D", Durability="B", Precision="E", Potential="A"} },
 	["Tusk Act 2"] = { Rarity = "Evolution", Stats = {Power="D", Speed="D", Range="B", Durability="C", Precision="C", Potential="A"} },
 	["Tusk Act 3"] = { Rarity = "Evolution", Stats = {Power="D", Speed="D", Range="B", Durability="D", Precision="C", Potential="A"} },
 	["Tusk Act 4"] = { Rarity = "Evolution", Stats = {Power="A", Speed="B", Range="A", Durability="A", Precision="B", Potential="E"} },
 	["D4C Love Train"] = { Rarity = "Evolution", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="C"} },
+	
+	-- JOJOLION
 	["Canine Style"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="A", Durability="A", Precision="C", Potential="D"} },
 	["Fun Fun Fun"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="D", Speed="C", Range="D", Durability="A", Precision="E", Potential="E"} },
 	["California King Bed"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="E", Durability="B", Precision="E", Potential="E"} },
 	["Paper Moon King"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="C", Durability="C", Precision="C", Potential="E"} },
 	["Space Trucking"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="E", Durability="A", Precision="E", Potential="C"} },
 	["Milagro Man"] = { Rarity = "Common", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"} },
+	
 	["King Nothing"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="A", Durability="E", Precision="E", Potential="E"} },
 	["Walking Heart"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="E", Durability="A", Precision="E", Potential="E"} },
 	["Love Love Deluxe"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"} },
 	["Doobie Wah!"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="A", Durability="A", Precision="E", Potential="E"} },
 	["Brain Storm"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"} },
 	["Blue Hawaii"] = { Rarity = "Uncommon", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"} },
+	
 	["Paisley Park"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="D", Potential="C"} },
 	["Nut King Call"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="C", Speed="D", Range="C", Durability="A", Precision="E", Potential="A"} },
 	["Speed King"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="C", Speed="B", Range="D", Durability="A", Precision="C", Potential="C"} },
 	["I Am a Rock"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"} },
 	["Vitamin C"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="C", Durability="A", Precision="E", Potential="E"} },
 	["Ozon Baby"] = { Rarity = "Rare", Pool = "Corpse", Stats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"} },
+	
 	["Soft & Wet"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="C", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"} },
 	["Killer Queen (Part 8)"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"} },
 	["Born This Way"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="C", Speed="B", Range="A", Durability="A", Precision="E", Potential="E"} },
 	["Awaking III Leaves"] = { Rarity = "Legendary", Pool = "Corpse", Stats = {Power="C", Speed="B", Range="C", Durability="A", Precision="E", Potential="C"} },
 	["Soft & Wet: Go Beyond"] = { Rarity = "Evolution", Stats = {Power="A", Speed="B", Range="C", Durability="B", Precision="A", Potential="A"} },
+	
 	["Wonder of U"] = { Rarity = "Mythical", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	
+	["Steel Platinum"] = { Rarity = "Unique", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Fused Stand"] = { Rarity = "Unique", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 }
 
