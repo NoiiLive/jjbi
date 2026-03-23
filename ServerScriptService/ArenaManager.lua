@@ -380,8 +380,8 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 
 		if #lobby.Team1Queue == maxPerTeam and #lobby.Team2Queue == maxPerTeam then
 			local t1, t2 = {}, {}
-			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, CombatCore.BuildPlayerStruct(qp, not lobby.NoHoldsBarred)) end
-			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, CombatCore.BuildPlayerStruct(qp, not lobby.NoHoldsBarred)) end
+			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, CombatCore.BuildPlayerStruct(qp, lobby.NoHoldsBarred)) end
+			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, CombatCore.BuildPlayerStruct(qp, lobby.NoHoldsBarred)) end
 
 			local turnTime = 15
 			if lobby.Capacity == 4 then turnTime = 30 elseif lobby.Capacity == 8 then turnTime = 45 end
