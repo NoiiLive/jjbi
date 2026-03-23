@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
@@ -19,7 +18,6 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 	if slot1 == slot2 then return end 
 	if not targetSlot then return end
 
-	-- Security Check for targetSlot to prevent saving into locked slots
 	if targetSlot == "Slot2" and not player:GetAttribute("HasStandSlot2") then return end
 	if targetSlot == "Slot3" and not player:GetAttribute("HasStandSlot3") then return end
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
@@ -49,7 +47,6 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 		return
 	end
 
-	-- Consume Roka
 	player:SetAttribute("NewRokakakaCount", rokaCount - 1)
 
 	local function ClearSlot(slot)
@@ -69,12 +66,9 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 		end
 	end
 
-	-- We must clear the source slots BEFORE assigning the target slot, 
-	-- just in case targetSlot is the same as slot1 or slot2!
 	ClearSlot(slot1)
 	ClearSlot(slot2)
 
-	-- Set Fused Attributes to the TARGET slot safely
 	local prefix = (targetSlot == "Active") and "Active_" or ("StoredStand" .. targetSlot:gsub("Slot", "") .. "_")
 
 	player:SetAttribute(prefix .. "FusedStand1", stand1)
@@ -86,7 +80,6 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 		player:SetAttribute("Stand", "Fused Stand")
 		player:SetAttribute("StandTrait", "Fused")
 
-		-- Average their Stats for active use
 		local statsList = {"Power", "Speed", "Range", "Durability", "Precision", "Potential"}
 		local rankToNum = {["None"]=0, ["E"]=1, ["D"]=2, ["C"]=3, ["B"]=4, ["A"]=5, ["S"]=6}
 		local numToRank = { [0]="None", [1]="E", [2]="D", [3]="C", [4]="B", [5]="A", [6]="S" }
