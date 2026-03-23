@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local RaidsTab = {}
 
 local player = game.Players.LocalPlayer
@@ -174,8 +173,6 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	mfLayout.Padding = UDim.new(0, 10)
 	mfLayout.Parent = menuFrame
 
-	-- [[ FIXED: BYPASS ROBLOX UI BUGS WITH ABSOLUTE MATH ]]
-	-- 80px per row + 10px padding = 90px per item. Plus 300px of extra clearance for mobile screens!
 	menuFrame.CanvasSize = UDim2.new(0, 0, 0, (#raidBosses * 90) + 300)
 
 	local mfPad = Instance.new("UIPadding")
@@ -867,7 +864,6 @@ function RaidsTab.HandleUpdate(action, data)
 			eUic.MaxTextSize = 16
 			eUic.MinTextSize = 10
 
-			-- Mathematical Canvas Size for Empty Lobbies
 			lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, 200)
 			return
 		end
@@ -940,7 +936,6 @@ function RaidsTab.HandleUpdate(action, data)
 			end
 		end
 
-		-- Mathematical Canvas Size for Lobbies
 		lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, (#lobbies * 70) + 300)
 
 	elseif action == "MatchStart" then
