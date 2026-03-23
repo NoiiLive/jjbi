@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -87,7 +88,7 @@ function CombatCore.GetPlayerBoosts(player)
 	return boosts
 end
 
-function CombatCore.BuildPlayerStruct(player)
+function CombatCore.BuildPlayerStruct(player, isRawStats)
 	local playerTrait = player:GetAttribute("StandTrait") or "None"
 	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
 
@@ -98,14 +99,31 @@ function CombatCore.BuildPlayerStruct(player)
 	local sRan = hasStand and (player:GetAttribute("Stand_Range_Val") or 0) or 0
 	local sPre = hasStand and (player:GetAttribute("Stand_Precision_Val") or 0) or 0
 
-	local pHP = (player:GetAttribute("Health") or 1) + CombatCore.GetEquipBonus(player, "Health")
+	local pHP, pStyleStr, pStandStr, pDef, pSpd, pWill, pStamina, pStandEnergy
 
-	local pStyleStr = (player:GetAttribute("Strength") or 1) + CombatCore.GetEquipBonus(player, "Strength")
-	local pStandStr = sPow + CombatCore.GetEquipBonus(player, "Stand_Power")
+	if isRawStats then
+		pHP = (player:GetAttribute("Health") or 1) + CombatCore.GetEquipBonus(player, "Health")
+		pStyleStr = (player:GetAttribute("Strength") or 1) + CombatCore.GetEquipBonus(player, "Strength")
+		pStandStr = sPow + CombatCore.GetEquipBonus(player, "Stand_Power")
+		pDef = (player:GetAttribute("Defense") or 1) + sDur + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
+		pSpd = (player:GetAttribute("Speed") or 1) + sSpd + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
+		pWill = (player:GetAttribute("Willpower") or 1) + CombatCore.GetEquipBonus(player, "Willpower")
+		pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
+		pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
+	else
+		-- Equalized Level 100 Stats
+		pHP = 100 + CombatCore.GetEquipBonus(player, "Health")
+		pStyleStr = 100 + CombatCore.GetEquipBonus(player, "Strength")
+		pStandStr = 100 + CombatCore.GetEquipBonus(player, "Stand_Power")
+		pDef = 100 + 100 + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
+		pSpd = 100 + 100 + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
+		pWill = 100 + CombatCore.GetEquipBonus(player, "Willpower")
+		pStamina = 100 + CombatCore.GetEquipBonus(player, "Stamina")
+		pStandEnergy = 10 + 100 + CombatCore.GetEquipBonus(player, "Stand_Potential")
 
-	local pDef = (player:GetAttribute("Defense") or 1) + sDur + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
-	local pSpd = (player:GetAttribute("Speed") or 1) + sSpd + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
-	local pWill = (player:GetAttribute("Willpower") or 1) + CombatCore.GetEquipBonus(player, "Willpower")
+		sRan = 100
+		sPre = 100
+	end
 
 	local sName = player:GetAttribute("Stand") or "None"
 	local fStyle = player:GetAttribute("FightingStyle") or "None"
@@ -132,9 +150,6 @@ function CombatCore.BuildPlayerStruct(player)
 		pStandStr *= (1.1 ^ fierceCount) 
 	end
 	if persCount > 0 then pHP *= (1.5 ^ persCount); pWill *= (1.5 ^ persCount) end
-
-	local pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
-	local pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
 
 	local focCount = cT("Focused")
 	if focCount > 0 then pStamina *= (1.1 ^ focCount); pStandEnergy *= (1.1 ^ focCount) end
