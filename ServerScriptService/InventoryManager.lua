@@ -72,6 +72,11 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 	if player:GetAttribute("IsAutoRolling") then return end
 	player:SetAttribute("IsAutoRolling", true)
 
+	-- [[ FIXED: If rolling with a Roka, completely ignore the Target Stand dropdown to prevent logic deadlocks! ]]
+	if rollType == "Roka" then
+		targetStand = "Any"
+	end
+
 	local itemReq = ""
 	local expectedPool = "Arrow"
 
@@ -151,10 +156,10 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		if StandData.Stands[newStand] and StandData.Stands[newStand].Rarity == "Legendary" then sPity = 0 else sPity += 1 end
 		if StandData.Traits[newTrait] and (StandData.Traits[newTrait].Rarity == "Mythical" or StandData.Traits[newTrait].Rarity == "Legendary") then tPity = 0 else tPity += 1 end
 
-		local wantStand = targetStand ~= "Any"
-		local wantTrait = targetTrait ~= "Any"
-		local standMatch = (wantStand and newStand == targetStand)
-		local traitMatch = (wantTrait and newTrait == targetTrait)
+		local wantStand = (targetStand ~= "Any")
+		local wantTrait = (targetTrait ~= "Any")
+		local standMatch = (newStand == targetStand)
+		local traitMatch = (newTrait == targetTrait)
 
 		if wantStand and wantTrait then
 			if standMatch and traitMatch then hit = true; break end
@@ -264,7 +269,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 		end
 
 		local isStandItem = (itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Stand Disc" or itemName == "Requiem Arrow" or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
-		local isStyleItem = (itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" or itemName == "Golden Spin Scroll" or itemName == "Locacaca Fruit")
+		local isStyleItem = (itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit")
 
 		if isStandItem and player:GetAttribute("StandLocked") then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Stand is locked! Unlock it to use this item.</font>")
@@ -413,8 +418,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 			player:SetAttribute("FightingStyle", "Pillarman"); message = "Awakened ancient biology! Gained Pillarman Style."
 		elseif itemName == "Steel Ball" then
 			player:SetAttribute("FightingStyle", "Spin"); message = "You grasped the rotation! Gained Spin Style."
-		elseif itemName == "Locacaca Fruit" then
-			player:SetAttribute("FightingStyle", "Rock Human"); message = "You consumed the Locacaca Fruit. Your body hardens as you become a Rock Human!"
+		elseif itemName == "Rokakaka Fruit" then
+			player:SetAttribute("FightingStyle", "Rock Human"); message = "You consumed the Rokakaka Fruit. Your body hardens as you become a Rock Human!"
 		elseif itemName == "Perfect Aja Mask" then
 			if player:GetAttribute("FightingStyle") == "Pillarman" then
 				player:SetAttribute("FightingStyle", "Ultimate Lifeform")
