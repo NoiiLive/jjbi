@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -86,62 +85,6 @@ local function GetRegion(dist)
 		if dist < r.End then return r.Name end
 	end
 	return "Philadelphia"
-end
-
-local function BuildPlayerCombatStruct(player)
-	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
-	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) or 0
-	local sDur = hasStand and (player:GetAttribute("Stand_Durability_Val") or 0) or 0
-	local sSpd = hasStand and (player:GetAttribute("Stand_Speed_Val") or 0) or 0
-	local sPot = hasStand and (player:GetAttribute("Stand_Potential_Val") or 0) or 0
-	local sRan = hasStand and (player:GetAttribute("Stand_Range_Val") or 0) or 0
-	local sPre = hasStand and (player:GetAttribute("Stand_Precision_Val") or 0) or 0
-
-	local pHP = (player:GetAttribute("Health") or 1) + CombatCore.GetEquipBonus(player, "Health")
-	local pStr = (player:GetAttribute("Strength") or 1) + sPow + CombatCore.GetEquipBonus(player, "Strength") + CombatCore.GetEquipBonus(player, "Stand_Power")
-	local pDef = (player:GetAttribute("Defense") or 1) + sDur + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
-	local pSpd = (player:GetAttribute("Speed") or 1) + sSpd + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
-	local pWill = (player:GetAttribute("Willpower") or 1) + CombatCore.GetEquipBonus(player, "Willpower")
-	local playerTrait = player:GetAttribute("StandTrait") or "None"
-
-	if playerTrait == "Tough" then pHP *= 1.1 end
-	if playerTrait == "Fierce" then pStr *= 1.1 end
-	if playerTrait == "Perseverance" then pHP *= 1.5; pWill *= 1.5 end
-
-	local pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
-	local pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
-	if playerTrait == "Focused" then pStamina *= 1.1; pStandEnergy *= 1.1 end
-
-	local validSkills = {}
-	local sName = player:GetAttribute("Stand") or "None"
-	local fStyle = player:GetAttribute("FightingStyle") or "None"
-
-	if sName == "Fused Stand" then
-		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
-		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
-		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
-		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
-		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
-	end
-
-	for n, s in pairs(SkillData.Skills) do
-		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
-		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
-			table.insert(validSkills, n)
-		end
-	end
-
-	return {
-		IsPlayer = true, IsAlly = false, Name = player.Name, Trait = playerTrait, PlayerObj = player, UserId = player.UserId,
-		Stand = sName, Style = fStyle,
-		HP = pHP * 10, MaxHP = pHP * 10, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
-		TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd, TotalWillpower = pWill,
-		TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), 
-		TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
-		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
-		Cooldowns = {}, Skills = validSkills
-	}
 end
 
 local function HandleSBRDrop(player, dropCategory, excludeDiscs)
@@ -264,7 +207,6 @@ local function CheckWinCondition(racer)
 end
 
 local function StartRace()
-	print("Starting SBR Race!")
 	EventState.IsActive = true
 	EventState.Winners = {}
 	EventState.EndTime = os.time() + 1800
@@ -528,7 +470,8 @@ function ExecuteCombatTurn(racer)
 	else
 		if p1Skill and (p1Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Player.Stamina = math.min(b.Player.MaxStamina, b.Player.Stamina + 5) end
 		if p1Skill and (p1Skill.EnergyCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Player.StandEnergy = math.min(b.Player.MaxStandEnergy, b.Player.StandEnergy + 5) end
-		if b.Player.Trait == "Vigorous" then b.Player.Stamina = math.min(b.Player.MaxStamina, b.Player.Stamina + 10); b.Player.StandEnergy = math.min(b.Player.MaxStandEnergy, b.Player.StandEnergy + 10) end
+		local p1VigCount = CombatCore.CountTrait(b.Player, "Vigorous")
+		if p1VigCount > 0 then b.Player.Stamina = math.min(b.Player.MaxStamina, b.Player.Stamina + (10 * p1VigCount)); b.Player.StandEnergy = math.min(b.Player.MaxStandEnergy, b.Player.StandEnergy + (10 * p1VigCount)) end
 
 		b.PlayerReady = false
 		b.PlayerSelectedSkill = nil
@@ -538,7 +481,8 @@ function ExecuteCombatTurn(racer)
 		if b.OpponentRacer then
 			if p2Skill and (p2Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + 5) end
 			if p2Skill and (p2Skill.EnergyCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + 5) end
-			if b.Opponent.Trait == "Vigorous" then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + 10); b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + 10) end
+			local p2VigCount = CombatCore.CountTrait(b.Opponent, "Vigorous")
+			if p2VigCount > 0 then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + (10 * p2VigCount)); b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + (10 * p2VigCount)) end
 
 			b.OpponentRacer.Battle.PlayerReady = false 
 			b.OpponentRacer.Battle.PlayerSelectedSkill = nil
@@ -685,7 +629,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			if math.random() <= 0.1 then
 				local p2 = FindPvPTarget(r)
 				if p2 then
-					r.Battle = { Player = BuildPlayerCombatStruct(player), Opponent = BuildPlayerCombatStruct(p2.Player), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player), Opponent = CombatCore.BuildPlayerStruct(p2.Player), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
@@ -729,7 +673,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				logStr = "<font color='#55FFFF'>Rode hard for " .. distGained .. "m and found " .. (i or "something") .. "!</font>"
 			elseif rng <= 60 then
 				r.Distance += distGained
-				r.Battle = { Player = BuildPlayerCombatStruct(player), Opponent = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+				r.Battle = { Player = CombatCore.BuildPlayerStruct(player), Opponent = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 				SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>A bandit blocks the path!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 				r.IsProcessing = false
 				return
@@ -737,7 +681,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				local p2 = FindPvPTarget(r)
 				if p2 then
 					r.Distance += distGained
-					r.Battle = { Player = BuildPlayerCombatStruct(player), Opponent = BuildPlayerCombatStruct(p2.Player), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player), Opponent = CombatCore.BuildPlayerStruct(p2.Player), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>CROSSED PATHS WITH " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>" .. player.Name .. " ATTACKED YOU!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
