@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local GameData = {}
 
 GameData.StandRanks = {
@@ -21,7 +22,7 @@ GameData.StyleBonuses = {
 	["Spin"] = { Strength = 45, Speed = 35 },
 	["Golden Spin"] = { Strength = 85, Willpower = 55 },
 	["Rock Human"] = { Strength = 65, Defense = 40 },
-	
+
 	["Man of Steel"] = { Defense = 50, Health = 50 },
 	["Limitless"] = { Strength = 75, Defense = 75 },
 	["Shrine"] = { Strength = 75, Defense = 75 },
@@ -121,7 +122,9 @@ function GameData.GetInventoryCount(player)
 	local ignoredKeys = {}
 
 	for itemName, data in pairs(ItemData.Consumables) do
-		ignoredKeys[itemName:gsub("[^%w]", "") .. "Count"] = true
+		if data.Category == "Stand" or data.Rarity == "Unique" then
+			ignoredKeys[itemName:gsub("[^%w]", "") .. "Count"] = true
+		end
 	end
 
 	for itemName, data in pairs(ItemData.Equipment) do
