@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local ItemData = {}
 
 ItemData.Equipment = {
@@ -64,59 +65,59 @@ ItemData.Equipment = {
 }
 
 ItemData.Consumables = {
-	["Boxing Manual"] = { Description = "Learn the fundamentals. Grants the Boxing style.", Rarity = "Common", Cost = 250 },
-	["Memory Disc"] = { Description = "Wipes your memory. Removes your current Fighting Style.", Rarity = "Common", Cost = 5000 },
-	["Hamon Manual"] = { Description = "Master your breathing. Grants the Hamon style.", Rarity = "Uncommon", Cost = 4000 },
-	["Cyborg Blueprints"] = { Description = "German science is the best! Grants the Cyborg style.", Rarity = "Uncommon", Cost = 5000 },
-	["Vampire Mask"] = { Description = "I REJECT MY HUMANITY! Grants the Vampirism style.", Rarity = "Rare", Cost = 25000 },
-	["Stand Arrow"] = { Description = "Pierce yourself to awaken a random Stand.", Rarity = "Uncommon", Cost = 35000 },
-	["Stand Disc"] = { Description = "Wipes your soul. Removes your current Stand and Trait.", Rarity = "Uncommon", Cost = 15000 },
-	["Dio's Diary"] = { Description = "Read the path to heaven. Grants massive XP or Evolves certain Stands.", Rarity = "Legendary", Cost = 80000 },
-	["Ancient Mask"] = { Description = "Awaken ancient biology. Grants the Pillarman style.", Rarity = "Legendary", Cost = 100000 },
-	["Green Baby"] = { Description = "Fuse with the Green Baby. Evolves Whitesnake or gives massive stats.", Rarity = "Legendary", Cost = 120000 },
-	["Strange Arrow"] = { Description = "A mysterious arrow. Evolves your Stand's potential beyond limits!", Rarity = "Legendary", Cost = 150000 },
+	["Boxing Manual"] = { Category = "Player", Description = "Learn the fundamentals. Grants the Boxing style.", Rarity = "Common", Cost = 250 },
+	["Memory Disc"] = { Category = "Player", Description = "Wipes your memory. Removes your current Fighting Style.", Rarity = "Common", Cost = 5000 },
+	["Hamon Manual"] = { Category = "Player", Description = "Master your breathing. Grants the Hamon style.", Rarity = "Uncommon", Cost = 4000 },
+	["Cyborg Blueprints"] = { Category = "Player", Description = "German science is the best! Grants the Cyborg style.", Rarity = "Uncommon", Cost = 5000 },
+	["Vampire Mask"] = { Category = "Player", Description = "I REJECT MY HUMANITY! Grants the Vampirism style.", Rarity = "Rare", Cost = 25000 },
+	["Stand Arrow"] = { Category = "Stand", Description = "Pierce yourself to awaken a random Stand.", Rarity = "Uncommon", Cost = 35000 },
+	["Stand Disc"] = { Category = "Stand", Description = "Wipes your soul. Removes your current Stand and Trait.", Rarity = "Uncommon", Cost = 15000 },
+	["Dio's Diary"] = { Category = "Stand", Description = "Read the path to heaven. Grants massive XP or Evolves certain Stands.", Rarity = "Legendary", Cost = 80000 },
+	["Ancient Mask"] = { Category = "Player", Description = "Awaken ancient biology. Grants the Pillarman style.", Rarity = "Legendary", Cost = 100000 },
+	["Green Baby"] = { Category = "Stand", Description = "Fuse with the Green Baby. Evolves Whitesnake or gives massive stats.", Rarity = "Legendary", Cost = 120000 },
+	["Strange Arrow"] = { Category = "Stand", Description = "A mysterious arrow. Evolves your Stand's potential beyond limits!", Rarity = "Legendary", Cost = 150000 },
 
-	["Saint's Left Arm"] = { Description = "A mummified left arm. Evolves Tusk Act 1 into Act 2.", Rarity = "Legendary", Cost = 150000 },
-	["Saint's Right Eye"] = { Description = "A mummified right eye. Evolves Tusk Act 2 into Act 3.", Rarity = "Legendary", Cost = 250000 },
+	["Saint's Left Arm"] = { Category = "Stand", Description = "A mummified left arm. Evolves Tusk Act 1 into Act 2.", Rarity = "Legendary", Cost = 150000 },
+	["Saint's Right Eye"] = { Category = "Stand", Description = "A mummified right eye. Evolves Tusk Act 2 into Act 3.", Rarity = "Legendary", Cost = 250000 },
 
-	["Weather Report Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Heaven's Door Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["The Hand Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Metallica Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["The World Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Star Platinum Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Wonder of U Disc"] = { Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["Heaven's Door Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["The Hand Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["Metallica Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["The World Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["Star Platinum Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["Wonder of U Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
 
-	["Rokakaka"] = { Description = "An equivalent exchange fruit. Rerolls your Stand's trait.", Rarity = "Mythical", Cost = 300000 },
-	["Saint's Corpse Part"] = { Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Mythical", Cost = 500000 },
-	
-	["Heavenly Stand Disc"] = { Description = "Call upon the powers of Made in Heaven to reset the universe and its modifiers.", Rarity = "Mythical", Cost = 350000},
-	["Steel Ball"] = { Description = "A perfect sphere. Unlocks the Spin fighting style.", Rarity = "Mythical", Cost = 400000 },
-	["Perfect Aja Mask"] = { Description = "A stone mask with the Red Stone embedded. Evolves Pillarman into the Ultimate Lifeform.", Rarity = "Mythical", Cost = 450000 },
-	["Golden Spin Scroll"] = { Description = "The secret of infinite rotation. Evolves the Spin style into Golden Spin.", Rarity = "Mythical", Cost = 450000 },
-	["Rokakaka Fruit"] = { Description = "A mysterious fruit from the Higashikata orchard. Consuming it transforms your biology into that of a Rock Human.", Rarity = "Mythical", Cost = 450000 },
+	["Rokakaka"] = { Category = "Stand", Description = "An equivalent exchange fruit. Rerolls your Stand's trait.", Rarity = "Mythical", Cost = 300000 },
+	["Saint's Corpse Part"] = { Category = "Stand", Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Mythical", Cost = 500000 },
 
-	["Saint's Pelvis"] = { Description = "A mummified pelvis. Evolves Tusk Act 3 into Act 4.", Rarity = "Mythical", Cost = 500000 },
-	["Saint's Heart"] = { Description = "A mummified heart. Evolves Dirty Deeds Done Dirt Cheap into Love Train.", Rarity = "Mythical", Cost = 500000 },
-	["Saint's Spine"] = { Description = "A mummified spine. Evolves The World and Star Platinum into Over Heaven!", Rarity = "Mythical", Cost = 500000 },
-	["Rokakaka Branch"] = { Description = "A miraculously grafted branch. Evolves Soft & Wet to push its bubbles beyond logic.", Rarity = "Mythical", Cost = 500000},
+	["Heavenly Stand Disc"] = { Category = "Player", Description = "Call upon the powers of Made in Heaven to reset the universe and its modifiers.", Rarity = "Mythical", Cost = 350000},
+	["Steel Ball"] = { Category = "Player", Description = "A perfect sphere. Unlocks the Spin fighting style.", Rarity = "Mythical", Cost = 400000 },
+	["Perfect Aja Mask"] = { Category = "Player", Description = "A stone mask with the Red Stone embedded. Evolves Pillarman into the Ultimate Lifeform.", Rarity = "Mythical", Cost = 450000 },
+	["Golden Spin Scroll"] = { Category = "Player", Description = "The secret of infinite rotation. Evolves the Spin style into Golden Spin.", Rarity = "Mythical", Cost = 450000 },
+	["Rokakaka Fruit"] = { Category = "Player", Description = "A mysterious fruit from the Higashikata orchard. Consuming it transforms your biology into that of a Rock Human.", Rarity = "Mythical", Cost = 450000 },
 
-	["Requiem Arrow"] = { Description = "An arrow with a bizzare beetle design. Pushes your stand beyond anything ever seen.", Rarity = "Mythical", Cost = 500000},
-	["New Rokakaka"] = { Description = "The ultimate fruit of equivalent exchange. Fuses two of your Stands into a powerful hybrid.", Rarity = "Mythical", Cost = 500000},
+	["Saint's Pelvis"] = { Category = "Stand", Description = "A mummified pelvis. Evolves Tusk Act 3 into Act 4.", Rarity = "Mythical", Cost = 500000 },
+	["Saint's Heart"] = { Category = "Stand", Description = "A mummified heart. Evolves Dirty Deeds Done Dirt Cheap into Love Train.", Rarity = "Mythical", Cost = 500000 },
+	["Saint's Spine"] = { Category = "Stand", Description = "A mummified spine. Evolves The World and Star Platinum into Over Heaven!", Rarity = "Mythical", Cost = 500000 },
+	["Rokakaka Branch"] = { Category = "Stand", Description = "A miraculously grafted branch. Evolves Soft & Wet to push its bubbles beyond logic.", Rarity = "Mythical", Cost = 500000},
 
-	["Legendary Giftbox"] = { Description = "Supplies you with a random Legendary-tier item!", Rarity = "Unique", Cost = 30000 },
-	["Mythical Giftbox"] = { Description = "Supplies you with a random Mythical-tier item!", Rarity = "Unique", Cost = 50000 },
-	
-	["2x Battle Speed Pass"] = { Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Unique", Cost = 0 },
-	["2x Inventory Pass"] = { Description = "Consumable gamepass. Doubles your inventory capacity.", Rarity = "Unique", Cost = 0 },
-	["2x Drop Chance Pass"] = { Description = "Consumable gamepass. Doubles all item drop rates.", Rarity = "Unique", Cost = 0 },
-	["Auto Training Pass"] = { Description = "Consumable gamepass. Unlocks Auto Training.", Rarity = "Unique", Cost = 0 },
-	["Stand Storage Slot 2"] = { Description = "Consumable gamepass. Unlocks Stand Storage Slot 2.", Rarity = "Unique", Cost = 0 },
-	["Stand Storage Slot 3"] = { Description = "Consumable gamepass. Unlocks Stand Storage Slot 3.", Rarity = "Unique", Cost = 0 },
-	["Style Storage Slot 2"] = { Description = "Consumable gamepass. Unlocks Style Storage Slot 2.", Rarity = "Unique", Cost = 0 },
-	["Style Storage Slot 3"] = { Description = "Consumable gamepass. Unlocks Style Storage Slot 3.", Rarity = "Unique", Cost = 0 },
-	["Auto-Roll Pass"] = { Description = "Consumable gamepass. Unlocks the Auto-Roll feature.", Rarity = "Unique", Cost = 0 },
-	["Custom Horse Name"] = { Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Unique", Cost = 0 },
+	["Requiem Arrow"] = { Category = "Stand", Description = "An arrow with a bizzare beetle design. Pushes your stand beyond anything ever seen.", Rarity = "Mythical", Cost = 500000},
+	["New Rokakaka"] = { Category = "Stand", Description = "The ultimate fruit of equivalent exchange. Fuses two of your Stands into a powerful hybrid.", Rarity = "Mythical", Cost = 500000},
+
+	["Legendary Giftbox"] = { Category = "Player", Description = "Supplies you with a random Legendary-tier item!", Rarity = "Unique", Cost = 30000 },
+	["Mythical Giftbox"] = { Category = "Player", Description = "Supplies you with a random Mythical-tier item!", Rarity = "Unique", Cost = 50000 },
+
+	["2x Battle Speed Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Unique", Cost = 0 },
+	["2x Inventory Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles your inventory capacity.", Rarity = "Unique", Cost = 0 },
+	["2x Drop Chance Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles all item drop rates.", Rarity = "Unique", Cost = 0 },
+	["Auto Training Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Auto Training.", Rarity = "Unique", Cost = 0 },
+	["Stand Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 2.", Rarity = "Unique", Cost = 0 },
+	["Stand Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 3.", Rarity = "Unique", Cost = 0 },
+	["Style Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 2.", Rarity = "Unique", Cost = 0 },
+	["Style Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 3.", Rarity = "Unique", Cost = 0 },
+	["Auto-Roll Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Auto-Roll feature.", Rarity = "Unique", Cost = 0 },
+	["Custom Horse Name"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Unique", Cost = 0 },
 }
 
 return ItemData
