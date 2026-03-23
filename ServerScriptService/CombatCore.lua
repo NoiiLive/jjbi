@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -111,17 +110,17 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
 		pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
 	else
-		pHP = 100 + CombatCore.GetEquipBonus(player, "Health")
-		pStyleStr = 100 + CombatCore.GetEquipBonus(player, "Strength")
-		pStandStr = 100 + CombatCore.GetEquipBonus(player, "Stand_Power")
-		pDef = 100 + 100 + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
-		pSpd = 100 + 100 + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
-		pWill = 100 + CombatCore.GetEquipBonus(player, "Willpower")
-		pStamina = 100 + CombatCore.GetEquipBonus(player, "Stamina")
-		pStandEnergy = 10 + 100 + CombatCore.GetEquipBonus(player, "Stand_Potential")
+		pHP = 500 + CombatCore.GetEquipBonus(player, "Health")
+		pStyleStr = 500 + CombatCore.GetEquipBonus(player, "Strength")
+		pStandStr = 500 + CombatCore.GetEquipBonus(player, "Stand_Power")
+		pDef = 500 + 500 + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
+		pSpd = 500 + 500 + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
+		pWill = 500 + CombatCore.GetEquipBonus(player, "Willpower")
+		pStamina = 500 + CombatCore.GetEquipBonus(player, "Stamina")
+		pStandEnergy = 10 + 500 + CombatCore.GetEquipBonus(player, "Stand_Potential")
 
-		sRan = 100
-		sPre = 100
+		sRan = 500
+		sPre = 500
 	end
 
 	local sName = player:GetAttribute("Stand") or "None"
