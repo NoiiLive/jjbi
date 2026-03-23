@@ -64,9 +64,6 @@ local function applyDoubleGoldBorder(parent)
 end
 
 function TrainingTab.Init(parentFrame, tooltipMgr)
-	-- ========================================================
-	-- MAIN FRAME SETUP
-	-- ========================================================
 	local mainPanel = Instance.new("Frame")
 	mainPanel.Name = "MainPanel"
 	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
@@ -93,7 +90,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	bgPattern.ZIndex = 16
 	bgPattern.Parent = mainPanel
 
-	-- Converted to ScrollingFrame
 	local innerContent = Instance.new("ScrollingFrame")
 	innerContent.Name = "InnerContent"
 	innerContent.Size = UDim2.new(1, 0, 1, 0)
@@ -116,7 +112,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	mainLayout.Padding = UDim.new(0.05, 0)
 	mainLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
-	-- Title
 	local titleLabel = Instance.new("TextLabel")
 	titleLabel.Size = UDim2.new(1, 0, 0, 35)
 	titleLabel.BackgroundTransparency = 1
@@ -129,9 +124,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	titleLabel.Parent = innerContent
 	Instance.new("UITextSizeConstraint", titleLabel).MaxTextSize = 30
 
-	-- ========================================================
-	-- CENTER CONTAINER
-	-- ========================================================
 	local centerContainer = Instance.new("Frame")
 	centerContainer.Name = "CenterContainer"
 	centerContainer.Size = UDim2.new(0.8, 0, 0.8, 0)
@@ -159,7 +151,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	ccLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	ccLayout.Padding = UDim.new(0.06, 0)
 
-	-- Spinning Star Icon Wrapper (Fixes UIListLayout rotation clipping)
 	local starWrapper = Instance.new("Frame")
 	starWrapper.Name = "StarWrapper"
 	starWrapper.Size = UDim2.new(0, 120, 0, 120)
@@ -183,7 +174,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	spinningStar.ZIndex = 21
 	spinningStar.Parent = starWrapper
 
-	-- Training Log Text
 	trainLog = Instance.new("TextLabel")
 	trainLog.Name = "TrainLog"
 	trainLog.Size = UDim2.new(1, 0, 0.15, 0)
@@ -198,7 +188,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	trainLog.Parent = centerContainer
 	Instance.new("UITextSizeConstraint", trainLog).MaxTextSize = 20
 
-	-- Training Progress Bar
 	local trainBarBg = Instance.new("Frame")
 	trainBarBg.Name = "TrainBarBg"
 	trainBarBg.Size = UDim2.new(0.8, 0, 0, 25)
@@ -224,7 +213,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 
 	Instance.new("UICorner", trainBarFill).CornerRadius = UDim.new(0, 6)
 
-	-- Toggle Button
 	toggleTrainBtn = Instance.new("TextButton")
 	toggleTrainBtn.Name = "ToggleTrainBtn"
 	toggleTrainBtn.Size = UDim2.new(0.5, 0, 0, 50)
@@ -244,9 +232,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	Instance.new("UITextSizeConstraint", toggleTrainBtn).MaxTextSize = 22
 
-	-- ========================================================
-	-- LOGIC & EVENTS
-	-- ========================================================
 	toggleTrainBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		isTraining = not isTraining
@@ -289,9 +274,6 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 		end
 	end)
 
-	-- ========================================================
-	-- RESPONSIVE LAYOUT LOGIC
-	-- ========================================================
 	local camera = workspace.CurrentCamera
 	local resizeConn
 
