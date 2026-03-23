@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -16,7 +15,6 @@ function CombatCore.HasModifier(modStr, modName)
 	return false
 end
 
--- Dynamically counts how many of a specific trait are equipped
 function CombatCore.CountTrait(combatant, traitName)
 	local count = 0
 	if combatant.Trait == traitName then count += 1 end
@@ -42,7 +40,6 @@ function CombatCore.CountTrait(combatant, traitName)
 	return count
 end
 
--- Fallback for simple boolean checks
 function CombatCore.HasTrait(combatant, traitName)
 	return CombatCore.CountTrait(combatant, traitName) > 0
 end
@@ -90,7 +87,6 @@ function CombatCore.GetPlayerBoosts(player)
 	return boosts
 end
 
--- CENTRALIZED STRUCT BUILDER (Used by Raids, Arenas, Dungeons, etc.)
 function CombatCore.BuildPlayerStruct(player)
 	local playerTrait = player:GetAttribute("StandTrait") or "None"
 	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
@@ -111,7 +107,6 @@ function CombatCore.BuildPlayerStruct(player)
 	local sName = player:GetAttribute("Stand") or "None"
 	local fStyle = player:GetAttribute("FightingStyle") or "None"
 
-	-- Extract Active Traits (Supporting Fused)
 	local activeTraits = {playerTrait}
 	if sName == "Fused Stand" then
 		activeTraits = {}
@@ -127,7 +122,6 @@ function CombatCore.BuildPlayerStruct(player)
 		return c
 	end
 
-	-- Exponential Stacking for Base Stat Modifiers
 	local toughCount, fierceCount, persCount = cT("Tough"), cT("Fierce"), cT("Perseverance")
 	if toughCount > 0 then pHP *= (1.1 ^ toughCount) end
 	if fierceCount > 0 then pStr *= (1.1 ^ fierceCount) end
