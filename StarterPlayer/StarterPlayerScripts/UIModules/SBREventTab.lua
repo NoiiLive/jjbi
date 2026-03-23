@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local SBREventTab = {}
 
 local player = game.Players.LocalPlayer
@@ -29,6 +30,7 @@ local sbrTopArea, sbrPathArea, rRegionLbl, rDistLbl
 local turnTimerLabel, combatResourceLabel, waitingLabel
 local stamFill, stamTxt
 local safeBtn, restBtn, riskyBtn
+local pathBtns, travelStatusLbl
 
 local cachedTooltipMgr = nil
 local forceTabFocus = nil
@@ -36,6 +38,7 @@ local currentDeadline = 0
 
 local targetName1 = "Select"
 local targetName2 = "Select"
+local lastPathTime = 0
 
 local Names1 = {
 	"Silver","Black","Golden","Midnight","Red","White","Blue","Crimson","Azure","Onyx","Ivory","Ruby","Sapphire","Emerald","Bronze","Copper","Scarlet","Violet",
@@ -54,7 +57,7 @@ local Names2 = {
 	"Comet","Meteor","Nova","Eclipse","Hurricane","Cyclone","Blizzard","Tornado","Storm","Tempest",
 	"Knight","Rider","Champ","Hero","Legend","Master","King","Outlaw","Bandit","Marshal",
 	"Valkyrie","Phantom","Specter","Wanderer","Drifter","Seeker","Spirit","Fury","Flash",
-	"Boi","Unit","Potato","Nugget","Goblin","Meatball","Gremlin","Grandpa","Chungus","Mogger","Goober","Creature","Thing","Lad","Beast", "Idiot", "Chud"
+	"Boi","Unit","Potato","Nugget","Goblin","Meatball","Gremlin","Grandpa","Chungus","Mogger","Goober","Creature","Thing","Lad","Beast", "Idiot", "Chud", "Chad"
 }
 
 local StatusIcons = {
@@ -531,7 +534,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	stamTxt.TextScaled = true; stamTxt.Text = "Horse Stamina: 100/100"
 	stamTxt.ZIndex = 33
 
-	local pathBtns = Instance.new("Frame", sbrPathArea)
+	pathBtns = Instance.new("Frame", sbrPathArea)
 	pathBtns.Size = UDim2.new(1, 0, 1, -35); pathBtns.Position = UDim2.new(0, 0, 0, 35)
 	pathBtns.BackgroundTransparency = 1
 	pathBtns.ZIndex = 31
@@ -562,6 +565,18 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	riskyBtn.ZIndex = 32
 	Instance.new("UICorner", riskyBtn).CornerRadius = UDim.new(0, 8)
 	AddBtnStroke(riskyBtn, 255, 100, 100); Instance.new("UITextSizeConstraint", riskyBtn).MaxTextSize = 22
+
+	travelStatusLbl = Instance.new("TextLabel", sbrPathArea)
+	travelStatusLbl.Size = UDim2.new(1, 0, 1, -35)
+	travelStatusLbl.Position = UDim2.new(0, 0, 0, 35)
+	travelStatusLbl.BackgroundTransparency = 1
+	travelStatusLbl.Font = Enum.Font.GothamMedium
+	travelStatusLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+	travelStatusLbl.TextScaled = true
+	travelStatusLbl.Text = "Horse is traveling..."
+	travelStatusLbl.Visible = false
+	travelStatusLbl.ZIndex = 32
+	Instance.new("UITextSizeConstraint", travelStatusLbl).MaxTextSize = 24
 
 	waitingLabel = Instance.new("TextLabel")
 	waitingLabel.Name = "WaitingLabel"
@@ -596,8 +611,22 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	end
 
 	local function RequestPath(typeStr)
+		if os.time() - lastPathTime < 1 then return end
+		lastPathTime = os.time()
+
 		SFXManager.Play("Click")
 		Network.SBRAction:FireServer("TakePath", typeStr)
+
+		pathBtns.Visible = false
+		travelStatusLbl.Text = typeStr == "Rest" and "Horse is resting..." or "Horse is traveling..."
+		travelStatusLbl.Visible = true
+
+		task.delay(1, function()
+			if travelStatusLbl.Parent then
+				pathBtns.Visible = true
+				travelStatusLbl.Visible = false
+			end
+		end)
 	end
 
 	safeBtn.MouseButton1Click:Connect(function() RequestPath("Safe") end)
