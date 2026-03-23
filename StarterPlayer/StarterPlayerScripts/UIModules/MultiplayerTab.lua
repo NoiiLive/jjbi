@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local MultiplayerTab = {}
 
 local player = game.Players.LocalPlayer
@@ -153,10 +152,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 		local panelAbsHeight = vp.Y * mainPanel.Size.Y.Scale
 		local minHeight = 600
 
-		-- [[ FIXED: DYNAMIC SCROLLING ]]
-		-- The main menu only suspends its scroll wrapper if you are on RaidsTab.
-		-- This guarantees RaidsTab can smoothly scroll nested content, 
-		-- but perfectly restores the normal 600px minimum scale so Trading/Gangs don't squish!
 		if currentActiveTab == "Raids" then
 			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
 			innerContent.ScrollBarImageTransparency = 1
@@ -266,7 +261,6 @@ function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
 	local function ForceSubTabFocus(target)
 		if switchTabFunc then switchTabFunc("Multiplayer") end
 
-		-- Update state and dynamically correct the scroll bounds!
 		currentActiveTab = target
 		UpdateLayoutForScreen()
 
