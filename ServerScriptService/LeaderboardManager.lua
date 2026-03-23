@@ -162,7 +162,6 @@ local function EnqueueProfile(id, isGang)
 	end
 end
 
--- Safely processes 1 profile per second to prevent DataStore throttling
 task.spawn(function()
 	while task.wait(1) do
 		if #ProfileQueue > 0 then
