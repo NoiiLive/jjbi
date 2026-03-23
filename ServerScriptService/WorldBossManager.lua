@@ -131,7 +131,7 @@ local function StartBossBattle(player)
 		return 
 	end
 
-	local pData = CombatCore.BuildPlayerStruct(player)
+	local pData = CombatCore.BuildPlayerStruct(player, true)
 
 	local bossEntity = {
 		IsPlayer = false, IsAlly = false, Name = bossTemplate.Name, Trait = "None", IsBoss = true,
