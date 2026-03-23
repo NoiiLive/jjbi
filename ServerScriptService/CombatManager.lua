@@ -297,8 +297,8 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				if math.random(1, 100) <= boostedChance then
 					local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 					local itemRarity = itemData and itemData.Rarity or "Common"
-					local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka" or itemName == "Heavenly Stand Disc" or itemName == "Saint's Corpse Part")
-
+					local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand"))
+					
 					if player:GetAttribute("AutoSell_" .. itemRarity) and not isIgnored then
 						local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
 						player.leaderstats.Yen.Value += sellVal
