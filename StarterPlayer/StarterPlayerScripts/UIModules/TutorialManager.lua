@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local TutorialManager = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
