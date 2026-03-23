@@ -247,24 +247,20 @@ local function ExecuteTrade(session)
 	ProcessItems(p2, p1, o2)
 
 	local function WipeStand(plr, slot)
+		local prefix = slot == "Active" and "Stand" or "StoredStand" .. string.sub(slot, 5)
+		local traitSuffix = slot == "Active" and "StandTrait" or "StoredStand" .. string.sub(slot, 5) .. "_Trait"
+
+		plr:SetAttribute(prefix, "None")
+		plr:SetAttribute(traitSuffix, "None")
+
+		-- Ensure Fused metadata is also wiped if it was a Fused Stand
 		if slot == "Active" then
-			plr:SetAttribute("Stand", "None")
-			plr:SetAttribute("StandTrait", "None")
-		elseif slot == "Slot1" then
-			plr:SetAttribute("StoredStand1", "None")
-			plr:SetAttribute("StoredStand1_Trait", "None")
-		elseif slot == "Slot2" then
-			plr:SetAttribute("StoredStand2", "None")
-			plr:SetAttribute("StoredStand2_Trait", "None")
-		elseif slot == "Slot3" then
-			plr:SetAttribute("StoredStand3", "None")
-			plr:SetAttribute("StoredStand3_Trait", "None")
-		elseif slot == "Slot4" then
-			plr:SetAttribute("StoredStand4", "None")
-			plr:SetAttribute("StoredStand4_Trait", "None")
-		elseif slot == "Slot5" then
-			plr:SetAttribute("StoredStand5", "None")
-			plr:SetAttribute("StoredStand5_Trait", "None")
+			plr:SetAttribute("Active_FusedStand1", "None"); plr:SetAttribute("Active_FusedStand2", "None")
+			plr:SetAttribute("Active_FusedTrait1", "None"); plr:SetAttribute("Active_FusedTrait2", "None")
+		else
+			local num = string.sub(slot, 5)
+			plr:SetAttribute("StoredStand"..num.."_FusedStand1", "None"); plr:SetAttribute("StoredStand"..num.."_FusedStand2", "None")
+			plr:SetAttribute("StoredStand"..num.."_FusedTrait1", "None"); plr:SetAttribute("StoredStand"..num.."_FusedTrait2", "None")
 		end
 	end
 
@@ -285,32 +281,31 @@ local function ExecuteTrade(session)
 	if o1.Style then WipeStyle(p1, o1.Style.Slot) end
 	if o2.Style then WipeStyle(p2, o2.Style.Slot) end
 
-	if o1.Stand then
-		p2:SetAttribute("PendingStand_Name", o1.Stand.Name)
-		p2:SetAttribute("PendingStand_Trait", o1.Stand.Trait)
-		TradeUpdate:FireClient(p2, "ShowClaimPrompt", {
-			Name = o1.Stand.Name,
-			Active = p2:GetAttribute("Stand") or "None",
-			Slot1 = p2:GetAttribute("StoredStand1") or "None",
-			Slot2 = p2:GetAttribute("StoredStand2") or "None",
-			Slot3 = p2:GetAttribute("StoredStand3") or "None",
-			Slot4 = p2:GetAttribute("StoredStand4") or "None",
-			Slot5 = p2:GetAttribute("StoredStand5") or "None"
+	local function DispatchStandClaim(recipient, senderOffer)
+		recipient:SetAttribute("PendingStand_Name", senderOffer.Stand.Name)
+		recipient:SetAttribute("PendingStand_Trait", senderOffer.Stand.Trait)
+
+		-- Fused Stands dynamically pass their metadata strings to be unpacked on claim!
+		if senderOffer.Stand.Name == "Fused Stand" then
+			recipient:SetAttribute("PendingStand_FusedS1", senderOffer.Stand.FusedS1)
+			recipient:SetAttribute("PendingStand_FusedS2", senderOffer.Stand.FusedS2)
+			recipient:SetAttribute("PendingStand_FusedT1", senderOffer.Stand.FusedT1)
+			recipient:SetAttribute("PendingStand_FusedT2", senderOffer.Stand.FusedT2)
+		end
+
+		TradeUpdate:FireClient(recipient, "ShowClaimPrompt", {
+			Name = senderOffer.Stand.Name,
+			Active = recipient:GetAttribute("Stand") or "None",
+			Slot1 = recipient:GetAttribute("StoredStand1") or "None",
+			Slot2 = recipient:GetAttribute("StoredStand2") or "None",
+			Slot3 = recipient:GetAttribute("StoredStand3") or "None",
+			Slot4 = recipient:GetAttribute("StoredStand4") or "None",
+			Slot5 = recipient:GetAttribute("StoredStand5") or "None"
 		})
 	end
-	if o2.Stand then
-		p1:SetAttribute("PendingStand_Name", o2.Stand.Name)
-		p1:SetAttribute("PendingStand_Trait", o2.Stand.Trait)
-		TradeUpdate:FireClient(p1, "ShowClaimPrompt", {
-			Name = o2.Stand.Name,
-			Active = p1:GetAttribute("Stand") or "None",
-			Slot1 = p1:GetAttribute("StoredStand1") or "None",
-			Slot2 = p1:GetAttribute("StoredStand2") or "None",
-			Slot3 = p1:GetAttribute("StoredStand3") or "None",
-			Slot4 = p1:GetAttribute("StoredStand4") or "None",
-			Slot5 = p1:GetAttribute("StoredStand5") or "None"
-		})
-	end
+
+	if o1.Stand then DispatchStandClaim(p2, o1) end
+	if o2.Stand then DispatchStandClaim(p1, o2) end
 
 	if o1.Style then
 		p2:SetAttribute("PendingStyle_Name", o1.Style.Name)
@@ -386,33 +381,41 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if not pName or pName == "" or pName == "None" then return end
 
 			local slot = data
-			if slot == "Active" then
-				player:SetAttribute("Stand", pName)
-				player:SetAttribute("StandTrait", pTrait)
 
-				local stats = StandData.Stands[pName] and StandData.Stands[pName].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
-				for statName, rank in pairs(stats) do
-					player:SetAttribute("Stand_"..statName, rank)
+			local function applyStandToSlot(prefix, traitSuffix, numSuffix)
+				player:SetAttribute(prefix, pName)
+				player:SetAttribute(traitSuffix, pTrait)
+
+				if pName == "Fused Stand" then
+					local fs1 = player:GetAttribute("PendingStand_FusedS1") or "None"
+					local fs2 = player:GetAttribute("PendingStand_FusedS2") or "None"
+					local ft1 = player:GetAttribute("PendingStand_FusedT1") or "None"
+					local ft2 = player:GetAttribute("PendingStand_FusedT2") or "None"
+
+					if numSuffix == "Active" then
+						player:SetAttribute("Active_FusedStand1", fs1); player:SetAttribute("Active_FusedStand2", fs2)
+						player:SetAttribute("Active_FusedTrait1", ft1); player:SetAttribute("Active_FusedTrait2", ft2)
+					else
+						player:SetAttribute("StoredStand"..numSuffix.."_FusedStand1", fs1); player:SetAttribute("StoredStand"..numSuffix.."_FusedStand2", fs2)
+						player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait1", ft1); player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait2", ft2)
+					end
 				end
-			elseif slot == "Slot1" then
-				player:SetAttribute("StoredStand1", pName)
-				player:SetAttribute("StoredStand1_Trait", pTrait)
-			elseif slot == "Slot2" then
-				player:SetAttribute("StoredStand2", pName)
-				player:SetAttribute("StoredStand2_Trait", pTrait)
-			elseif slot == "Slot3" then
-				player:SetAttribute("StoredStand3", pName)
-				player:SetAttribute("StoredStand3_Trait", pTrait)
-			elseif slot == "Slot4" then
-				player:SetAttribute("StoredStand4", pName)
-				player:SetAttribute("StoredStand4_Trait", pTrait)
-			elseif slot == "Slot5" then
-				player:SetAttribute("StoredStand5", pName)
-				player:SetAttribute("StoredStand5_Trait", pTrait)
 			end
 
-			player:SetAttribute("PendingStand_Name", "None")
-			player:SetAttribute("PendingStand_Trait", "None")
+			if slot == "Active" then
+				applyStandToSlot("Stand", "StandTrait", "Active")
+				local stats = StandData.Stands[pName] and StandData.Stands[pName].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
+				for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
+			elseif slot == "Slot1" then applyStandToSlot("StoredStand1", "StoredStand1_Trait", "1")
+			elseif slot == "Slot2" then applyStandToSlot("StoredStand2", "StoredStand2_Trait", "2")
+			elseif slot == "Slot3" then applyStandToSlot("StoredStand3", "StoredStand3_Trait", "3")
+			elseif slot == "Slot4" then applyStandToSlot("StoredStand4", "StoredStand4_Trait", "4")
+			elseif slot == "Slot5" then applyStandToSlot("StoredStand5", "StoredStand5_Trait", "5") end
+
+			player:SetAttribute("PendingStand_Name", "None"); player:SetAttribute("PendingStand_Trait", "None")
+			player:SetAttribute("PendingStand_FusedS1", "None"); player:SetAttribute("PendingStand_FusedS2", "None")
+			player:SetAttribute("PendingStand_FusedT1", "None"); player:SetAttribute("PendingStand_FusedT2", "None")
+
 			TradeUpdate:FireClient(player, "HideClaimPrompt")
 			NotificationEvent:FireClient(player, "<font color='#A020F0'>Stand safely stored!</font>")
 
@@ -531,28 +534,54 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			local slot = data
 			local sName, sTrait = "None", "None"
 
+			local fS1, fS2, fT1, fT2 = "None", "None", "None", "None"
+
 			if slot == "Active" then
 				sName = player:GetAttribute("Stand") or "None"
 				sTrait = player:GetAttribute("StandTrait") or "None"
+				if sName == "Fused Stand" then
+					fS1 = player:GetAttribute("Active_FusedStand1") or "None"; fS2 = player:GetAttribute("Active_FusedStand2") or "None"
+					fT1 = player:GetAttribute("Active_FusedTrait1") or "None"; fT2 = player:GetAttribute("Active_FusedTrait2") or "None"
+				end
 			elseif slot == "Slot1" then
 				sName = player:GetAttribute("StoredStand1") or "None"
 				sTrait = player:GetAttribute("StoredStand1_Trait") or "None"
+				if sName == "Fused Stand" then
+					fS1 = player:GetAttribute("StoredStand1_FusedStand1") or "None"; fS2 = player:GetAttribute("StoredStand1_FusedStand2") or "None"
+					fT1 = player:GetAttribute("StoredStand1_FusedTrait1") or "None"; fT2 = player:GetAttribute("StoredStand1_FusedTrait2") or "None"
+				end
 			elseif slot == "Slot2" then
 				sName = player:GetAttribute("StoredStand2") or "None"
 				sTrait = player:GetAttribute("StoredStand2_Trait") or "None"
+				if sName == "Fused Stand" then
+					fS1 = player:GetAttribute("StoredStand2_FusedStand1") or "None"; fS2 = player:GetAttribute("StoredStand2_FusedStand2") or "None"
+					fT1 = player:GetAttribute("StoredStand2_FusedTrait1") or "None"; fT2 = player:GetAttribute("StoredStand2_FusedTrait2") or "None"
+				end
 			elseif slot == "Slot3" then
 				sName = player:GetAttribute("StoredStand3") or "None"
 				sTrait = player:GetAttribute("StoredStand3_Trait") or "None"
+				if sName == "Fused Stand" then
+					fS1 = player:GetAttribute("StoredStand3_FusedStand1") or "None"; fS2 = player:GetAttribute("StoredStand3_FusedStand2") or "None"
+					fT1 = player:GetAttribute("StoredStand3_FusedTrait1") or "None"; fT2 = player:GetAttribute("StoredStand3_FusedTrait2") or "None"
+				end
 			elseif slot == "Slot4" then
 				sName = player:GetAttribute("StoredStand4") or "None"
 				sTrait = player:GetAttribute("StoredStand4_Trait") or "None"
+				if sName == "Fused Stand" then
+					fS1 = player:GetAttribute("StoredStand4_FusedStand1") or "None"; fS2 = player:GetAttribute("StoredStand4_FusedStand2") or "None"
+					fT1 = player:GetAttribute("StoredStand4_FusedTrait1") or "None"; fT2 = player:GetAttribute("StoredStand4_FusedTrait2") or "None"
+				end
 			elseif slot == "Slot5" then
 				sName = player:GetAttribute("StoredStand5") or "None"
 				sTrait = player:GetAttribute("StoredStand5_Trait") or "None"
+				if sName == "Fused Stand" then
+					fS1 = player:GetAttribute("StoredStand5_FusedStand1") or "None"; fS2 = player:GetAttribute("StoredStand5_FusedStand2") or "None"
+					fT1 = player:GetAttribute("StoredStand5_FusedTrait1") or "None"; fT2 = player:GetAttribute("StoredStand5_FusedTrait2") or "None"
+				end
 			end
 
 			if sName ~= "None" then
-				myOffer.Stand = { Slot = slot, Name = sName, Trait = sTrait }
+				myOffer.Stand = { Slot = slot, Name = sName, Trait = sTrait, FusedS1 = fS1, FusedS2 = fS2, FusedT1 = fT1, FusedT2 = fT2 }
 				UnlockTrade()
 				SyncTrade(session)
 			end
