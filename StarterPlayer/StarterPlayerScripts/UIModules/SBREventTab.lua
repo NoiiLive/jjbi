@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local SBREventTab = {}
 
 local player = game.Players.LocalPlayer
@@ -8,11 +7,12 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 local RunService = game:GetService("RunService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local isStudio = RunService:IsStudio()
-local SFXManager = require(script.Parent:WaitForChild("SFXManager"))
+local UIModules = script.Parent
+local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
-local NotificationManager = require(script.Parent:WaitForChild("NotificationManager"))
-local CombatTemplate = require(script.Parent:WaitForChild("CombatTemplate"))
+local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
+local CombatTemplate = require(UIModules:WaitForChild("CombatTemplate"))
 local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 
 local REROLL_ROBUX_PRODUCT_ID = 3554941196
@@ -82,56 +82,15 @@ local function FormatTime(seconds)
 	return string.format("%02d:%02d", m, s)
 end
 
-local function CreateCard(name, parent, size, pos)
-	local frame = Instance.new("Frame")
-	frame.Name = name
-	frame.Size = size
-	if pos then frame.Position = pos end
-	frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
-	frame.ZIndex = 20
-	frame.Parent = parent
-	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(90, 50, 120)
-	stroke.Thickness = 1
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = frame
-	return frame
-end
+local function SetupDropdown(dropBtn, listFrame, itemList, onSelect)
+	dropBtn.Text = "Select"
 
-local function AddBtnStroke(btn, r, g, b)
-	local s = Instance.new("UIStroke")
-	s.Color = Color3.fromRGB(r, g, b)
-	s.Thickness = 1.5
-	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	s.Parent = btn
-	return s
-end
-
-local function CreateDropdown(parentObj, defaultText, itemList, onSelect)
-	parentObj.Text = defaultText
-
-	local listFrame = Instance.new("ScrollingFrame")
-	listFrame.Size = UDim2.new(1, 0, 0, 120)
-	listFrame.Position = UDim2.new(0, 0, 0, -125) 
-	listFrame.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	listFrame.ScrollBarThickness = 6
-	listFrame.ScrollBarImageColor3 = Color3.fromRGB(120, 60, 180)
-	listFrame.ZIndex = 100
-	listFrame.Visible = false
-	listFrame.Parent = parentObj
-	Instance.new("UICorner", listFrame).CornerRadius = UDim.new(0, 6)
-
-	local lStr = Instance.new("UIStroke")
-	lStr.Color = Color3.fromRGB(255, 215, 50)
-	lStr.Thickness = 2
-	lStr.Parent = listFrame
-
-	local layout = Instance.new("UIListLayout", listFrame)
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	for _, child in pairs(listFrame:GetChildren()) do
+		if child:IsA("TextButton") then child:Destroy() end
+	end
 
 	table.sort(itemList)
-	for i, opt in ipairs(itemList) do
+	for _, opt in ipairs(itemList) do
 		local b = Instance.new("TextButton", listFrame)
 		b.Size = UDim2.new(1, -6, 0, 30)
 		b.BackgroundTransparency = 1
@@ -143,14 +102,15 @@ local function CreateDropdown(parentObj, defaultText, itemList, onSelect)
 
 		b.MouseButton1Click:Connect(function()
 			SFXManager.Play("Click")
-			parentObj.Text = opt
+			dropBtn.Text = opt
 			listFrame.Visible = false
 			onSelect(opt)
 		end)
 	end
+
 	listFrame.CanvasSize = UDim2.new(0, 0, 0, #itemList * 30)
 
-	parentObj.MouseButton1Click:Connect(function()
+	dropBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		listFrame.Visible = not listFrame.Visible
 	end)
@@ -161,48 +121,43 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
 
-	lobbyContainer = Instance.new("Frame")
-	lobbyContainer.Name = "LobbyContainer"
-	lobbyContainer.Size = UDim2.new(1, 0, 1, 0)
-	lobbyContainer.BackgroundTransparency = 1
-	lobbyContainer.Visible = true
-	lobbyContainer.Parent = mainContainer
+	local templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 
-	local lcPad = Instance.new("UIPadding")
-	lcPad.PaddingTop = UDim.new(0.02, 0); lcPad.PaddingBottom = UDim.new(0.02, 0)
-	lcPad.PaddingLeft = UDim.new(0.02, 0); lcPad.PaddingRight = UDim.new(0.02, 0)
-	lcPad.Parent = lobbyContainer
+	lobbyContainer = mainContainer:WaitForChild("LobbyContainer")
+	local stableCard = lobbyContainer:WaitForChild("StableCard")
+	local queueCard = lobbyContainer:WaitForChild("QueueCard")
 
-	local stableCard = CreateCard("StableCard", lobbyContainer, UDim2.new(0.48, 0, 1, 0), UDim2.new(0, 0, 0, 0))
+	horseNameLbl = stableCard:WaitForChild("HorseNameLbl")
+	traitLbl = stableCard:WaitForChild("TraitLbl")
 
-	local scPad = Instance.new("UIPadding")
-	scPad.PaddingTop = UDim.new(0, 15); scPad.PaddingBottom = UDim.new(0, 15)
-	scPad.PaddingLeft = UDim.new(0, 15); scPad.PaddingRight = UDim.new(0, 15)
-	scPad.Parent = stableCard
+	local statRow = stableCard:WaitForChild("StatRow")
+	speedValLbl = statRow:WaitForChild("SpeedValLbl")
+	upgSpeedBtn = statRow:WaitForChild("UpgSpeedBtn")
 
-	local scLayout = Instance.new("UIListLayout", stableCard)
-	scLayout.SortOrder = Enum.SortOrder.LayoutOrder; scLayout.Padding = UDim.new(0.025, 0)
+	local statRow2 = stableCard:WaitForChild("StatRow2")
+	endValLbl = statRow2:WaitForChild("EndValLbl")
+	upgEndBtn = statRow2:WaitForChild("UpgEndBtn")
 
-	local sTitle = Instance.new("TextLabel", stableCard)
-	sTitle.Size = UDim2.new(1, 0, 0.08, 0); sTitle.BackgroundTransparency = 1
-	sTitle.Font = Enum.Font.GothamBlack; sTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	sTitle.TextScaled = true; sTitle.Text = "MY STABLE"; sTitle.LayoutOrder = 1
-	sTitle.ZIndex = 22
-	Instance.new("UITextSizeConstraint", sTitle).MaxTextSize = 24
+	upgTimerLbl = stableCard:WaitForChild("UpgTimerLbl")
 
-	horseNameLbl = Instance.new("TextLabel", stableCard)
-	horseNameLbl.Size = UDim2.new(1, 0, 0.1, 0); horseNameLbl.BackgroundTransparency = 1
-	horseNameLbl.Font = Enum.Font.GothamBold; horseNameLbl.TextColor3 = Color3.new(1, 1, 1)
-	horseNameLbl.TextScaled = true; horseNameLbl.Text = "Unknown Steed"; horseNameLbl.LayoutOrder = 2
-	horseNameLbl.ZIndex = 22
-	Instance.new("UITextSizeConstraint", horseNameLbl).MaxTextSize = 22
+	local rerollRow = stableCard:WaitForChild("RerollRow")
+	rerollYenBtn = rerollRow:WaitForChild("RerollYenBtn")
+	rerollRobuxBtn = rerollRow:WaitForChild("RerollRobuxBtn")
 
-	traitLbl = Instance.new("TextLabel", stableCard)
-	traitLbl.Size = UDim2.new(1, 0, 0.06, 0); traitLbl.BackgroundTransparency = 1
-	traitLbl.Font = Enum.Font.GothamMedium; traitLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	traitLbl.TextScaled = true; traitLbl.Text = "Trait: None"; traitLbl.LayoutOrder = 3
-	traitLbl.ZIndex = 22
-	Instance.new("UITextSizeConstraint", traitLbl).MaxTextSize = 16
+	local nameRow = stableCard:WaitForChild("NameRow")
+	local n1Drop = nameRow:WaitForChild("N1Drop")
+	local n2Drop = nameRow:WaitForChild("N2Drop")
+	local setNameBtn = nameRow:WaitForChild("SetNameBtn")
+
+	SetupDropdown(n1Drop, n1Drop:WaitForChild("ListScroll"), Names1, function(val) targetName1 = val end)
+	SetupDropdown(n2Drop, n2Drop:WaitForChild("ListScroll"), Names2, function(val) targetName2 = val end)
+
+	timerLbl = queueCard:WaitForChild("TimerLbl")
+	queueCountLbl = queueCard:WaitForChild("QueueCountLbl")
+	queueBtn = queueCard:WaitForChild("QueueBtn")
+	forceStartBtn = queueCard:WaitForChild("ForceStartBtn")
+
+	forceStartBtn.Visible = isStudio
 
 	traitLbl.MouseEnter:Connect(function()
 		local t = player:GetAttribute("HorseTrait") or "None"
@@ -211,163 +166,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		cachedTooltipMgr.Show("<b><font color='"..color.."'>" .. t .. "</font></b>\n____________________\n\n" .. desc)
 	end)
 	traitLbl.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
-
-	local statRow = Instance.new("Frame", stableCard)
-	statRow.Size = UDim2.new(1, 0, 0.11, 0); statRow.BackgroundTransparency = 1; statRow.LayoutOrder = 4
-	statRow.ZIndex = 21
-
-	speedValLbl = Instance.new("TextLabel", statRow)
-	speedValLbl.Size = UDim2.new(0.45, 0, 1, 0); speedValLbl.BackgroundTransparency = 1
-	speedValLbl.Font = Enum.Font.GothamBold; speedValLbl.TextColor3 = Color3.fromRGB(50, 255, 50)
-	speedValLbl.TextScaled = true; speedValLbl.TextXAlignment = Enum.TextXAlignment.Left
-	speedValLbl.ZIndex = 22
-	Instance.new("UITextSizeConstraint", speedValLbl).MaxTextSize = 18
-
-	upgSpeedBtn = Instance.new("TextButton", statRow)
-	upgSpeedBtn.Size = UDim2.new(0.5, 0, 1, 0); upgSpeedBtn.Position = UDim2.new(0.5, 0, 0, 0)
-	upgSpeedBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40); upgSpeedBtn.Font = Enum.Font.GothamBold
-	upgSpeedBtn.TextColor3 = Color3.new(1, 1, 1); upgSpeedBtn.TextScaled = true; upgSpeedBtn.Text = "Upgrade Speed (100k)"
-	upgSpeedBtn.ZIndex = 22
-	Instance.new("UICorner", upgSpeedBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(upgSpeedBtn, 80, 180, 80)
-	Instance.new("UITextSizeConstraint", upgSpeedBtn).MaxTextSize = 14
-
-	local statRow2 = Instance.new("Frame", stableCard)
-	statRow2.Size = UDim2.new(1, 0, 0.11, 0); statRow2.BackgroundTransparency = 1; statRow2.LayoutOrder = 5
-	statRow2.ZIndex = 21
-
-	endValLbl = Instance.new("TextLabel", statRow2)
-	endValLbl.Size = UDim2.new(0.45, 0, 1, 0); endValLbl.BackgroundTransparency = 1
-	endValLbl.Font = Enum.Font.GothamBold; endValLbl.TextColor3 = Color3.fromRGB(50, 255, 255)
-	endValLbl.TextScaled = true; endValLbl.TextXAlignment = Enum.TextXAlignment.Left
-	endValLbl.ZIndex = 22
-	Instance.new("UITextSizeConstraint", endValLbl).MaxTextSize = 18
-
-	upgEndBtn = Instance.new("TextButton", statRow2)
-	upgEndBtn.Size = UDim2.new(0.5, 0, 1, 0); upgEndBtn.Position = UDim2.new(0.5, 0, 0, 0)
-	upgEndBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 140); upgEndBtn.Font = Enum.Font.GothamBold
-	upgEndBtn.TextColor3 = Color3.new(1, 1, 1); upgEndBtn.TextScaled = true; upgEndBtn.Text = "Upgrade Endurance (100k)"
-	upgEndBtn.ZIndex = 22
-	Instance.new("UICorner", upgEndBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(upgEndBtn, 80, 180, 180)
-	Instance.new("UITextSizeConstraint", upgEndBtn).MaxTextSize = 14
-
-	upgTimerLbl = Instance.new("TextLabel", stableCard)
-	upgTimerLbl.Size = UDim2.new(1, 0, 0.06, 0); upgTimerLbl.BackgroundTransparency = 1
-	upgTimerLbl.Font = Enum.Font.GothamMedium; upgTimerLbl.TextColor3 = Color3.fromRGB(255, 215, 0)
-	upgTimerLbl.TextScaled = true; upgTimerLbl.Text = ""; upgTimerLbl.LayoutOrder = 6
-	upgTimerLbl.ZIndex = 22
-	Instance.new("UITextSizeConstraint", upgTimerLbl).MaxTextSize = 14
-
-	local rerollRow = Instance.new("Frame", stableCard)
-	rerollRow.Size = UDim2.new(1, 0, 0.11, 0); rerollRow.BackgroundTransparency = 1; rerollRow.LayoutOrder = 7
-	rerollRow.ZIndex = 21
-
-	rerollYenBtn = Instance.new("TextButton", rerollRow)
-	rerollYenBtn.Size = UDim2.new(0.48, 0, 1, 0); rerollYenBtn.BackgroundColor3 = Color3.fromRGB(180, 140, 20)
-	rerollYenBtn.Font = Enum.Font.GothamBold; rerollYenBtn.TextColor3 = Color3.new(1,1,1)
-	rerollYenBtn.TextScaled = true; rerollYenBtn.Text = "Reroll Trait (1M ¥)"
-	rerollYenBtn.ZIndex = 22
-	Instance.new("UICorner", rerollYenBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(rerollYenBtn, 220, 180, 80); Instance.new("UITextSizeConstraint", rerollYenBtn).MaxTextSize = 14
-
-	rerollRobuxBtn = Instance.new("TextButton", rerollRow)
-	rerollRobuxBtn.Size = UDim2.new(0.48, 0, 1, 0); rerollRobuxBtn.Position = UDim2.new(0.52, 0, 0, 0)
-	rerollRobuxBtn.BackgroundColor3 = Color3.fromRGB(20, 140, 60)
-	rerollRobuxBtn.Font = Enum.Font.GothamBold; rerollRobuxBtn.TextColor3 = Color3.new(1,1,1)
-	rerollRobuxBtn.TextScaled = true; rerollRobuxBtn.Text = "Reroll Name (2 R$)"
-	rerollRobuxBtn.ZIndex = 22
-	Instance.new("UICorner", rerollRobuxBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(rerollRobuxBtn, 80, 220, 120); Instance.new("UITextSizeConstraint", rerollRobuxBtn).MaxTextSize = 14
-
-	local nameTitle = Instance.new("TextLabel", stableCard)
-	nameTitle.Size = UDim2.new(1, 0, 0.06, 0); nameTitle.BackgroundTransparency = 1
-	nameTitle.Font = Enum.Font.GothamBlack; nameTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	nameTitle.TextScaled = true; nameTitle.Text = "CUSTOM HORSE NAME"; nameTitle.LayoutOrder = 8
-	nameTitle.ZIndex = 22
-	Instance.new("UITextSizeConstraint", nameTitle).MaxTextSize = 14
-
-	local nameRow = Instance.new("Frame", stableCard)
-	nameRow.Size = UDim2.new(1, 0, 0.11, 0); nameRow.BackgroundTransparency = 1; nameRow.LayoutOrder = 9
-	nameRow.ZIndex = 21
-
-	local n1Drop = Instance.new("TextButton", nameRow)
-	n1Drop.Size = UDim2.new(0.35, 0, 1, 0); n1Drop.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-	n1Drop.Font = Enum.Font.GothamBold; n1Drop.TextColor3 = Color3.new(1,1,1); n1Drop.TextScaled = true
-	n1Drop.ZIndex = 22
-	Instance.new("UICorner", n1Drop).CornerRadius = UDim.new(0, 6); AddBtnStroke(n1Drop, 100, 70, 120)
-
-	local n2Drop = Instance.new("TextButton", nameRow)
-	n2Drop.Size = UDim2.new(0.35, 0, 1, 0); n2Drop.Position = UDim2.new(0.38, 0, 0, 0)
-	n2Drop.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-	n2Drop.Font = Enum.Font.GothamBold; n2Drop.TextColor3 = Color3.new(1,1,1); n2Drop.TextScaled = true
-	n2Drop.ZIndex = 22
-	Instance.new("UICorner", n2Drop).CornerRadius = UDim.new(0, 6); AddBtnStroke(n2Drop, 100, 70, 120)
-
-	local setNameBtn = Instance.new("TextButton", nameRow)
-	setNameBtn.Size = UDim2.new(0.24, 0, 1, 0); setNameBtn.Position = UDim2.new(0.76, 0, 0, 0)
-	setNameBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-	setNameBtn.Font = Enum.Font.GothamBold; setNameBtn.TextColor3 = Color3.new(1,1,1); setNameBtn.TextScaled = true
-	setNameBtn.ZIndex = 22
-	Instance.new("UICorner", setNameBtn).CornerRadius = UDim.new(0, 6); AddBtnStroke(setNameBtn, 80, 200, 80)
-	Instance.new("UITextSizeConstraint", setNameBtn).MaxTextSize = 14
-
-	CreateDropdown(n1Drop, "Select", Names1, function(val) targetName1 = val end)
-	CreateDropdown(n2Drop, "Select", Names2, function(val) targetName2 = val end)
-
-	local queueCard = CreateCard("QueueCard", lobbyContainer, UDim2.new(0.48, 0, 1, 0), UDim2.new(0.52, 0, 0, 0))
-	local qcPad = Instance.new("UIPadding")
-	qcPad.PaddingTop = UDim.new(0, 15); qcPad.PaddingBottom = UDim.new(0, 15)
-	qcPad.PaddingLeft = UDim.new(0, 15); qcPad.PaddingRight = UDim.new(0, 15)
-	qcPad.Parent = queueCard
-
-	local qcLayout = Instance.new("UIListLayout", queueCard)
-	qcLayout.SortOrder = Enum.SortOrder.LayoutOrder; qcLayout.Padding = UDim.new(0.05, 0)
-	qcLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-	local qTitle = Instance.new("TextLabel", queueCard)
-	qTitle.Size = UDim2.new(1, 0, 0.1, 0); qTitle.BackgroundTransparency = 1
-	qTitle.Font = Enum.Font.GothamBlack; qTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	qTitle.TextScaled = true; qTitle.Text = "SBR EVENT"; qTitle.LayoutOrder = 1
-	qTitle.ZIndex = 22
-	Instance.new("UITextSizeConstraint", qTitle).MaxTextSize = 28
-
-	timerLbl = Instance.new("TextLabel", queueCard)
-	timerLbl.Size = UDim2.new(1, 0, 0.25, 0); timerLbl.BackgroundTransparency = 1
-	timerLbl.Font = Enum.Font.GothamBlack; timerLbl.TextColor3 = Color3.new(1, 1, 1)
-	timerLbl.TextScaled = true; timerLbl.RichText = true; timerLbl.Text = "NEXT RACE IN\n--:--"; timerLbl.LayoutOrder = 2
-	timerLbl.ZIndex = 22
-	Instance.new("UITextSizeConstraint", timerLbl).MaxTextSize = 40
-
-	queueCountLbl = Instance.new("TextLabel", queueCard)
-	queueCountLbl.Size = UDim2.new(1, 0, 0.1, 0); queueCountLbl.BackgroundTransparency = 1
-	queueCountLbl.Font = Enum.Font.GothamMedium; queueCountLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	queueCountLbl.TextScaled = true; queueCountLbl.Text = "Players in Queue: 0"; queueCountLbl.LayoutOrder = 3
-	queueCountLbl.ZIndex = 22
-	Instance.new("UITextSizeConstraint", queueCountLbl).MaxTextSize = 20
-
-	queueBtn = Instance.new("TextButton", queueCard)
-	queueBtn.Size = UDim2.new(0.8, 0, 0.2, 0); queueBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-	queueBtn.Font = Enum.Font.GothamBold; queueBtn.TextColor3 = Color3.new(1,1,1)
-	queueBtn.TextScaled = true; queueBtn.Text = "Join Event Queue"; queueBtn.LayoutOrder = 4
-	queueBtn.ZIndex = 22
-	Instance.new("UICorner", queueBtn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(queueBtn, 80, 200, 80)
-	Instance.new("UITextSizeConstraint", queueBtn).MaxTextSize = 24
-
-	forceStartBtn = Instance.new("TextButton", queueCard)
-	forceStartBtn.Size = UDim2.new(0.8, 0, 0.15, 0)
-	forceStartBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20)
-	forceStartBtn.Font = Enum.Font.GothamBold
-	forceStartBtn.TextColor3 = Color3.new(1,1,1)
-	forceStartBtn.TextScaled = true
-	forceStartBtn.Text = "Force Start (Studio)"
-	forceStartBtn.LayoutOrder = 5
-	forceStartBtn.ZIndex = 22
-	Instance.new("UICorner", forceStartBtn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(forceStartBtn, 220, 140, 80)
-	forceStartBtn.Visible = false
-	Instance.new("UITextSizeConstraint", forceStartBtn).MaxTextSize = 18
 
 	forceStartBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
@@ -439,13 +237,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	player:GetAttributeChangedSignal("HorseTrait"):Connect(UpdateStableUI)
 	UpdateStableUI()
 
-	raceContainer = Instance.new("Frame")
-	raceContainer.Name = "RaceContainer"
-	raceContainer.Size = UDim2.new(1, 0, 1, 0)
-	raceContainer.BackgroundTransparency = 1
-	raceContainer.Visible = false
-	raceContainer.Parent = mainContainer
-
+	raceContainer = mainContainer:WaitForChild("RaceContainer")
 	combatUI = CombatTemplate.Create(raceContainer, tooltipMgr)
 
 	local function AppendLog(text)
@@ -465,132 +257,34 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end)
 	end
 
-	sbrTopArea = Instance.new("Frame")
-	sbrTopArea.Size = UDim2.new(1, 0, 0, 30)
-	sbrTopArea.BackgroundTransparency = 1
-	sbrTopArea.LayoutOrder = 0
-	sbrTopArea.ZIndex = 30
+	sbrTopArea = templates:WaitForChild("SBRTopAreaTemplate"):Clone()
 	sbrTopArea.Parent = combatUI.ContentContainer
 
-	rRegionLbl = Instance.new("TextLabel", sbrTopArea)
-	rRegionLbl.Size = UDim2.new(0.5, 0, 1, 0); rRegionLbl.BackgroundTransparency = 1
-	rRegionLbl.Font = Enum.Font.GothamBlack; rRegionLbl.TextColor3 = Color3.fromRGB(255, 215, 50)
-	rRegionLbl.TextScaled = true; rRegionLbl.TextXAlignment = Enum.TextXAlignment.Left
-	rRegionLbl.Text = "Region: San Diego Beach"
-	rRegionLbl.ZIndex = 31
+	rRegionLbl = sbrTopArea:WaitForChild("RegionLbl")
+	rDistLbl = sbrTopArea:WaitForChild("DistLbl")
 
-	rDistLbl = Instance.new("TextLabel", sbrTopArea)
-	rDistLbl.Size = UDim2.new(0.5, 0, 1, 0); rDistLbl.Position = UDim2.new(0.5, 0, 0, 0)
-	rDistLbl.BackgroundTransparency = 1; rDistLbl.Font = Enum.Font.GothamBlack
-	rDistLbl.TextColor3 = Color3.fromRGB(50, 255, 255); rDistLbl.TextScaled = true
-	rDistLbl.TextXAlignment = Enum.TextXAlignment.Right; rDistLbl.Text = "Distance: 0 / 10000m"
-	rDistLbl.ZIndex = 31
-
-	turnTimerLabel = Instance.new("TextLabel")
-	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
-	turnTimerLabel.Position = UDim2.new(0, 0, 0, -5)
-	turnTimerLabel.BackgroundTransparency = 1
-	turnTimerLabel.Font = Enum.Font.GothamBlack
-	turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-	turnTimerLabel.TextScaled = true
-	turnTimerLabel.ZIndex = 30
-	turnTimerLabel.Text = "Time Remaining: --s"
-	turnTimerLabel.Visible = false
+	turnTimerLabel = templates:WaitForChild("SBRTurnTimerTemplate"):Clone()
 	turnTimerLabel.Parent = combatUI.MainFrame
 
-	combatResourceLabel = Instance.new("TextLabel")
-	combatResourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	combatResourceLabel.BackgroundTransparency = 1
-	combatResourceLabel.Font = Enum.Font.GothamBold
-	combatResourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	combatResourceLabel.TextScaled = true
-	combatResourceLabel.ZIndex = 32
-	combatResourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
-	combatResourceLabel.LayoutOrder = 2 
-	combatResourceLabel.Visible = false
+	combatResourceLabel = templates:WaitForChild("SBRResourceLabelTemplate"):Clone()
 	combatResourceLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", combatResourceLabel).MaxTextSize = 18
 
-	sbrPathArea = Instance.new("Frame")
-	sbrPathArea.Size = UDim2.new(1, 0, 0.35, 0)
-	sbrPathArea.BackgroundTransparency = 1
-	sbrPathArea.LayoutOrder = 5
-	sbrPathArea.ZIndex = 30
+	sbrPathArea = templates:WaitForChild("SBRPathAreaTemplate"):Clone()
 	sbrPathArea.Parent = combatUI.ContentContainer
 
-	local sBg = Instance.new("Frame", sbrPathArea)
-	sBg.Size = UDim2.new(1, 0, 0, 25); sBg.BackgroundColor3 = Color3.fromRGB(40, 20, 20)
-	sBg.ZIndex = 31
-	Instance.new("UICorner", sBg).CornerRadius = UDim.new(0, 6)
+	local sBg = sbrPathArea:WaitForChild("StamBg")
+	stamFill = sBg:WaitForChild("StamFill")
+	stamTxt = sBg:WaitForChild("StamTxt")
 
-	stamFill = Instance.new("Frame", sBg)
-	stamFill.Size = UDim2.new(1, 0, 1, 0); stamFill.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-	stamFill.ZIndex = 32
-	Instance.new("UICorner", stamFill).CornerRadius = UDim.new(0, 6)
+	pathBtns = sbrPathArea:WaitForChild("PathBtns")
+	safeBtn = pathBtns:WaitForChild("SafeBtn")
+	restBtn = pathBtns:WaitForChild("RestBtn")
+	riskyBtn = pathBtns:WaitForChild("RiskyBtn")
 
-	stamTxt = Instance.new("TextLabel", sBg)
-	stamTxt.Size = UDim2.new(1, 0, 1, 0); stamTxt.BackgroundTransparency = 1
-	stamTxt.Font = Enum.Font.GothamBold; stamTxt.TextColor3 = Color3.new(1, 1, 1)
-	stamTxt.TextScaled = true; stamTxt.Text = "Horse Stamina: 100/100"
-	stamTxt.ZIndex = 33
+	travelStatusLbl = sbrPathArea:WaitForChild("TravelStatusLbl")
 
-	pathBtns = Instance.new("Frame", sbrPathArea)
-	pathBtns.Size = UDim2.new(1, 0, 1, -35); pathBtns.Position = UDim2.new(0, 0, 0, 35)
-	pathBtns.BackgroundTransparency = 1
-	pathBtns.ZIndex = 31
-	local pbLayout = Instance.new("UIListLayout", pathBtns)
-	pbLayout.FillDirection = Enum.FillDirection.Horizontal; pbLayout.Padding = UDim.new(0, 10)
-	pbLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; pbLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-
-	safeBtn = Instance.new("TextButton", pathBtns)
-	safeBtn.Size = UDim2.new(0.3, 0, 0.8, 0); safeBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
-	safeBtn.Font = Enum.Font.GothamBold; safeBtn.TextColor3 = Color3.new(1,1,1); safeBtn.TextScaled = true
-	safeBtn.Text = "Safe Path"
-	safeBtn.ZIndex = 32
-	Instance.new("UICorner", safeBtn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(safeBtn, 100, 200, 255); Instance.new("UITextSizeConstraint", safeBtn).MaxTextSize = 22
-
-	restBtn = Instance.new("TextButton", pathBtns)
-	restBtn.Size = UDim2.new(0.3, 0, 0.8, 0); restBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-	restBtn.Font = Enum.Font.GothamBold; restBtn.TextColor3 = Color3.new(1,1,1); restBtn.TextScaled = true
-	restBtn.Text = "Rest"
-	restBtn.ZIndex = 32
-	Instance.new("UICorner", restBtn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(restBtn, 100, 255, 100); Instance.new("UITextSizeConstraint", restBtn).MaxTextSize = 22
-
-	riskyBtn = Instance.new("TextButton", pathBtns)
-	riskyBtn.Size = UDim2.new(0.3, 0, 0.8, 0); riskyBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-	riskyBtn.Font = Enum.Font.GothamBold; riskyBtn.TextColor3 = Color3.new(1,1,1); riskyBtn.TextScaled = true
-	riskyBtn.Text = "Risky Path"
-	riskyBtn.ZIndex = 32
-	Instance.new("UICorner", riskyBtn).CornerRadius = UDim.new(0, 8)
-	AddBtnStroke(riskyBtn, 255, 100, 100); Instance.new("UITextSizeConstraint", riskyBtn).MaxTextSize = 22
-
-	travelStatusLbl = Instance.new("TextLabel", sbrPathArea)
-	travelStatusLbl.Size = UDim2.new(1, 0, 1, -35)
-	travelStatusLbl.Position = UDim2.new(0, 0, 0, 35)
-	travelStatusLbl.BackgroundTransparency = 1
-	travelStatusLbl.Font = Enum.Font.GothamMedium
-	travelStatusLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	travelStatusLbl.TextScaled = true
-	travelStatusLbl.Text = "Horse is traveling..."
-	travelStatusLbl.Visible = false
-	travelStatusLbl.ZIndex = 32
-	Instance.new("UITextSizeConstraint", travelStatusLbl).MaxTextSize = 24
-
-	waitingLabel = Instance.new("TextLabel")
-	waitingLabel.Name = "WaitingLabel"
-	waitingLabel.Size = UDim2.new(1, 0, 0.25, 0)
-	waitingLabel.BackgroundTransparency = 1
-	waitingLabel.Font = Enum.Font.GothamMedium
-	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	waitingLabel.TextScaled = true
-	waitingLabel.Text = "Waiting for other players..."
-	waitingLabel.Visible = false
-	waitingLabel.ZIndex = 30
-	waitingLabel.LayoutOrder = 6
+	waitingLabel = templates:WaitForChild("SBRWaitingLabelTemplate"):Clone()
 	waitingLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
 
 	local function SetCombatMode(inCombat)
 		combatUI.AlliesContainer.Parent.Visible = inCombat
@@ -767,7 +461,6 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		local valid = {}
 
 		if myStand == "Fused Stand" then
-			local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 			local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
 			local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
 			local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
