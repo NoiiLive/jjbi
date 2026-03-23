@@ -320,7 +320,6 @@ function GiftManager.Init(parentGui)
 	gLL.SortOrder = Enum.SortOrder.LayoutOrder
 	gLL.Parent = giftList
 
-	-- Catch any Server Prompt Events across ShopUpdate or ShopAction
 	local function CatchPrompt(action, data)
 		if action == "ShowStandClaim" or action == "GiftPrompt" or action == "ClaimPrompt" or action == "Prompt" or action == "Receive" then
 			GiftManager.ShowClaimPrompt(data)
