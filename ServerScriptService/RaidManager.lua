@@ -298,7 +298,7 @@ local function StartRaidMatch(hostId)
 	end
 
 	local avgPrestige = totalPrestige / #lobby.Queue
-	local prestigeMult = 1 + (avgPrestige * 0.15)
+	local prestigeMult = 1 + (avgPrestige * 0.10)
 	local minorMult = 1 + (avgPrestige * 0.05)
 	local partyMult = #lobby.Queue * 0.2 
 
