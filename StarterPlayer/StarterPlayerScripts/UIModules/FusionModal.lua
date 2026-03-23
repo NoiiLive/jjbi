@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local FusionModal = {}
 
 local player = game.Players.LocalPlayer
@@ -55,7 +54,6 @@ local function UpdatePreview()
 	if selectedName1 and selectedName2 then
 		local combinedName = FusionUtility.CalculateFusedName(selectedName1, selectedName2)
 
-		-- Format Merged Traits
 		local traitDisplay = ""
 		local tCol1 = StandData.Traits[selectedTrait1] and StandData.Traits[selectedTrait1].Color or "#FFFFFF"
 		local tCol2 = StandData.Traits[selectedTrait2] and StandData.Traits[selectedTrait2].Color or "#FFFFFF"
@@ -174,9 +172,6 @@ function FusionModal.Init(parentGui)
 	title.ZIndex = 102
 	Instance.new("UITextSizeConstraint", title).MaxTextSize = 24
 
-	-- ==========================================
-	-- MAIN VIEW (Selection & Preview)
-	-- ==========================================
 	mainView = Instance.new("Frame", fusionCard)
 	mainView.Size = UDim2.new(1, 0, 0.88, 0)
 	mainView.Position = UDim2.new(0, 0, 0.12, 0)
@@ -285,9 +280,6 @@ function FusionModal.Init(parentGui)
 	AddBtnStroke(fuseBtn, 255, 255, 255, 1)
 	Instance.new("UITextSizeConstraint", fuseBtn).MaxTextSize = 20
 
-	-- ==========================================
-	-- SLOT SELECT VIEW
-	-- ==========================================
 	slotSelectView = Instance.new("Frame", fusionCard)
 	slotSelectView.Size = UDim2.new(1, 0, 0.88, 0)
 	slotSelectView.Position = UDim2.new(0, 0, 0.12, 0)
@@ -365,9 +357,6 @@ function FusionModal.Init(parentGui)
 		mainView.Visible = true
 	end)
 
-	-- ==========================================
-	-- FUSE BUTTON LOGIC
-	-- ==========================================
 	fuseBtn.MouseButton1Click:Connect(function()
 		if selectedSlot1 and selectedSlot2 then
 			if selectedSlot1 == selectedSlot2 then
@@ -376,7 +365,6 @@ function FusionModal.Init(parentGui)
 			end
 			SFXManager.Play("Click")
 
-			-- Update slot visibility based on passes/prestige
 			local ls = player:FindFirstChild("leaderstats")
 			local prestige = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
 
