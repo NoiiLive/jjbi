@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local ArenaTab = {}
 
 local player = game.Players.LocalPlayer
@@ -128,9 +127,6 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
 
-	-- ==========================================================
-	-- LOBBY CONTAINER
-	-- ==========================================================
 	lobbyContainer = Instance.new("Frame")
 	lobbyContainer.Name = "LobbyContainer"
 	lobbyContainer.Size = UDim2.new(0.96, 0, 0.96, 0)
@@ -139,7 +135,6 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	lobbyContainer.Visible = true
 	lobbyContainer.Parent = mainContainer
 
-	-- LEFT PANEL (Profile & Host Setup)
 	profileCard = CreateCard("ProfileCard", lobbyContainer, UDim2.new(0.30, 0, 1, 0), UDim2.new(0, 0, 0, 0))
 	local pPad = Instance.new("UIPadding", profileCard)
 	pPad.PaddingTop = UDim.new(0.04, 0); pPad.PaddingBottom = UDim.new(0.04, 0)
@@ -245,7 +240,6 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cancelLobbyBtn.ZIndex = 22; Instance.new("UICorner", cancelLobbyBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(cancelLobbyBtn, 200, 80, 80); Instance.new("UITextSizeConstraint", cancelLobbyBtn).MaxTextSize = 18
 
-	-- RIGHT PANEL (Lists)
 	local rightPanel = Instance.new("Frame", lobbyContainer)
 	rightPanel.Size = UDim2.new(0.68, -10, 1, 0); rightPanel.Position = UDim2.new(0.32, 10, 0, 0)
 	rightPanel.BackgroundTransparency = 1
@@ -300,9 +294,6 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	amInnerPad.PaddingTop = UDim.new(0, 4); amInnerPad.PaddingBottom = UDim.new(0, 4)
 	amInnerPad.PaddingLeft = UDim.new(0, 4); amInnerPad.PaddingRight = UDim.new(0, 12)
 
-	-- ==========================================================
-	-- BUTTON LOGIC (Host Setup)
-	-- ==========================================================
 	createRoomBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); viewDefault.Visible = false; viewSetup.Visible = true end)
 	cancelSetupBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); viewSetup.Visible = false; viewDefault.Visible = true end)
 
@@ -341,9 +332,6 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 	end)
 
-	-- ==========================================================
-	-- COMBAT CONTAINER (Injected from CombatTemplate)
-	-- ==========================================================
 	combatContainer = Instance.new("Frame")
 	combatContainer.Name = "CombatContainer"
 	combatContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -393,9 +381,6 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	waitingLabel.Parent = combatUI.ContentContainer
 	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
 
-	-- ==========================================================
-	-- BETTING AREA (Spectator Mode)
-	-- ==========================================================
 	bettingArea = Instance.new("Frame")
 	bettingArea.Name = "BettingArea"
 	bettingArea.Size = UDim2.new(1, 0, 0.18, 0)
