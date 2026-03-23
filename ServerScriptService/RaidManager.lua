@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -47,7 +48,17 @@ end
 local function ProcessTurn(match)
 	if not match then return end
 	match.IsProcessing = true
+
+	-- [[ FIXED: Group 2x Battle Speed Validation ]]
 	local waitMultiplier = 1.2
+	local partyHasFastPass = true
+	for _, pData in ipairs(match.Party) do
+		if not pData.Player:GetAttribute("Has2xBattleSpeed") then
+			partyHasFastPass = false
+			break
+		end
+	end
+	if partyHasFastPass then waitMultiplier = 0.6 end
 
 	local allCombatants = {}
 	for _, p in ipairs(match.Party) do table.insert(allCombatants, p) end
@@ -279,7 +290,7 @@ local function ProcessTurn(match)
 			ActiveRaids[pData.Player] = nil
 		end
 	else
-		match.IsProcessing = false; match.TurnDeadline = os.time() + 10
+		match.IsProcessing = false; match.TurnDeadline = os.time() + 15
 		for _, pData in ipairs(match.Party) do
 			if pData.HP > 0 then RaidUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = "", State = GetClientState(match, pData.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) end
 		end
@@ -313,7 +324,8 @@ local function StartRaidMatch(hostId)
 		Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
 	}
 
-	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, TurnDeadline = os.time() + 10 }
+	-- [[ FIXED: Turn Timer increased to 15 seconds ]]
+	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, TurnDeadline = os.time() + 15 }
 	for _, pData in ipairs(party) do ActiveRaids[pData.Player] = match end
 	for _, pData in ipairs(party) do RaidUpdate:FireClient(pData.Player, "MatchStart", { State = GetClientState(match, pData.UserId), LogMsg = "The Raid Boss approaches...", Deadline = match.TurnDeadline }) end
 	OpenLobbies[hostId] = nil
