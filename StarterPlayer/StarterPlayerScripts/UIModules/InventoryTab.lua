@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local InventoryTab = {}
 
 local player = game.Players.LocalPlayer
@@ -49,6 +48,8 @@ local allStatsToUpgrade = {"Health", "Strength", "Defense", "Speed", "Stamina", 
 local KnownItems = {}
 for itemName, _ in pairs(ItemData.Consumables) do table.insert(KnownItems, itemName) end
 for eqName, _ in pairs(ItemData.Equipment) do table.insert(KnownItems, eqName) end
+
+local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 
 local function GetCombinedBonus(statName)
 	local wpn = player:GetAttribute("EquippedWeapon") or "None"
@@ -175,44 +176,6 @@ local function showUpgradeTooltip(statName, amt)
 	end
 end
 
-local function applyDoubleGoldBorder(parent)
-	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3; outerStroke.Color = Color3.fromRGB(255, 210, 60); outerStroke.LineJoinMode = Enum.LineJoinMode.Round; outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradOut = Instance.new("UIGradient", outerStroke); gradOut.Rotation = -45
-	gradOut.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)), ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))}
-	outerStroke.Parent = parent
-
-	local innerFrame = Instance.new("Frame", parent)
-	innerFrame.Name = "InnerGoldBorder"; innerFrame.Size = UDim2.new(1, -6, 1, -6); innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0); innerFrame.AnchorPoint = Vector2.new(0.5, 0.5); innerFrame.BackgroundTransparency = 1; innerFrame.ZIndex = parent.ZIndex
-
-	local parentCorner = parent:FindFirstChildOfClass("UICorner")
-	if parentCorner then
-		local innerCorner = Instance.new("UICorner")
-		innerCorner.CornerRadius = UDim.new(0, math.max(0, parentCorner.CornerRadius.Offset - 3))
-		innerCorner.Parent = innerFrame
-	end
-
-	local innerStroke = Instance.new("UIStroke", innerFrame)
-	innerStroke.Thickness = 1; innerStroke.Color = Color3.fromRGB(255, 230, 100); innerStroke.LineJoinMode = Enum.LineJoinMode.Round; innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradIn = Instance.new("UIGradient", innerStroke); gradIn.Rotation = 45
-	gradIn.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)), ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))}
-end
-
-local function CreateCard(name, parent, size, layoutOrder)
-	local frame = Instance.new("Frame", parent)
-	frame.Name = name; frame.Size = size; frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35); frame.LayoutOrder = layoutOrder; frame.ZIndex = 20
-	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
-	local stroke = Instance.new("UIStroke", frame); stroke.Color = Color3.fromRGB(90, 50, 120); stroke.Thickness = 1; stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local uip = Instance.new("UIPadding", frame); uip.PaddingTop = UDim.new(0, 8); uip.PaddingBottom = UDim.new(0, 8); uip.PaddingLeft = UDim.new(0, 8); uip.PaddingRight = UDim.new(0, 8)
-	return frame
-end
-
-local function CreateTitle(parent, text)
-	local lbl = Instance.new("TextLabel", parent)
-	lbl.Size = UDim2.new(1, 0, 0, 18); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.Font = Enum.Font.GothamBlack; lbl.TextColor3 = Color3.fromRGB(255, 215, 50); lbl.TextScaled = false; lbl.TextSize = 14; lbl.LayoutOrder = 1; lbl.ZIndex = 22; lbl.TextXAlignment = Enum.TextXAlignment.Center
-	return lbl
-end
-
 local function setUpgradeBtnState(btn, enabled)
 	if enabled then
 		btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
@@ -227,60 +190,17 @@ local function setUpgradeBtnState(btn, enabled)
 	end
 end
 
-local function CreateStatRow(statName, parent, isStand)
-	local row = Instance.new("Frame", parent)
-	row.Size = UDim2.new(1, 0, 1/6, 0)
-	row.BackgroundTransparency = 1
+local function InstantiateStatRow(statName, parent, isStand)
+	local row = Templates:WaitForChild("StatRowTemplate"):Clone()
+	row.Name = statName
+	row.Parent = parent
 
-	local rowPad = Instance.new("UIPadding", row)
-	rowPad.PaddingLeft = UDim.new(0, 5)
-	rowPad.PaddingRight = UDim.new(0, 5)
-
-	local statLabel = Instance.new("TextLabel", row)
-	statLabel.Size = UDim2.new(0.50, 0, 1, 0)
-	statLabel.BackgroundTransparency = 1
-	statLabel.Font = Enum.Font.GothamBold
+	local statLabel = row:WaitForChild("Label")
 	statLabel.TextColor3 = isStand and Color3.fromRGB(200, 150, 255) or Color3.fromRGB(220, 220, 220)
-	statLabel.TextXAlignment = Enum.TextXAlignment.Left
-	statLabel.TextScaled = true
-	statLabel.TextWrapped = true
-	statLabel.RichText = true
-	statLabel.ZIndex = 22
-	Instance.new("UITextSizeConstraint", statLabel).MaxTextSize = 13
 
-	local btnContainer = Instance.new("Frame", row)
-	btnContainer.Size = UDim2.new(0.48, 0, 1, 0)
-	btnContainer.Position = UDim2.new(1, 0, 0, 0)
-	btnContainer.AnchorPoint = Vector2.new(1, 0)
-	btnContainer.BackgroundTransparency = 1
-	btnContainer.ZIndex = 22
-
-	local blL = Instance.new("UIListLayout", btnContainer)
-	blL.FillDirection = Enum.FillDirection.Horizontal
-	blL.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	blL.VerticalAlignment = Enum.VerticalAlignment.Center
-	blL.Padding = UDim.new(0.04, 0)
-	blL.SortOrder = Enum.SortOrder.LayoutOrder
-
-	local function makeBtn(text, order, widthScaleX)
-		local b = Instance.new("TextButton", btnContainer)
-		b.LayoutOrder = order
-		b.Size = UDim2.new(widthScaleX, 0, 0.85, 0) 
-		b.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
-		b.Text = text
-		b.Font = Enum.Font.GothamBold
-		b.TextColor3 = Color3.new(1,1,1)
-		b.TextScaled = true
-		b.TextWrapped = true
-		b.ZIndex = 23
-		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(120, 60, 180); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		Instance.new("UITextSizeConstraint", b).MaxTextSize = 14
-		return b
-	end
-
-	local bAdd = makeBtn("+", 1, 0.35) 
-	local bMax = makeBtn("MAX", 2, 0.60)
+	local btnContainer = row:WaitForChild("BtnContainer")
+	local bAdd = btnContainer:WaitForChild("BtnAdd")
+	local bMax = btnContainer:WaitForChild("BtnMax")
 
 	local function hookUpgradeHover(btn, isMax)
 		btn.MouseEnter:Connect(function() 
@@ -314,7 +234,7 @@ local function CreateStatRow(statName, parent, isStand)
 end
 
 local function BuildDropdownList(parentBtn, listFrame, dataTable, isStand)
-	for _, c in ipairs(listFrame:GetChildren()) do if c:IsA("TextButton") or c:IsA("UIListLayout") then c:Destroy() end end
+	for _, c in ipairs(listFrame:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
 
 	local options = {"Any"}
 	for name, data in pairs(dataTable) do
@@ -326,14 +246,10 @@ local function BuildDropdownList(parentBtn, listFrame, dataTable, isStand)
 	end
 	table.sort(options)
 
-	local listL = Instance.new("UIListLayout", listFrame); listL.SortOrder = Enum.SortOrder.LayoutOrder
 	for _, opt in ipairs(options) do
-		local b = Instance.new("TextButton", listFrame)
-		b.Size = UDim2.new(1, -8, 0, 25)
-		b.BackgroundTransparency = 1
-		b.TextColor3 = Color3.new(1,1,1)
-		b.Text = opt; b.Font = Enum.Font.GothamMedium; b.TextScaled = true; b.ZIndex = 51
-		Instance.new("UITextSizeConstraint", b).MaxTextSize = 12
+		local b = Templates:WaitForChild("DropdownOptionTemplate"):Clone()
+		b.Text = opt
+		b.Parent = listFrame
 		b.MouseButton1Click:Connect(function()
 			SFXManager.Play("Click")
 			if isStand then targetAutoStand = opt; parentBtn.Text = "Stand: " .. opt
@@ -397,23 +313,11 @@ local function RefreshStorageList()
 
 	local function RenderSlots(slotsTable, container, isStand)
 		for visualNum, slotData in ipairs(slotsTable) do
-			local row = Instance.new("Frame", container)
-			row.Size = UDim2.new(1, 0, 1/5, 0)
-			row.BackgroundTransparency = 1
-			row.ZIndex = 23
+			local row = Templates:WaitForChild("StorageSlotTemplate"):Clone()
+			row.Parent = container
 
-			local nameLabel = Instance.new("TextLabel", row)
-			nameLabel.Size = UDim2.new(0.68, 0, 1, 0); nameLabel.Position = UDim2.new(0, 4, 0, 0)
-			nameLabel.BackgroundTransparency = 1; nameLabel.Font = Enum.Font.GothamMedium; nameLabel.TextColor3 = Color3.new(1,1,1)
-			nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = true; nameLabel.RichText = true; nameLabel.ZIndex = 24
-			Instance.new("UITextSizeConstraint", nameLabel).MaxTextSize = 13
-
-			local btn = Instance.new("TextButton", row)
-			btn.Size = UDim2.new(0.28, 0, 0.8, 0)
-			btn.AnchorPoint = Vector2.new(1, 0.5); btn.Position = UDim2.new(1, -4, 0.5, 0)
-			btn.Font = Enum.Font.GothamBold; btn.TextColor3 = Color3.new(1,1,1); btn.TextScaled = true; btn.ZIndex = 24
-			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-			Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
+			local nameLabel = row:WaitForChild("NameLabel")
+			local btn = row:WaitForChild("ActionBtn")
 
 			if slotData.IsUnlocked then
 				if isStand then
@@ -537,42 +441,31 @@ local function RefreshInventoryList()
 		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 		local rarity = itemData and itemData.Rarity or "Common"
 
-		local itemFrame = Instance.new("Frame", container)
-		itemFrame.Size = UDim2.new(1, -8, 0, 30)
-		itemFrame.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
+		local itemFrame = Templates:WaitForChild("InventoryItemTemplate"):Clone()
 		itemFrame.LayoutOrder = orderIdx
-		itemFrame.ZIndex = 23
-		Instance.new("UICorner", itemFrame).CornerRadius = UDim.new(0, 4)
-		local str = Instance.new("UIStroke", itemFrame); str.Color = rarityColors[rarity] or rarityColors.Common; str.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		itemFrame.Parent = container
 
-		local nameLabel = Instance.new("TextLabel", itemFrame)
-		nameLabel.Size = UDim2.new(0.48, 0, 1, 0); nameLabel.AnchorPoint = Vector2.new(0, 0.5); nameLabel.Position = UDim2.new(0, 8, 0.5, 0)
-		nameLabel.BackgroundTransparency = 1; nameLabel.Font = Enum.Font.GothamMedium; nameLabel.TextColor3 = rarityColors[rarity] or rarityColors.Common
-		nameLabel.TextXAlignment = Enum.TextXAlignment.Left; nameLabel.TextScaled = true; nameLabel.TextWrapped = true; nameLabel.Text = itemName .. " (x" .. count .. ")"; nameLabel.ZIndex = 24
-		Instance.new("UITextSizeConstraint", nameLabel).MaxTextSize = 12
+		local str = itemFrame:WaitForChild("UIStroke")
+		str.Color = rarityColors[rarity] or rarityColors.Common
 
-		local btnWrapper = Instance.new("Frame", itemFrame)
-		btnWrapper.Size = UDim2.new(0.50, 0, 1, 0); btnWrapper.Position = UDim2.new(1, -4, 0.5, 0); btnWrapper.AnchorPoint = Vector2.new(1, 0.5); btnWrapper.BackgroundTransparency = 1
-		local bL = Instance.new("UIListLayout", btnWrapper); bL.FillDirection = Enum.FillDirection.Horizontal; bL.HorizontalAlignment = Enum.HorizontalAlignment.Right; bL.VerticalAlignment = Enum.VerticalAlignment.Center; bL.Padding = UDim.new(0.02, 0); bL.SortOrder = Enum.SortOrder.LayoutOrder
+		local nameLabel = itemFrame:WaitForChild("NameLabel")
+		nameLabel.TextColor3 = rarityColors[rarity] or rarityColors.Common
+		nameLabel.Text = itemName .. " (x" .. count .. ")"
 
-		local function makeBtn(text, scaleW, color, order)
-			local b = Instance.new("TextButton", btnWrapper)
-			b.Size = UDim2.new(scaleW, 0, 0.8, 0); b.LayoutOrder = order
-			b.BackgroundColor3 = color; b.Text = text; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1)
-			b.TextScaled = true; b.TextWrapped = true; b.ZIndex = 24
-			Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-			Instance.new("UITextSizeConstraint", b).MaxTextSize = 11
-			return b
-		end
+		local btnWrapper = itemFrame:WaitForChild("BtnWrapper")
+		local useBtn = btnWrapper:WaitForChild("UseBtn")
+		local sellBtn = btnWrapper:WaitForChild("SellBtn")
+		local lockBtn = btnWrapper:WaitForChild("LockBtn")
 
-		local useBtn = makeBtn(ItemData.Equipment[itemName] and "Equip" or "Use", 0.42, Color3.fromRGB(200, 120, 0), 1)
-		local sellBtn = makeBtn("Sell", 0.32, Color3.fromRGB(140, 40, 40), 2)
-		local lockBtn = makeBtn("🔓", 0.20, Color3.fromRGB(40, 40, 40), 3)
+		useBtn.Text = ItemData.Equipment[itemName] and "Equip" or "Use"
 
 		local lockedItems = player:GetAttribute("LockedItems") or ""
 		if table.find(string.split(lockedItems, ","), itemName) ~= nil then
 			lockBtn.Text = "🔒"; lockBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
 			sellBtn.Text = "Locked"; sellBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+		else
+			lockBtn.Text = "🔓"; lockBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+			sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
 		end
 
 		lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("ToggleLock"):FireServer("Item", itemName) end)
@@ -679,382 +572,111 @@ local function UpdateTopDisplays()
 	RefreshStatTexts()
 end
 
-local function AttachStatsControls(parentCard, titleText)
-	local tLbl = CreateTitle(parentCard, titleText)
-	tLbl.Size = UDim2.new(0.45, 0, 0, 18)
-	tLbl.TextXAlignment = Enum.TextXAlignment.Left
-
-	local statsTopControls = Instance.new("Frame", parentCard)
-	statsTopControls.Size = UDim2.new(0.55, 0, 0, 18) 
-	statsTopControls.Position = UDim2.new(1, 0, 0, 0)
-	statsTopControls.AnchorPoint = Vector2.new(1, 0)
-	statsTopControls.BackgroundTransparency = 1
-	statsTopControls.ZIndex = 25
-
-	local topLayout = Instance.new("UIListLayout", statsTopControls)
-	topLayout.FillDirection = Enum.FillDirection.Horizontal
-	topLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	topLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	topLayout.Padding = UDim.new(0, 4)
-	topLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
-	local upgradeLbl = Instance.new("TextLabel", statsTopControls)
-	upgradeLbl.Size = UDim2.new(0.35, 0, 1, 0)
-	upgradeLbl.BackgroundTransparency = 1
-	upgradeLbl.Font = Enum.Font.GothamMedium
-	upgradeLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-	upgradeLbl.Text = "Pts:"
-	upgradeLbl.TextScaled = true
-	upgradeLbl.LayoutOrder = 1
-	upgradeLbl.ZIndex = 26
-	Instance.new("UITextSizeConstraint", upgradeLbl).MaxTextSize = 12
-
-	local amtBox = Instance.new("TextBox", statsTopControls)
-	amtBox.Size = UDim2.new(0.25, 0, 1, 0)
-	amtBox.BackgroundColor3 = Color3.fromRGB(30, 20, 40)
-	amtBox.TextColor3 = Color3.new(1,1,1)
-	amtBox.Font = Enum.Font.GothamBold
-	amtBox.TextScaled = true
-	amtBox.Text = tostring(currentUpgradeAmount)
-	amtBox.PlaceholderText = "#"
-	amtBox.LayoutOrder = 2
-	amtBox.ZIndex = 26
-	Instance.new("UICorner", amtBox).CornerRadius = UDim.new(0, 3)
-	local amtStroke = Instance.new("UIStroke", amtBox)
-	amtStroke.Color = Color3.fromRGB(120, 60, 180)
-	amtStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	Instance.new("UITextSizeConstraint", amtBox).MaxTextSize = 12
-
-	amtBox.FocusLost:Connect(function()
-		local val = tonumber(amtBox.Text)
-		if val and val > 0 then currentUpgradeAmount = math.floor(val) else currentUpgradeAmount = 1 end
-		amtBox.Text = tostring(currentUpgradeAmount)
-		RefreshStatTexts()
-	end)
-
-	local allBtn = Instance.new("TextButton", statsTopControls)
-	allBtn.Size = UDim2.new(0.35, 0, 1, 0)
-	allBtn.BackgroundColor3 = Color3.fromRGB(180, 80, 20)
-	allBtn.TextColor3 = Color3.new(1,1,1)
-	allBtn.Font = Enum.Font.GothamBold
-	allBtn.TextScaled = true
-	allBtn.Text = "ALL"
-	allBtn.LayoutOrder = 3
-	allBtn.ZIndex = 26
-	Instance.new("UICorner", allBtn).CornerRadius = UDim.new(0, 3)
-	local allStroke = Instance.new("UIStroke", allBtn)
-	allStroke.Color = Color3.fromRGB(255, 200, 50)
-	allStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	Instance.new("UITextSizeConstraint", allBtn).MaxTextSize = 12
-
-	allBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		local UpgradeAllEvent = Network:FindFirstChild("UpgradeAllStats")
-		if UpgradeAllEvent then UpgradeAllEvent:FireServer(currentUpgradeAmount) end
-	end)
-end
-
-local function createLoadRow(name, parentFrame, heightScale)
-	local r = Instance.new("Frame", parentFrame)
-	r.Size = UDim2.new(1, 0, heightScale or 0.25, 0)
-	r.BackgroundTransparency = 1
-
-	local rL = Instance.new("UIListLayout", r)
-	rL.FillDirection = Enum.FillDirection.Horizontal
-	rL.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	rL.VerticalAlignment = Enum.VerticalAlignment.Center
-	rL.SortOrder = Enum.SortOrder.LayoutOrder
-	rL.Padding = UDim.new(0, 8)
-
-	local lbl = Instance.new("TextLabel", r)
-	lbl.LayoutOrder = 1
-	lbl.AutomaticSize = Enum.AutomaticSize.X
-	lbl.Size = UDim2.new(0, 0, 1, 0)
-	lbl.BackgroundTransparency = 1
-	lbl.Font = Enum.Font.GothamMedium
-	lbl.TextColor3 = Color3.new(1,1,1)
-	lbl.TextScaled = false
-	lbl.TextSize = 14
-	lbl.RichText = true
-	lbl.TextXAlignment = Enum.TextXAlignment.Center
-	lbl.ZIndex = 22
-
-	local btn = nil
-	if name == "Stand" or name == "Style" then
-		btn = Instance.new("TextButton", r)
-		btn.LayoutOrder = 2
-		btn.SizeConstraint = Enum.SizeConstraint.RelativeYY
-		btn.Size = UDim2.new(0.85, 0, 0.85, 0)
-		btn.Font = Enum.Font.GothamBold
-		btn.TextScaled = true
-		btn.ZIndex = 23
-		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", btn)
-		s.Color = Color3.fromRGB(90, 50, 120)
-		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	end
-
-	return r, lbl, btn
-end
-
 function InventoryTab.Init(parentFrame, tooltipMgr)
 	cachedTooltipMgr = tooltipMgr
 
-	local mainPanel = Instance.new("Frame")
-	mainPanel.Name = "MainPanel"
-	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
-	mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-	mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-	mainPanel.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	mainPanel.BorderSizePixel = 0
-	mainPanel.ZIndex = 15
-	mainPanel.ClipsDescendants = true
-	mainPanel.Parent = parentFrame
+	local mainPanel = parentFrame:WaitForChild("MainPanel")
+	local innerContent = mainPanel:WaitForChild("InnerContent")
 
-	Instance.new("UICorner", mainPanel).CornerRadius = UDim.new(0, 12)
-	applyDoubleGoldBorder(mainPanel)
+	local subNavFrame = innerContent:WaitForChild("SubNavFrame")
+	local invTabBtn = subNavFrame:WaitForChild("INVButton")
+	local playerTabBtn = subNavFrame:WaitForChild("PLAYERButton")
+	local standTabBtn = subNavFrame:WaitForChild("STANDButton")
 
-	local bgPattern = Instance.new("ImageLabel")
-	bgPattern.Name = "OverlayPattern"
-	bgPattern.Image = "rbxassetid://79623015802180"
-	bgPattern.ImageColor3 = Color3.fromRGB(180, 130, 255)
-	bgPattern.ImageTransparency = 0.85
-	bgPattern.BackgroundTransparency = 1
-	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 500, 0, 250)
-	bgPattern.Size = UDim2.new(1, 0, 1, 0)
-	bgPattern.ZIndex = 16
-	bgPattern.Parent = mainPanel
+	local tabContainer = innerContent:WaitForChild("TabContainer")
+	local invTabContent = tabContainer:WaitForChild("InventoryTabContent")
+	local playerTabContent = tabContainer:WaitForChild("PlayerTabContent")
+	local standTabContent = tabContainer:WaitForChild("StandTabContent")
 
-	local innerContent = Instance.new("ScrollingFrame")
-	innerContent.Name = "InnerContent"
-	innerContent.Size = UDim2.new(1, 0, 1, 0)
-	innerContent.BackgroundTransparency = 1
-	innerContent.ZIndex = 17
-	innerContent.ScrollBarThickness = 6
-	innerContent.ScrollBarImageColor3 = Color3.fromRGB(150, 100, 200)
-	innerContent.ScrollingDirection = Enum.ScrollingDirection.Y
-	innerContent.BorderSizePixel = 0
-	innerContent.Parent = mainPanel
+	local invInfoCard = invTabContent:WaitForChild("InvInfoCard")
+	weaponBox = invInfoCard:WaitForChild("WepRow")
+	weaponLabel = weaponBox:WaitForChild("Label")
+	accBox = invInfoCard:WaitForChild("AccRow")
+	accLabel = accBox:WaitForChild("Label")
+	local yenBox = invInfoCard:WaitForChild("YenRow")
+	yenLabel = yenBox:WaitForChild("Label")
 
-	local mainPad = Instance.new("UIPadding", innerContent)
-	mainPad.PaddingTop = UDim.new(0.02, 0); mainPad.PaddingBottom = UDim.new(0.02, 0)
-	mainPad.PaddingLeft = UDim.new(0.02, 0); mainPad.PaddingRight = UDim.new(0.02, 0)
+	local equipCard = invTabContent:WaitForChild("EquipCard")
+	capacityLabel = equipCard:WaitForChild("TopFrame"):WaitForChild("CapacityLabel")
+	equipContainer = equipCard:WaitForChild("EquipContainer")
 
-	local mainLayout = Instance.new("UIListLayout", innerContent)
-	mainLayout.FillDirection = Enum.FillDirection.Vertical
-	mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	mainLayout.Padding = UDim.new(0.02, 0)
+	local autoSellCard = invTabContent:WaitForChild("AutoSellCard")
+	autoSellContainer = autoSellCard:WaitForChild("AutoSellContainer")
 
-	local subNavFrame = Instance.new("Frame", innerContent)
-	subNavFrame.Name = "SubNavFrame"
-	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
-	subNavFrame.BackgroundTransparency = 1
-	subNavFrame.LayoutOrder = 1
+	local playerInfoCard = playerTabContent:WaitForChild("PlayerInfoCard")
+	styleBox = playerInfoCard:WaitForChild("StyleRow")
+	styleLabel = styleBox:WaitForChild("Label")
+	styleLockBtn = styleBox:WaitForChild("ActionBtn")
+	local xpBoxP = playerInfoCard:WaitForChild("XPRow")
+	xpLabelP = xpBoxP:WaitForChild("Label")
 
-	local subNavL = Instance.new("UIListLayout", subNavFrame)
-	subNavL.FillDirection = Enum.FillDirection.Horizontal
-	subNavL.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	subNavL.Padding = UDim.new(0.02, 0)
+	local playerMidRow = playerTabContent:WaitForChild("PlayerMidRow")
+	local pStatsCard = playerMidRow:WaitForChild("PlayerStatsCard")
+	local pStatsTopControls = pStatsCard:WaitForChild("StatsTopControls")
+	local pAmtBox = pStatsTopControls:WaitForChild("AmtBox")
+	local pAllBtn = pStatsTopControls:WaitForChild("AllBtn")
+	pStatsContainer = pStatsCard:WaitForChild("StatsContainer")
 
-	local function CreateTabBtn(txt)
-		local btn = Instance.new("TextButton", subNavFrame)
-		btn.Size = UDim2.new(0.32, 0, 1, 0)
-		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-		btn.Text = txt
-		btn.Font = Enum.Font.GothamBold
-		btn.TextColor3 = Color3.fromRGB(200, 200, 220)
-		btn.TextScaled = true
-		btn.ZIndex = 20
-		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-		local str = Instance.new("UIStroke", btn); str.Color = Color3.fromRGB(90, 50, 120); str.Thickness = 1; str.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 16
-		return btn, str
+	local styleStorageCard = playerMidRow:WaitForChild("StyleStorageCard")
+	styleStorageContainer = styleStorageCard:WaitForChild("StorageContainer")
+
+	local playerConsCard = playerTabContent:WaitForChild("PlayerConsCard")
+	playerConsCapacityLabel = playerConsCard:WaitForChild("TopFrame"):WaitForChild("CapacityLabel")
+	playerConsContainer = playerConsCard:WaitForChild("ConsContainer")
+
+	local standInfoCard = standTabContent:WaitForChild("StandInfoCard")
+	standBox = standInfoCard:WaitForChild("StandRow")
+	standLabel = standBox:WaitForChild("Label")
+	standLockBtn = standBox:WaitForChild("ActionBtn")
+	local xpBoxS = standInfoCard:WaitForChild("XPRow")
+	xpLabelS = xpBoxS:WaitForChild("Label")
+
+	local standMidRow = standTabContent:WaitForChild("StandMidRow")
+	local sStatsCard = standMidRow:WaitForChild("StandStatsCard")
+	local sStatsTopControls = sStatsCard:WaitForChild("StatsTopControls")
+	local sAmtBox = sStatsTopControls:WaitForChild("AmtBox")
+	local sAllBtn = sStatsTopControls:WaitForChild("AllBtn")
+	sStatsContainer = sStatsCard:WaitForChild("StatsContainer")
+
+	local standStorageCard = standMidRow:WaitForChild("StandStorageCard")
+	standStorageContainer = standStorageCard:WaitForChild("StorageContainer")
+
+	local standBotRow = standTabContent:WaitForChild("StandBotRow")
+	local standConsCard = standBotRow:WaitForChild("StandConsCard")
+	standConsContainer = standConsCard:WaitForChild("ConsContainer")
+
+	local autoRollCard = standBotRow:WaitForChild("AutoRollCard")
+	local arContent = autoRollCard:WaitForChild("ARContent")
+	local sDrop = arContent:WaitForChild("StandDropdown")
+	local tDrop = arContent:WaitForChild("TraitDropdown")
+	local btnRollStand = arContent:WaitForChild("RollStandBtn")
+	local btnRollTrait = arContent:WaitForChild("RollTraitBtn")
+
+	local function bindAmountBox(box)
+		box.FocusLost:Connect(function()
+			local val = tonumber(box.Text)
+			if val and val > 0 then currentUpgradeAmount = math.floor(val) else currentUpgradeAmount = 1 end
+			box.Text = tostring(currentUpgradeAmount)
+
+			if box == pAmtBox then sAmtBox.Text = box.Text else pAmtBox.Text = box.Text end
+			RefreshStatTexts()
+		end)
 	end
+	bindAmountBox(pAmtBox)
+	bindAmountBox(sAmtBox)
 
-	local invTabBtn, invStr = CreateTabBtn("INVENTORY")
-	local playerTabBtn, playerStr = CreateTabBtn("PLAYER")
-	local standTabBtn, standStr = CreateTabBtn("STAND")
-
-	local tabContainer = Instance.new("Frame", innerContent)
-	tabContainer.Name = "TabContainer"
-	tabContainer.Size = UDim2.new(1, 0, 0.90, 0)
-	tabContainer.BackgroundTransparency = 1
-	tabContainer.LayoutOrder = 2
-
-	local invTabContent = Instance.new("Frame", tabContainer)
-	invTabContent.Name = "InventoryTabContent"; invTabContent.Size = UDim2.new(1, 0, 1, 0); invTabContent.BackgroundTransparency = 1; invTabContent.Visible = true
-	local invTL = Instance.new("UIListLayout", invTabContent); invTL.FillDirection = Enum.FillDirection.Vertical; invTL.SortOrder = Enum.SortOrder.LayoutOrder; invTL.Padding = UDim.new(0.02, 0)
-
-	local invInfoCard = CreateCard("InvInfoCard", invTabContent, UDim2.new(1, 0, 0.24, 0), 1)
-	local invIL = Instance.new("UIListLayout", invInfoCard)
-	invIL.FillDirection = Enum.FillDirection.Vertical; invIL.HorizontalAlignment = Enum.HorizontalAlignment.Center; invIL.VerticalAlignment = Enum.VerticalAlignment.Center; invIL.Padding = UDim.new(0, 6)
-
-	weaponBox, weaponLabel, _ = createLoadRow("Wep", invInfoCard, 0.25)
-	accBox, accLabel, _ = createLoadRow("Acc", invInfoCard, 0.25)
-	local yenBox; yenBox, yenLabel, _ = createLoadRow("Yen", invInfoCard, 0.25)
-
-	local equipCard = CreateCard("EquipCard", invTabContent, UDim2.new(1, 0, 0.44, 0), 2)
-	local eqTop = Instance.new("Frame", equipCard); eqTop.Size = UDim2.new(1, 0, 0, 20); eqTop.BackgroundTransparency = 1; eqTop.ZIndex = 21
-	local eqTitle = CreateTitle(eqTop, "EQUIPMENT INVENTORY"); eqTitle.Size = UDim2.new(0.5, 0, 1, 0); eqTitle.TextXAlignment = Enum.TextXAlignment.Left
-	capacityLabel = Instance.new("TextLabel", eqTop)
-	capacityLabel.Size = UDim2.new(0.5, 0, 1, 0); capacityLabel.Position = UDim2.new(1, -15, 0, 0); capacityLabel.AnchorPoint = Vector2.new(1, 0)
-	capacityLabel.BackgroundTransparency = 1; capacityLabel.Font = Enum.Font.GothamMedium; capacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); capacityLabel.TextXAlignment = Enum.TextXAlignment.Right; capacityLabel.TextScaled = true; capacityLabel.ZIndex = 22
-	Instance.new("UITextSizeConstraint", capacityLabel).MaxTextSize = 12
-
-	equipContainer = Instance.new("ScrollingFrame", equipCard)
-	equipContainer.Size = UDim2.new(1, 0, 1, -24); equipContainer.Position = UDim2.new(0,0,0,24); equipContainer.BackgroundTransparency = 1; equipContainer.ScrollBarThickness = 4; equipContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); equipContainer.ZIndex = 21
-	local eqp = Instance.new("UIPadding", equipContainer); eqp.PaddingRight = UDim.new(0, 6); eqp.PaddingLeft = UDim.new(0, 2); eqp.PaddingTop = UDim.new(0, 2); eqp.PaddingBottom = UDim.new(0, 2)
-	Instance.new("UIListLayout", equipContainer).Padding = UDim.new(0, 4)
-
-	local autoSellCard = CreateCard("AutoSellCard", invTabContent, UDim2.new(1, 0, 0.28, 0), 3)
-	CreateTitle(autoSellCard, "AUTO SELL PREFERENCES")
-	autoSellContainer = Instance.new("Frame", autoSellCard)
-	autoSellContainer.Size = UDim2.new(1, 0, 1, -24); autoSellContainer.Position = UDim2.new(0,0,0,24); autoSellContainer.BackgroundTransparency = 1; autoSellContainer.ZIndex = 21
-	local asG = Instance.new("UIListLayout", autoSellContainer)
-	asG.FillDirection = Enum.FillDirection.Horizontal; asG.HorizontalAlignment = Enum.HorizontalAlignment.Center; asG.VerticalAlignment = Enum.VerticalAlignment.Center; asG.Padding = UDim.new(0.015, 0); asG.SortOrder = Enum.SortOrder.LayoutOrder
-
-	local raritiesToSell = {"Common", "Uncommon", "Rare", "Legendary", "Mythical"}
-	for i, r in ipairs(raritiesToSell) do
-		local b = Instance.new("TextButton", autoSellContainer)
-		b.Name = "AutoSell_" .. r; b.LayoutOrder = i; b.Size = UDim2.new(0.188, 0, 0.53, 0); b.BackgroundColor3 = Color3.fromRGB(40, 30, 50); b.Text = r; b.Font = Enum.Font.GothamBold; b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true; b.ZIndex = 22
-		Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", b); s.Color = Color3.fromRGB(100, 100, 100); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		Instance.new("UITextSizeConstraint", b).MaxTextSize = 13
+	local function bindAllBtn(btn)
+		btn.MouseButton1Click:Connect(function()
+			SFXManager.Play("Click")
+			local UpgradeAllEvent = Network:FindFirstChild("UpgradeAllStats")
+			if UpgradeAllEvent then UpgradeAllEvent:FireServer(currentUpgradeAmount) end
+		end)
 	end
+	bindAllBtn(pAllBtn)
+	bindAllBtn(sAllBtn)
 
-	local playerTabContent = Instance.new("Frame", tabContainer)
-	playerTabContent.Name = "PlayerTabContent"; playerTabContent.Size = UDim2.new(1, 0, 1, 0); playerTabContent.BackgroundTransparency = 1; playerTabContent.Visible = false
-	local pTL = Instance.new("UIListLayout", playerTabContent); pTL.FillDirection = Enum.FillDirection.Vertical; pTL.SortOrder = Enum.SortOrder.LayoutOrder; pTL.Padding = UDim.new(0.02, 0)
-
-	local playerInfoCard = CreateCard("PlayerInfoCard", playerTabContent, UDim2.new(1, 0, 0.24, 0), 1)
-	local pIL = Instance.new("UIListLayout", playerInfoCard)
-	pIL.FillDirection = Enum.FillDirection.Vertical; pIL.HorizontalAlignment = Enum.HorizontalAlignment.Center; pIL.VerticalAlignment = Enum.VerticalAlignment.Center; pIL.Padding = UDim.new(0, 6)
-
-	styleBox, styleLabel, styleLockBtn = createLoadRow("Style", playerInfoCard, 0.35)
-	local xpBoxP; xpBoxP, xpLabelP, _ = createLoadRow("XP", playerInfoCard, 0.35)
-
-	local playerMidRow = Instance.new("Frame", playerTabContent)
-	playerMidRow.Size = UDim2.new(1, 0, 0.44, 0); playerMidRow.BackgroundTransparency = 1; playerMidRow.LayoutOrder = 2
-
-	local pStatsCard = CreateCard("PlayerStatsCard", playerMidRow, UDim2.new(0.48, 0, 1, 0), 1)
-	pStatsCard.Position = UDim2.new(0, 0, 0, 0)
-
-	AttachStatsControls(pStatsCard, "PLAYER STATS")
-	pStatsContainer = Instance.new("Frame", pStatsCard)
-	pStatsContainer.Size = UDim2.new(1, 0, 1, -24); pStatsContainer.Position = UDim2.new(0, 0, 0, 24); pStatsContainer.BackgroundTransparency = 1; pStatsContainer.ZIndex = 21
-	Instance.new("UIListLayout", pStatsContainer).Padding = UDim.new(0, 0)
-	for _, stat in ipairs(playerStatsList) do statLabels[stat] = CreateStatRow(stat, pStatsContainer, false) end
-
-	local styleStorageCard = CreateCard("StyleStorageCard", playerMidRow, UDim2.new(0.48, 0, 1, 0), 2)
-	styleStorageCard.AnchorPoint = Vector2.new(1, 0)
-	styleStorageCard.Position = UDim2.new(1, 0, 0, 0)
-
-	CreateTitle(styleStorageCard, "STYLE STORAGE")
-	styleStorageContainer = Instance.new("Frame", styleStorageCard)
-	styleStorageContainer.Size = UDim2.new(1, 0, 1, -24); styleStorageContainer.Position = UDim2.new(0,0,0,24); styleStorageContainer.BackgroundTransparency = 1; styleStorageContainer.ZIndex = 21
-	Instance.new("UIListLayout", styleStorageContainer).Padding = UDim.new(0, 0)
-
-	local playerConsCard = CreateCard("PlayerConsCard", playerTabContent, UDim2.new(1, 0, 0.28, 0), 3)
-	local pcTop = Instance.new("Frame", playerConsCard); pcTop.Size = UDim2.new(1, 0, 0, 20); pcTop.BackgroundTransparency = 1; pcTop.ZIndex = 21
-	local pcTitle = CreateTitle(pcTop, "PLAYER CONSUMABLES"); pcTitle.Size = UDim2.new(0.5, 0, 1, 0); pcTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-	playerConsCapacityLabel = Instance.new("TextLabel", pcTop)
-	playerConsCapacityLabel.Size = UDim2.new(0.5, 0, 1, 0); playerConsCapacityLabel.Position = UDim2.new(1, -15, 0, 0); playerConsCapacityLabel.AnchorPoint = Vector2.new(1, 0)
-	playerConsCapacityLabel.BackgroundTransparency = 1; playerConsCapacityLabel.Font = Enum.Font.GothamMedium; playerConsCapacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); playerConsCapacityLabel.TextXAlignment = Enum.TextXAlignment.Right; playerConsCapacityLabel.TextScaled = true; playerConsCapacityLabel.ZIndex = 22
-	Instance.new("UITextSizeConstraint", playerConsCapacityLabel).MaxTextSize = 12
-
-	playerConsContainer = Instance.new("ScrollingFrame", playerConsCard)
-	playerConsContainer.Size = UDim2.new(1, 0, 1, -24); playerConsContainer.Position = UDim2.new(0,0,0,24); playerConsContainer.BackgroundTransparency = 1; playerConsContainer.ScrollBarThickness = 4; playerConsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); playerConsContainer.ZIndex = 21
-	local pcp = Instance.new("UIPadding", playerConsContainer); pcp.PaddingRight = UDim.new(0, 6); pcp.PaddingLeft = UDim.new(0, 2); pcp.PaddingTop = UDim.new(0, 2); pcp.PaddingBottom = UDim.new(0, 2)
-	Instance.new("UIListLayout", playerConsContainer).Padding = UDim.new(0, 4)
-
-	local standTabContent = Instance.new("Frame", tabContainer)
-	standTabContent.Name = "StandTabContent"; standTabContent.Size = UDim2.new(1, 0, 1, 0); standTabContent.BackgroundTransparency = 1; standTabContent.Visible = false
-	local sTL = Instance.new("UIListLayout", standTabContent); sTL.FillDirection = Enum.FillDirection.Vertical; sTL.SortOrder = Enum.SortOrder.LayoutOrder; sTL.Padding = UDim.new(0.02, 0)
-
-	local standInfoCard = CreateCard("StandInfoCard", standTabContent, UDim2.new(1, 0, 0.24, 0), 1)
-	local sIL = Instance.new("UIListLayout", standInfoCard)
-	sIL.FillDirection = Enum.FillDirection.Vertical; sIL.HorizontalAlignment = Enum.HorizontalAlignment.Center; sIL.VerticalAlignment = Enum.VerticalAlignment.Center; sIL.Padding = UDim.new(0, 6)
-
-	standBox, standLabel, standLockBtn = createLoadRow("Stand", standInfoCard, 0.35)
-	local xpBoxS; xpBoxS, xpLabelS, _ = createLoadRow("XP", standInfoCard, 0.35)
-
-	local standMidRow = Instance.new("Frame", standTabContent)
-	standMidRow.Size = UDim2.new(1, 0, 0.44, 0); standMidRow.BackgroundTransparency = 1; standMidRow.LayoutOrder = 2
-
-	local sStatsCard = CreateCard("StandStatsCard", standMidRow, UDim2.new(0.48, 0, 1, 0), 1)
-	sStatsCard.Position = UDim2.new(0, 0, 0, 0)
-
-	AttachStatsControls(sStatsCard, "STAND STATS")
-	sStatsContainer = Instance.new("Frame", sStatsCard)
-	sStatsContainer.Size = UDim2.new(1, 0, 1, -24); sStatsContainer.Position = UDim2.new(0, 0, 0, 24); sStatsContainer.BackgroundTransparency = 1; sStatsContainer.ZIndex = 21
-	Instance.new("UIListLayout", sStatsContainer).Padding = UDim.new(0, 0)
-	for _, stat in ipairs(standStatsList) do statLabels[stat] = CreateStatRow(stat, sStatsContainer, true) end
-
-	local standStorageCard = CreateCard("StandStorageCard", standMidRow, UDim2.new(0.48, 0, 1, 0), 2)
-	standStorageCard.AnchorPoint = Vector2.new(1, 0)
-	standStorageCard.Position = UDim2.new(1, 0, 0, 0)
-
-	CreateTitle(standStorageCard, "STAND STORAGE")
-	standStorageContainer = Instance.new("Frame", standStorageCard)
-	standStorageContainer.Size = UDim2.new(1, 0, 1, -24); standStorageContainer.Position = UDim2.new(0,0,0,24); standStorageContainer.BackgroundTransparency = 1; standStorageContainer.ZIndex = 21
-	Instance.new("UIListLayout", standStorageContainer).Padding = UDim.new(0, 0)
-
-	local standBotRow = Instance.new("Frame", standTabContent)
-	standBotRow.Size = UDim2.new(1, 0, 0.28, 0); standBotRow.BackgroundTransparency = 1; standBotRow.LayoutOrder = 3
-
-	local standConsCard = CreateCard("StandConsCard", standBotRow, UDim2.new(0.63, 0, 1, 0), 1)
-	standConsCard.Position = UDim2.new(0, 0, 0, 0)
-
-	local scTop = Instance.new("Frame", standConsCard); scTop.Size = UDim2.new(1, 0, 0, 20); scTop.BackgroundTransparency = 1; scTop.ZIndex = 21
-	local scTitle = CreateTitle(scTop, "STAND CONSUMABLES"); scTitle.Size = UDim2.new(1, 0, 1, 0); scTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-	standConsContainer = Instance.new("ScrollingFrame", standConsCard)
-	standConsContainer.Size = UDim2.new(1, 0, 1, -24); standConsContainer.Position = UDim2.new(0,0,0,24); standConsContainer.BackgroundTransparency = 1; standConsContainer.ScrollBarThickness = 4; standConsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); standConsContainer.ZIndex = 21
-	local scp = Instance.new("UIPadding", standConsContainer); scp.PaddingRight = UDim.new(0, 6); scp.PaddingLeft = UDim.new(0, 2); scp.PaddingTop = UDim.new(0, 2); scp.PaddingBottom = UDim.new(0, 2)
-	Instance.new("UIListLayout", standConsContainer).Padding = UDim.new(0, 4)
-
-	local autoRollCard = CreateCard("AutoRollCard", standBotRow, UDim2.new(0.35, 0, 1, 0), 2)
-	autoRollCard.AnchorPoint = Vector2.new(1, 0)
-	autoRollCard.Position = UDim2.new(1, 0, 0, 0)
-	autoRollCard.ClipsDescendants = false
-
-	CreateTitle(autoRollCard, "AUTO ROLL")
-
-	local arContent = Instance.new("Frame", autoRollCard)
-	arContent.Size = UDim2.new(1, 0, 1, -24); arContent.Position = UDim2.new(0,0,0,24); arContent.BackgroundTransparency = 1; arContent.ZIndex = 21
-	local arL = Instance.new("UIGridLayout", arContent)
-	arL.CellSize = UDim2.new(0.48, 0, 0.42, 0); arL.CellPadding = UDim2.new(0.04, 0, 0.1, 0); arL.SortOrder = Enum.SortOrder.LayoutOrder
-
-	local function createDrop(name, text, orderIdx)
-		local btn = Instance.new("TextButton", arContent)
-		btn.Name = name; btn.LayoutOrder = orderIdx; btn.BackgroundColor3 = Color3.fromRGB(40, 20, 60); btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
-		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", btn); s.Color = Color3.fromRGB(120, 60, 180); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
-
-		local list = Instance.new("ScrollingFrame", btn)
-		list.Name = "List"; list.Size = UDim2.new(1, 0, 0, 120); list.AnchorPoint = Vector2.new(0, 1); list.Position = UDim2.new(0, 0, 0, -2); list.BackgroundColor3 = Color3.fromRGB(30, 15, 50); list.ZIndex = 50; list.Visible = false; list.ScrollBarThickness = 4
-		Instance.new("UICorner", list).CornerRadius = UDim.new(0, 6)
-		local ls = Instance.new("UIStroke", list); ls.Color = Color3.fromRGB(120, 60, 180); ls.Thickness = 1; ls.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		return btn
-	end
-
-	local sDrop = createDrop("StandDropdown", "Stand: Any", 1)
-	local tDrop = createDrop("TraitDropdown", "Trait: Any", 2)
-
-	local function createRollBtn(name, text, color, orderIdx)
-		local btn = Instance.new("TextButton", arContent)
-		btn.Name = name; btn.LayoutOrder = orderIdx; btn.BackgroundColor3 = color; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextScaled = true; btn.Text = text; btn.ZIndex = 25
-		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-		local s = Instance.new("UIStroke", btn); s.Color = Color3.new(1,1,1); s.Thickness = 1; s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		Instance.new("UITextSizeConstraint", btn).MaxTextSize = 12
-		return btn
-	end
-
-	local btnRollStand = createRollBtn("RollStandBtn", "Roll Stand", Color3.fromRGB(200, 150, 0), 3)
-	local btnRollTrait = createRollBtn("RollTraitBtn", "Roll Trait", Color3.fromRGB(200, 50, 150), 4)
+	for _, stat in ipairs(playerStatsList) do statLabels[stat] = InstantiateStatRow(stat, pStatsContainer, false) end
+	for _, stat in ipairs(standStatsList) do statLabels[stat] = InstantiateStatRow(stat, sStatsContainer, true) end
 
 	local camera = workspace.CurrentCamera
 	local UpdateLayoutForScreen = function()
@@ -1094,9 +716,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 			str.Thickness = isActive and 2 or 1
 		end
 
-		ToggleNav(invTabBtn, invStr, target == "INV")
-		ToggleNav(playerTabBtn, playerStr, target == "PLAYER")
-		ToggleNav(standTabBtn, standStr, target == "STAND")
+		ToggleNav(invTabBtn, invTabBtn.UIStroke, target == "INV")
+		ToggleNav(playerTabBtn, playerTabBtn.UIStroke, target == "PLAYER")
+		ToggleNav(standTabBtn, standTabBtn.UIStroke, target == "STAND")
 	end
 
 	invTabBtn.MouseButton1Click:Connect(function() SetActiveTab("INV") end)
@@ -1120,6 +742,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	standLockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); local remote = Network:FindFirstChild("ToggleLock"); if remote then remote:FireServer("Stand") end end)
 	styleLockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); local remote = Network:FindFirstChild("ToggleLock"); if remote then remote:FireServer("Style") end end)
 
+	local raritiesToSell = {"Common", "Uncommon", "Rare", "Legendary", "Mythical"}
 	for _, r in ipairs(raritiesToSell) do
 		local btn = autoSellContainer:WaitForChild("AutoSell_" .. r)
 
