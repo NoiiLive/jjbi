@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local TradingTab = {}
 
 local player = game.Players.LocalPlayer
@@ -299,7 +298,6 @@ local function DrawTradeItems(container, itemsTable, standData, styleData, isMyO
 		local tColor = StandData.Traits[standData.Trait] and StandData.Traits[standData.Trait].Color or "#FFFFFF"
 		local tStr = standData.Trait ~= "None" and " <font color='"..tColor.."'>["..standData.Trait.."]</font>" or ""
 
-		-- Handle Fused Display
 		if standData.Name == "Fused Stand" then
 			displayName = FusionUtility.CalculateFusedName(standData.FusedS1, standData.FusedS2)
 
@@ -587,9 +585,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local bivPad = Instance.new("UIPadding", browserInboxView)
 	bivPad.PaddingTop = UDim.new(0, 5); bivPad.PaddingLeft = UDim.new(0, 5); bivPad.PaddingRight = UDim.new(0, 10)
 
-	-- ==========================================================
-	-- ACTIVE TRADE CARD
-	-- ==========================================================
 	activeTradeCard = CreateCard("ActiveTradeCard", parentFrame, UDim2.new(0.96, 0, 0.96, 0), UDim2.new(0.02, 0, 0.02, 0))
 	activeTradeCard.Visible = false
 	local atcPad = Instance.new("UIPadding", activeTradeCard)
@@ -811,9 +806,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	AddBtnStroke(lockBtn, 255, 180, 50, 1)
 	Instance.new("UITextSizeConstraint", lockBtn).MaxTextSize = 16
 
-	-- ==========================================================
-	-- CLAIM MODALS
-	-- ==========================================================
 	claimModal = Instance.new("Frame", parentFrame)
 	claimModal.Name = "ClaimModal"
 	claimModal.Size = UDim2.new(1, 0, 1, 0)
@@ -944,10 +936,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	btnStyleSlot2 = CreateStyleClaimBtn("BtnStyleSlot2", 3); btnStyleSlot2.Parent = styleClaimBtnGrid
 	btnStyleSlot3 = CreateStyleClaimBtn("BtnStyleSlot3", 4); btnStyleSlot3.Parent = styleClaimBtnGrid
 
-
-	-- ==========================================================
-	-- LOBBY NAVIGATION BUTTON CONNECTIONS
-	-- ==========================================================
 	toggleReqsBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		requestsEnabled = not requestsEnabled
@@ -1028,9 +1016,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 	end)
 
-	-- ==========================================================
-	-- ACTIVE TRADE CARD & CLAIM BUTTON CONNECTIONS
-	-- ==========================================================
 	cancelTradeBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("CancelTrade") end)
 
 	setYenBtn.MouseButton1Click:Connect(function()
@@ -1090,7 +1075,6 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 			if sName ~= "None" then
 				local displayName = sName
 				if sName == "Fused Stand" then
-					-- Fused Stands get their dynamic name generated for the picker menu!
 					local fs1 = player:GetAttribute(slotId == "Active" and "Active_FusedStand1" or attrName.."_FusedStand1")
 					local fs2 = player:GetAttribute(slotId == "Active" and "Active_FusedStand2" or attrName.."_FusedStand2")
 					displayName = FusionUtility.CalculateFusedName(fs1, fs2)
