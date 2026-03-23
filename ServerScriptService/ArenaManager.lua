@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -68,72 +67,6 @@ local function UpdateTeamElo(winningTeam, losingTeam)
 	return wGain, lLoss
 end
 
-local function BuildPlayerStruct(player)
-	local playerTrait = player:GetAttribute("StandTrait") or "None"
-	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
-
-	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) or 0
-	local sDur = hasStand and (player:GetAttribute("Stand_Durability_Val") or 0) or 0
-	local sSpd = hasStand and (player:GetAttribute("Stand_Speed_Val") or 0) or 0
-	local sPot = hasStand and (player:GetAttribute("Stand_Potential_Val") or 0) or 0
-	local sRan = hasStand and (player:GetAttribute("Stand_Range_Val") or 0) or 0
-	local sPre = hasStand and (player:GetAttribute("Stand_Precision_Val") or 0) or 0
-
-	local pHP = (player:GetAttribute("Health") or 1) + CombatCore.GetEquipBonus(player, "Health")
-	local pStr = (player:GetAttribute("Strength") or 1) + sPow + CombatCore.GetEquipBonus(player, "Strength") + CombatCore.GetEquipBonus(player, "Stand_Power")
-	local pDef = (player:GetAttribute("Defense") or 1) + sDur + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
-	local pSpd = (player:GetAttribute("Speed") or 1) + sSpd + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
-	local pWill = (player:GetAttribute("Willpower") or 1) + CombatCore.GetEquipBonus(player, "Willpower")
-
-	if playerTrait == "Tough" then pHP *= 1.1 end
-	if playerTrait == "Fierce" then pStr *= 1.1 end
-	if playerTrait == "Perseverance" then pHP *= 1.5; pWill *= 1.5 end
-
-	local pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
-	local pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
-
-	if playerTrait == "Focused" then pStamina *= 1.1; pStandEnergy *= 1.1 end
-
-	local elo = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Elo") and player.leaderstats.Elo.Value or 1000
-	local eloDmgBoost = elo >= 5000 and 1.05 or 1.0
-	local gangDmgBoost = player:GetAttribute("GangDmgBoost") or 1.0
-	
-	local validSkills = {}
-	local sName = player:GetAttribute("Stand") or "None"
-	local fStyle = player:GetAttribute("FightingStyle") or "None"
-
-	if sName == "Fused Stand" then
-		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
-		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
-		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
-		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
-		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
-	end
-
-	for n, s in pairs(SkillData.Skills) do
-		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
-		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
-			table.insert(validSkills, n)
-		end
-	end
-
-	return {
-		Player = player, PlayerObj = player, UserId = player.UserId, Name = player.Name,
-		Trait = playerTrait, GlobalDmgBoost = gangDmgBoost * eloDmgBoost,
-		Stand = player:GetAttribute("Stand") or "None", Style = player:GetAttribute("FightingStyle") or "None",
-		HP = pHP * 10, MaxHP = pHP * 10,
-		Stamina = pStamina, MaxStamina = pStamina,
-		StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
-		TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd,
-		TotalWillpower = pWill,
-		TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"),
-		TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
-		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
-		Cooldowns = {}, SelectedSkill = nil, SelectedTargetId = nil, Skills = validSkills
-	}
-end
-
 local function GetClientState(match, requestingPlayer, isSpectator)
 	local myTeamStruct, enemyTeamStruct = match.Team1, match.Team2
 
@@ -198,21 +131,21 @@ local function ProcessTurn(match)
 			local dmg = math.max(1, attacker.MaxHP * 0.05)
 			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
 			attacker.Statuses.Bleed -= 1
-			local svMsg = survived and (attacker.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			table.insert(logMessages, "<font color='#FF0000'>"..attacker.Name.." bled for "..math.floor(dmg).." damage!"..svMsg.."</font>")
 		end
 		if attacker.Statuses.Poison > 0 then
 			local dmg = math.max(1, attacker.MaxHP * 0.05)
 			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
 			attacker.Statuses.Poison -= 1
-			local svMsg = survived and (attacker.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			table.insert(logMessages, "<font color='#AA00AA'>"..attacker.Name.." took "..math.floor(dmg).." Poison damage!"..svMsg.."</font>")
 		end
 		if attacker.Statuses.Burn > 0 then
 			local dmg = math.max(1, attacker.MaxHP * 0.05)
 			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
 			attacker.Statuses.Burn -= 1
-			local svMsg = survived and (attacker.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			table.insert(logMessages, "<font color='#FF5500'>"..attacker.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>")
 		end
 
@@ -222,7 +155,7 @@ local function ProcessTurn(match)
 			local dmg = math.max(1, attacker.MaxHP * 0.05)
 			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
 			attacker.Statuses.Freeze -= 1
-			local svMsg = survived and (attacker.Trait == "Perseverance" and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			table.insert(logMessages, "<font color='#00FFFF'>"..attacker.Name.." took "..math.floor(dmg).." Freeze damage and is frozen solid!"..svMsg.."</font>")
 			if attacker.HP < 1 then continue end
 			attacker.Stamina = math.min(attacker.MaxStamina, attacker.Stamina + 5)
@@ -291,9 +224,10 @@ local function ProcessTurn(match)
 			if sk.EnergyCost == 0 then combatant.StandEnergy = math.min(combatant.MaxStandEnergy, combatant.StandEnergy + 5) end
 		end
 
-		if combatant.Trait == "Vigorous" then
-			combatant.Stamina = math.min(combatant.MaxStamina, combatant.Stamina + 10)
-			combatant.StandEnergy = math.min(combatant.MaxStandEnergy, combatant.StandEnergy + 10)
+		local vigCount = CombatCore.CountTrait(combatant, "Vigorous")
+		if vigCount > 0 then
+			combatant.Stamina = math.min(combatant.MaxStamina, combatant.Stamina + (10 * vigCount))
+			combatant.StandEnergy = math.min(combatant.MaxStandEnergy, combatant.StandEnergy + (10 * vigCount))
 		end
 
 		combatant.SelectedSkill = nil
@@ -444,8 +378,8 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 
 		if #lobby.Team1Queue == maxPerTeam and #lobby.Team2Queue == maxPerTeam then
 			local t1, t2 = {}, {}
-			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, BuildPlayerStruct(qp)) end
-			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, BuildPlayerStruct(qp)) end
+			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, CombatCore.BuildPlayerStruct(qp)) end
+			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, CombatCore.BuildPlayerStruct(qp)) end
 
 			local turnTime = 15
 			if lobby.Capacity == 4 then turnTime = 30 elseif lobby.Capacity == 8 then turnTime = 45 end
