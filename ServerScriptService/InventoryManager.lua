@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -72,7 +71,6 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 	if player:GetAttribute("IsAutoRolling") then return end
 	player:SetAttribute("IsAutoRolling", true)
 
-	-- [[ FIXED: If rolling with a Roka, completely ignore the Target Stand dropdown to prevent logic deadlocks! ]]
 	if rollType == "Roka" then
 		targetStand = "Any"
 	end
