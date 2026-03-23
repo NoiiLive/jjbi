@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -132,50 +131,7 @@ local function StartBossBattle(player)
 		return 
 	end
 
-	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
-
-	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) or 0
-	local sDur = hasStand and (player:GetAttribute("Stand_Durability_Val") or 0) or 0
-	local sSpd = hasStand and (player:GetAttribute("Stand_Speed_Val") or 0) or 0
-	local sPot = hasStand and (player:GetAttribute("Stand_Potential_Val") or 0) or 0
-	local sRan = hasStand and (player:GetAttribute("Stand_Range_Val") or 0) or 0
-	local sPre = hasStand and (player:GetAttribute("Stand_Precision_Val") or 0) or 0
-
-	local pHP = (player:GetAttribute("Health") or 1) + CombatCore.GetEquipBonus(player, "Health")
-	local pStr = (player:GetAttribute("Strength") or 1) + sPow + CombatCore.GetEquipBonus(player, "Strength") + CombatCore.GetEquipBonus(player, "Stand_Power")
-	local pDef = (player:GetAttribute("Defense") or 1) + sDur + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
-	local pSpd = (player:GetAttribute("Speed") or 1) + sSpd + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
-	local pWill = (player:GetAttribute("Willpower") or 1) + CombatCore.GetEquipBonus(player, "Willpower")
-
-	local playerTrait = player:GetAttribute("StandTrait") or "None"
-	if playerTrait == "Tough" then pHP *= 1.1 end
-	if playerTrait == "Fierce" then pStr *= 1.1 end
-	if playerTrait == "Perseverance" then pHP *= 1.5; pWill *= 1.5 end
-
-	local pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
-	local pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
-	if playerTrait == "Focused" then pStamina *= 1.1; pStandEnergy *= 1.1 end
-
-	local validSkills = {}
-	local sName = player:GetAttribute("Stand") or "None"
-	local fStyle = player:GetAttribute("FightingStyle") or "None"
-
-	if sName == "Fused Stand" then
-		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
-		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
-		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
-		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
-		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
-	end
-
-	for n, s in pairs(SkillData.Skills) do
-		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
-		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
-			table.insert(validSkills, n)
-		end
-	end
-
-	local activeBoosts = CombatCore.GetPlayerBoosts(player)
+	local pData = CombatCore.BuildPlayerStruct(player)
 
 	local bossEntity = {
 		IsPlayer = false, IsAlly = false, Name = bossTemplate.Name, Trait = "None", IsBoss = true,
@@ -192,17 +148,8 @@ local function StartBossBattle(player)
 	}
 
 	ActiveBossBattles[player.UserId] = {
-		IsProcessing = false, TurnCounter = 1, Boosts = activeBoosts, Drops = bossTemplate.Drops,
-		Player = {
-			IsPlayer = true, IsAlly = false, Name = player.Name, Trait = playerTrait, GlobalDmgBoost = activeBoosts.Damage, PlayerObj = player,
-			Stand = player:GetAttribute("Stand") or "None", Style = player:GetAttribute("FightingStyle") or "None",
-			HP = pHP * 10, MaxHP = pHP * 10, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
-			TotalStrength = pStr, TotalDefense = pDef, TotalSpeed = pSpd, TotalWillpower = pWill,
-			TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
-			BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, 
-			Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, 
-			Cooldowns = {}, Skills = validSkills
-		},
+		IsProcessing = false, TurnCounter = 1, Boosts = pData.Boosts, Drops = bossTemplate.Drops,
+		Player = pData,
 		Enemy = bossEntity
 	}
 
@@ -374,7 +321,12 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	else
 		if stamCost == 0 then battle.Player.Stamina = math.min(battle.Player.MaxStamina, battle.Player.Stamina + 5) end
 		if nrgCost == 0 then battle.Player.StandEnergy = math.min(battle.Player.MaxStandEnergy, battle.Player.StandEnergy + 5) end
-		if battle.Player.Trait == "Vigorous" then battle.Player.Stamina = math.min(battle.Player.MaxStamina, battle.Player.Stamina + 10); battle.Player.StandEnergy = math.min(battle.Player.MaxStandEnergy, battle.Player.StandEnergy + 10) end
+
+		local vigCount = CombatCore.CountTrait(battle.Player, "Vigorous")
+		if vigCount > 0 then 
+			battle.Player.Stamina = math.min(battle.Player.MaxStamina, battle.Player.Stamina + (10 * vigCount))
+			battle.Player.StandEnergy = math.min(battle.Player.MaxStandEnergy, battle.Player.StandEnergy + (10 * vigCount)) 
+		end
 
 		battle.IsProcessing = false
 		WorldBossUpdate:FireClient(player, "Update", {Battle = battle})
