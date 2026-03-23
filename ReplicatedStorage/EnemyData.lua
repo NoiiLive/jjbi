@@ -59,7 +59,7 @@ EnemyData.RaidBosses = {
 	["Raid_Part8"] = { 
 		IsBoss = true, Name = "The Head Doctor", Req = 1, 
 		Health = 40000, Strength = 350, Defense = 300, Speed = 350, Willpower = 300, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
-		Skills = {"Cane Strike", "Flow of Calamity", "Rain of Debris", "Heavy Strike", "Block"}, 
+		Skills = {"Cane Strike", "Flow of Calamity", "Raining Debris", "Illusory Presence", "Heavy Strike", "Block"}, 
 		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1, ["Rokakaka Fruit"] = 1} } 
 	}
 }
@@ -131,7 +131,7 @@ EnemyData.WorldBosses = {
 	["Wonder of U"] = {
 		Name = "Wonder of U", IsBoss = true, 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"Flow of Calamity", "Illusory Presence", "Rain of Debris", "Stand Barrage", "Block"},
+		Skills = {"Flow of Calamity", "Illusory Presence", "Raining Debris", "Stand Barrage", "Cane Strike", "Block"},
 		Drops = { 
 			XP = 35000, Yen = 15000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1 } 
@@ -767,7 +767,7 @@ EnemyData.Parts = {
 			["Tooru"] = { IsBoss = true, Name = "Tooru", 
 				Health = 18000, Strength = 550, Defense = 350, Speed = 350, Willpower = 300, 
 				StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
-				Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Rain of Debris", "Block"}, 
+				Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Raining Debris", "Block"}, 
 				Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Saint's Corpse Part"] = 100, ["Rokakaka"] = 50 } } }
 		},
 		Missions = {
