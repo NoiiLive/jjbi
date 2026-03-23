@@ -666,7 +666,6 @@ local function UpdateTopDisplays()
 	RefreshStatTexts()
 end
 
--- [[ FIXED: Responsive Scaling For Stats Controls ]]
 local function AttachStatsControls(parentCard, titleText)
 	local tLbl = CreateTitle(parentCard, titleText)
 	tLbl.Size = UDim2.new(0.45, 0, 0, 18)
@@ -742,7 +741,6 @@ local function AttachStatsControls(parentCard, titleText)
 	end)
 end
 
--- [[ FIXED: Dynamically Appended Locks & Centered Info Rows ]] --
 local function createLoadRow(name, parentFrame, heightScale)
 	local r = Instance.new("Frame", parentFrame)
 	r.Size = UDim2.new(1, 0, heightScale or 0.25, 0)
@@ -752,16 +750,18 @@ local function createLoadRow(name, parentFrame, heightScale)
 	rL.FillDirection = Enum.FillDirection.Horizontal
 	rL.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	rL.VerticalAlignment = Enum.VerticalAlignment.Center
+	rL.SortOrder = Enum.SortOrder.LayoutOrder
 	rL.Padding = UDim.new(0, 8)
 
 	local lbl = Instance.new("TextLabel", r)
+	lbl.LayoutOrder = 1
 	lbl.AutomaticSize = Enum.AutomaticSize.X
 	lbl.Size = UDim2.new(0, 0, 1, 0)
 	lbl.BackgroundTransparency = 1
 	lbl.Font = Enum.Font.GothamMedium
 	lbl.TextColor3 = Color3.new(1,1,1)
 	lbl.TextScaled = false
-	lbl.TextSize = 16
+	lbl.TextSize = 14
 	lbl.RichText = true
 	lbl.TextXAlignment = Enum.TextXAlignment.Center
 	lbl.ZIndex = 22
@@ -769,6 +769,7 @@ local function createLoadRow(name, parentFrame, heightScale)
 	local btn = nil
 	if name == "Stand" or name == "Style" then
 		btn = Instance.new("TextButton", r)
+		btn.LayoutOrder = 2
 		btn.SizeConstraint = Enum.SizeConstraint.RelativeYY
 		btn.Size = UDim2.new(0.85, 0, 0.85, 0)
 		btn.Font = Enum.Font.GothamBold
@@ -832,7 +833,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	mainLayout.Padding = UDim.new(0.02, 0)
 
-	-- [[ SUB NAVIGATION ]] --
 	local subNavFrame = Instance.new("Frame", innerContent)
 	subNavFrame.Name = "SubNavFrame"
 	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
@@ -869,9 +869,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	tabContainer.BackgroundTransparency = 1
 	tabContainer.LayoutOrder = 2
 
-	-- ========================================================================= --
-	-- 1. INVENTORY TAB
-	-- ========================================================================= --
 	local invTabContent = Instance.new("Frame", tabContainer)
 	invTabContent.Name = "InventoryTabContent"; invTabContent.Size = UDim2.new(1, 0, 1, 0); invTabContent.BackgroundTransparency = 1; invTabContent.Visible = true
 	local invTL = Instance.new("UIListLayout", invTabContent); invTL.FillDirection = Enum.FillDirection.Vertical; invTL.SortOrder = Enum.SortOrder.LayoutOrder; invTL.Padding = UDim.new(0.02, 0)
@@ -913,9 +910,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		Instance.new("UITextSizeConstraint", b).MaxTextSize = 13
 	end
 
-	-- ========================================================================= --
-	-- 2. PLAYER TAB
-	-- ========================================================================= --
 	local playerTabContent = Instance.new("Frame", tabContainer)
 	playerTabContent.Name = "PlayerTabContent"; playerTabContent.Size = UDim2.new(1, 0, 1, 0); playerTabContent.BackgroundTransparency = 1; playerTabContent.Visible = false
 	local pTL = Instance.new("UIListLayout", playerTabContent); pTL.FillDirection = Enum.FillDirection.Vertical; pTL.SortOrder = Enum.SortOrder.LayoutOrder; pTL.Padding = UDim.new(0.02, 0)
@@ -957,10 +951,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local pcp = Instance.new("UIPadding", playerConsContainer); pcp.PaddingRight = UDim.new(0, 6); pcp.PaddingLeft = UDim.new(0, 2); pcp.PaddingTop = UDim.new(0, 2); pcp.PaddingBottom = UDim.new(0, 2)
 	Instance.new("UIListLayout", playerConsContainer).Padding = UDim.new(0, 4)
 
-
-	-- ========================================================================= --
-	-- 3. STAND TAB
-	-- ========================================================================= --
 	local standTabContent = Instance.new("Frame", tabContainer)
 	standTabContent.Name = "StandTabContent"; standTabContent.Size = UDim2.new(1, 0, 1, 0); standTabContent.BackgroundTransparency = 1; standTabContent.Visible = false
 	local sTL = Instance.new("UIListLayout", standTabContent); sTL.FillDirection = Enum.FillDirection.Vertical; sTL.SortOrder = Enum.SortOrder.LayoutOrder; sTL.Padding = UDim.new(0.02, 0)
@@ -1048,9 +1038,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local btnRollStand = createRollBtn("RollStandBtn", "Roll Stand", Color3.fromRGB(200, 150, 0), 3)
 	local btnRollTrait = createRollBtn("RollTraitBtn", "Roll Trait", Color3.fromRGB(200, 50, 150), 4)
 
-	-- ========================================================================= --
-	-- RESPONSIVE SIZING & EVENTS
-	-- ========================================================================= --
 	local camera = workspace.CurrentCamera
 	local UpdateLayoutForScreen = function()
 		if not parentFrame.Parent then return end
