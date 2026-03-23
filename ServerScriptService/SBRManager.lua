@@ -305,7 +305,7 @@ local function GeneratePvEMob(player)
 	local template = pMobs[math.random(#pMobs)]
 
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
-	local scale = 1 + (prestige * 0.15)
+	local scale = 1 + (prestige * 0.05)
 
 	return {
 		IsPlayer = false, Name = template.Name, Trait = "None", IsBoss = false,
