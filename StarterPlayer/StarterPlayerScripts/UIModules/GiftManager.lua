@@ -16,189 +16,31 @@ local giftModal, giftContainer, giftTitle, giftList
 
 local promptQueue = {}
 local isPromptShowing = false
-
-local function applyDoubleGoldBorder(parent)
-	local parentCorner = parent:FindFirstChildOfClass("UICorner")
-
-	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3
-	outerStroke.Color = Color3.fromRGB(255, 210, 60)
-	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradOut = Instance.new("UIGradient")
-	gradOut.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
-	}
-	gradOut.Rotation = -45
-	gradOut.Parent = outerStroke
-	outerStroke.Parent = parent
-
-	local innerFrame = Instance.new("Frame")
-	innerFrame.Name = "InnerGoldBorder"
-	innerFrame.Size = UDim2.new(1, -6, 1, -6)
-	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	innerFrame.BackgroundTransparency = 1
-	innerFrame.ZIndex = parent.ZIndex
-
-	if parentCorner then
-		local innerCorner = Instance.new("UICorner")
-		if parentCorner.CornerRadius.Scale > 0 then
-			innerCorner.CornerRadius = parentCorner.CornerRadius
-		else
-			local offset = math.max(0, parentCorner.CornerRadius.Offset - 3)
-			innerCorner.CornerRadius = UDim.new(0, offset)
-		end
-		innerCorner.Parent = innerFrame
-	end
-	innerFrame.Parent = parent
-
-	local innerStroke = Instance.new("UIStroke")
-	innerStroke.Thickness = 1
-	innerStroke.Color = Color3.fromRGB(255, 230, 100)
-	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradIn = Instance.new("UIGradient")
-	gradIn.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
-	}
-	gradIn.Rotation = 45
-	gradIn.Parent = innerStroke
-	innerStroke.Parent = innerFrame
-end
-
-local function createModal(name, parent)
-	local modal = Instance.new("Frame")
-	modal.Name = name
-	modal.Size = UDim2.new(1, 0, 1, 0)
-	modal.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	modal.BackgroundTransparency = 0.6
-	modal.Visible = false
-	modal.ZIndex = 200
-	modal.Parent = parent
-
-	local container = Instance.new("Frame")
-	container.Size = UDim2.new(0.55, 0, 0.75, 0)
-	container.Position = UDim2.new(0.5, 0, 0.5, 0)
-	container.AnchorPoint = Vector2.new(0.5, 0.5)
-	container.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	container.ZIndex = 201
-	container.Parent = modal
-
-	local cCorner = Instance.new("UICorner")
-	cCorner.CornerRadius = UDim.new(0, 12)
-	cCorner.Parent = container
-
-	applyDoubleGoldBorder(container)
-
-	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, -80, 0, 40)
-	title.Position = UDim2.new(0.5, 0, 0, 15)
-	title.AnchorPoint = Vector2.new(0.5, 0)
-	title.BackgroundTransparency = 1
-	title.Font = Enum.Font.GothamBlack
-	title.TextColor3 = Color3.fromRGB(255, 215, 50)
-	title.TextScaled = true
-	title.ZIndex = 202
-	title.Parent = container
-
-	local tUic = Instance.new("UITextSizeConstraint")
-	tUic.MaxTextSize = 28
-	tUic.Parent = title
-
-	local scroll = Instance.new("ScrollingFrame")
-	scroll.Size = UDim2.new(1, -20, 1, -75)
-	scroll.Position = UDim2.new(0.5, 0, 0, 65)
-	scroll.AnchorPoint = Vector2.new(0.5, 0)
-	scroll.BackgroundTransparency = 1
-	scroll.ScrollBarThickness = 6
-	scroll.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	scroll.ZIndex = 202
-	scroll.Parent = container
-
-	local pad = Instance.new("UIPadding")
-	pad.PaddingTop = UDim.new(0, 10)
-	pad.PaddingBottom = UDim.new(0, 10)
-	pad.PaddingRight = UDim.new(0, 6)
-	pad.Parent = scroll
-
-	local layout = Instance.new("UIListLayout")
-	layout.FillDirection = Enum.FillDirection.Vertical
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	layout.Padding = UDim.new(0, 10)
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Parent = scroll
-
-	return modal, container, title, scroll, layout
-end
-
-local function createSlotBtn(name, order, isDeny, parent)
-	local btn = Instance.new("TextButton")
-	btn.Name = name
-	btn.LayoutOrder = order
-	btn.Size = UDim2.new(0.95, 0, 0, 55)
-	btn.Font = Enum.Font.GothamBold
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.TextScaled = true
-	btn.ZIndex = 203
-	btn.Parent = parent
-
-	local bCorner = Instance.new("UICorner")
-	bCorner.CornerRadius = UDim.new(0, 6)
-	bCorner.Parent = btn
-
-	local bUic = Instance.new("UITextSizeConstraint")
-	bUic.MaxTextSize = 22
-	bUic.Parent = btn
-
-	if isDeny then
-		btn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
-		local stroke = Instance.new("UIStroke")
-		stroke.Color = Color3.fromRGB(255, 100, 100)
-		stroke.Thickness = 2
-		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		stroke.Parent = btn
-	else
-		btn.BackgroundColor3 = Color3.fromRGB(45, 20, 65)
-		local grad = Instance.new("UIGradient")
-		grad.Rotation = 45
-		grad.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 30, 100)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 10, 50))
-		}
-		grad.Parent = btn
-
-		local stroke = Instance.new("UIStroke")
-		stroke.Color = Color3.fromRGB(255, 215, 50)
-		stroke.Thickness = 2
-		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		stroke.Parent = btn
-	end
-	return btn
-end
+local processQueue
+local playerBtnTpl
 
 local function FormatSlotLabel(title, occupantName)
 	local safeName = (occupantName == "None" or not occupantName or occupantName == "") and "Empty" or occupantName
 	return title .. "\n[" .. safeName .. "]"
 end
 
-local processQueue
-
 function GiftManager.Init(parentGui)
-	standClaimModal, _, scTitle, standScroll, standLL = createModal("StandClaimModal", parentGui)
-	btnScActive = createSlotBtn("BtnScActive", 1, false, standScroll)
-	btnScSlot1 = createSlotBtn("BtnScSlot1", 2, false, standScroll)
-	btnScSlot2 = createSlotBtn("BtnScSlot2", 3, false, standScroll)
-	btnScSlot3 = createSlotBtn("BtnScSlot3", 4, false, standScroll)
-	btnScSlot4 = createSlotBtn("BtnScSlot4", 5, false, standScroll)
-	btnScSlot5 = createSlotBtn("BtnScSlot5", 6, false, standScroll)
-	btnScDeny = createSlotBtn("BtnScDeny", 7, true, standScroll)
-	btnScDeny.Text = "Discard / Do Not Claim"
+	local modals = parentGui:WaitForChild("ModalsContainer")
+	playerBtnTpl = ReplicatedStorage:WaitForChild("JJBITemplates"):WaitForChild("GiftPlayerBtnTemplate")
+
+	standClaimModal = modals:WaitForChild("StandClaimModal")
+	local scContainer = standClaimModal:WaitForChild("Container")
+	scTitle = scContainer:WaitForChild("TitleLabel")
+	standScroll = scContainer:WaitForChild("ScrollArea")
+	standLL = standScroll:WaitForChild("UIListLayout")
+
+	btnScActive = standScroll:WaitForChild("BtnScActive")
+	btnScSlot1 = standScroll:WaitForChild("BtnScSlot1")
+	btnScSlot2 = standScroll:WaitForChild("BtnScSlot2")
+	btnScSlot3 = standScroll:WaitForChild("BtnScSlot3")
+	btnScSlot4 = standScroll:WaitForChild("BtnScSlot4")
+	btnScSlot5 = standScroll:WaitForChild("BtnScSlot5")
+	btnScDeny = standScroll:WaitForChild("BtnScDeny")
 
 	local function SendClaimStand(slot)
 		SFXManager.Play("Click")
@@ -216,13 +58,17 @@ function GiftManager.Init(parentGui)
 	btnScSlot5.MouseButton1Click:Connect(function() SendClaimStand("Slot5") end)
 	btnScDeny.MouseButton1Click:Connect(function() SendClaimStand("Deny") end)
 
-	styleClaimModal, _, styleTitle, styleScroll, styleLL = createModal("StyleClaimModal", parentGui)
-	btnStyleActive = createSlotBtn("BtnStyleActive", 1, false, styleScroll)
-	btnStyleSlot1 = createSlotBtn("BtnStyleSlot1", 2, false, styleScroll)
-	btnStyleSlot2 = createSlotBtn("BtnStyleSlot2", 3, false, styleScroll)
-	btnStyleSlot3 = createSlotBtn("BtnStyleSlot3", 4, false, styleScroll)
-	btnStyleDeny = createSlotBtn("BtnStyleDeny", 5, true, styleScroll)
-	btnStyleDeny.Text = "Discard / Do Not Claim"
+	styleClaimModal = modals:WaitForChild("StyleClaimModal")
+	local stcContainer = styleClaimModal:WaitForChild("Container")
+	styleTitle = stcContainer:WaitForChild("TitleLabel")
+	styleScroll = stcContainer:WaitForChild("ScrollArea")
+	styleLL = styleScroll:WaitForChild("UIListLayout")
+
+	btnStyleActive = styleScroll:WaitForChild("BtnStyleActive")
+	btnStyleSlot1 = styleScroll:WaitForChild("BtnStyleSlot1")
+	btnStyleSlot2 = styleScroll:WaitForChild("BtnStyleSlot2")
+	btnStyleSlot3 = styleScroll:WaitForChild("BtnStyleSlot3")
+	btnStyleDeny = styleScroll:WaitForChild("BtnStyleDeny")
 
 	local function SendClaimStyle(slot)
 		SFXManager.Play("Click")
@@ -238,87 +84,16 @@ function GiftManager.Init(parentGui)
 	btnStyleSlot3.MouseButton1Click:Connect(function() SendClaimStyle("Slot3") end)
 	btnStyleDeny.MouseButton1Click:Connect(function() SendClaimStyle("Deny") end)
 
-	giftModal = Instance.new("Frame")
-	giftModal.Name = "GiftSelectionModal"
-	giftModal.Size = UDim2.new(1, 0, 1, 0)
-	giftModal.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	giftModal.BackgroundTransparency = 0.6
-	giftModal.Visible = false
-	giftModal.ZIndex = 300
-	giftModal.Parent = parentGui
+	giftModal = modals:WaitForChild("GiftSelectionModal")
+	giftContainer = giftModal:WaitForChild("Container")
+	giftTitle = giftContainer:WaitForChild("TitleLabel")
+	giftList = giftContainer:WaitForChild("ScrollArea")
 
-	giftContainer = Instance.new("Frame")
-	giftContainer.Size = UDim2.new(0.55, 0, 0.75, 0)
-	giftContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-	giftContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-	giftContainer.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	giftContainer.ZIndex = 301
-	giftContainer.Parent = giftModal
-
-	local gCorner = Instance.new("UICorner")
-	gCorner.CornerRadius = UDim.new(0, 12)
-	gCorner.Parent = giftContainer
-
-	applyDoubleGoldBorder(giftContainer)
-
-	giftTitle = Instance.new("TextLabel")
-	giftTitle.Size = UDim2.new(1, -100, 0, 40)
-	giftTitle.Position = UDim2.new(0.5, 0, 0, 15)
-	giftTitle.AnchorPoint = Vector2.new(0.5, 0)
-	giftTitle.BackgroundTransparency = 1
-	giftTitle.Font = Enum.Font.GothamBlack
-	giftTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	giftTitle.TextScaled = true
-	giftTitle.ZIndex = 302
-	giftTitle.Parent = giftContainer
-
-	local gtUic = Instance.new("UITextSizeConstraint")
-	gtUic.MaxTextSize = 28
-	gtUic.Parent = giftTitle
-
-	local closeBtn = Instance.new("TextButton")
-	closeBtn.Size = UDim2.new(0, 35, 0, 35)
-	closeBtn.Position = UDim2.new(1, -15, 0, 15)
-	closeBtn.AnchorPoint = Vector2.new(1, 0)
-	closeBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
-	closeBtn.Text = "X"
-	closeBtn.Font = Enum.Font.GothamBlack
-	closeBtn.TextColor3 = Color3.new(1, 1, 1)
-	closeBtn.TextScaled = true
-	closeBtn.ZIndex = 303
-	closeBtn.Parent = giftContainer
-
-	local cbCorner = Instance.new("UICorner")
-	cbCorner.CornerRadius = UDim.new(0, 6)
-	cbCorner.Parent = closeBtn
-
+	local closeBtn = giftContainer:WaitForChild("CloseBtn")
 	closeBtn.MouseButton1Click:Connect(function() 
 		SFXManager.Play("Click") 
 		giftModal.Visible = false 
 	end)
-
-	giftList = Instance.new("ScrollingFrame")
-	giftList.Size = UDim2.new(1, -20, 1, -75)
-	giftList.Position = UDim2.new(0.5, 0, 0, 65)
-	giftList.AnchorPoint = Vector2.new(0.5, 0)
-	giftList.BackgroundTransparency = 1
-	giftList.ScrollBarThickness = 6
-	giftList.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	giftList.ZIndex = 302
-	giftList.Parent = giftContainer
-
-	local gPad = Instance.new("UIPadding")
-	gPad.PaddingTop = UDim.new(0, 10)
-	gPad.PaddingBottom = UDim.new(0, 10)
-	gPad.PaddingRight = UDim.new(0, 6)
-	gPad.Parent = giftList
-
-	local gLL = Instance.new("UIListLayout")
-	gLL.FillDirection = Enum.FillDirection.Vertical
-	gLL.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	gLL.Padding = UDim.new(0, 10)
-	gLL.SortOrder = Enum.SortOrder.LayoutOrder
-	gLL.Parent = giftList
 
 	local function CatchPrompt(action, data)
 		if action == "ShowStandClaim" or action == "GiftPrompt" or action == "ClaimPrompt" or action == "Prompt" or action == "Receive" then
@@ -385,29 +160,10 @@ function GiftManager.OpenGiftModal(pInfo)
 	end
 
 	local function makePlayerBtn(text, color, onClick)
-		local b = Instance.new("TextButton")
-		b.Size = UDim2.new(0.95, 0, 0, 55)
+		local b = playerBtnTpl:Clone()
 		b.BackgroundColor3 = color
-		b.Font = Enum.Font.GothamBold
-		b.TextColor3 = Color3.new(1, 1, 1)
-		b.TextScaled = true
 		b.Text = text
-		b.ZIndex = 303
 		b.Parent = giftList
-
-		local bCorner = Instance.new("UICorner")
-		bCorner.CornerRadius = UDim.new(0, 6)
-		bCorner.Parent = b
-
-		local s = Instance.new("UIStroke")
-		s.Color = Color3.fromRGB(255, 215, 50)
-		s.Thickness = 1
-		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		s.Parent = b
-
-		local bUic = Instance.new("UITextSizeConstraint")
-		bUic.MaxTextSize = 22
-		bUic.Parent = b
 
 		b.MouseButton1Click:Connect(function() 
 			SFXManager.Play("Click") 
