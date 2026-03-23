@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -294,7 +293,6 @@ local function StartRaidMatch(hostId)
 	local party = {}
 	local totalPrestige = 0
 	for _, p in ipairs(lobby.Queue) do
-		-- PERFECTED: Now securely uses the CombatCore to generate stats & traits uniformly!
 		table.insert(party, CombatCore.BuildPlayerStruct(p))
 		totalPrestige += (p.leaderstats.Prestige.Value or 0)
 	end
