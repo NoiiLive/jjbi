@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -24,6 +25,7 @@ local function GetLobbyData()
 			Elo = data.Elo,
 			FriendsOnly = data.FriendsOnly,
 			Casual = data.Casual,
+			NoHoldsBarred = data.NoHoldsBarred,
 			Capacity = data.Capacity,
 			T1Count = #data.Team1Queue,
 			T2Count = #data.Team2Queue
@@ -333,7 +335,7 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 		local pElo = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Elo") and player.leaderstats.Elo.Value or 1000
 		local cap = data.Capacity or 2 
 
-		OpenLobbies[player.UserId] = { Host = player, Capacity = cap, Team1Queue = {player}, Team2Queue = {}, Elo = pElo, FriendsOnly = data.FriendsOnly, Casual = data.Casual }
+		OpenLobbies[player.UserId] = { Host = player, Capacity = cap, Team1Queue = {player}, Team2Queue = {}, Elo = pElo, FriendsOnly = data.FriendsOnly, Casual = data.Casual, NoHoldsBarred = data.NoHoldsBarred }
 		ArenaUpdate:FireClient(player, "LobbyStatus", {IsHosting = true, IsLobbyOwner = true, T1Count = 1, T2Count = 0, Capacity = cap})
 		ArenaUpdate:FireAllClients("LobbiesUpdate", GetLobbyData())
 	elseif action == "CancelLobby" then
@@ -378,8 +380,8 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 
 		if #lobby.Team1Queue == maxPerTeam and #lobby.Team2Queue == maxPerTeam then
 			local t1, t2 = {}, {}
-			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, CombatCore.BuildPlayerStruct(qp)) end
-			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, CombatCore.BuildPlayerStruct(qp)) end
+			for _, qp in ipairs(lobby.Team1Queue) do table.insert(t1, CombatCore.BuildPlayerStruct(qp, not lobby.NoHoldsBarred)) end
+			for _, qp in ipairs(lobby.Team2Queue) do table.insert(t2, CombatCore.BuildPlayerStruct(qp, not lobby.NoHoldsBarred)) end
 
 			local turnTime = 15
 			if lobby.Capacity == 4 then turnTime = 30 elseif lobby.Capacity == 8 then turnTime = 45 end
