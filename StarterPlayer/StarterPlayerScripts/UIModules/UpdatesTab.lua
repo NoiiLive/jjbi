@@ -2,6 +2,15 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.1 - JoJolion Update PART 2 (March 22nd)</font></b>
+
+<font color='#55FF55'>[+]</font> <b>Stand Fusion:</b> Fuse two Stands from your storage to create a hybrid Stand!
+<font color='#55FF55'>[+]</font> <b>New Rokakaka:</b> A new item that opens up the Stand Fusion menu.
+<font color='#55FF55'>[+]</font> <b>Hybrid Abilities & Names:</b> Fused Stands take the first half of their name and abilities from Stand 1, and the second half from Stand 2. Order matters!
+<font color='#55FFFF'>[*]</font> <b>Bug Fixes:</b> Fixed mobile UI scrolling issues, Gang order tracking, and Gang renaming.
+
+Use code <b><font color='#FF55FF'>JOJOLIONPART2</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.0 - JoJolion Update PART 1 (March 21st)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>New Stands:</b> Added Soft & Wet, Wonder of U, and many other Part 8 Stands!
