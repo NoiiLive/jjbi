@@ -131,7 +131,7 @@ local function StartDungeon(player, dungeonId)
 		if #waves == 0 then return end
 	end
 
-	local pData = CombatCore.BuildPlayerStruct(player)
+	local pData = CombatCore.BuildPlayerStruct(player, true)
 	local firstEnemy = isEndless and GenerateRandomEndlessEnemy(1) or GenerateDungeonEnemy(waves[1], dungeonId)
 
 	ActiveDungeons[player.UserId] = {
