@@ -16,7 +16,7 @@ local NotificationManager = require(UIModules:WaitForChild("NotificationManager"
 
 local pStatsContainer, sStatsContainer, equipContainer, playerConsContainer, standConsContainer
 local standStorageContainer, styleStorageContainer, autoSellContainer
-local capacityLabel
+local capacityLabel, playerConsCapacityLabel
 local statLabels = {}
 
 local standLabel, styleLabel, weaponLabel, accLabel, xpLabelP, xpLabelS, yenLabel
@@ -503,10 +503,18 @@ local function RefreshInventoryList()
 		if count > 0 then
 			if ItemData.Equipment[itemName] then 
 				table.insert(equipItems, {Name = itemName, Count = count})
-				currentInvCount += count
+				if ItemData.Equipment[itemName].Rarity ~= "Unique" then
+					currentInvCount += count
+				end
 			elseif ItemData.Consumables[itemName] then
-				if ItemData.Consumables[itemName].Category == "Stand" then table.insert(standConsItems, {Name = itemName, Count = count})
-				else table.insert(playerConsItems, {Name = itemName, Count = count}) end
+				if ItemData.Consumables[itemName].Category == "Stand" then 
+					table.insert(standConsItems, {Name = itemName, Count = count})
+				else 
+					table.insert(playerConsItems, {Name = itemName, Count = count}) 
+					if ItemData.Consumables[itemName].Rarity ~= "Unique" then
+						currentInvCount += count
+					end
+				end
 			end
 		end
 	end
@@ -518,6 +526,11 @@ local function RefreshInventoryList()
 	if capacityLabel then
 		local maxInv = GameData.GetMaxInventory(player)
 		capacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
+	end
+
+	if playerConsCapacityLabel then
+		local maxInv = GameData.GetMaxInventory(player)
+		playerConsCapacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
 	end
 
 	local function RenderItem(itemName, count, container, orderIdx)
@@ -944,7 +957,12 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 	local playerConsCard = CreateCard("PlayerConsCard", playerTabContent, UDim2.new(1, 0, 0.28, 0), 3)
 	local pcTop = Instance.new("Frame", playerConsCard); pcTop.Size = UDim2.new(1, 0, 0, 20); pcTop.BackgroundTransparency = 1; pcTop.ZIndex = 21
-	local pcTitle = CreateTitle(pcTop, "PLAYER CONSUMABLES"); pcTitle.Size = UDim2.new(1, 0, 1, 0); pcTitle.TextXAlignment = Enum.TextXAlignment.Left
+	local pcTitle = CreateTitle(pcTop, "PLAYER CONSUMABLES"); pcTitle.Size = UDim2.new(0.5, 0, 1, 0); pcTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+	playerConsCapacityLabel = Instance.new("TextLabel", pcTop)
+	playerConsCapacityLabel.Size = UDim2.new(0.5, 0, 1, 0); playerConsCapacityLabel.Position = UDim2.new(1, -15, 0, 0); playerConsCapacityLabel.AnchorPoint = Vector2.new(1, 0)
+	playerConsCapacityLabel.BackgroundTransparency = 1; playerConsCapacityLabel.Font = Enum.Font.GothamMedium; playerConsCapacityLabel.TextColor3 = Color3.fromRGB(200, 200, 200); playerConsCapacityLabel.TextXAlignment = Enum.TextXAlignment.Right; playerConsCapacityLabel.TextScaled = true; playerConsCapacityLabel.ZIndex = 22
+	Instance.new("UITextSizeConstraint", playerConsCapacityLabel).MaxTextSize = 12
 
 	playerConsContainer = Instance.new("ScrollingFrame", playerConsCard)
 	playerConsContainer.Size = UDim2.new(1, 0, 1, -24); playerConsContainer.Position = UDim2.new(0,0,0,24); playerConsContainer.BackgroundTransparency = 1; playerConsContainer.ScrollBarThickness = 4; playerConsContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120); playerConsContainer.ZIndex = 21
