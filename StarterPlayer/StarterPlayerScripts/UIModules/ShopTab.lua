@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local ShopTab = {}
 
 local player = game.Players.LocalPlayer
@@ -162,9 +161,6 @@ end
 function ShopTab.Init(parentFrame, tooltipMgr)
 	cachedTooltipMgr = tooltipMgr
 
-	-- ========================================================
-	-- MAIN FRAME SETUP
-	-- ========================================================
 	local mainPanel = Instance.new("Frame")
 	mainPanel.Name = "MainPanel"
 	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
@@ -217,9 +213,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	mainLayout.Padding = UDim.new(0.02, 0)
 	mainLayout.Parent = innerContent
 
-	-- ==========================================
-	-- SUB NAVIGATION
-	-- ==========================================
 	local subNavFrame = Instance.new("Frame")
 	subNavFrame.Name = "SubNavFrame"
 	subNavFrame.Size = UDim2.new(1, 0, 0.06, 0)
@@ -281,9 +274,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	pUic.MaxTextSize = 16
 	pUic.Parent = premiumTabBtn
 
-	-- ==========================================
-	-- TAB CONTAINER
-	-- ==========================================
 	local tabContainer = Instance.new("Frame")
 	tabContainer.Name = "TabContainer"
 	tabContainer.Size = UDim2.new(1, 0, 0.90, 0)
@@ -291,9 +281,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	tabContainer.LayoutOrder = 2
 	tabContainer.Parent = innerContent
 
-	-- ==========================================
-	-- MARKET TAB
-	-- ==========================================
 	local marketTabContent = Instance.new("Frame")
 	marketTabContent.Name = "MarketTabContent"
 	marketTabContent.Size = UDim2.new(1, 0, 1, 0)
@@ -307,7 +294,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	mTL.Padding = UDim.new(0.02, 0)
 	mTL.Parent = marketTabContent
 
-	-- Top: Stock Card
 	local stockCard = CreateCard("StockCard", marketTabContent, UDim2.new(1, 0, 0.50, 0), 1)
 
 	local scTop = Instance.new("Frame")
@@ -353,7 +339,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	yUic.MaxTextSize = 13
 	yUic.Parent = yenLabel
 
-	-- Restock Container Area
 	local restockArea = Instance.new("Frame")
 	restockArea.Size = UDim2.new(0.65, 0, 0.5, 0)
 	restockArea.Position = UDim2.new(0.5, 0, 1, 0)
@@ -424,7 +409,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	sGL.SortOrder = Enum.SortOrder.LayoutOrder
 	sGL.Parent = shopContainer
 
-	-- Middle: Rates Card
 	local ratesCard = CreateCard("RatesCard", marketTabContent, UDim2.new(1, 0, 0.30, 0), 2)
 	CreateTitle(ratesCard, "DROP RATES")
 
@@ -462,7 +446,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	standRatesCol.ZIndex = 23
 	standRatesCol.Parent = standRatesScroll
 
-	-- [[ FIXED: Auto-calculate CanvasSize based on absolute wrapped height ]]
 	standRatesCol:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		standRatesScroll.CanvasSize = UDim2.new(0, 0, 0, standRatesCol.AbsoluteSize.Y + 50)
 	end)
@@ -496,12 +479,10 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	traitRatesCol.ZIndex = 23
 	traitRatesCol.Parent = traitRatesScroll
 
-	-- [[ FIXED: Auto-calculate CanvasSize based on absolute wrapped height ]]
 	traitRatesCol:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		traitRatesScroll.CanvasSize = UDim2.new(0, 0, 0, traitRatesCol.AbsoluteSize.Y + 50)
 	end)
 
-	-- Bottom: Codes Card
 	local codesCard = CreateCard("CodesCard", marketTabContent, UDim2.new(1, 0, 0.16, 0), 3)
 	CreateTitle(codesCard, "CODES")
 
@@ -566,9 +547,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	rbUic.MaxTextSize = 16
 	rbUic.Parent = redeemBtn
 
-	-- ==========================================
-	-- PREMIUM TAB
-	-- ==========================================
 	local premiumTabContent = Instance.new("Frame")
 	premiumTabContent.Name = "PremiumTabContent"
 	premiumTabContent.Size = UDim2.new(1, 0, 1, 0)
@@ -632,7 +610,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	passGL.SortOrder = Enum.SortOrder.LayoutOrder
 	passGL.Parent = passScroll
 
-	-- Build Premium Items
 	local premLabels = {}
 	local gachaBtns = {}
 
@@ -804,10 +781,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		prodScroll.CanvasSize = UDim2.new(0, 0, 0, prodGL.AbsoluteContentSize.Y + 10)
 		passScroll.CanvasSize = UDim2.new(0, 0, 0, passGL.AbsoluteContentSize.Y + 10)
 	end)
-
-	-- ==========================================
-	-- HOOK UP EVENTS & LOGIC
-	-- ==========================================
 
 	marketTabBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
@@ -1027,14 +1000,12 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		end
 	end
 
-	-- Catch-all for Shop Notification Routing
 	Network:WaitForChild("ShopUpdate").OnClientEvent:Connect(function(action, data)
 		if action == "Refresh" then 
 			RefreshShopItems(table.concat(data, ",")) 
 		elseif type(data) == "string" and (action == "Notify" or action == "Notification" or action == "SystemMessage" or action == "Message" or action == "Error" or action == "Success") then
 			NotificationManager.Show(data)
 		elseif type(action) == "string" and data == nil then
-			-- In case the server passes the message as the action directly
 			if action ~= "Refresh" and not string.match(action, "Prompt") then
 				NotificationManager.Show(action)
 			end
@@ -1091,9 +1062,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
 	end)
 
-	-- ========================================================
-	-- RESPONSIVE LAYOUT LOGIC
-	-- ========================================================
 	local camera = workspace.CurrentCamera
 	local resizeConn
 
