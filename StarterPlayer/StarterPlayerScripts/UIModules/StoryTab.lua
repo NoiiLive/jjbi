@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local StoryTab = {}
 
 local player = game.Players.LocalPlayer
