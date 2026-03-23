@@ -5,67 +5,22 @@ local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local notificationContainer
+local notificationTemplate
 
 function NotificationManager.Init(parentGui)
-	notificationContainer = Instance.new("Frame")
-	notificationContainer.Name = "NotificationContainer"
-	notificationContainer.Size = UDim2.new(0.8, 0, 0.8, 0)
-	notificationContainer.Position = UDim2.new(0.5, 0, 0.05, 0)
-	notificationContainer.AnchorPoint = Vector2.new(0.5, 0)
-	notificationContainer.BackgroundTransparency = 1
-	notificationContainer.ZIndex = 50
-	notificationContainer.Parent = parentGui
-
-	local sizeConstraint = Instance.new("UISizeConstraint")
-	sizeConstraint.MaxSize = Vector2.new(350, math.huge)
-	sizeConstraint.Parent = notificationContainer
-
-	local listLayout = Instance.new("UIListLayout")
-	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	listLayout.Padding = UDim.new(0, 10)
-	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	listLayout.Parent = notificationContainer
+	notificationContainer = parentGui:WaitForChild("NotificationContainer")
+	notificationTemplate = ReplicatedStorage:WaitForChild("JJBITemplates"):WaitForChild("NotificationTemplate")
 end
 
 function NotificationManager.Show(message)
-	if not notificationContainer then return end
+	if not notificationContainer or not notificationTemplate then return end
 
-	local notifFrame = Instance.new("Frame")
-	notifFrame.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-	notifFrame.BackgroundTransparency = 1
-	notifFrame.Size = UDim2.new(1, 0, 0, 0)
-	notifFrame.ClipsDescendants = true
-	notifFrame.ZIndex = 51
-	notifFrame.Parent = notificationContainer
+	local notifFrame = notificationTemplate:Clone()
+	local stroke = notifFrame:WaitForChild("UIStroke")
+	local textLabel = notifFrame:WaitForChild("TextLabel")
 
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = notifFrame
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(255, 215, 50)
-	stroke.Thickness = 2
-	stroke.Transparency = 1
-	stroke.Parent = notifFrame
-
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Name = "TextLabel"
-	textLabel.Size = UDim2.new(1, 0, 1, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.RichText = true
-	textLabel.Font = Enum.Font.GothamBold
-	textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	textLabel.TextSize = 16
-	textLabel.TextWrapped = true
-	textLabel.TextTransparency = 1
 	textLabel.Text = message
-	textLabel.ZIndex = 52
-	textLabel.Parent = notifFrame
-
-	local textPad = Instance.new("UIPadding")
-	textPad.PaddingLeft = UDim.new(0, 8)
-	textPad.PaddingRight = UDim.new(0, 8)
-	textPad.Parent = textLabel
+	notifFrame.Parent = notificationContainer
 
 	local tweenIn = TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 		Size = UDim2.new(1, 0, 0, 55),
