@@ -1,369 +1,102 @@
 -- @ScriptType: ModuleScript
 local MultiplayerTab = {}
 
-local player = game.Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Network = ReplicatedStorage:WaitForChild("Network")
 local UIModules = script.Parent
-
-local GangsTab = require(UIModules:WaitForChild("GangsTab"))
-local TradingTab = require(UIModules:WaitForChild("TradingTab"))
-local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
-local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
-local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
 local LeaderboardTab = require(UIModules:WaitForChild("LeaderboardTab"))
+local GangsTab = require(UIModules:WaitForChild("GangsTab"))
+local ArenaTab = require(UIModules:WaitForChild("ArenaTab"))
+local TradingTab = require(UIModules:WaitForChild("TradingTab"))
+local RaidsTab = require(UIModules:WaitForChild("RaidsTab"))
+local SBREventTab = require(UIModules:WaitForChild("SBREventTab"))
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
-local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
 
-local function applyDoubleGoldBorder(parent)
-	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3
-	outerStroke.Color = Color3.fromRGB(255, 210, 60)
-	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradOut = Instance.new("UIGradient")
-	gradOut.Rotation = -45
-	gradOut.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
-	}
-	gradOut.Parent = outerStroke
-	outerStroke.Parent = parent
-
-	local innerFrame = Instance.new("Frame")
-	innerFrame.Name = "InnerGoldBorder"
-	innerFrame.Size = UDim2.new(1, -6, 1, -6)
-	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	innerFrame.BackgroundTransparency = 1
-	innerFrame.ZIndex = parent.ZIndex
-	innerFrame.Parent = parent
-
-	local parentCorner = parent:FindFirstChildOfClass("UICorner")
-	if parentCorner then
-		local innerCorner = Instance.new("UICorner")
-		innerCorner.CornerRadius = UDim.new(0, math.max(0, parentCorner.CornerRadius.Offset - 3))
-		innerCorner.Parent = innerFrame
-	end
-
-	local innerStroke = Instance.new("UIStroke")
-	innerStroke.Thickness = 1
-	innerStroke.Color = Color3.fromRGB(255, 230, 100)
-	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradIn = Instance.new("UIGradient")
-	gradIn.Rotation = 45
-	gradIn.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
-	}
-	gradIn.Parent = innerStroke
-	innerStroke.Parent = innerFrame
-end
+local activeSubTab = "Gangs"
 
 function MultiplayerTab.Init(parentFrame, tooltipMgr, switchTabFunc)
-	local mainPanel = Instance.new("Frame")
-	mainPanel.Name = "MainPanel"
-	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
-	mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-	mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-	mainPanel.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	mainPanel.BorderSizePixel = 0
-	mainPanel.ZIndex = 15
-	mainPanel.ClipsDescendants = true
-	mainPanel.Parent = parentFrame
+	local mainPanel = parentFrame:WaitForChild("MainPanel")
+	local innerContent = mainPanel:WaitForChild("InnerContent")
 
-	local mpCorner = Instance.new("UICorner")
-	mpCorner.CornerRadius = UDim.new(0, 12)
-	mpCorner.Parent = mainPanel
+	local subNavFrame = innerContent:WaitForChild("SubNavFrame")
+	local tabContainer = innerContent:WaitForChild("TabContainer")
 
-	applyDoubleGoldBorder(mainPanel)
+	local tabs = {
+		{Name = "Gangs", Btn = subNavFrame:WaitForChild("GangsBtn"), Frame = tabContainer:WaitForChild("GangsTabContent")},
+		{Name = "SBR", Btn = subNavFrame:WaitForChild("SBRBtn"), Frame = tabContainer:WaitForChild("SBRTabContent")},
+		{Name = "Raids", Btn = subNavFrame:WaitForChild("RaidsBtn"), Frame = tabContainer:WaitForChild("RaidsTabContent")},
+		{Name = "Arena", Btn = subNavFrame:WaitForChild("ArenaBtn"), Frame = tabContainer:WaitForChild("ArenaTabContent")},
+		{Name = "Trades", Btn = subNavFrame:WaitForChild("TradesBtn"), Frame = tabContainer:WaitForChild("TradesTabContent")},
+		{Name = "Leaderboards", Btn = subNavFrame:WaitForChild("LeaderboardsBtn"), Frame = tabContainer:WaitForChild("LeaderboardsTabContent")}
+	}
 
-	local bgPattern = Instance.new("ImageLabel")
-	bgPattern.Name = "OverlayPattern"
-	bgPattern.Image = "rbxassetid://79623015802180"
-	bgPattern.ImageColor3 = Color3.fromRGB(180, 130, 255)
-	bgPattern.ImageTransparency = 0.85
-	bgPattern.BackgroundTransparency = 1
-	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 500, 0, 250)
-	bgPattern.Size = UDim2.new(1, 0, 1, 0)
-	bgPattern.ZIndex = 16
-	bgPattern.Parent = mainPanel
+	local function SwitchSubTab(targetName)
+		SFXManager.Play("Click")
+		activeSubTab = targetName
 
-	local innerContent = Instance.new("ScrollingFrame")
-	innerContent.Name = "InnerContent"
-	innerContent.Size = UDim2.new(1, 0, 1, 0)
-	innerContent.BackgroundTransparency = 1
-	innerContent.ZIndex = 17
-	innerContent.ScrollBarImageColor3 = Color3.fromRGB(150, 100, 200)
-	innerContent.ScrollingDirection = Enum.ScrollingDirection.Y
-	innerContent.BorderSizePixel = 0
-	innerContent.Parent = mainPanel
+		for _, tab in ipairs(tabs) do
+			local isActive = (tab.Name == targetName)
+			tab.Frame.Visible = isActive
 
-	local subNav = Instance.new("Frame")
-	subNav.Name = "SubNav"
-	subNav.Size = UDim2.new(1, 0, 0, 55)
-	subNav.BackgroundTransparency = 1
-	subNav.ZIndex = 20
-	subNav.Parent = innerContent
+			tab.Btn.BackgroundColor3 = isActive and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)
+			tab.Btn.TextColor3 = isActive and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220)
 
-	local subNavCenter = Instance.new("Frame")
-	subNavCenter.Name = "CenterContainer"
-	subNavCenter.Size = UDim2.new(0.85, 0, 1, -10)
-	subNavCenter.Position = UDim2.new(0.5, 0, 0.5, 0)
-	subNavCenter.AnchorPoint = Vector2.new(0.5, 0.5)
-	subNavCenter.BackgroundTransparency = 1
-	subNavCenter.ZIndex = 21
-	subNavCenter.Parent = subNav
+			local stroke = tab.Btn:FindFirstChild("UIStroke")
+			if stroke then
+				stroke.Color = isActive and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120)
+				stroke.Thickness = isActive and 2 or 1
+			end
+		end
+	end
 
-	local navLayout = Instance.new("UIListLayout")
-	navLayout.FillDirection = Enum.FillDirection.Horizontal
-	navLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	navLayout.Padding = UDim.new(0, 8)
-	navLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	navLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	navLayout.Parent = subNavCenter
+	for _, tab in ipairs(tabs) do
+		tab.Btn.MouseButton1Click:Connect(function() SwitchSubTab(tab.Name) end)
 
-	local currentActiveTab = "Gangs"
+		if tab.Name == "Leaderboards" then LeaderboardTab.Init(tab.Frame, tooltipMgr)
+		elseif tab.Name == "Gangs" then GangsTab.Init(tab.Frame, tooltipMgr)
+		elseif tab.Name == "Arena" then ArenaTab.Init(tab.Frame, tooltipMgr)
+		elseif tab.Name == "Trades" then TradingTab.Init(tab.Frame, tooltipMgr)
+		elseif tab.Name == "Raids" then RaidsTab.Init(tab.Frame, tooltipMgr)
+		elseif tab.Name == "SBR" then SBREventTab.Init(tab.Frame, tooltipMgr)
+		end
+	end
+
+	SwitchSubTab("Gangs")
+
 	local camera = workspace.CurrentCamera
-	local UpdateLayoutForScreen
+	local resizeConn
 
 	local function UpdateLayoutForScreen()
-		if not parentFrame.Parent then return end
-		local vp = camera.ViewportSize
-		if vp.X >= 1050 then 
-			mainPanel.Size = UDim2.new(0.80, 0, 0.88, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-			subNavCenter.Size = UDim2.new(0.85, 0, 1, -10)
-		elseif vp.X >= 600 and vp.X < 1050 then 
-			mainPanel.Size = UDim2.new(0.92, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
-			subNavCenter.Size = UDim2.new(0.95, 0, 1, -10)
-		else 
-			mainPanel.Size = UDim2.new(0.96, 0, 0.82, 0)
-			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0) 
-			subNavCenter.Size = UDim2.new(0.98, 0, 1, -10)
-		end
-
-		local panelAbsHeight = vp.Y * mainPanel.Size.Y.Scale
-		local minHeight = 600
-
-		if currentActiveTab == "Raids" then
-			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
-			innerContent.ScrollBarImageTransparency = 1
-			innerContent.ScrollBarThickness = 0
-			innerContent.ScrollingEnabled = false
-		else
-			if panelAbsHeight < minHeight then
-				innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
-				innerContent.ScrollBarImageTransparency = 0
-				innerContent.ScrollBarThickness = 6
-				innerContent.ScrollingEnabled = true
-			else
-				innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
-				innerContent.ScrollBarImageTransparency = 1
-				innerContent.ScrollBarThickness = 0
-				innerContent.ScrollingEnabled = false
-			end
-		end
-	end
-
-	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
-	UpdateLayoutForScreen()
-
-	local function CreateSubNavButton(name, text, order)
-		local btn = Instance.new("TextButton")
-		btn.Name = name
-		btn.LayoutOrder = order
-		btn.Size = UDim2.new(0.15, 0, 0.85, 0)
-		btn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-		btn.Text = text
-		btn.Font = Enum.Font.GothamBold
-		btn.TextColor3 = Color3.new(1, 1, 1)
-		btn.TextScaled = true
-		btn.ZIndex = 20
-		btn.Parent = subNavCenter
-
-		local bCorner = Instance.new("UICorner")
-		bCorner.CornerRadius = UDim.new(0, 6)
-		bCorner.Parent = btn
-
-		local bStr = Instance.new("UIStroke")
-		bStr.Color = Color3.fromRGB(120, 60, 180)
-		bStr.Thickness = 1
-		bStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		bStr.Parent = btn
-
-		local bPad = Instance.new("UIPadding")
-		bPad.PaddingTop = UDim.new(0, 5)
-		bPad.PaddingBottom = UDim.new(0, 5)
-		bPad.Parent = btn
-
-		local bUic = Instance.new("UITextSizeConstraint")
-		bUic.MaxTextSize = 14
-		bUic.Parent = btn
-
-		return btn, bStr
-	end
-
-	local gangBtn, gStroke = CreateSubNavButton("GangBtn", "GANGS", 1)
-	local sbrBtn, sStroke = CreateSubNavButton("SbrBtn", "EVENT", 2)
-	local raidBtn, rStroke = CreateSubNavButton("RaidBtn", "RAIDS", 3)
-	local arenaBtn, aStroke = CreateSubNavButton("ArenaBtn", "ARENA", 4)
-	local tradeBtn, tStroke = CreateSubNavButton("TradeBtn", "TRADING", 5)
-	local lbBtn, lStroke = CreateSubNavButton("LbBtn", "RANKS", 6)
-
-	local tabContainer = Instance.new("Frame")
-	tabContainer.Name = "TabContainer"
-	tabContainer.Size = UDim2.new(1, 0, 1, -75)
-	tabContainer.Position = UDim2.new(0, 0, 0, 75)
-	tabContainer.BackgroundTransparency = 1
-	tabContainer.ZIndex = 17
-	tabContainer.Parent = innerContent
-
-	local function CreateSubFrame(name, needsPadding)
-		local frame = Instance.new("Frame")
-		frame.Name = name
-		frame.Size = UDim2.new(1, 0, 1, 0)
-		frame.BackgroundTransparency = 1
-		frame.Visible = false
-		frame.Parent = tabContainer
-
-		if needsPadding then
-			local pad = Instance.new("UIPadding")
-			pad.PaddingTop = UDim.new(0.02, 0)
-			pad.PaddingBottom = UDim.new(0.02, 0)
-			pad.PaddingLeft = UDim.new(0.02, 0)
-			pad.PaddingRight = UDim.new(0.02, 0)
-			pad.Parent = frame
-		end
-
-		return frame
-	end
-
-	local gangsFrame = CreateSubFrame("GangsFrame", true)
-	local sbrFrame = CreateSubFrame("SbrFrame", false) 
-	local raidsFrame = CreateSubFrame("RaidsFrame", false) 
-	local arenaFrame = CreateSubFrame("ArenaFrame", false) 
-	local tradeFrame = CreateSubFrame("TradeFrame", true)
-	local lbFrame = CreateSubFrame("LbFrame", true)
-
-	gangsFrame.Visible = true
-	gangBtn.BackgroundColor3 = Color3.fromRGB(90, 40, 140)
-	gangBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
-	gStroke.Color = Color3.fromRGB(255, 215, 0)
-	gStroke.Thickness = 2
-
-	local function ForceSubTabFocus(target)
-		if switchTabFunc then switchTabFunc("Multiplayer") end
-
-		currentActiveTab = target
-		UpdateLayoutForScreen()
-
-		gangsFrame.Visible = (target == "Gangs")
-		sbrFrame.Visible = (target == "Event")
-		raidsFrame.Visible = (target == "Raids")
-		arenaFrame.Visible = (target == "Arena")
-		tradeFrame.Visible = (target == "Trading")
-		lbFrame.Visible = (target == "Ranks")
-
-		local function toggleBtn(btn, stroke, isActive)
-			btn.BackgroundColor3 = isActive and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
-			btn.TextColor3 = isActive and Color3.fromRGB(255, 215, 0) or Color3.new(1, 1, 1)
-			stroke.Color = isActive and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(120, 60, 180)
-			stroke.Thickness = isActive and 2 or 1
-		end
-
-		toggleBtn(gangBtn, gStroke, target == "Gangs")
-		toggleBtn(sbrBtn, sStroke, target == "Event")
-		toggleBtn(raidBtn, rStroke, target == "Raids")
-		toggleBtn(arenaBtn, aStroke, target == "Arena")
-		toggleBtn(tradeBtn, tStroke, target == "Trading")
-		toggleBtn(lbBtn, lStroke, target == "Ranks")
-
-		local pObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
-		local pVal = pObj and pObj.Value or 0
-		if pVal < 1 then
-			if target ~= "Trading" then 
-				tradeBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-				tStroke.Color = Color3.fromRGB(80, 40, 100) 
-			end
-			if target ~= "Raids" then 
-				raidBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-				rStroke.Color = Color3.fromRGB(80, 40, 100) 
-			end
-		end
-	end
-
-	task.spawn(function()
-		local leaderstats = player:WaitForChild("leaderstats", 10)
-		if leaderstats then
-			local prestige = leaderstats:WaitForChild("Prestige", 10)
-			if prestige then
-				local function updateLocks()
-					if prestige.Value < 1 then
-						tradeBtn.Text = "🔒 TRADING"
-						raidBtn.Text = "🔒 RAIDS"
-						if not tradeFrame.Visible then 
-							tradeBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-							tStroke.Color = Color3.fromRGB(80, 40, 100) 
-						end
-						if not raidsFrame.Visible then 
-							raidBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-							rStroke.Color = Color3.fromRGB(80, 40, 100) 
-						end
-					else
-						tradeBtn.Text = "TRADING"
-						raidBtn.Text = "RAIDS"
-						if not tradeFrame.Visible then 
-							tradeBtn.TextColor3 = Color3.new(1, 1, 1)
-							tStroke.Color = Color3.fromRGB(120, 60, 180) 
-						end
-						if not raidsFrame.Visible then 
-							raidBtn.TextColor3 = Color3.new(1, 1, 1)
-							rStroke.Color = Color3.fromRGB(120, 60, 180) 
-						end
-					end
-				end
-				prestige.Changed:Connect(updateLocks)
-				updateLocks()
-			end
-		end
-	end)
-
-	gangBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("Gangs") end)
-	sbrBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("Event") end)
-	arenaBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("Arena") end)
-	lbBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); ForceSubTabFocus("Ranks") end)
-
-	local function TryOpenLockedTab(tabName)
-		SFXManager.Play("Click") 
-		local pObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
-		if not pObj or pObj.Value < 1 then
-			NotificationManager.Show("<font color='#FF5555'>You must be Prestige 1 to unlock " .. tabName .. "!</font>")
+		if not parentFrame.Parent then
+			if resizeConn then resizeConn:Disconnect() end
 			return
 		end
-		ForceSubTabFocus(tabName) 
+
+		local vp = camera.ViewportSize
+		if vp.X >= 1050 then
+			mainPanel.Size = UDim2.new(0.85, 0, 0.88, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
+		elseif vp.X >= 600 and vp.X < 1050 then
+			mainPanel.Size = UDim2.new(0.92, 0, 0.85, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		else
+			mainPanel.Size = UDim2.new(0.96, 0, 0.85, 0)
+			mainPanel.Position = UDim2.new(0.5, 0, 0.50, 0)
+		end
 	end
 
-	raidBtn.MouseButton1Click:Connect(function() TryOpenLockedTab("Raids") end)
-	tradeBtn.MouseButton1Click:Connect(function() TryOpenLockedTab("Trading") end)
+	resizeConn = camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
+	UpdateLayoutForScreen()
+end
 
-	pcall(function() GangsTab.Init(gangsFrame, tooltipMgr) end)
-	pcall(function() ArenaTab.Init(arenaFrame, tooltipMgr, function() ForceSubTabFocus("Arena") end) end)
-	pcall(function() RaidsTab.Init(raidsFrame, tooltipMgr, function() ForceSubTabFocus("Raids") end) end)
-	pcall(function() TradingTab.Init(tradeFrame, tooltipMgr, function() ForceSubTabFocus("Trading") end) end)
-	pcall(function() LeaderboardTab.Init(lbFrame, tooltipMgr) end)
-	pcall(function() SBREventTab.Init(sbrFrame, tooltipMgr, function() ForceSubTabFocus("Event") end) end)
+function MultiplayerTab.HandleGangUpdate(action, data)
+	if GangsTab.HandleUpdate then GangsTab.HandleUpdate(action, data) end
+end
 
-	MultiplayerTab.HandleGangUpdate = function() end
-	MultiplayerTab.HandleArenaUpdate = ArenaTab.HandleUpdate or function() end
-	MultiplayerTab.HandleTradeUpdate = function() end
-	MultiplayerTab.HandleRaidUpdate = RaidsTab.HandleUpdate or function() end
+function MultiplayerTab.HandleArenaUpdate(action, data)
+	if ArenaTab.HandleUpdate then ArenaTab.HandleUpdate(action, data) end
+end
+
+function MultiplayerTab.HandleTradeUpdate(action, data)
+	if TradingTab.HandleUpdate then TradingTab.HandleUpdate(action, data) end
 end
 
 return MultiplayerTab
