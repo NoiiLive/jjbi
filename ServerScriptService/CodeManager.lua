@@ -1,19 +1,18 @@
 -- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Network = ReplicatedStorage:WaitForChild("Network")
+
+local Network = ReplicatedStorage:WaitForChild("Network", 90)
+local RedeemCode = Network:WaitForChild("RedeemCode", 90)
+
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
-local RedeemCode = Network:WaitForChild("RedeemCode")
 
 local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
 NotificationEvent.Name = "NotificationEvent"
 
 local ActiveCodes = {
 	["BIZARRE"] = {Yen = 1000, XP = 2500, Items = {["Stand Arrow"] = 1}},
-	["250KVISITS"] = {Items = {["Stand Arrow"] = 250, ["Rokakaka"] = 250, ["Saint's Corpse Part"] = 100}},
-	["GUIREWORK"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 25, ["Rokakaka"] = 15, ["Saint's Corpse Part"] = 10}},
-	["JOJOLIONPART1"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 25, ["Rokakaka"] = 15, ["Saint's Corpse Part"] = 10}},
+	["500KVISITS"] = {Items = {["Stand Arrow"] = 500, ["Rokakaka"] = 500, ["Saint's Corpse Part"] = 200}},
 	["JOJOLIONPART2"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 25, ["Rokakaka"] = 15, ["Saint's Corpse Part"] = 10}},
-	["STEELPIPE"] = {Items = {["Steel Pipe (x400)"] = 1}},
 }
 
 RedeemCode.OnServerEvent:Connect(function(player, codeStr)
