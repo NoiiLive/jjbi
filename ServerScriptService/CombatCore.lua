@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -16,7 +15,6 @@ function CombatCore.HasModifier(modStr, modName)
 	return false
 end
 
--- Dynamically counts how many of a specific trait are equipped
 function CombatCore.CountTrait(combatant, traitName)
 	local count = 0
 	if combatant.Trait == traitName then count += 1 end
@@ -89,7 +87,6 @@ function CombatCore.GetPlayerBoosts(player)
 	return boosts
 end
 
--- CENTRALIZED STRUCT BUILDER
 function CombatCore.BuildPlayerStruct(player)
 	local playerTrait = player:GetAttribute("StandTrait") or "None"
 	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
@@ -103,7 +100,6 @@ function CombatCore.BuildPlayerStruct(player)
 
 	local pHP = (player:GetAttribute("Health") or 1) + CombatCore.GetEquipBonus(player, "Health")
 
-	-- [[ SEPARATED DAMAGE SCALING COMPONENTS ]]
 	local pStyleStr = (player:GetAttribute("Strength") or 1) + CombatCore.GetEquipBonus(player, "Strength")
 	local pStandStr = sPow + CombatCore.GetEquipBonus(player, "Stand_Power")
 
@@ -164,11 +160,10 @@ function CombatCore.BuildPlayerStruct(player)
 		Player = player, UserId = player.UserId, Name = player.Name, IsPlayer = true, PlayerObj = player,
 		Trait = playerTrait, Traits = activeTraits, GlobalDmgBoost = activeBoosts.Damage, Boosts = activeBoosts,
 		Stand = sName, Style = fStyle,
-		HP = pHP * 10, MaxHP = pHP * 10, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
+		HP = pHP * 20, MaxHP = pHP * 20, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
 
-		-- [[ EXPORT SEPARATED STATS ]]
 		StyleStrength = pStyleStr, StandStrength = pStandStr, 
-		TotalStrength = pStyleStr + pStandStr, -- Fallback for generic untyped attacks
+		TotalStrength = pStyleStr + pStandStr,
 
 		TotalDefense = pDef, TotalSpeed = pSpd,
 		TotalWillpower = pWill,
@@ -186,12 +181,11 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	local defBuff = (defender.Statuses and (defender.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
 	local defDebuff = (defender.Statuses and (defender.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
 
-	-- [[ CHOOSE THE CORRECT STAT SCALING BASED ON SKILL TYPE ]]
 	local offensiveStat = attacker.TotalStrength or 1
 	if skillType == "Stand" and attacker.StandStrength then
-		offensiveStat = attacker.StandStrength * 2 -- Doubled to compensate for missing Style stat
+		offensiveStat = attacker.StandStrength * 2
 	elseif skillType == "Style" and attacker.StyleStrength then
-		offensiveStat = attacker.StyleStrength * 2 -- Doubled to compensate for missing Stand stat
+		offensiveStat = attacker.StyleStrength * 2
 	end
 
 	local baseDmg = offensiveStat * atkBuff * atkDebuff * skillMult
