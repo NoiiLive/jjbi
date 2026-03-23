@@ -224,7 +224,7 @@ local currentLayoutState = "Large"
 
 local function refreshButtons()
 	local vp = camera.ViewportSize
-	if vp.X == 0 then return end -- Failsafe to prevent 0x0 scale errors
+	if vp.X == 0 then return end
 
 	local btnCount = #tabs
 	local navWidthLarge = vp.X * 0.85
@@ -379,7 +379,7 @@ end)
 
 local function UpdateLayoutForScreen()
 	local vp = camera.ViewportSize
-	if vp.X == 0 then return end -- Failsafe check 
+	if vp.X == 0 then return end
 
 	if vp.X >= 1050 then
 		currentLayoutState = "Large"
@@ -420,7 +420,6 @@ end
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
--- Initialize Tabs 
 if TabFrames["Singleplayer"] then CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab) end
 if TabFrames["Inventory"] then InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab) end
 if TabFrames["Updates"] then UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab) end
