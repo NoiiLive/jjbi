@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local Players = game:GetService("Players")
@@ -21,7 +20,6 @@ end
 
 StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 	if action == "Swap" then
-		-- Check Gamepass/Prestige Requirements
 		if slotNum == 2 and not player:GetAttribute("HasStandSlot2") then return end
 		if slotNum == 3 and not player:GetAttribute("HasStandSlot3") then return end
 
@@ -43,11 +41,9 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 
 		if currentStand == "None" and storedStand == "None" then return end
 
-		-- 1. Swap Base Stand & Trait
 		player:SetAttribute("Stand", storedStand)
 		player:SetAttribute("StandTrait", storedTrait)
 
-		-- 2. Swap Fused Data specific to the slots
 		local function SwapFusedData(slot)
 			local aS1 = player:GetAttribute("Active_FusedStand1") or "None"
 			local aS2 = player:GetAttribute("Active_FusedStand2") or "None"
@@ -59,13 +55,11 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 			local sT1 = player:GetAttribute("StoredStand"..slot.."_FusedTrait1") or "None"
 			local sT2 = player:GetAttribute("StoredStand"..slot.."_FusedTrait2") or "None"
 
-			-- Push Stored -> Active
 			player:SetAttribute("Active_FusedStand1", sS1)
 			player:SetAttribute("Active_FusedStand2", sS2)
 			player:SetAttribute("Active_FusedTrait1", sT1)
 			player:SetAttribute("Active_FusedTrait2", sT2)
 
-			-- Push Active -> Stored
 			player:SetAttribute("StoredStand"..slot.."_FusedStand1", aS1)
 			player:SetAttribute("StoredStand"..slot.."_FusedStand2", aS2)
 			player:SetAttribute("StoredStand"..slot.."_FusedTrait1", aT1)
@@ -74,9 +68,7 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 
 		SwapFusedData(slotNum)
 
-		-- 3. Calculate/Apply Stats for the newly equipped stand
 		if storedStand == "Fused Stand" then
-			-- It's a fused stand coming OUT of storage, calculate the averaged stats
 			local sS1 = player:GetAttribute("Active_FusedStand1") or "None"
 			local sS2 = player:GetAttribute("Active_FusedStand2") or "None"
 
@@ -94,20 +86,17 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 				player:SetAttribute("Stand_" .. stat, numToRank[avg] or "C")
 			end
 		elseif storedStand ~= "None" and StandData.Stands[storedStand] then
-			-- Standard Stand
 			local stats = StandData.Stands[storedStand].Stats
 			for statName, rank in pairs(stats) do
 				player:SetAttribute("Stand_"..statName, rank)
 			end
 		else
-			-- Empty Stand
 			local emptyStats = {"Power", "Speed", "Range", "Durability", "Precision", "Potential"}
 			for _, stat in ipairs(emptyStats) do
 				player:SetAttribute("Stand_"..stat, "None")
 			end
 		end
 
-		-- 4. Save the previously active stand into the target storage slot
 		player:SetAttribute("StoredStand"..slotNum, currentStand)
 		player:SetAttribute("StoredStand"..slotNum.."_Trait", currentTrait)
 
