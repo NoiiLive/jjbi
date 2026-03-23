@@ -30,6 +30,7 @@ local currentDeadline = 0
 local cachedTooltipMgr, forceTabFocus
 
 local currentLog = ""
+local templates
 
 local raidBosses = {
 	{ Id = "Raid_Part1", Name = "Vampire King", Req = 1, Desc = "A deadly raid against the progenitor of the stone mask." },
@@ -49,100 +50,14 @@ local StatusIcons = {
 }
 
 local StatusDescs = {
-	Stun = "Cannot move or act.",
-	Poison = "Takes damage every turn.",
-	Burn = "Takes damage every turn.",
-	Bleed = "Takes damage every turn.",
-	Freeze = "Frozen solid. Cannot move, takes damage.",
-	Confusion = "May attack allies or self.",
-	Buff_Strength = "Increased damage dealt.",
-	Buff_Defense = "Reduced damage taken.",
-	Buff_Speed = "Increased evasion and turn priority.",
-	Buff_Willpower = "Increased crit and survival chance.",
-	Debuff_Strength = "Reduced damage dealt.",
-	Debuff_Defense = "Increased damage taken.",
-	Debuff_Speed = "Reduced evasion and turn priority.",
+	Stun = "Cannot move or act.", Poison = "Takes damage every turn.", Burn = "Takes damage every turn.",
+	Bleed = "Takes damage every turn.", Freeze = "Frozen solid. Cannot move, takes damage.",
+	Confusion = "May attack allies or self.", Buff_Strength = "Increased damage dealt.",
+	Buff_Defense = "Reduced damage taken.", Buff_Speed = "Increased evasion and turn priority.",
+	Buff_Willpower = "Increased crit and survival chance.", Debuff_Strength = "Reduced damage dealt.",
+	Debuff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance."
 }
-
-local function applyDoubleGoldBorder(parent)
-	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3
-	outerStroke.Color = Color3.fromRGB(255, 210, 60)
-	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradOut = Instance.new("UIGradient")
-	gradOut.Rotation = -45
-	gradOut.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
-	}
-	gradOut.Parent = outerStroke
-	outerStroke.Parent = parent
-
-	local innerFrame = Instance.new("Frame")
-	innerFrame.Name = "InnerGoldBorder"
-	innerFrame.Size = UDim2.new(1, -6, 1, -6)
-	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	innerFrame.BackgroundTransparency = 1
-	innerFrame.ZIndex = parent.ZIndex
-	innerFrame.Parent = parent
-
-	local parentCorner = parent:FindFirstChildOfClass("UICorner")
-	if parentCorner then
-		local innerCorner = Instance.new("UICorner")
-		innerCorner.CornerRadius = UDim.new(0, math.max(0, parentCorner.CornerRadius.Offset - 3))
-		innerCorner.Parent = innerFrame
-	end
-
-	local innerStroke = Instance.new("UIStroke")
-	innerStroke.Thickness = 1
-	innerStroke.Color = Color3.fromRGB(255, 230, 100)
-	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradIn = Instance.new("UIGradient")
-	gradIn.Rotation = 45
-	gradIn.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
-	}
-	gradIn.Parent = innerStroke
-	innerStroke.Parent = innerFrame
-end
-
-local function CreateCard(name, parent, size, pos)
-	local frame = Instance.new("Frame")
-	frame.Name = name
-	frame.Size = size
-	if pos then frame.Position = pos end
-	frame.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
-	frame.ZIndex = 20
-	frame.Parent = parent
-
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = frame
-
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(90, 50, 120)
-	stroke.Thickness = 1
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = frame
-	return frame
-end
-
-local function AddBtnStroke(btn, r, g, b)
-	local s = Instance.new("UIStroke")
-	s.Color = Color3.fromRGB(r, g, b)
-	s.Thickness = 1.5
-	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	s.Parent = btn
-	return s
-end
 
 local function AppendLog(text, overwrite)
 	if overwrite then
@@ -156,92 +71,25 @@ end
 function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
+	templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 
-	menuFrame = Instance.new("ScrollingFrame")
-	menuFrame.Name = "MenuFrame"
-	menuFrame.Size = UDim2.new(1, 0, 1, 0) 
-	menuFrame.Position = UDim2.new(0, 0, 0, 0)
-	menuFrame.BackgroundTransparency = 1
-	menuFrame.ScrollBarThickness = 6
-	menuFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	menuFrame.Visible = true
-	menuFrame.Parent = parentFrame
-
-	local mfLayout = Instance.new("UIListLayout")
-	mfLayout.FillDirection = Enum.FillDirection.Vertical
-	mfLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	mfLayout.Padding = UDim.new(0, 10)
-	mfLayout.Parent = menuFrame
-
-	menuFrame.CanvasSize = UDim2.new(0, 0, 0, (#raidBosses * 90) + 300)
-
-	local mfPad = Instance.new("UIPadding")
-	mfPad.PaddingTop = UDim.new(0.02, 0)
-	mfPad.PaddingBottom = UDim.new(0.02, 0)
-	mfPad.PaddingLeft = UDim.new(0.02, 0) 
-	mfPad.PaddingRight = UDim.new(0.02, 0)
-	mfPad.Parent = menuFrame
+	menuFrame = parentFrame:WaitForChild("MenuFrame")
+	matchmakingFrame = parentFrame:WaitForChild("MatchmakingFrame")
+	combatCard = parentFrame:WaitForChild("CombatCard")
 
 	local uiElements = {}
 	for i, rInfo in ipairs(raidBosses) do
-		local row = CreateCard("RaidRow_" .. rInfo.Id, menuFrame, UDim2.new(1, 0, 0, 80), nil)
+		local row = templates:WaitForChild("RaidRowTemplate"):Clone()
+		row.Name = "RaidRow_" .. rInfo.Id
 		row.LayoutOrder = i
+		row.Parent = menuFrame
 
-		local title = Instance.new("TextLabel")
-		title.Size = UDim2.new(0.6, 0, 0, 25)
-		title.Position = UDim2.new(0, 10, 0, 10)
-		title.BackgroundTransparency = 1
-		title.Font = Enum.Font.GothamBlack
-		title.TextColor3 = Color3.fromRGB(255, 215, 50)
-		title.TextScaled = true
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.Text = "RAID: " .. rInfo.Name
-		title.ZIndex = 22
-		title.Parent = row
-		Instance.new("UITextSizeConstraint", title).MaxTextSize = 20
+		row:WaitForChild("TitleLabel").Text = "RAID: " .. rInfo.Name
+		row:WaitForChild("DescLabel").Text = rInfo.Desc
 
-		local desc = Instance.new("TextLabel")
-		desc.Size = UDim2.new(0.6, 0, 0, 30)
-		desc.Position = UDim2.new(0, 10, 0, 40)
-		desc.BackgroundTransparency = 1
-		desc.Font = Enum.Font.GothamMedium
-		desc.TextColor3 = Color3.fromRGB(200, 200, 200)
-		desc.TextScaled = true
-		desc.TextXAlignment = Enum.TextXAlignment.Left
-		desc.Text = rInfo.Desc
-		desc.ZIndex = 22 
-		desc.Parent = row
-		Instance.new("UITextSizeConstraint", desc).MaxTextSize = 14
-
-		local status = Instance.new("TextLabel")
-		status.Size = UDim2.new(0.35, 0, 0, 20)
-		status.Position = UDim2.new(1, -10, 0, 10)
-		status.AnchorPoint = Vector2.new(1, 0)
-		status.BackgroundTransparency = 1
-		status.Font = Enum.Font.GothamBold
-		status.TextColor3 = Color3.new(1, 1, 1)
-		status.TextScaled = true
-		status.RichText = true
-		status.TextXAlignment = Enum.TextXAlignment.Right
-		status.ZIndex = 22
-		status.Parent = row
-		Instance.new("UITextSizeConstraint", status).MaxTextSize = 14
-
-		local playBtn = Instance.new("TextButton")
-		playBtn.Size = UDim2.new(0.2, 0, 0, 30)
-		playBtn.Position = UDim2.new(1, -10, 0, 40)
-		playBtn.AnchorPoint = Vector2.new(1, 0)
-		playBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
-		playBtn.Font = Enum.Font.GothamBold
-		playBtn.TextColor3 = Color3.new(1, 1, 1)
-		playBtn.TextScaled = true
-		playBtn.Text = "SELECT"
-		playBtn.ZIndex = 22
-		playBtn.Parent = row
-		Instance.new("UITextSizeConstraint", playBtn).MaxTextSize = 16
-		Instance.new("UICorner", playBtn).CornerRadius = UDim.new(0, 6)
-
-		local pStroke = AddBtnStroke(playBtn, 200, 80, 80)
+		local status = row:WaitForChild("StatusLabel")
+		local playBtn = row:WaitForChild("PlayBtn")
+		local pStroke = playBtn:WaitForChild("UIStroke")
 
 		playBtn.MouseButton1Click:Connect(function()
 			SFXManager.Play("Click")
@@ -285,42 +133,10 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 	end)
 
-	matchmakingFrame = Instance.new("Frame")
-	matchmakingFrame.Name = "MatchmakingFrame"
-	matchmakingFrame.Size = UDim2.new(1, 0, 1, 0)
-	matchmakingFrame.Position = UDim2.new(0, 0, 0, 0)
-	matchmakingFrame.BackgroundTransparency = 1
-	matchmakingFrame.Visible = false
-	matchmakingFrame.Parent = parentFrame
+	local topBar = matchmakingFrame:WaitForChild("TopBar")
+	raidTitleLabel = topBar:WaitForChild("RaidTitleLabel")
 
-	local mmPad = Instance.new("UIPadding")
-	mmPad.PaddingTop = UDim.new(0.02, 0)
-	mmPad.PaddingBottom = UDim.new(0.02, 0)
-	mmPad.PaddingLeft = UDim.new(0.02, 0)
-	mmPad.PaddingRight = UDim.new(0.02, 0)
-	mmPad.Parent = matchmakingFrame
-
-	local topBar = Instance.new("Frame")
-	topBar.Name = "TopBar"
-	topBar.Size = UDim2.new(1, 0, 0.08, 0)
-	topBar.BackgroundTransparency = 1
-	topBar.Parent = matchmakingFrame
-
-	local backBtn = Instance.new("TextButton")
-	backBtn.Name = "BackBtn"
-	backBtn.Size = UDim2.new(0.15, 0, 1, 0)
-	backBtn.Position = UDim2.new(0, 5, 0, 0)
-	backBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
-	backBtn.Font = Enum.Font.GothamBold
-	backBtn.TextColor3 = Color3.new(1, 1, 1)
-	backBtn.TextScaled = true
-	backBtn.Text = "BACK"
-	backBtn.ZIndex = 22
-	backBtn.Parent = topBar
-	Instance.new("UITextSizeConstraint", backBtn).MaxTextSize = 14
-	Instance.new("UICorner", backBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(backBtn, 220, 80, 80)
-
+	local backBtn = topBar:WaitForChild("BackBtn")
 	backBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		matchmakingFrame.Visible = false
@@ -329,284 +145,51 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		RaidAction:FireServer("CancelLobby")
 	end)
 
-	raidTitleLabel = Instance.new("TextLabel")
-	raidTitleLabel.Name = "RaidTitleLabel"
-	raidTitleLabel.Size = UDim2.new(0.8, 0, 1, 0)
-	raidTitleLabel.Position = UDim2.new(0.18, 0, 0, 0)
-	raidTitleLabel.BackgroundTransparency = 1
-	raidTitleLabel.Font = Enum.Font.GothamBlack
-	raidTitleLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
-	raidTitleLabel.TextScaled = true
-	raidTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	raidTitleLabel.ZIndex = 22
-	raidTitleLabel.Parent = topBar
+	hostCard = matchmakingFrame:WaitForChild("HostCard")
+	viewDefault = hostCard:WaitForChild("ViewDefault")
+	viewSetup = hostCard:WaitForChild("ViewSetup")
+	viewHosting = hostCard:WaitForChild("ViewHosting")
 
-	hostCard = CreateCard("HostCard", matchmakingFrame, UDim2.new(0.48, 0, 0.9, 0), UDim2.new(0, 0, 0.1, 0))
+	local openSetupBtn = viewDefault:WaitForChild("OpenSetupBtn")
+	local confirmSetupBtn = viewSetup:WaitForChild("ConfirmSetupBtn")
+	local cancelSetupBtn = viewSetup:WaitForChild("CancelSetupBtn")
+	local friendsToggleBtn = viewSetup:WaitForChild("FriendsToggleBtn")
 
-	local hostTitle = Instance.new("TextLabel")
-	hostTitle.Size = UDim2.new(1, 0, 0.1, 0)
-	hostTitle.Position = UDim2.new(0, 0, 0, 5)
-	hostTitle.BackgroundTransparency = 1
-	hostTitle.Font = Enum.Font.GothamBlack
-	hostTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	hostTitle.TextScaled = true
-	hostTitle.Text = "HOST PARTY"
-	hostTitle.ZIndex = 22
-	hostTitle.Parent = hostCard
-
-	viewDefault = Instance.new("Frame")
-	viewDefault.Name = "ViewDefault"
-	viewDefault.Size = UDim2.new(1, 0, 0.9, 0)
-	viewDefault.Position = UDim2.new(0, 0, 0.1, 0)
-	viewDefault.BackgroundTransparency = 1
-	viewDefault.Visible = true
-	viewDefault.ZIndex = 21
-	viewDefault.Parent = hostCard
-
-	local vdLayout = Instance.new("UIListLayout")
-	vdLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	vdLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	vdLayout.Parent = viewDefault
-
-	local openSetupBtn = Instance.new("TextButton")
-	openSetupBtn.Name = "OpenSetupBtn"
-	openSetupBtn.Size = UDim2.new(0.6, 0, 0.15, 0)
-	openSetupBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 140)
-	openSetupBtn.Font = Enum.Font.GothamBold
-	openSetupBtn.TextColor3 = Color3.new(1, 1, 1)
-	openSetupBtn.TextScaled = true
-	openSetupBtn.Text = "Create New Party"
-	openSetupBtn.ZIndex = 22
-	openSetupBtn.Parent = viewDefault
-	Instance.new("UITextSizeConstraint", openSetupBtn).MaxTextSize = 14
-	Instance.new("UICorner", openSetupBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(openSetupBtn, 180, 80, 180)
-
-	viewSetup = Instance.new("Frame")
-	viewSetup.Name = "ViewSetup"
-	viewSetup.Size = UDim2.new(1, 0, 0.9, 0)
-	viewSetup.Position = UDim2.new(0, 0, 0.1, 0)
-	viewSetup.BackgroundTransparency = 1
-	viewSetup.Visible = false
-	viewSetup.ZIndex = 21
-	viewSetup.Parent = hostCard
-
-	local vsLayout = Instance.new("UIListLayout")
-	vsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	vsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	vsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	vsLayout.Padding = UDim.new(0.05, 0)
-	vsLayout.Parent = viewSetup
-
-	local friendsToggleBtn = Instance.new("TextButton")
-	friendsToggleBtn.Name = "FriendsToggleBtn"
-	friendsToggleBtn.LayoutOrder = 1
-	friendsToggleBtn.Size = UDim2.new(0.8, 0, 0.15, 0)
-	friendsToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-	friendsToggleBtn.Font = Enum.Font.GothamBold
-	friendsToggleBtn.TextColor3 = Color3.new(1, 1, 1)
-	friendsToggleBtn.TextScaled = true
-	friendsToggleBtn.Text = "[ ] Friends Only"
-	friendsToggleBtn.ZIndex = 22
-	friendsToggleBtn.Parent = viewSetup
-	Instance.new("UITextSizeConstraint", friendsToggleBtn).MaxTextSize = 14
-	Instance.new("UICorner", friendsToggleBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(friendsToggleBtn, 90, 70, 110)
-
-	local confirmSetupBtn = Instance.new("TextButton")
-	confirmSetupBtn.Name = "ConfirmSetupBtn"
-	confirmSetupBtn.LayoutOrder = 2
-	confirmSetupBtn.Size = UDim2.new(0.8, 0, 0.15, 0)
-	confirmSetupBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
-	confirmSetupBtn.Font = Enum.Font.GothamBold
-	confirmSetupBtn.TextColor3 = Color3.new(1, 1, 1)
-	confirmSetupBtn.TextScaled = true
-	confirmSetupBtn.Text = "Confirm Setup"
-	confirmSetupBtn.ZIndex = 22
-	confirmSetupBtn.Parent = viewSetup
-	Instance.new("UITextSizeConstraint", confirmSetupBtn).MaxTextSize = 14
-	Instance.new("UICorner", confirmSetupBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(confirmSetupBtn, 80, 180, 80)
-
-	local cancelSetupBtn = Instance.new("TextButton")
-	cancelSetupBtn.Name = "CancelSetupBtn"
-	cancelSetupBtn.LayoutOrder = 3
-	cancelSetupBtn.Size = UDim2.new(0.8, 0, 0.12, 0)
-	cancelSetupBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
-	cancelSetupBtn.Font = Enum.Font.GothamBold
-	cancelSetupBtn.TextColor3 = Color3.new(1, 1, 1)
-	cancelSetupBtn.TextScaled = true
-	cancelSetupBtn.Text = "Cancel"
-	cancelSetupBtn.ZIndex = 22
-	cancelSetupBtn.Parent = viewSetup
-	Instance.new("UITextSizeConstraint", cancelSetupBtn).MaxTextSize = 14
-	Instance.new("UICorner", cancelSetupBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(cancelSetupBtn, 200, 80, 80)
-
-	viewHosting = Instance.new("Frame")
-	viewHosting.Name = "ViewHosting"
-	viewHosting.Size = UDim2.new(1, 0, 0.9, 0)
-	viewHosting.Position = UDim2.new(0, 0, 0.1, 0)
-	viewHosting.BackgroundTransparency = 1
-	viewHosting.Visible = false
-	viewHosting.ZIndex = 21
-	viewHosting.Parent = hostCard
-
-	local vhLayout = Instance.new("UIListLayout")
-	vhLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	vhLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	vhLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	vhLayout.Padding = UDim.new(0.1, 0)
-	vhLayout.Parent = viewHosting
-
-	hostingLbl = Instance.new("TextLabel")
-	hostingLbl.Name = "HostingLbl"
-	hostingLbl.LayoutOrder = 1
-	hostingLbl.Size = UDim2.new(1, 0, 0.15, 0)
-	hostingLbl.BackgroundTransparency = 1
-	hostingLbl.Font = Enum.Font.GothamBold
-	hostingLbl.TextColor3 = Color3.new(1, 1, 1)
-	hostingLbl.TextScaled = true
-	hostingLbl.Text = "Party: 1/4 Players"
-	hostingLbl.ZIndex = 22
-	hostingLbl.Parent = viewHosting
-
-	local hostingBtnsContainer = Instance.new("Frame")
-	hostingBtnsContainer.Size = UDim2.new(1, 0, 0.15, 0)
-	hostingBtnsContainer.BackgroundTransparency = 1
-	hostingBtnsContainer.LayoutOrder = 2
-	hostingBtnsContainer.Parent = viewHosting
-
-	local hbLayout = Instance.new("UIListLayout")
-	hbLayout.FillDirection = Enum.FillDirection.Horizontal
-	hbLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	hbLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	hbLayout.Padding = UDim.new(0.05, 0)
-	hbLayout.Parent = hostingBtnsContainer
-
-	startRaidBtn = Instance.new("TextButton")
-	startRaidBtn.Name = "StartRaidBtn"
-	startRaidBtn.Size = UDim2.new(0.42, 0, 1, 0)
-	startRaidBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
-	startRaidBtn.Font = Enum.Font.GothamBold
-	startRaidBtn.TextColor3 = Color3.new(1, 1, 1)
-	startRaidBtn.TextScaled = true
-	startRaidBtn.Text = "Start Solo"
-	startRaidBtn.ZIndex = 22
-	startRaidBtn.Parent = hostingBtnsContainer
-	Instance.new("UITextSizeConstraint", startRaidBtn).MaxTextSize = 14
-	Instance.new("UICorner", startRaidBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(startRaidBtn, 80, 180, 80)
-
-	cancelLobbyBtn = Instance.new("TextButton")
-	cancelLobbyBtn.Name = "CancelLobbyBtn"
-	cancelLobbyBtn.Size = UDim2.new(0.42, 0, 1, 0)
-	cancelLobbyBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-	cancelLobbyBtn.Font = Enum.Font.GothamBold
-	cancelLobbyBtn.TextColor3 = Color3.new(1, 1, 1)
-	cancelLobbyBtn.TextScaled = true
-	cancelLobbyBtn.Text = "Disband"
-	cancelLobbyBtn.ZIndex = 22
-	cancelLobbyBtn.Parent = hostingBtnsContainer
-	Instance.new("UITextSizeConstraint", cancelLobbyBtn).MaxTextSize = 14
-	Instance.new("UICorner", cancelLobbyBtn).CornerRadius = UDim.new(0, 6)
-	AddBtnStroke(cancelLobbyBtn, 150, 150, 150)
+	hostingLbl = viewHosting:WaitForChild("HostingLbl")
+	local hostingBtns = viewHosting:WaitForChild("BtnsContainer")
+	startRaidBtn = hostingBtns:WaitForChild("StartRaidBtn")
+	cancelLobbyBtn = hostingBtns:WaitForChild("CancelLobbyBtn")
 
 	openSetupBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); viewDefault.Visible = false; viewSetup.Visible = true end)
 	cancelSetupBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); viewSetup.Visible = false; viewDefault.Visible = true end)
+
 	friendsToggleBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click"); isFriendsOnly = not isFriendsOnly
 		friendsToggleBtn.Text = isFriendsOnly and "[X] Friends Only" or "[ ] Friends Only"
 		friendsToggleBtn.TextColor3 = isFriendsOnly and Color3.fromRGB(50, 255, 50) or Color3.new(1, 1, 1)
 	end)
+
 	confirmSetupBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		RaidAction:FireServer("CreateLobby", {RaidId = selectedRaidId, FriendsOnly = isFriendsOnly})
 	end)
+
 	cancelLobbyBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); RaidAction:FireServer("CancelLobby") end)
 	startRaidBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); RaidAction:FireServer("ForceStartRaid") end)
 
-	lobbyCard = CreateCard("LobbyCard", matchmakingFrame, UDim2.new(0.48, 0, 0.9, 0), UDim2.new(0.52, 0, 0.1, 0))
-
-	local lobbyTitle = Instance.new("TextLabel")
-	lobbyTitle.Size = UDim2.new(1, 0, 0.1, 0)
-	lobbyTitle.Position = UDim2.new(0, 0, 0, 5)
-	lobbyTitle.BackgroundTransparency = 1
-	lobbyTitle.Font = Enum.Font.GothamBlack
-	lobbyTitle.TextColor3 = Color3.fromRGB(255, 215, 50)
-	lobbyTitle.TextScaled = true
-	lobbyTitle.Text = "OPEN PARTIES"
-	lobbyTitle.ZIndex = 22
-	lobbyTitle.Parent = lobbyCard
-
-	lobbyContainer = Instance.new("ScrollingFrame")
-	lobbyContainer.Name = "LobbyContainer"
-	lobbyContainer.Size = UDim2.new(1, 0, 0.82, 0)
-	lobbyContainer.Position = UDim2.new(0, 0, 0.15, 0)
-	lobbyContainer.BackgroundTransparency = 1
-	lobbyContainer.ScrollBarThickness = 6
-	lobbyContainer.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	lobbyContainer.ZIndex = 21
-	lobbyContainer.Parent = lobbyCard
-
-	local lcPad = Instance.new("UIPadding")
-	lcPad.PaddingTop = UDim.new(0, 5)
-	lcPad.PaddingBottom = UDim.new(0, 10) 
-	lcPad.PaddingRight = UDim.new(0, 10)
-	lcPad.PaddingLeft = UDim.new(0, 4) 
-	lcPad.Parent = lobbyContainer
-
-	local lcLayout = Instance.new("UIListLayout")
-	lcLayout.FillDirection = Enum.FillDirection.Vertical
-	lcLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	lcLayout.Padding = UDim.new(0, 10)
-	lcLayout.Parent = lobbyContainer
-
-	combatCard = Instance.new("Frame")
-	combatCard.Name = "CombatCard"
-	combatCard.Size = UDim2.new(1, 0, 1, 0)
-	combatCard.BackgroundTransparency = 1
-	combatCard.Visible = false
-	combatCard.Parent = parentFrame
+	lobbyCard = matchmakingFrame:WaitForChild("LobbyCard")
+	lobbyContainer = lobbyCard:WaitForChild("LobbyContainer")
 
 	combatUI = CombatTemplate.Create(combatCard, tooltipMgr)
 
-	turnTimerLabel = Instance.new("TextLabel")
-	turnTimerLabel.Size = UDim2.new(1, 0, 0, 25)
-	turnTimerLabel.Position = UDim2.new(0, 0, 0, -5)
-	turnTimerLabel.BackgroundTransparency = 1
-	turnTimerLabel.Font = Enum.Font.GothamBlack
-	turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-	turnTimerLabel.TextScaled = true
-	turnTimerLabel.ZIndex = 30
-	turnTimerLabel.Text = "Time Remaining: --s"
+	turnTimerLabel = templates:WaitForChild("RaidTurnTimerTemplate"):Clone()
 	turnTimerLabel.Parent = combatUI.MainFrame
 
-	resourceLabel = Instance.new("TextLabel")
-	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	resourceLabel.BackgroundTransparency = 1
-	resourceLabel.Font = Enum.Font.GothamBold
-	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	resourceLabel.TextScaled = true
-	resourceLabel.ZIndex = 22
-	resourceLabel.Text = "STAMINA: 100 | ENERGY: 10"
-	resourceLabel.LayoutOrder = 2 
+	resourceLabel = templates:WaitForChild("RaidResourceLabelTemplate"):Clone()
 	resourceLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", resourceLabel).MaxTextSize = 18
 
-	waitingLabel = Instance.new("TextLabel")
-	waitingLabel.Name = "WaitingLabel"
-	waitingLabel.Size = UDim2.new(1, 0, 0.25, 0)
-	waitingLabel.BackgroundTransparency = 1
-	waitingLabel.Font = Enum.Font.GothamMedium
-	waitingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-	waitingLabel.TextScaled = true
-	waitingLabel.Text = "Waiting for other players..."
-	waitingLabel.Visible = false
-	waitingLabel.ZIndex = 22
-	waitingLabel.LayoutOrder = 4
+	waitingLabel = templates:WaitForChild("RaidWaitingLabelTemplate"):Clone()
 	waitingLabel.Parent = combatUI.ContentContainer
-	Instance.new("UITextSizeConstraint", waitingLabel).MaxTextSize = 24
 
 	task.spawn(function()
 		while task.wait(0.2) do
@@ -657,14 +240,14 @@ function RaidsTab.UpdateCombatState(state)
 
 		local hasStunImmunity = (pData.StunImmunity and pData.StunImmunity > 0)
 		if hasStunImmunity then
-			fObj:SetCooldown("StunImmunity", "STN", tostring(pData.StunImmunity), "Immune to Stun effects.")
+			fObj:SetCooldown("StunImmunity", "STN", tostring(pData.StunImmunity), "Immune to Stun effects.", true)
 		else
 			fObj:RemoveCooldown("StunImmunity")
 		end
 
 		local hasConfImmunity = (pData.ConfusionImmunity and pData.ConfusionImmunity > 0)
 		if hasConfImmunity then
-			fObj:SetCooldown("ConfImmunity", "CNF", tostring(pData.ConfusionImmunity), "Immune to Confusion effects.")
+			fObj:SetCooldown("ConfImmunity", "CNF", tostring(pData.ConfusionImmunity), "Immune to Confusion effects.", true)
 		else
 			fObj:RemoveCooldown("ConfImmunity")
 		end
@@ -703,14 +286,14 @@ function RaidsTab.UpdateCombatState(state)
 
 	local hasBossStunImmunity = (state.Boss.StunImmunity and state.Boss.StunImmunity > 0)
 	if hasBossStunImmunity then
-		bObj:SetCooldown("StunImmunity", "STN", tostring(state.Boss.StunImmunity), "Immune to Stun effects.")
+		bObj:SetCooldown("StunImmunity", "STN", tostring(state.Boss.StunImmunity), "Immune to Stun effects.", true)
 	else
 		bObj:RemoveCooldown("StunImmunity")
 	end
 
 	local hasBossConfImmunity = (state.Boss.ConfusionImmunity and state.Boss.ConfusionImmunity > 0)
 	if hasBossConfImmunity then
-		bObj:SetCooldown("ConfImmunity", "CNF", tostring(state.Boss.ConfusionImmunity), "Immune to Confusion effects.")
+		bObj:SetCooldown("ConfImmunity", "CNF", tostring(state.Boss.ConfusionImmunity), "Immune to Confusion effects.", true)
 	else
 		bObj:RemoveCooldown("ConfImmunity")
 	end
@@ -741,7 +324,6 @@ function RaidsTab.RenderSkills(state)
 	local valid = {}
 
 	if myStand == "Fused Stand" then
-		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
 		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
 		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
@@ -828,7 +410,7 @@ function RaidsTab.HandleUpdate(action, data)
 
 				cancelLobbyBtn.Size = UDim2.new(0.42, 0, 1, 0)
 				cancelLobbyBtn.Text = "Disband Party"
-				cancelLobbyBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+				cancelLobbyBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
 			else
 				startRaidBtn.Visible = false
 
@@ -859,76 +441,32 @@ function RaidsTab.HandleUpdate(action, data)
 			empty.Font = Enum.Font.GothamMedium
 			empty.TextScaled = true
 			empty.ZIndex = 22
+			Instance.new("UITextSizeConstraint", empty).MaxTextSize = 16
 
-			local eUic = Instance.new("UITextSizeConstraint", empty)
-			eUic.MaxTextSize = 16
-			eUic.MinTextSize = 10
-
-			lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, 200)
+			lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
 			return
 		end
 
 		for i, lobby in ipairs(lobbies) do
-			local row = CreateCard("LobbyRow_" .. i, lobbyContainer, UDim2.new(1, -8, 0, 60), nil)
+			local row = templates:WaitForChild("RaidLobbyRowTemplate"):Clone()
+			row.Name = "LobbyRow_" .. i
 			row.LayoutOrder = i
-			local rowPad = Instance.new("UIPadding", row)
-			rowPad.PaddingLeft = UDim.new(0, 10); rowPad.PaddingRight = UDim.new(0, 10)
+			row.Parent = lobbyContainer
 
 			local infoText = "<b>" .. lobby.HostName .. "'s Party</b>"
 			if lobby.FriendsOnly then infoText = infoText .. " <font color='#55FF55'>[Friends]</font>" end
 			infoText = infoText .. "\n<font color='#AAAAAA' size='12'>Members: " .. table.concat(lobby.Members, ", ") .. "</font>"
 
-			local lbl = Instance.new("TextLabel")
-			lbl.Size = UDim2.new(0.65, 0, 1, 0)
-			lbl.Position = UDim2.new(0, 0, 0, 0)
-			lbl.BackgroundTransparency = 1
-			lbl.Font = Enum.Font.GothamMedium
-			lbl.TextColor3 = Color3.new(1, 1, 1)
-			lbl.TextScaled = true
-			lbl.RichText = true
-			lbl.TextXAlignment = Enum.TextXAlignment.Left
-			lbl.Text = infoText
-			lbl.ZIndex = 22
-			lbl.Parent = row
+			row:WaitForChild("InfoLabel").Text = infoText
+			row:WaitForChild("CountLabel").Text = (lobby.PlayerCount or 1) .. "/4"
 
-			local lUic = Instance.new("UITextSizeConstraint")
-			lUic.MaxTextSize = 14
-			lUic.Parent = lbl
-
-			local countLbl = Instance.new("TextLabel")
-			countLbl.Size = UDim2.new(0.15, 0, 1, 0)
-			countLbl.Position = UDim2.new(0.65, 0, 0, 0)
-			countLbl.BackgroundTransparency = 1
-			countLbl.Font = Enum.Font.GothamBold
-			countLbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-			countLbl.TextScaled = true
-			countLbl.Text = (lobby.PlayerCount or 1) .. "/4"
-			countLbl.ZIndex = 22
-			countLbl.Parent = row
-
-			local cUic = Instance.new("UITextSizeConstraint")
-			cUic.MaxTextSize = 16
-			cUic.Parent = countLbl
-
-			local joinBtn = Instance.new("TextButton")
-			joinBtn.Size = UDim2.new(0.20, 0, 0.6, 0)
-			joinBtn.Position = UDim2.new(1, 0, 0.5, 0)
-			joinBtn.AnchorPoint = Vector2.new(1, 0.5)
-			joinBtn.Font = Enum.Font.GothamBold
-			joinBtn.TextColor3 = Color3.new(1, 1, 1)
-			joinBtn.TextScaled = true
-			joinBtn.ZIndex = 22
-			joinBtn.Parent = row
-			Instance.new("UITextSizeConstraint", joinBtn).MaxTextSize = 14
-			Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 6)
-
+			local joinBtn = row:WaitForChild("JoinBtn")
 			if lobby.HostId == player.UserId then
 				joinBtn.Text = "Hosting"
 				joinBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 			else
 				joinBtn.Text = "Join"
 				joinBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
-				AddBtnStroke(joinBtn, 180, 80, 200)
 				joinBtn.MouseButton1Click:Connect(function()
 					SFXManager.Play("Click")
 					RaidAction:FireServer("JoinLobby", {HostId = lobby.HostId})
@@ -936,7 +474,10 @@ function RaidsTab.HandleUpdate(action, data)
 			end
 		end
 
-		lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, (#lobbies * 70) + 300)
+		task.delay(0.05, function()
+			local l = lobbyContainer:FindFirstChildOfClass("UIListLayout")
+			if l then lobbyContainer.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
+		end)
 
 	elseif action == "MatchStart" then
 		if forceTabFocus then forceTabFocus() end 
