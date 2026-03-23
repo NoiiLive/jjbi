@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -48,24 +47,21 @@ local function FindPlayer(nameStr)
 	return nil
 end
 
--- [[ NEW: Universal String Cleaner (Handles '&' vs 'and' nicely) ]]
 local function CleanStr(str)
 	if not str then return "" end
 	local s = string.lower(str)
-	s = string.gsub(s, "&amp;", "and") -- Catch Roblox chat filtering
-	s = string.gsub(s, "&", "and")     -- Catch raw ampersands
-	s = string.gsub(s, "[%p%s]", "")   -- Strip all remaining punctuation and spaces
+	s = string.gsub(s, "&amp;", "and")
+	s = string.gsub(s, "&", "and")
+	s = string.gsub(s, "[%p%s]", "")
 	return s
 end
 
 local function GetProperItemName(inputStr)
 	local search = CleanStr(inputStr)
 
-	-- 1. Exact Match Check
 	for key, _ in pairs(ItemData.Equipment) do if CleanStr(key) == search then return key end end
 	for key, _ in pairs(ItemData.Consumables) do if CleanStr(key) == search then return key end end
 
-	-- 2. Partial Match Check (Fallback)
 	for key, _ in pairs(ItemData.Equipment) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	for key, _ in pairs(ItemData.Consumables) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
@@ -74,10 +70,8 @@ end
 local function GetProperStandName(inputStr)
 	local search = CleanStr(inputStr)
 
-	-- 1. Exact Match Check
 	for key, _ in pairs(StandData.Stands) do if CleanStr(key) == search then return key end end
 
-	-- 2. Partial Match Check (Fallback)
 	for key, _ in pairs(StandData.Stands) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -95,7 +89,6 @@ local function GetProperTraitName(inputStr)
 	local search = CleanStr(inputStr)
 	if search == "none" then return "None" end
 
-	-- [[ FIXED: Dynamically references StandData.Traits! ]]
 	for key, _ in pairs(StandData.Traits) do if CleanStr(key) == search then return key end end
 	for key, _ in pairs(StandData.Traits) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
@@ -106,8 +99,6 @@ local function GetProperStatName(inputStr)
 	local validStats = {
 		yen = "Yen", prestige = "Prestige", elo = "Elo", xp = "XP",
 		health = "Health", strength = "Strength", defense = "Defense", speed = "Speed", stamina = "Stamina", willpower = "Willpower",
-		standpowerval = "Stand_Power_Val", standspeedval = "Stand_Speed_Val", standrangeval = "Stand_Range_Val",
-		standdurabilityval = "Stand_Durability_Val", standprecisionval = "Stand_Precision_Val", standpotentialval = "Stand_Potential_Val",
 		standpower = "Stand_Power_Val", standspeed = "Stand_Speed_Val", standrange = "Stand_Range_Val",
 		standdurability = "Stand_Durability_Val", standprecision = "Stand_Precision_Val", standpotential = "Stand_Potential_Val"
 	}
