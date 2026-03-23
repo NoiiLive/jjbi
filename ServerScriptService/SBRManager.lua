@@ -117,7 +117,7 @@ local function HandleSBRDrop(player, dropCategory, excludeDiscs)
 	if #pool > 0 then
 		local itemName = pool[math.random(#pool)]
 		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
-		local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka" or itemName == "Heavenly Stand Disc" or itemName == "Saint's Corpse Part")
+		local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand"))
 
 		if player:GetAttribute("AutoSell_" .. targetRarity) and not isIgnored then
 			local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
