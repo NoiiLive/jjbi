@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -51,7 +52,7 @@ local Names2 = {
 	"Comet","Meteor","Nova","Eclipse","Hurricane","Cyclone","Blizzard","Tornado","Storm","Tempest",
 	"Knight","Rider","Champ","Hero","Legend","Master","King","Outlaw","Bandit","Marshal",
 	"Valkyrie","Phantom","Specter","Wanderer","Drifter","Seeker","Spirit","Fury","Flash",
-	"Boi","Unit","Potato","Nugget","Goblin","Meatball","Gremlin","Grandpa","Chungus","Mogger","Goober","Creature","Thing","Lad","Beast", "Idiot", "Chud"
+	"Boi","Unit","Potato","Nugget","Goblin","Meatball","Gremlin","Grandpa","Chungus","Mogger","Goober","Creature","Thing","Lad","Beast", "Idiot", "Chud", "Chad"
 }
 
 local SBRRobuxReroll = ReplicatedStorage:WaitForChild("SBRRobuxReroll")
@@ -221,7 +222,7 @@ local function StartRace()
 				Player = player, Distance = 0, MaxStamina = maxStam, Stamina = maxStam,
 				HorseSpeed = speed, HorseEndurance = endur, IsProcessing = false,
 				HorseTrait = player:GetAttribute("HorseTrait") or "None",
-				HasFinished = false, Battle = nil
+				HasFinished = false, Battle = nil, LastPathTime = 0
 			}
 			SBRUpdate:FireClient(player, "RaceStarted", {MaxStamina = maxStam, EndTime = EventState.EndTime})
 		end
@@ -320,13 +321,12 @@ end
 
 local function FindPvPTarget(racer)
 	local myRegion = GetRegion(racer.Distance)
-	local myPres = racer.Player:FindFirstChild("leaderstats") and racer.Player.leaderstats.Prestige.Value or 0
 
 	local valid = {}
 	for uid, other in pairs(EventState.Racers) do
 		if uid ~= racer.Player.UserId and not other.HasFinished and not other.Battle then
 			local oPres = other.Player:FindFirstChild("leaderstats") and other.Player.leaderstats.Prestige.Value or 0
-			if math.abs(myPres - oPres) <= 3 and GetRegion(other.Distance) == myRegion then
+			if GetRegion(other.Distance) == myRegion then
 				table.insert(valid, other)
 			end
 		end
@@ -357,25 +357,31 @@ function ExecuteCombatTurn(racer)
 
 	if p1Fled or p2Fled then
 		if p1Fled then
-			racer.Distance = math.max(0, racer.Distance - 100)
-			SBRUpdate:FireClient(racer.Player, "CombatEnd", "You fled the battle and lost 100m!")
+			racer.Distance = math.max(0, racer.Distance - 1000)
+			SBRUpdate:FireClient(racer.Player, "CombatEnd", "You fled the battle and lost 800m!")
 		else
-			SBRUpdate:FireClient(racer.Player, "CombatEnd", "Your opponent fled! The path is clear.")
+			local gain = b.OpponentRacer and 500 or 150
+			racer.Distance = racer.Distance + gain
+			SBRUpdate:FireClient(racer.Player, "CombatEnd", "Your opponent fled! You pushed forward and gained " .. gain .. "m.")
 		end
 
 		if b.OpponentRacer then
 			if p2Fled then
-				b.OpponentRacer.Distance = math.max(0, b.OpponentRacer.Distance - 100)
-				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "You fled the battle and lost 100m!")
+				b.OpponentRacer.Distance = math.max(0, b.OpponentRacer.Distance - 1000)
+				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "You fled the battle and lost 800m!")
 			else
-				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "Your opponent fled! The path is clear.")
+				local gain = 500
+				b.OpponentRacer.Distance = b.OpponentRacer.Distance + gain
+				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "Your opponent fled! You pushed forward and gained " .. gain .. "m.")
 			end
 			SBRUpdate:FireClient(b.OpponentRacer.Player, "PathResult", {Log = "", Dist = b.OpponentRacer.Distance, Stam = b.OpponentRacer.Stamina, Region = GetRegion(b.OpponentRacer.Distance)})
 			b.OpponentRacer.Battle = nil
+			CheckWinCondition(b.OpponentRacer)
 		end
 
 		racer.Battle = nil
 		SBRUpdate:FireClient(racer.Player, "PathResult", {Log = "", Dist = racer.Distance, Stam = racer.Stamina, Region = GetRegion(racer.Distance)})
+		CheckWinCondition(racer)
 		return
 	end
 
@@ -460,12 +466,17 @@ function ExecuteCombatTurn(racer)
 	if b.Player.HP < 1 then
 		EliminateRacer(racer, "Defeated in Combat!")
 		if b.OpponentRacer then
+			b.OpponentRacer.Distance += 1500
 			b.OpponentRacer.Battle = nil
-			SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "You survived the ambush! Proceeding forward.")
+			SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "You survived the ambush and eliminated your opponent! Pushing forward 1500m.")
+			CheckWinCondition(b.OpponentRacer)
 		end
 	elseif b.Opponent.HP < 1 then
+		local gain = b.OpponentRacer and 1500 or 800
+		racer.Distance += gain
 		racer.Battle = nil
-		SBRUpdate:FireClient(racer.Player, "CombatEnd", "Victory! The path is clear.")
+		SBRUpdate:FireClient(racer.Player, "CombatEnd", "Victory! You defeated the enemy and pushed forward " .. gain .. "m.")
+		CheckWinCondition(racer)
 		if b.OpponentRacer then EliminateRacer(b.OpponentRacer, "Defeated in Combat!") end
 	else
 		if p1Skill and (p1Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Player.Stamina = math.min(b.Player.MaxStamina, b.Player.Stamina + 5) end
@@ -550,7 +561,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 					Player = player, Distance = 0, MaxStamina = maxStam, Stamina = maxStam,
 					HorseSpeed = speed, HorseEndurance = endur, IsProcessing = false,
 					HorseTrait = player:GetAttribute("HorseTrait") or "None",
-					HasFinished = false, Battle = nil
+					HasFinished = false, Battle = nil, LastPathTime = 0
 				}
 				SBRUpdate:FireClient(player, "RaceStarted", {MaxStamina = maxStam, EndTime = EventState.EndTime})
 				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#55FF55'>[STUDIO] Force-joined active race!</font>")
@@ -581,7 +592,13 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			return
 		end
 		if r.HasFinished or r.Battle or r.IsProcessing then return end
+
+		if os.time() - r.LastPathTime < 1 then
+			return
+		end
+
 		r.IsProcessing = true
+		r.LastPathTime = os.time()
 
 		local path = data
 		local logStr = ""
@@ -602,21 +619,46 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			end
 
 			r.Stamina -= cost
-			distGained = math.min(50, 25 + math.floor(r.HorseSpeed * 0.25))
 
+			local baseDist = math.floor(20 + (r.HorseSpeed * 0.80))
 			local dMult = 1.0
 			if trait == "Swift" then dMult += 0.15 end
 			if trait == "Desert Walker" and region == "Arizona Desert" then dMult += 0.3 end
 			if trait == "Mountain Goat" and region == "Rocky Mountains" then dMult += 0.3 end
 			if trait == "City Sprinter" and (region == "Chicago" or region == "Philadelphia") then dMult += 0.3 end
-			distGained = math.floor(distGained * dMult)
 
-			r.Distance += distGained
-			logStr = "Rode safely for " .. distGained .. "m."
+			local rng = math.random(1, 100)
+			if trait == "Lucky" then rng = rng + 10 end
 
-			if math.random() <= 0.1 then 
+			if rng <= 10 then
+				distGained = math.floor((100 + (r.HorseSpeed * 1)) * dMult)
+				r.Distance += distGained
+				logStr = "<font color='#55FF55'>Your horse found a smooth trail! Rode safely for " .. distGained .. "m.</font>"
+			elseif rng <= 20 then
+				distGained = math.floor(baseDist * dMult)
+				r.Distance += distGained
 				local i = HandleSBRDrop(player, "Normal", false)
-				if i then logStr = logStr .. " Found " .. i .. "!" end 
+				logStr = "Rode safely for " .. distGained .. "m."
+				if i then logStr = logStr .. " Found " .. i .. "!" end
+			elseif rng <= 25 then
+				distGained = math.floor(baseDist * dMult)
+				local p2 = FindPvPTarget(r)
+				if p2 then
+					r.Distance += distGained
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
+					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
+					r.IsProcessing = false
+					return
+				else
+					r.Distance += distGained
+					logStr = "Rode safely for " .. distGained .. "m."
+				end
+			else
+				distGained = math.floor(baseDist * dMult)
+				r.Distance += distGained
+				logStr = "Rode safely for " .. distGained .. "m."
 			end
 
 		elseif path == "Rest" then
@@ -629,7 +671,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			if math.random() <= 0.1 then
 				local p2 = FindPvPTarget(r)
 				if p2 then
-					r.Battle = { Player = CombatCore.BuildPlayerStruct(player), Opponent = CombatCore.BuildPlayerStruct(p2.Player), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
@@ -651,7 +693,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 
 			r.Stamina -= cost
 
-			distGained = math.floor(150 + (r.HorseSpeed * 1.5))
+			distGained = math.floor(100 + (r.HorseSpeed * 2))
 
 			local dMult = 1.0
 			if trait == "Swift" then dMult += 0.15 end
@@ -663,7 +705,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			local rng = math.random(1, 100)
 			if trait == "Lucky" then rng = rng + 15 end 
 
-			if rng <= 25 then
+			if rng <= 20 then
 				local distLoss = math.random(50, 150)
 				r.Distance = math.max(0, r.Distance + (distGained - distLoss))
 				logStr = "<font color='#FFAA00'>Rough terrain! Lost time (" .. (distGained - distLoss) .. "m gained).</font>"
@@ -673,7 +715,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				logStr = "<font color='#55FFFF'>Rode hard for " .. distGained .. "m and found " .. (i or "something") .. "!</font>"
 			elseif rng <= 60 then
 				r.Distance += distGained
-				r.Battle = { Player = CombatCore.BuildPlayerStruct(player), Opponent = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+				r.Battle = { Player = CombatCore.BuildPlayerStruct(player, true), Opponent = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 				SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>A bandit blocks the path!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 				r.IsProcessing = false
 				return
@@ -681,7 +723,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				local p2 = FindPvPTarget(r)
 				if p2 then
 					r.Distance += distGained
-					r.Battle = { Player = CombatCore.BuildPlayerStruct(player), Opponent = CombatCore.BuildPlayerStruct(p2.Player), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>CROSSED PATHS WITH " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>" .. player.Name .. " ATTACKED YOU!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
