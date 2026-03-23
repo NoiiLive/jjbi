@@ -77,158 +77,33 @@ Use code <b><font color='#FF55FF'>GUIREWORK</font></b> and <b><font color='#FF55
 <font color='#55FF55'>[+]</font> <b>Universe Modifiers:</b> Prestiging applies random buffs/debuffs to your next run.]]
 }
 
-local function applyDoubleGoldBorder(parent)
-	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3
-	outerStroke.Color = Color3.fromRGB(255, 210, 60)
-	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradOut = Instance.new("UIGradient", outerStroke)
-	gradOut.Rotation = -45
-	gradOut.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
-	}
-	outerStroke.Parent = parent
+function UpdatesTab.Init(parentFrame, tooltipMgr)
+	local mainPanel = parentFrame:WaitForChild("MainPanel")
+	local innerContent = mainPanel:WaitForChild("InnerContent")
+	local scrollFrame = innerContent:WaitForChild("ScrollFrame")
+	local listLayout = scrollFrame:WaitForChild("UIListLayout")
 
-	local innerFrame = Instance.new("Frame", parent)
-	innerFrame.Name = "InnerGoldBorder"
-	innerFrame.Size = UDim2.new(1, -6, 1, -6)
-	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	innerFrame.BackgroundTransparency = 1
-	innerFrame.ZIndex = parent.ZIndex
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+	local updateCardTpl = Templates:WaitForChild("UpdateCardTemplate")
 
-	local parentCorner = parent:FindFirstChildOfClass("UICorner")
-	if parentCorner then
-		local innerCorner = Instance.new("UICorner")
-		innerCorner.CornerRadius = UDim.new(0, math.max(0, parentCorner.CornerRadius.Offset - 3))
-		innerCorner.Parent = innerFrame
+	for _, child in pairs(scrollFrame:GetChildren()) do
+		if child:IsA("Frame") then
+			child:Destroy()
+		end
 	end
 
-	local innerStroke = Instance.new("UIStroke", innerFrame)
-	innerStroke.Thickness = 1
-	innerStroke.Color = Color3.fromRGB(255, 230, 100)
-	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	local gradIn = Instance.new("UIGradient", innerStroke)
-	gradIn.Rotation = 45
-	gradIn.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
-	}
-end
-
-function UpdatesTab.Init(parentFrame, tooltipMgr)
-	local mainPanel = Instance.new("Frame")
-	mainPanel.Name = "MainPanel"
-	mainPanel.Size = UDim2.new(0.85, 0, 0.85, 0)
-	mainPanel.Position = UDim2.new(0.5, 0, 0.48, 0)
-	mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-	mainPanel.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	mainPanel.BorderSizePixel = 0
-	mainPanel.ZIndex = 15
-	mainPanel.ClipsDescendants = true
-	mainPanel.Parent = parentFrame
-
-	Instance.new("UICorner", mainPanel).CornerRadius = UDim.new(0, 12)
-	applyDoubleGoldBorder(mainPanel)
-
-	local bgPattern = Instance.new("ImageLabel")
-	bgPattern.Name = "OverlayPattern"
-	bgPattern.Image = "rbxassetid://79623015802180"
-	bgPattern.ImageColor3 = Color3.fromRGB(180, 130, 255)
-	bgPattern.ImageTransparency = 0.85
-	bgPattern.BackgroundTransparency = 1
-	bgPattern.ScaleType = Enum.ScaleType.Tile
-	bgPattern.TileSize = UDim2.new(0, 500, 0, 250)
-	bgPattern.Size = UDim2.new(1, 0, 1, 0)
-	bgPattern.ZIndex = 16
-	bgPattern.Parent = mainPanel
-
-	local innerContent = Instance.new("Frame")
-	innerContent.Name = "InnerContent"
-	innerContent.Size = UDim2.new(1, 0, 1, 0)
-	innerContent.BackgroundTransparency = 1
-	innerContent.ZIndex = 17
-	innerContent.Parent = mainPanel
-
-	local mainPad = Instance.new("UIPadding", innerContent)
-	mainPad.PaddingTop = UDim.new(0.04, 0)
-	mainPad.PaddingBottom = UDim.new(0.04, 0)
-	mainPad.PaddingLeft = UDim.new(0.04, 0)
-	mainPad.PaddingRight = UDim.new(0.04, 0)
-
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Size = UDim2.new(1, 0, 0, 30)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.Text = "UPDATE LOG"
-	titleLabel.Font = Enum.Font.GothamBlack
-	titleLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
-	titleLabel.TextSize = 24
-	titleLabel.ZIndex = 22
-	titleLabel.Parent = innerContent
-
-	local scrollFrame = Instance.new("ScrollingFrame")
-	scrollFrame.Size = UDim2.new(1, 0, 1, -45)
-	scrollFrame.Position = UDim2.new(0, 0, 0, 45)
-	scrollFrame.BackgroundTransparency = 1
-	scrollFrame.ScrollBarThickness = 6
-	scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	scrollFrame.ZIndex = 20
-	scrollFrame.Parent = innerContent
-
-	local listLayout = Instance.new("UIListLayout", scrollFrame)
-	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	listLayout.Padding = UDim.new(0, 15)
-
-	local scrollPad = Instance.new("UIPadding", scrollFrame)
-	scrollPad.PaddingRight = UDim.new(0, 10)
-	scrollPad.PaddingLeft = UDim.new(0, 2)
-	scrollPad.PaddingTop = UDim.new(0, 2)
-	scrollPad.PaddingBottom = UDim.new(0, 10)
-
 	for i, updateText in ipairs(UpdatesData) do
-		local card = Instance.new("Frame")
-		card.Size = UDim2.new(1, 0, 0, 0)
-		card.AutomaticSize = Enum.AutomaticSize.Y
-		card.BackgroundColor3 = Color3.fromRGB(25, 10, 35)
+		local card = updateCardTpl:Clone()
 		card.LayoutOrder = i
-		card.ZIndex = 21
+		card.TextLabel.Text = updateText
 		card.Parent = scrollFrame
-
-		Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
-		local stroke = Instance.new("UIStroke", card)
-		stroke.Color = Color3.fromRGB(90, 50, 120)
-		stroke.Thickness = 1
-		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-		local cardPad = Instance.new("UIPadding", card)
-		cardPad.PaddingTop = UDim.new(0, 15)
-		cardPad.PaddingBottom = UDim.new(0, 15)
-		cardPad.PaddingLeft = UDim.new(0, 15)
-		cardPad.PaddingRight = UDim.new(0, 15)
-
-		local textLabel = Instance.new("TextLabel")
-		textLabel.Size = UDim2.new(1, 0, 0, 0)
-		textLabel.AutomaticSize = Enum.AutomaticSize.Y
-		textLabel.BackgroundTransparency = 1
-		textLabel.Text = updateText
-		textLabel.Font = Enum.Font.GothamMedium
-		textLabel.TextColor3 = Color3.new(1, 1, 1)
-		textLabel.TextSize = 15
-		textLabel.RichText = true
-		textLabel.TextWrapped = true
-		textLabel.TextXAlignment = Enum.TextXAlignment.Left
-		textLabel.TextYAlignment = Enum.TextYAlignment.Top
-		textLabel.ZIndex = 22
-		textLabel.Parent = card
 	end
 
 	listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 20)
 	end)
+	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 20)
 
 	local camera = workspace.CurrentCamera
 	local resizeConn
