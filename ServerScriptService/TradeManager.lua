@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PolicyService = game:GetService("PolicyService")
@@ -19,7 +18,6 @@ local IncomingRequests = {}
 local ActiveTrades = {} 
 local PlayerSettings = {} 
 
--- POLICY CHECK FOR TRADING
 local function checkPlayerPolicy(player)
 	local success, result = pcall(function()
 		return PolicyService:GetPolicyInfoForPlayerAsync(player)
@@ -253,7 +251,6 @@ local function ExecuteTrade(session)
 		plr:SetAttribute(prefix, "None")
 		plr:SetAttribute(traitSuffix, "None")
 
-		-- Ensure Fused metadata is also wiped if it was a Fused Stand
 		if slot == "Active" then
 			plr:SetAttribute("Active_FusedStand1", "None"); plr:SetAttribute("Active_FusedStand2", "None")
 			plr:SetAttribute("Active_FusedTrait1", "None"); plr:SetAttribute("Active_FusedTrait2", "None")
@@ -285,7 +282,6 @@ local function ExecuteTrade(session)
 		recipient:SetAttribute("PendingStand_Name", senderOffer.Stand.Name)
 		recipient:SetAttribute("PendingStand_Trait", senderOffer.Stand.Trait)
 
-		-- Fused Stands dynamically pass their metadata strings to be unpacked on claim!
 		if senderOffer.Stand.Name == "Fused Stand" then
 			recipient:SetAttribute("PendingStand_FusedS1", senderOffer.Stand.FusedS1)
 			recipient:SetAttribute("PendingStand_FusedS2", senderOffer.Stand.FusedS2)
