@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local TutorialManager = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -161,7 +160,6 @@ local function BuildTutorialUI()
 	end)
 end
 
--- Explicit Target Finders (Bulletproofed against UI updates)
 local function GetTabButton(tabName)
 	return guiRoot:FindFirstChild(tabName .. "Button", true)
 end
