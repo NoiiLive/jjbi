@@ -124,81 +124,18 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 	combatUI.MainFrame.LayoutOrder = 1
 	combatUI.AbilitiesArea.Visible = false
 
-	resourceLabel = Instance.new("TextLabel")
-	resourceLabel.Name = "ResourceLabel"
-	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	resourceLabel.BackgroundTransparency = 1
-	resourceLabel.Font = Enum.Font.GothamBold
-	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	resourceLabel.TextScaled = true
-	resourceLabel.Text = ""
-	resourceLabel.LayoutOrder = 2 
-	resourceLabel.ZIndex = 22
+	local templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+	local storyControls = templates:WaitForChild("StoryControlsTemplate")
+
+	resourceLabel = storyControls:WaitForChild("ResourceLabel"):Clone()
 	resourceLabel.Parent = combatUI.ContentContainer
 
-	local resUic = Instance.new("UITextSizeConstraint")
-	resUic.MaxTextSize = 18
-	resUic.MinTextSize = 10
-	resUic.Parent = resourceLabel
-
-	buttonContainer = Instance.new("Frame")
-	buttonContainer.Name = "ButtonContainer"
-	buttonContainer.Size = UDim2.new(1, 0, 0.31, 0)
-	buttonContainer.BackgroundTransparency = 1
-	buttonContainer.LayoutOrder = 4 
-	buttonContainer.ZIndex = 22
+	buttonContainer = storyControls:WaitForChild("ButtonContainer"):Clone()
 	buttonContainer.Parent = combatUI.ContentContainer
 
-	local btnLayout = Instance.new("UIListLayout")
-	btnLayout.FillDirection = Enum.FillDirection.Horizontal
-	btnLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	btnLayout.Padding = UDim.new(0, 15)
-	btnLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	btnLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	btnLayout.Parent = buttonContainer
-
-	local function makeBtn(name, text)
-		local btn = Instance.new("TextButton")
-		btn.Name = name
-		btn.Size = UDim2.new(0.28, 0, 0.5, 0)
-		btn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-		btn.Text = text
-		btn.Font = Enum.Font.GothamBold
-		btn.TextColor3 = Color3.fromRGB(255, 235, 130)
-		btn.TextScaled = true
-		btn.ZIndex = 23
-		btn.Parent = buttonContainer
-
-		local uic = Instance.new("UICorner")
-		uic.CornerRadius = UDim.new(0, 8)
-		uic.Parent = btn
-
-		local str = Instance.new("UIStroke")
-		str.Color = Color3.fromRGB(90, 50, 120)
-		str.Thickness = 2
-		str.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		str.Parent = btn
-
-		local ts = Instance.new("UITextSizeConstraint")
-		ts.MaxTextSize = 22
-		ts.MinTextSize = 10
-		ts.Parent = btn
-
-		return btn
-	end
-
-	prestigeBtn = makeBtn("PrestigeBtn", "Prestige")
-	prestigeBtn.BackgroundColor3 = Color3.fromRGB(120, 30, 30)
-	prestigeBtn.TextColor3 = Color3.fromRGB(255, 200, 200)
-	prestigeBtn:FindFirstChildOfClass("UIStroke").Color = Color3.fromRGB(200, 50, 50)
-	prestigeBtn.LayoutOrder = 0
-	prestigeBtn.Visible = false
-
-	randomEncounterBtn = makeBtn("RandomEncounterBtn", "Random Encounter")
-	randomEncounterBtn.LayoutOrder = 1
-
-	storyEncounterBtn = makeBtn("StoryEncounterBtn", "Story Encounter")
-	storyEncounterBtn.LayoutOrder = 2
+	prestigeBtn = buttonContainer:WaitForChild("PrestigeBtn")
+	randomEncounterBtn = buttonContainer:WaitForChild("RandomEncounterBtn")
+	storyEncounterBtn = buttonContainer:WaitForChild("StoryEncounterBtn")
 
 	randomEncounterBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.CombatAction:FireServer("EngageRandom") end)
 	storyEncounterBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.CombatAction:FireServer("EngageStory") end)
