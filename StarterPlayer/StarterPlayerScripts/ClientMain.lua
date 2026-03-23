@@ -8,18 +8,9 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local oldMenu = playerGui:FindFirstChild("JJBIMenu")
-if oldMenu then
-	oldMenu:Destroy()
-end
+local screenGui = playerGui:WaitForChild("JJBIMenu", 10)
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "JJBIMenu"
-screenGui.IgnoreGuiInset = true
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
-
-local UIModules = script.Parent:WaitForChild("UIModules")
+local UIModules = script.Parent:WaitForChild("UIModules", 10)
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local TooltipManager = require(UIModules:WaitForChild("TooltipManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
@@ -39,159 +30,94 @@ NotificationManager.Init(screenGui)
 GiftManager.Init(screenGui)
 FusionModal.Init(screenGui)
 
-local Network = ReplicatedStorage:WaitForChild("Network")
-local NotificationEvent = Network:WaitForChild("NotificationEvent")
-local CombatUpdate = Network:WaitForChild("CombatUpdate")
-local DungeonUpdate = Network:WaitForChild("DungeonUpdate")
+local Network = ReplicatedStorage:WaitForChild("Network", 10)
+local NotificationEvent = Network:WaitForChild("NotificationEvent", 10)
+local CombatUpdate = Network:WaitForChild("CombatUpdate", 10)
+local DungeonUpdate = Network:WaitForChild("DungeonUpdate", 10)
 
-NotificationEvent.OnClientEvent:Connect(function(msg)
-	NotificationManager.Show(msg)
-end)
-
-Network:WaitForChild("RedeemCode").OnClientEvent:Connect(function(msg)
-	if type(msg) == "string" then
+if NotificationEvent then
+	NotificationEvent.OnClientEvent:Connect(function(msg)
 		NotificationManager.Show(msg)
-	end
-end)
+	end)
+end
 
-Network:WaitForChild("ShopAction").OnClientEvent:Connect(function(action, data)
-	if type(action) == "string" and data == nil then
-		if action ~= "Refresh" and not string.match(action, "Prompt") then
-			NotificationManager.Show(action)
+local redeemCodeEvent = Network:FindFirstChild("RedeemCode")
+if redeemCodeEvent then
+	redeemCodeEvent.OnClientEvent:Connect(function(msg)
+		if type(msg) == "string" then
+			NotificationManager.Show(msg)
 		end
-	elseif type(data) == "string" and (action == "Notify" or action == "Notification" or action == "Message" or action == "Error" or action == "Success") then
-		NotificationManager.Show(data)
-	end
-end)
+	end)
+end
 
-CombatUpdate.OnClientEvent:Connect(function(action, data)
-	if action == "SystemMessage" then
-		CombatTab.SystemMessage(data)
-	elseif action == "TrainingTick" then
-		TrainingTab.OnTick(data)
-	else
-		CombatTab.UpdateCombat(action, data)
-	end
-end)
+local shopActionEvent = Network:FindFirstChild("ShopAction")
+if shopActionEvent then
+	shopActionEvent.OnClientEvent:Connect(function(action, data)
+		if type(action) == "string" and data == nil then
+			if action ~= "Refresh" and not string.match(action, "Prompt") then
+				NotificationManager.Show(action)
+			end
+		elseif type(data) == "string" and (action == "Notify" or action == "Notification" or action == "Message" or action == "Error" or action == "Success") then
+			NotificationManager.Show(data)
+		end
+	end)
+end
 
-DungeonUpdate.OnClientEvent:Connect(function(action, data)
-	if CombatTab.UpdateDungeon then
-		CombatTab.UpdateDungeon(action, data)
-	end
-end)
+if CombatUpdate then
+	CombatUpdate.OnClientEvent:Connect(function(action, data)
+		if action == "SystemMessage" then
+			CombatTab.SystemMessage(data)
+		elseif action == "TrainingTick" then
+			TrainingTab.OnTick(data)
+		else
+			CombatTab.UpdateCombat(action, data)
+		end
+	end)
+end
+
+if DungeonUpdate then
+	DungeonUpdate.OnClientEvent:Connect(function(action, data)
+		if CombatTab.UpdateDungeon then
+			CombatTab.UpdateDungeon(action, data)
+		end
+	end)
+end
 
 local function safeCall(func, action, data)
 	if func then func(action, data) end
 end
 
-Network:WaitForChild("GangUpdate").OnClientEvent:Connect(function(action, data)
-	safeCall(MultiplayerTab.HandleGangUpdate, action, data)
-end)
+local gangUpdate = Network:FindFirstChild("GangUpdate")
+if gangUpdate then gangUpdate.OnClientEvent:Connect(function(action, data) safeCall(MultiplayerTab.HandleGangUpdate, action, data) end) end
 
-Network:WaitForChild("ArenaUpdate").OnClientEvent:Connect(function(action, data)
-	safeCall(MultiplayerTab.HandleArenaUpdate, action, data)
-end)
+local arenaUpdate = Network:FindFirstChild("ArenaUpdate")
+if arenaUpdate then arenaUpdate.OnClientEvent:Connect(function(action, data) safeCall(MultiplayerTab.HandleArenaUpdate, action, data) end) end
 
-Network:WaitForChild("TradeUpdate").OnClientEvent:Connect(function(action, data)
-	safeCall(MultiplayerTab.HandleTradeUpdate, action, data)
-end)
+local tradeUpdate = Network:FindFirstChild("TradeUpdate")
+if tradeUpdate then tradeUpdate.OnClientEvent:Connect(function(action, data) safeCall(MultiplayerTab.HandleTradeUpdate, action, data) end) end
 
-local function applyDoubleGoldBorder(parent)
-	local parentCorner = parent:FindFirstChildOfClass("UICorner")
+local mainFrame = screenGui:WaitForChild("MainFrame", 10)
+local bgDecor = mainFrame:WaitForChild("BgDecor", 10)
+local bgPattern = bgDecor:WaitForChild("JoJoPattern", 10)
+local contentContainer = mainFrame:WaitForChild("ContentContainer", 10)
 
-	local outerStroke = Instance.new("UIStroke")
-	outerStroke.Thickness = 3
-	outerStroke.Color = Color3.fromRGB(255, 210, 60)
-	outerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	outerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+local navBar = mainFrame:WaitForChild("NavBar", 10)
+local navContainer = navBar:WaitForChild("NavContainer", 10)
+local uiListLayout = navContainer:WaitForChild("UIListLayout", 10)
 
-	local gradOut = Instance.new("UIGradient")
-	gradOut.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 160, 30)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 245, 150)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 30))
-	}
-	gradOut.Rotation = -45
-	gradOut.Parent = outerStroke
-	outerStroke.Parent = parent
+local topRightFrame = mainFrame:WaitForChild("TopRightFrame", 10)
+local topRightContainer = topRightFrame:WaitForChild("TopRightContainer", 10)
 
-	local innerFrame = Instance.new("Frame")
-	innerFrame.Name = "InnerGoldBorder"
-	innerFrame.Size = UDim2.new(1, -6, 1, -6)
-	innerFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	innerFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	innerFrame.BackgroundTransparency = 1
-	innerFrame.ZIndex = parent.ZIndex
-
-	if parentCorner then
-		local innerCorner = Instance.new("UICorner")
-		if parentCorner.CornerRadius.Scale > 0 then
-			innerCorner.CornerRadius = parentCorner.CornerRadius
-		else
-			local offset = math.max(0, parentCorner.CornerRadius.Offset - 3)
-			innerCorner.CornerRadius = UDim.new(0, offset)
-		end
-		innerCorner.Parent = innerFrame
-	end
-	innerFrame.Parent = parent
-
-	local innerStroke = Instance.new("UIStroke")
-	innerStroke.Thickness = 1
-	innerStroke.Color = Color3.fromRGB(255, 230, 100)
-	innerStroke.LineJoinMode = Enum.LineJoinMode.Round
-	innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-	local gradIn = Instance.new("UIGradient")
-	gradIn.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
-	}
-	gradIn.Rotation = 45
-	gradIn.Parent = innerStroke
-	innerStroke.Parent = innerFrame
-end
-
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(1, 0, 1, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
-
-local mainGrad = Instance.new("UIGradient")
-mainGrad.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 30, 180)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 10, 60))
-}
-mainGrad.Rotation = 90
-mainGrad.Parent = mainFrame
-
-local bgDecor = Instance.new("Frame")
-bgDecor.Name = "BgDecor"
-bgDecor.Size = UDim2.new(1, 0, 1, 0)
-bgDecor.BackgroundTransparency = 1
-bgDecor.ClipsDescendants = true
-bgDecor.Parent = mainFrame
-
-local bgPattern = Instance.new("ImageLabel")
-bgPattern.Name = "JoJoPattern"
-bgPattern.Image = "rbxassetid://134215233122387"
-bgPattern.ImageColor3 = Color3.fromRGB(200, 150, 255)
-bgPattern.ImageTransparency = 0.8
-bgPattern.BackgroundTransparency = 1
-bgPattern.ScaleType = Enum.ScaleType.Tile
-bgPattern.TileSize = UDim2.new(0, 1600, 0, 900)
-bgPattern.Size = UDim2.new(1.2, 0, 1.2, 0)
-bgPattern.Position = UDim2.new(-0.1, 0, -0.1, 0)
-bgPattern.ZIndex = 1
-bgPattern.Parent = bgDecor
+local boostBtn = topRightContainer:WaitForChild("BoostBtn", 10)
+local muteBtn = topRightContainer:WaitForChild("MuteBtn", 10)
+local navToggleBtn = topRightContainer:WaitForChild("NavToggleBtn", 10)
 
 local mouse = player:GetMouse()
 local camera = workspace.CurrentCamera
 
 RunService.RenderStepped:Connect(function()
 	local vp = camera.ViewportSize
-	if vp.X > 0 and vp.Y > 0 then
+	if vp.X > 0 and vp.Y > 0 and bgPattern then
 		local offsetX = (mouse.X / vp.X) - 0.5
 		local offsetY = (mouse.Y / vp.Y) - 0.5
 		local targetPos = UDim2.new(-0.1 - (offsetX * 0.05), 0, -0.1 - (offsetY * 0.05), 0)
@@ -199,190 +125,35 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
-task.spawn(function()
-	while true do
-		local symbol = Instance.new("ImageLabel")
-		symbol.Image = "rbxassetid://117109537400764"
-		symbol.BackgroundTransparency = 1
-		symbol.ImageColor3 = Color3.fromRGB(180, 80, 255)
-		symbol.ImageTransparency = 0.5
-		symbol.ScaleType = Enum.ScaleType.Fit
+local templateFolder = ReplicatedStorage:WaitForChild("JJBITemplates", 10)
+local symbolTemplate = templateFolder and templateFolder:WaitForChild("SymbolTemplate", 10)
 
-		local absSize = math.random(80, 160)
-		symbol.Size = UDim2.new(0, absSize, 0, absSize)
-		symbol.Position = UDim2.new(math.random(5, 95)/100, 0, 1.1, 0)
-		symbol.Rotation = math.random(-30, 30)
-		symbol.ZIndex = 1
-		symbol.Parent = bgDecor
+if symbolTemplate then
+	task.spawn(function()
+		while true do
+			local symbol = symbolTemplate:Clone()
 
-		local tInfo = TweenInfo.new(math.random(7, 14), Enum.EasingStyle.Linear)
-		local tween = TweenService:Create(symbol, tInfo, {
-			Position = UDim2.new(symbol.Position.X.Scale + (math.random(-15, 15)/100), 0, -0.2, 0),
-			ImageTransparency = 1
-		})
-		tween:Play()
-		tween.Completed:Connect(function() symbol:Destroy() end)
-		task.wait(math.random(5, 15)/10)
-	end
-end)
+			local absSize = math.random(80, 160)
+			symbol.Size = UDim2.new(0, absSize, 0, absSize)
+			symbol.Position = UDim2.new(math.random(5, 95)/100, 0, 1.1, 0)
+			symbol.Rotation = math.random(-30, 30)
+			symbol.Parent = bgDecor
 
-local contentContainer = Instance.new("Frame")
-contentContainer.Name = "ContentContainer"
-contentContainer.BackgroundTransparency = 1
-contentContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-contentContainer.Position = UDim2.new(0.5, 0, 0.45, 0)
-contentContainer.ZIndex = 5
-contentContainer.Parent = mainFrame
-
-local navBar = Instance.new("Frame")
-navBar.Name = "NavBar"
-navBar.BackgroundColor3 = Color3.fromRGB(25, 15, 45)
-navBar.AnchorPoint = Vector2.new(0.5, 1)
-navBar.Position = UDim2.new(0.5, 0, 1, -25)
-navBar.BorderSizePixel = 0
-navBar.ZIndex = 10
-navBar.Parent = mainFrame
-
-local navCorner = Instance.new("UICorner")
-navCorner.CornerRadius = UDim.new(0, 12)
-navCorner.Parent = navBar
-
-applyDoubleGoldBorder(navBar)
-
-local navContainer = Instance.new("Frame")
-navContainer.Name = "NavContainer"
-navContainer.Size = UDim2.new(1, -20, 1, -10)
-navContainer.Position = UDim2.new(0, 10, 0, 5)
-navContainer.BackgroundTransparency = 1
-navContainer.ZIndex = 11
-navContainer.Parent = navBar
-
-local uiListLayout = Instance.new("UIListLayout")
-uiListLayout.FillDirection = Enum.FillDirection.Horizontal
-uiListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-uiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-uiListLayout.Padding = UDim.new(0, 10)
-uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-uiListLayout.Parent = navContainer
-
-local topRightFrame = Instance.new("Frame")
-topRightFrame.Name = "TopRightFrame"
-topRightFrame.Size = UDim2.new(0, 200, 0, 60)
-topRightFrame.AnchorPoint = Vector2.new(1, 0)
-topRightFrame.Position = UDim2.new(1, -20, 0, 20)
-topRightFrame.BackgroundColor3 = Color3.fromRGB(25, 15, 45)
-topRightFrame.BorderSizePixel = 0
-topRightFrame.ZIndex = 10
-topRightFrame.Parent = mainFrame
-
-local trFrameCorner = Instance.new("UICorner")
-trFrameCorner.CornerRadius = UDim.new(0, 12)
-trFrameCorner.Parent = topRightFrame
-
-applyDoubleGoldBorder(topRightFrame)
-
-local topRightContainer = Instance.new("Frame")
-topRightContainer.Name = "TopRightContainer"
-topRightContainer.Size = UDim2.new(1, 0, 1, 0)
-topRightContainer.BackgroundTransparency = 1
-topRightContainer.ZIndex = 11
-topRightContainer.Parent = topRightFrame
-
-local topRightLayout = Instance.new("UIListLayout")
-topRightLayout.FillDirection = Enum.FillDirection.Horizontal
-topRightLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-topRightLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-topRightLayout.Padding = UDim.new(0, 10)
-topRightLayout.SortOrder = Enum.SortOrder.LayoutOrder
-topRightLayout.Parent = topRightContainer
-
-local boostBtn = Instance.new("TextButton")
-boostBtn.Name = "BoostBtn"
-boostBtn.Size = UDim2.new(0, 40, 0, 40)
-boostBtn.Text = "⚡"
-boostBtn.TextScaled = true
-boostBtn.Font = Enum.Font.GothamBold
-boostBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
-boostBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-boostBtn.BorderSizePixel = 0
-boostBtn.LayoutOrder = 1
-boostBtn.ZIndex = 12
-boostBtn.Parent = topRightContainer
-
-local boostBtnUic = Instance.new("UITextSizeConstraint")
-boostBtnUic.MaxTextSize = 35
-boostBtnUic.MinTextSize = 1
-boostBtnUic.Parent = boostBtn
-
-local boostCorner = Instance.new("UICorner")
-boostCorner.CornerRadius = UDim.new(0, 8)
-boostCorner.Parent = boostBtn
-
-local boostStroke = Instance.new("UIStroke")
-boostStroke.Color = Color3.fromRGB(90, 50, 120)
-boostStroke.Thickness = 1
-boostStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-boostStroke.Parent = boostBtn
-
-local muteBtn = Instance.new("TextButton")
-muteBtn.Name = "MuteBtn"
-muteBtn.Size = UDim2.new(0, 40, 0, 40)
-muteBtn.Text = "🔊"
-muteBtn.TextScaled = true
-muteBtn.Font = Enum.Font.GothamBold
-muteBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
-muteBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-muteBtn.BorderSizePixel = 0
-muteBtn.LayoutOrder = 2
-muteBtn.ZIndex = 12
-muteBtn.Parent = topRightContainer
-
-local muteBtnUic = Instance.new("UITextSizeConstraint")
-muteBtnUic.MaxTextSize = 35
-muteBtnUic.MinTextSize = 1
-muteBtnUic.Parent = muteBtn
-
-local muteCorner = Instance.new("UICorner")
-muteCorner.CornerRadius = UDim.new(0, 8)
-muteCorner.Parent = muteBtn
-
-local muteStroke = Instance.new("UIStroke")
-muteStroke.Color = Color3.fromRGB(90, 50, 120)
-muteStroke.Thickness = 1
-muteStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-muteStroke.Parent = muteBtn
-
-local navToggleBtn = Instance.new("TextButton")
-navToggleBtn.Name = "NavToggleBtn"
-navToggleBtn.Size = UDim2.new(0, 40, 0, 40)
-navToggleBtn.Text = "⬇"
-navToggleBtn.TextScaled = true
-navToggleBtn.Font = Enum.Font.GothamBold
-navToggleBtn.TextColor3 = Color3.fromRGB(255, 235, 130)
-navToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-navToggleBtn.BorderSizePixel = 0
-navToggleBtn.LayoutOrder = 3
-navToggleBtn.ZIndex = 12
-navToggleBtn.Parent = topRightContainer
-
-local toggleBtnUic = Instance.new("UITextSizeConstraint")
-toggleBtnUic.MaxTextSize = 35
-toggleBtnUic.MinTextSize = 1
-toggleBtnUic.Parent = navToggleBtn
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 8)
-toggleCorner.Parent = navToggleBtn
-
-local toggleBtnStroke = Instance.new("UIStroke")
-toggleBtnStroke.Color = Color3.fromRGB(90, 50, 120)
-toggleBtnStroke.Thickness = 1
-toggleBtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-toggleBtnStroke.Parent = navToggleBtn
+			local tInfo = TweenInfo.new(math.random(7, 14), Enum.EasingStyle.Linear)
+			local tween = TweenService:Create(symbol, tInfo, {
+				Position = UDim2.new(symbol.Position.X.Scale + (math.random(-15, 15)/100), 0, -0.2, 0),
+				ImageTransparency = 1
+			})
+			tween:Play()
+			tween.Completed:Connect(function() symbol:Destroy() end)
+			task.wait(math.random(5, 15)/10)
+		end
+	end)
+end
 
 local function applyMuteState()
 	local isCurrentlyMuted = player:GetAttribute("IsMuted") or false
-	muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊"
+	if muteBtn then muteBtn.Text = isCurrentlyMuted and "🔈" or "🔊" end
 	local bgm = SoundService:FindFirstChild("BizarreBGM")
 	if bgm then
 		bgm.Volume = isCurrentlyMuted and 0 or 0.4
@@ -396,13 +167,15 @@ task.spawn(function()
 	applyMuteState()
 end)
 
-muteBtn.MouseButton1Click:Connect(function()
-	SFXManager.Play("Click")
-	local currentState = player:GetAttribute("IsMuted") or false
-	local newState = not currentState
-	player:SetAttribute("IsMuted", newState)
-	Network:WaitForChild("ToggleMute"):FireServer(newState)
-end)
+if muteBtn then
+	muteBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		local currentState = player:GetAttribute("IsMuted") or false
+		local newState = not currentState
+		player:SetAttribute("IsMuted", newState)
+		Network:WaitForChild("ToggleMute"):FireServer(newState)
+	end)
+end
 
 local function GetActiveBoostsText()
 	local text = "<b><font color='#FFD700'>GLOBAL BOOSTS</font></b>\n____________________\n\n"
@@ -429,128 +202,21 @@ local function GetActiveBoostsText()
 	return text
 end
 
-boostBtn.MouseEnter:Connect(function()
-	TooltipManager.Show(GetActiveBoostsText())
-end)
-
-boostBtn.MouseLeave:Connect(function()
-	TooltipManager.Hide()
-end)
-
-boostBtn.MouseButton1Click:Connect(function()
-	SFXManager.Play("Click")
-	Network:WaitForChild("BoostAction"):FireServer("CheckSupporter")
-end)
+if boostBtn then
+	boostBtn.MouseEnter:Connect(function() TooltipManager.Show(GetActiveBoostsText()) end)
+	boostBtn.MouseLeave:Connect(function() TooltipManager.Hide() end)
+	boostBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network:WaitForChild("BoostAction"):FireServer("CheckSupporter")
+	end)
+end
 
 local TabFrames = {}
 local tabs = {"Singleplayer", "Inventory", "Shop", "Multiplayer", "Training", "Updates"}
 
-local genericIcons = {
-	"rbxassetid://133872443057434",
-	"rbxassetid://131461796289216", 
-	"rbxassetid://124294007761753", 
-	"rbxassetid://84309428370700", 
-	"rbxassetid://122351196100525", 
-	"rbxassetid://119375458206372"
-}
-
-for i, tabName in ipairs(tabs) do
-	local frameName = tabName .. "Frame"
-	local frame = Instance.new("Frame")
-	frame.Name = frameName
-	frame.Size = UDim2.new(1, 0, 1, 0)
-	frame.BackgroundTransparency = 1
-	frame.Visible = false
-	frame.ZIndex = 5
-	frame.Parent = contentContainer
-
-	local tempLabel = Instance.new("TextLabel")
-	tempLabel.Size = UDim2.new(1, 0, 1, 0)
-	tempLabel.BackgroundTransparency = 1
-	tempLabel.Text = tabName .. " View"
-	tempLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	tempLabel.TextScaled = true
-	tempLabel.Font = Enum.Font.GothamBold
-	tempLabel.ZIndex = 6
-	tempLabel.Parent = frame
-
-	local uic = Instance.new("UITextSizeConstraint")
-	uic.MaxTextSize = 50
-	uic.Parent = tempLabel
-
-	TabFrames[tabName] = frame
-
-	local btn = Instance.new("TextButton")
-	btn.Name = tabName .. "Button"
-	btn.Text = ""
-	btn.AutoButtonColor = false
-	btn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-	btn.BorderSizePixel = 0
-	btn.LayoutOrder = i
-	btn.ZIndex = 12
-	btn.Parent = navContainer
-
-	local btnCorner = Instance.new("UICorner")
-	btnCorner.CornerRadius = UDim.new(0, 8)
-	btnCorner.Parent = btn
-
-	local btnStroke = Instance.new("UIStroke")
-	btnStroke.Color = Color3.fromRGB(90, 50, 120)
-	btnStroke.Thickness = 1
-	btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	btnStroke.Parent = btn
-
-	local iconContainer = Instance.new("Frame")
-	iconContainer.Name = "IconContainer"
-	iconContainer.Size = UDim2.new(0.8, 0, 0.8, 0)
-	iconContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-	iconContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-	iconContainer.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
-	iconContainer.BorderSizePixel = 0
-	iconContainer.ZIndex = 13
-	iconContainer.Parent = btn
-
-	local iconAspect = Instance.new("UIAspectRatioConstraint")
-	iconAspect.AspectRatio = 1
-	iconAspect.AspectType = Enum.AspectType.FitWithinMaxSize
-	iconAspect.DominantAxis = Enum.DominantAxis.Height
-	iconAspect.Parent = iconContainer
-
-	local iconContainerCorner = Instance.new("UICorner")
-	iconContainerCorner.CornerRadius = UDim.new(0, 6)
-	iconContainerCorner.Parent = iconContainer
-
-	local iconStroke = Instance.new("UIStroke")
-	iconStroke.Color = Color3.fromRGB(90, 50, 120)
-	iconStroke.Thickness = 1
-	iconStroke.Parent = iconContainer
-
-	local icon = Instance.new("ImageLabel")
-	icon.Name = "Icon"
-	icon.Size = UDim2.new(0.8, 0, 0.8, 0)
-	icon.Position = UDim2.new(0.5, 0, 0.5, 0)
-	icon.AnchorPoint = Vector2.new(0.5, 0.5)
-	icon.BackgroundTransparency = 1
-	icon.Image = genericIcons[i]
-	icon.ImageColor3 = Color3.new(1, 1, 1)
-	icon.ScaleType = Enum.ScaleType.Fit
-	icon.ZIndex = 14
-	icon.Parent = iconContainer
-
-	local title = Instance.new("TextLabel")
-	title.Name = "Title"
-	title.BackgroundTransparency = 1
-	title.Text = tabName:upper()
-	title.Font = Enum.Font.GothamBold
-	title.TextColor3 = Color3.fromRGB(220, 220, 220)
-	title.TextScaled = false
-	title.TextWrapped = false
-	title.Size = UDim2.new(1, -60, 0.85, 0)
-	title.Position = UDim2.new(0, 55, 0.5, 0)
-	title.AnchorPoint = Vector2.new(0, 0.5)
-	title.TextXAlignment = Enum.TextXAlignment.Center
-	title.ZIndex = 13
-	title.Parent = btn
+for _, tabName in ipairs(tabs) do
+	local frame = contentContainer:WaitForChild(tabName .. "Frame", 5)
+	if frame then TabFrames[tabName] = frame end
 end
 
 local activeTab = "Updates"
@@ -558,8 +224,9 @@ local currentLayoutState = "Large"
 
 local function refreshButtons()
 	local vp = camera.ViewportSize
-	local btnCount = #tabs
+	if vp.X == 0 then return end -- Failsafe to prevent 0x0 scale errors
 
+	local btnCount = #tabs
 	local navWidthLarge = vp.X * 0.85
 	local btnWidthLarge = (navWidthLarge / btnCount) - 15
 	local textSpaceLarge = btnWidthLarge - 60
@@ -645,18 +312,20 @@ local function SwitchTab(targetTabName)
 end
 
 for _, tabName in ipairs(tabs) do
-	local btn = navContainer:FindFirstChild(tabName .. "Button")
-	btn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		SwitchTab(tabName)
-	end)
+	local btn = navContainer:WaitForChild(tabName .. "Button", 5)
+	if btn then
+		btn.MouseButton1Click:Connect(function()
+			SFXManager.Play("Click")
+			SwitchTab(tabName)
+		end)
+	end
 end
 
 local isNavOpen = true
 
 local function ToggleNav()
 	isNavOpen = not isNavOpen
-	navToggleBtn.Text = isNavOpen and "⬇" or "⬆"
+	if navToggleBtn then navToggleBtn.Text = isNavOpen and "⬇" or "⬆" end
 
 	local targetY = isNavOpen and UDim2.new(0.5, 0, 1, -25) or UDim2.new(0.5, 0, 1, 100)
 	TweenService:Create(navBar, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -679,10 +348,12 @@ local function ToggleNav()
 	}):Play()
 end
 
-navToggleBtn.MouseButton1Click:Connect(function()
-	SFXManager.Play("Click")
-	ToggleNav()
-end)
+if navToggleBtn then
+	navToggleBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		ToggleNav()
+	end)
+end
 
 local keyMap = { 
 	[Enum.KeyCode.One] = 1, [Enum.KeyCode.KeypadOne] = 1,
@@ -708,6 +379,7 @@ end)
 
 local function UpdateLayoutForScreen()
 	local vp = camera.ViewportSize
+	if vp.X == 0 then return end -- Failsafe check 
 
 	if vp.X >= 1050 then
 		currentLayoutState = "Large"
@@ -715,30 +387,30 @@ local function UpdateLayoutForScreen()
 		topRightFrame.Size = UDim2.new(0, 180, 0, 65)
 		topRightFrame.Position = UDim2.new(1, -20, 0, 20)
 		contentContainer.Size = isNavOpen and UDim2.new(0.8, 0, 0.75, 0) or UDim2.new(0.8, 0, 0.9, 0)
-		uiListLayout.Padding = UDim.new(0, 10)
-		boostBtn.Size = UDim2.new(0, 45, 0, 45)
-		muteBtn.Size = UDim2.new(0, 45, 0, 45)
-		navToggleBtn.Size = UDim2.new(0, 45, 0, 45)
+		if uiListLayout then uiListLayout.Padding = UDim.new(0, 10) end
+		if boostBtn then boostBtn.Size = UDim2.new(0, 45, 0, 45) end
+		if muteBtn then muteBtn.Size = UDim2.new(0, 45, 0, 45) end
+		if navToggleBtn then navToggleBtn.Size = UDim2.new(0, 45, 0, 45) end
 	elseif vp.X >= 600 and vp.X < 1050 then
 		currentLayoutState = "Medium"
 		navBar.Size = UDim2.new(0.95, 0, 0, 70)
 		topRightFrame.Size = UDim2.new(0, 170, 0, 60)
 		topRightFrame.Position = UDim2.new(1, -15, 0, 15)
 		contentContainer.Size = isNavOpen and UDim2.new(0.85, 0, 0.75, 0) or UDim2.new(0.85, 0, 0.9, 0)
-		uiListLayout.Padding = UDim.new(0, 8)
-		boostBtn.Size = UDim2.new(0, 40, 0, 40)
-		muteBtn.Size = UDim2.new(0, 40, 0, 40)
-		navToggleBtn.Size = UDim2.new(0, 40, 0, 40)
+		if uiListLayout then uiListLayout.Padding = UDim.new(0, 8) end
+		if boostBtn then boostBtn.Size = UDim2.new(0, 40, 0, 40) end
+		if muteBtn then muteBtn.Size = UDim2.new(0, 40, 0, 40) end
+		if navToggleBtn then navToggleBtn.Size = UDim2.new(0, 40, 0, 40) end
 	else
 		currentLayoutState = "Small"
 		navBar.Size = UDim2.new(0.95, 0, 0, 65)
 		topRightFrame.Size = UDim2.new(0, 160, 0, 55)
 		topRightFrame.Position = UDim2.new(1, -10, 0, 10)
 		contentContainer.Size = isNavOpen and UDim2.new(0.95, 0, 0.75, 0) or UDim2.new(0.95, 0, 0.9, 0)
-		uiListLayout.Padding = UDim.new(0, 5)
-		boostBtn.Size = UDim2.new(0, 35, 0, 35)
-		muteBtn.Size = UDim2.new(0, 35, 0, 35)
-		navToggleBtn.Size = UDim2.new(0, 35, 0, 35)
+		if uiListLayout then uiListLayout.Padding = UDim.new(0, 5) end
+		if boostBtn then boostBtn.Size = UDim2.new(0, 35, 0, 35) end
+		if muteBtn then muteBtn.Size = UDim2.new(0, 35, 0, 35) end
+		if navToggleBtn then navToggleBtn.Size = UDim2.new(0, 35, 0, 35) end
 	end
 
 	navBar.Position = isNavOpen and UDim2.new(0.5, 0, 1, -25) or UDim2.new(0.5, 0, 1, 100)
@@ -748,12 +420,13 @@ end
 camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 UpdateLayoutForScreen()
 
-CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab)
-InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab)
-UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab)
-TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab)
-ShopTab.Init(TabFrames["Shop"], TooltipManager)
-MultiplayerTab.Init(TabFrames["Multiplayer"], TooltipManager, SwitchTab)
+-- Initialize Tabs 
+if TabFrames["Singleplayer"] then CombatTab.Init(TabFrames["Singleplayer"], TooltipManager, SwitchTab) end
+if TabFrames["Inventory"] then InventoryTab.Init(TabFrames["Inventory"], TooltipManager, SwitchTab) end
+if TabFrames["Updates"] then UpdatesTab.Init(TabFrames["Updates"], TooltipManager, SwitchTab) end
+if TabFrames["Training"] then TrainingTab.Init(TabFrames["Training"], TooltipManager, SwitchTab) end
+if TabFrames["Shop"] then ShopTab.Init(TabFrames["Shop"], TooltipManager) end
+if TabFrames["Multiplayer"] then MultiplayerTab.Init(TabFrames["Multiplayer"], TooltipManager, SwitchTab) end
 
 TutorialManager.Init(mainFrame, SwitchTab)
 SwitchTab("Updates")
