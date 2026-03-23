@@ -87,6 +87,7 @@ end
 
 local function UpdateTabSizes()
 	local visibleTabs = 0
+	if not tabContainer then return end
 	for _, btn in ipairs(tabContainer:GetChildren()) do
 		if btn:IsA("TextButton") and btn.Visible then
 			visibleTabs += 1
@@ -102,20 +103,22 @@ end
 
 local function SelectTab(tabName)
 	SFXManager.Play("Click")
-	infoPage.Visible = (tabName == "Info")
-	upgPage.Visible = (tabName == "Upgrades")
-	ordPage.Visible = (tabName == "Orders")
-	settingsPage.Visible = (tabName == "Settings")
+	if infoPage then infoPage.Visible = (tabName == "Info") end
+	if upgPage then upgPage.Visible = (tabName == "Upgrades") end
+	if ordPage then ordPage.Visible = (tabName == "Orders") end
+	if settingsPage then settingsPage.Visible = (tabName == "Settings") end
 
-	for _, btn in ipairs(tabContainer:GetChildren()) do
-		if btn:IsA("TextButton") then
-			local isSel = (btn.Name == "Btn" .. tabName)
-			btn.BackgroundColor3 = isSel and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
-			btn.TextColor3 = isSel and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
-			local str = btn:FindFirstChildOfClass("UIStroke")
-			if str then
-				str.Color = isSel and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(90, 50, 120)
-				str.Thickness = isSel and 2 or 1
+	if tabContainer then
+		for _, btn in ipairs(tabContainer:GetChildren()) do
+			if btn:IsA("TextButton") then
+				local isSel = (btn.Name == "Btn" .. tabName)
+				btn.BackgroundColor3 = isSel and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
+				btn.TextColor3 = isSel and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
+				local str = btn:FindFirstChildOfClass("UIStroke")
+				if str then
+					str.Color = isSel and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(90, 50, 120)
+					str.Thickness = isSel and 2 or 1
+				end
 			end
 		end
 	end
@@ -294,6 +297,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	GangUpdate.OnClientEvent:Connect(function(action, data)
 		if action == "BrowserSync" then
+			if not browserList then return end
 			for _, c in pairs(browserList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
 
 			if #data == 0 then
@@ -327,8 +331,10 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 				row:FindFirstChild("JoinBtn").MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("RequestJoin", g.Name) end)
 			end
 			task.delay(0.05, function()
-				local l = browserList:FindFirstChildWhichIsA("UIListLayout")
-				if l then browserList.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
+				if browserList then
+					local l = browserList:FindFirstChildWhichIsA("UIListLayout")
+					if l then browserList.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
+				end
 			end)
 
 		elseif action == "Sync" then
@@ -352,12 +358,12 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 			if ordPage and ordPage.Visible and lastOrderResetTime > 0 then
 				local timeLeft = math.max(0, (lastOrderResetTime + 86400) - os.time())
 				if timeLeft <= 0 then
-					ordersTimerLbl.Text = "Generating new orders..."
+					if ordersTimerLbl then ordersTimerLbl.Text = "Generating new orders..." end
 				else
 					local h = math.floor(timeLeft / 3600)
 					local m = math.floor((timeLeft % 3600) / 60)
 					local s = timeLeft % 60
-					ordersTimerLbl.Text = string.format("Next Orders in: %02d:%02d:%02d", h, m, s)
+					if ordersTimerLbl then ordersTimerLbl.Text = string.format("Next Orders in: %02d:%02d:%02d", h, m, s) end
 				end
 			end
 
@@ -385,10 +391,10 @@ function GangsTab.HandleUpdate(action, data)
 		lastOrderResetTime = 0
 		activeUpgradeFinishTime = 0
 		activeUpgradeBtnRef = nil
-		for _, c in pairs(membersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-		for _, c in pairs(requestsList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-		for _, c in pairs(buildingList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-		for _, c in pairs(ordersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		if membersList then for _, c in pairs(membersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end end
+		if requestsList then for _, c in pairs(requestsList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end end
+		if buildingList then for _, c in pairs(buildingList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end end
+		if ordersList then for _, c in pairs(ordersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end end
 		return
 	end
 
@@ -399,29 +405,33 @@ function GangsTab.HandleUpdate(action, data)
 	local myRole = data.MyRole
 	local myPower = RolePower[myRole] or 1
 
-	local settingsTabBtn = tabContainer:FindFirstChild("BtnSettings")
-	if settingsTabBtn then
-		settingsTabBtn.Visible = (myRole == "Boss")
-		UpdateTabSizes()
+	if tabContainer then
+		local settingsTabBtn = tabContainer:FindFirstChild("BtnSettings")
+		if settingsTabBtn then
+			settingsTabBtn.Visible = (myRole == "Boss")
+			UpdateTabSizes()
+		end
 	end
 
 	if settingsPage and settingsPage.Visible and myRole ~= "Boss" then
-		for _, btn in ipairs(tabContainer:GetChildren()) do
-			if btn:IsA("TextButton") then
-				local isSel = (btn.Name == "BtnInfo")
-				btn.BackgroundColor3 = isSel and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
-				btn.TextColor3 = isSel and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
-				local str = btn:FindFirstChildOfClass("UIStroke")
-				if str then
-					str.Color = isSel and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(90, 50, 120)
-					str.Thickness = isSel and 2 or 1
+		if tabContainer then
+			for _, btn in ipairs(tabContainer:GetChildren()) do
+				if btn:IsA("TextButton") then
+					local isSel = (btn.Name == "BtnInfo")
+					btn.BackgroundColor3 = isSel and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
+					btn.TextColor3 = isSel and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
+					local str = btn:FindFirstChildOfClass("UIStroke")
+					if str then
+						str.Color = isSel and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(90, 50, 120)
+						str.Thickness = isSel and 2 or 1
+					end
 				end
 			end
 		end
-		infoPage.Visible = true
-		upgPage.Visible = false
-		ordPage.Visible = false
-		settingsPage.Visible = false
+		if infoPage then infoPage.Visible = true end
+		if upgPage then upgPage.Visible = false end
+		if ordPage then ordPage.Visible = false end
+		if settingsPage then settingsPage.Visible = false end
 	end
 
 	if titleLabel then titleLabel.Text = gData.Name:upper() .. " <font size='16' color='#AAAAAA'>(" .. (gData.MemberCount or 1) .. "/30)</font>" end
@@ -458,147 +468,161 @@ function GangsTab.HandleUpdate(action, data)
 	local shouldShowRequests = (myPower >= RolePower["Caporegime"]) and (gData.JoinMode == "Request")
 	if requestsCard then
 		if shouldShowRequests then 
-			requestsCard.Visible = true; membersCard.Size = UDim2.new(0.68, 0, 1, 0)
+			requestsCard.Visible = true; 
+			if membersCard then membersCard.Size = UDim2.new(0.68, 0, 1, 0) end
 		else 
-			requestsCard.Visible = false; membersCard.Size = UDim2.new(1, 0, 1, 0) 
+			requestsCard.Visible = false; 
+			if membersCard then membersCard.Size = UDim2.new(1, 0, 1, 0) end
 		end
 	end
 
-	for _, c in pairs(membersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-	local memArray = {}
-	for _, mem in ipairs(gData.Members) do table.insert(memArray, mem) end
-	table.sort(memArray, function(a, b) 
-		local pa = RolePower[a.Role] or 1; local pb = RolePower[b.Role] or 1
-		if pa == pb then return a.Name < b.Name else return pa > pb end
-	end)
-
-	local customRoles = gData.RoleNames or {}
-	for _, mem in ipairs(memArray) do
-		local uIdStr = tostring(mem.UserId)
-		local targetPower = RolePower[mem.Role] or 1
-
-		local row = memTemplate:Clone()
-		row.Visible = true
-		row.Parent = membersList
-
-		local statCol = mem.IsOnline and "#55FF55" or "#AAAAAA"
-		local displayRoleName = customRoles[mem.Role] or mem.Role
-
-		row:FindFirstChild("NameLabel").Text = "<b>" .. mem.Name .. "</b> <font color='"..statCol.."'>●</font> <b><font color='" .. (RoleColors[mem.Role] or "#FFFFFF") .. "'>(" .. displayRoleName .. ")</font></b>"
-		row:FindFirstChild("TimeLabel").Text = FormatTimeAgo(mem.LastOnline)
-
-		row.MouseEnter:Connect(function()
-			if cachedTooltipMgr and cachedTooltipMgr.Show then
-				cachedTooltipMgr.Show(string.format("<b>%s</b>, %s\n<font color='#55FFFF'>Prestige %d</font>, <font color='#AAAAAA'>%s</font>\n<font color='#55FF55'>Treasury Contribution: ¥%s</font>", mem.Name, FormatTimeAgo(mem.LastOnline), mem.Prestige or 0, FormatPlayTime(mem.PlayTime or 0), FormatNumber(mem.Contribution or 0)))
-			end
+	if membersList then
+		for _, c in pairs(membersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		local memArray = {}
+		for _, mem in ipairs(gData.Members) do table.insert(memArray, mem) end
+		table.sort(memArray, function(a, b) 
+			local pa = RolePower[a.Role] or 1; local pb = RolePower[b.Role] or 1
+			if pa == pb then return a.Name < b.Name else return pa > pb end
 		end)
-		row.MouseLeave:Connect(function() if cachedTooltipMgr and cachedTooltipMgr.Hide then cachedTooltipMgr.Hide() end end)
 
-		local acts = row:FindFirstChild("Actions")
-		if acts then
-			local kBtn = acts:FindFirstChild("KickBtn"); local pBtn = acts:FindFirstChild("PromoteBtn"); local dBtn = acts:FindFirstChild("DemoteBtn")
+		local customRoles = gData.RoleNames or {}
+		for _, mem in ipairs(memArray) do
+			local uIdStr = tostring(mem.UserId)
+			local targetPower = RolePower[mem.Role] or 1
 
-			if uIdStr ~= tostring(player.UserId) then
-				if myRole == "Boss" then
-					kBtn.Visible = true; pBtn.Visible = (mem.Role ~= "Consigliere"); dBtn.Visible = (mem.Role ~= "Grunt")
-				elseif myRole == "Consigliere" and targetPower <= RolePower["Caporegime"] then
-					kBtn.Visible = true
-				end
-
-				local pk = false
-				kBtn.MouseButton1Click:Connect(function()
-					SFXManager.Play("Click")
-					if pk then Network.GangAction:FireServer("Kick", mem.UserId)
-					else pk = true; kBtn.Text = "Sure?"; task.delay(3, function() if pk then pk = false; kBtn.Text = "Kick" end end) end
-				end)
-				pBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Promote", mem.UserId) end)
-				dBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Demote", mem.UserId) end)
-			end
-		end
-	end
-	task.delay(0.05, function()
-		local l = membersList:FindFirstChildWhichIsA("UIListLayout")
-		if l then membersList.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
-	end)
-
-	for _, c in pairs(requestsList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-	if shouldShowRequests and gData.Requests then
-		for uId, reqName in pairs(gData.Requests) do
-			local row = reqTemplate:Clone()
+			local row = memTemplate:Clone()
 			row.Visible = true
-			row.Parent = requestsList
-			row:FindFirstChild("NameLabel").Text = reqName
-			row:FindFirstChild("YesBtn").MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("AcceptRequest", uId) end)
-			row:FindFirstChild("NoBtn").MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("DenyRequest", uId) end)
+			row.Parent = membersList
+
+			local statCol = mem.IsOnline and "#55FF55" or "#AAAAAA"
+			local displayRoleName = customRoles[mem.Role] or mem.Role
+
+			row:FindFirstChild("NameLabel").Text = "<b>" .. mem.Name .. "</b> <font color='"..statCol.."'>●</font> <b><font color='" .. (RoleColors[mem.Role] or "#FFFFFF") .. "'>(" .. displayRoleName .. ")</font></b>"
+			row:FindFirstChild("TimeLabel").Text = FormatTimeAgo(mem.LastOnline)
+
+			row.MouseEnter:Connect(function()
+				if cachedTooltipMgr and cachedTooltipMgr.Show then
+					cachedTooltipMgr.Show(string.format("<b>%s</b>, %s\n<font color='#55FFFF'>Prestige %d</font>, <font color='#AAAAAA'>%s</font>\n<font color='#55FF55'>Treasury Contribution: ¥%s</font>", mem.Name, FormatTimeAgo(mem.LastOnline), mem.Prestige or 0, FormatPlayTime(mem.PlayTime or 0), FormatNumber(mem.Contribution or 0)))
+				end
+			end)
+			row.MouseLeave:Connect(function() if cachedTooltipMgr and cachedTooltipMgr.Hide then cachedTooltipMgr.Hide() end end)
+
+			local acts = row:FindFirstChild("Actions")
+			if acts then
+				local kBtn = acts:FindFirstChild("KickBtn"); local pBtn = acts:FindFirstChild("PromoteBtn"); local dBtn = acts:FindFirstChild("DemoteBtn")
+
+				if uIdStr ~= tostring(player.UserId) then
+					if myRole == "Boss" then
+						kBtn.Visible = true; pBtn.Visible = (mem.Role ~= "Consigliere"); dBtn.Visible = (mem.Role ~= "Grunt")
+					elseif myRole == "Consigliere" and targetPower <= RolePower["Caporegime"] then
+						kBtn.Visible = true
+					end
+
+					local pk = false
+					kBtn.MouseButton1Click:Connect(function()
+						SFXManager.Play("Click")
+						if pk then Network.GangAction:FireServer("Kick", mem.UserId)
+						else pk = true; kBtn.Text = "Sure?"; task.delay(3, function() if pk then pk = false; kBtn.Text = "Kick" end end) end
+					end)
+					pBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Promote", mem.UserId) end)
+					dBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("Demote", mem.UserId) end)
+				end
+			end
 		end
 		task.delay(0.05, function()
-			local l = requestsList:FindFirstChildWhichIsA("UIListLayout")
-			if l then requestsList.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
+			if membersList then
+				local l = membersList:FindFirstChildWhichIsA("UIListLayout")
+				if l then membersList.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
+			end
 		end)
 	end
 
-	for _, c in pairs(buildingList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-	local bConfigs = {
-		{Id = "Vault", Name = "The Vault", Desc = "+5% Yen Gain per level.", Max = 10, ReqLevel = 1},
-		{Id = "Dojo", Name = "Training Hall", Desc = "+5% XP Gain per level.", Max = 10, ReqLevel = 2},
-		{Id = "Market", Name = "Black Market", Desc = "+5 Inventory Slots per level.", Max = 7, ReqLevel = 3},
-		{Id = "Shrine", Name = "Saint's Church", Desc = "+1 Luck per level.", Max = 3, ReqLevel = 4},
-		{Id = "Armory", Name = "Armory", Desc = "+5% Damage per level.", Max = 5, ReqLevel = 5}
-	}
-
-	activeUpgradeFinishTime = gData.ActiveUpgrade and gData.ActiveUpgrade.FinishTime or 0
-	local activeUpgradeId = gData.ActiveUpgrade and gData.ActiveUpgrade.Id or nil
-	activeUpgradeBtnRef = nil
-
-	for _, conf in ipairs(bConfigs) do
-		local row = buildTpl:Clone(); row.Visible = true; row.Parent = buildingList
-		local cLvl = (gData.Buildings and gData.Buildings[conf.Id]) or 0
-		row:FindFirstChild("NameLabel").Text = conf.Name .. " <font color='#FFFFFF'>(Lv."..cLvl.."/"..conf.Max..")</font>"
-		row:FindFirstChild("DescLbl").Text = conf.Desc
-
-		local uBtn = row:FindFirstChild("UpgradeBtn")
-		local costLbl = row:FindFirstChild("CostLbl")
-
-		if cLvl < conf.Max then
-			costLbl.Text = "Cost: ¥100,000,000"
-			if activeUpgradeId == conf.Id then activeUpgradeBtnRef = uBtn; uBtn.Text = "Starting..."; uBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 20)
-			elseif activeUpgradeId ~= nil then uBtn.Text = "Busy"; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-			elseif level < conf.ReqLevel then uBtn.Text = "Requires Gang Lv." .. conf.ReqLevel; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-			else uBtn.Text = "Upgrade"; uBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("UpgradeBuilding", conf.Id) end) end
-			if myPower < RolePower["Consigliere"] then uBtn.Visible = false end
-		else
-			costLbl.Text = "<font color='#FFD700'>MAX LEVEL REACHED</font>"
-			uBtn.Visible = false
+	if requestsList then
+		for _, c in pairs(requestsList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		if shouldShowRequests and gData.Requests then
+			for uId, reqName in pairs(gData.Requests) do
+				local row = reqTemplate:Clone()
+				row.Visible = true
+				row.Parent = requestsList
+				row:FindFirstChild("NameLabel").Text = reqName
+				row:FindFirstChild("YesBtn").MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("AcceptRequest", uId) end)
+				row:FindFirstChild("NoBtn").MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("DenyRequest", uId) end)
+			end
+			task.delay(0.05, function()
+				if requestsList then
+					local l = requestsList:FindFirstChildWhichIsA("UIListLayout")
+					if l then requestsList.CanvasSize = UDim2.new(0, 0, 0, l.AbsoluteContentSize.Y + 10) end
+				end
+			end)
 		end
 	end
 
-	for _, c in pairs(ordersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-	if gData.Orders then
-		for i, ord in ipairs(gData.Orders) do
-			local row = ordTpl:Clone()
-			row.Visible = true 
-			row.Parent = ordersList
-			row:FindFirstChild("ProgBg"):FindFirstChild("Fill").Size = UDim2.new(math.clamp(ord.Progress / ord.Target, 0, 1), 0, 1, 0)
-			row:FindFirstChild("ProgBg"):FindFirstChild("ProgTxt").Text = FormatNumber(ord.Progress) .. " / " .. FormatNumber(ord.Target)
+	if buildingList then
+		for _, c in pairs(buildingList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		local bConfigs = {
+			{Id = "Vault", Name = "The Vault", Desc = "+5% Yen Gain per level.", Max = 10, ReqLevel = 1},
+			{Id = "Dojo", Name = "Training Hall", Desc = "+5% XP Gain per level.", Max = 10, ReqLevel = 2},
+			{Id = "Market", Name = "Black Market", Desc = "+5 Inventory Slots per level.", Max = 7, ReqLevel = 3},
+			{Id = "Shrine", Name = "Saint's Church", Desc = "+1 Luck per level.", Max = 3, ReqLevel = 4},
+			{Id = "Armory", Name = "Armory", Desc = "+5% Damage per level.", Max = 5, ReqLevel = 5}
+		}
 
-			local taskLbl = row:FindFirstChild("TaskLbl")
-			local rBtn = row:FindFirstChild("ActionBtn")
+		activeUpgradeFinishTime = gData.ActiveUpgrade and gData.ActiveUpgrade.FinishTime or 0
+		local activeUpgradeId = gData.ActiveUpgrade and gData.ActiveUpgrade.Id or nil
+		activeUpgradeBtnRef = nil
 
-			if ord.Completed then
-				taskLbl.Text = "<b>" .. ord.Desc .. "</b>\n<font size='12' color='#55FF55'>[COMPLETED!]</font>"
-				if rBtn then rBtn.Visible = false end
+		for _, conf in ipairs(bConfigs) do
+			local row = buildTpl:Clone(); row.Visible = true; row.Parent = buildingList
+			local cLvl = (gData.Buildings and gData.Buildings[conf.Id]) or 0
+			row:FindFirstChild("NameLabel").Text = conf.Name .. " <font color='#FFFFFF'>(Lv."..cLvl.."/"..conf.Max..")</font>"
+			row:FindFirstChild("DescLbl").Text = conf.Desc
+
+			local uBtn = row:FindFirstChild("UpgradeBtn")
+			local costLbl = row:FindFirstChild("CostLbl")
+
+			if cLvl < conf.Max then
+				costLbl.Text = "Cost: ¥100,000,000"
+				if activeUpgradeId == conf.Id then activeUpgradeBtnRef = uBtn; uBtn.Text = "Starting..."; uBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 20)
+				elseif activeUpgradeId ~= nil then uBtn.Text = "Busy"; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+				elseif level < conf.ReqLevel then uBtn.Text = "Requires Gang Lv." .. conf.ReqLevel; uBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+				else uBtn.Text = "Upgrade"; uBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.GangAction:FireServer("UpgradeBuilding", conf.Id) end) end
+				if myPower < RolePower["Consigliere"] then uBtn.Visible = false end
 			else
-				taskLbl.Text = "<b>" .. ord.Desc .. "</b>\n<font size='11' color='#AAAAAA'>Rewards:</font> <font size='11' color='#55FF55'>¥" .. FormatNumber(ord.RewardT) .. "</font> <font size='11' color='#AAAAAA'>|</font> <font size='11' color='#A020F0'>+" .. ord.RewardR .. " Rep</font>"
+				costLbl.Text = "<font color='#FFD700'>MAX LEVEL REACHED</font>"
+				uBtn.Visible = false
+			end
+		end
+	end
 
-				if rBtn then
-					if myPower >= RolePower["Consigliere"] then
-						rBtn.Visible = true
-						rBtn.MouseButton1Click:Connect(function()
-							SFXManager.Play("Click")
-							Network.GangAction:FireServer("RerollOrder", i)
-						end)
-					else
-						rBtn.Visible = false
+	if ordersList then
+		for _, c in pairs(ordersList:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		if gData.Orders then
+			for i, ord in ipairs(gData.Orders) do
+				local row = ordTpl:Clone()
+				row.Visible = true 
+				row.Parent = ordersList
+				row:FindFirstChild("ProgBg"):FindFirstChild("Fill").Size = UDim2.new(math.clamp(ord.Progress / ord.Target, 0, 1), 0, 1, 0)
+				row:FindFirstChild("ProgBg"):FindFirstChild("ProgTxt").Text = FormatNumber(ord.Progress) .. " / " .. FormatNumber(ord.Target)
+
+				local taskLbl = row:FindFirstChild("TaskLbl")
+				local rBtn = row:FindFirstChild("ActionBtn")
+
+				if ord.Completed then
+					taskLbl.Text = "<b>" .. ord.Desc .. "</b>\n<font size='12' color='#55FF55'>[COMPLETED!]</font>"
+					if rBtn then rBtn.Visible = false end
+				else
+					taskLbl.Text = "<b>" .. ord.Desc .. "</b>\n<font size='11' color='#AAAAAA'>Rewards:</font> <font size='11' color='#55FF55'>¥" .. FormatNumber(ord.RewardT) .. "</font> <font size='11' color='#AAAAAA'>|</font> <font size='11' color='#A020F0'>+" .. ord.RewardR .. " Rep</font>"
+
+					if rBtn then
+						if myPower >= RolePower["Consigliere"] then
+							rBtn.Visible = true
+							rBtn.MouseButton1Click:Connect(function()
+								SFXManager.Play("Click")
+								Network.GangAction:FireServer("RerollOrder", i)
+							end)
+						else
+							rBtn.Visible = false
+						end
 					end
 				end
 			end
