@@ -10,6 +10,7 @@ local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 
 local topCard, bottomCard, activeTradeCard
 local reqView, hostView, browserLobbyView, browserInboxView
@@ -294,9 +295,29 @@ local function DrawTradeItems(container, itemsTable, standData, styleData, isMyO
 	end
 
 	if standData then
+		local displayName = standData.Name
 		local tColor = StandData.Traits[standData.Trait] and StandData.Traits[standData.Trait].Color or "#FFFFFF"
 		local tStr = standData.Trait ~= "None" and " <font color='"..tColor.."'>["..standData.Trait.."]</font>" or ""
-		local btn = CreateTradeItemBtn("<b>[STAND]</b>\n" .. standData.Name .. tStr, Color3.fromRGB(50, 15, 60), Color3.fromRGB(200, 50, 255))
+
+		-- Handle Fused Display
+		if standData.Name == "Fused Stand" then
+			displayName = FusionUtility.CalculateFusedName(standData.FusedS1, standData.FusedS2)
+
+			local c1 = StandData.Traits[standData.FusedT1] and StandData.Traits[standData.FusedT1].Color or "#FFFFFF"
+			local c2 = StandData.Traits[standData.FusedT2] and StandData.Traits[standData.FusedT2].Color or "#FFFFFF"
+
+			if standData.FusedT1 ~= "None" and standData.FusedT2 ~= "None" then
+				tStr = " <font color='"..c1.."'>["..standData.FusedT1.."]</font> & <font color='"..c2.."'>["..standData.FusedT2.."]</font>"
+			elseif standData.FusedT1 ~= "None" then
+				tStr = " <font color='"..c1.."'>["..standData.FusedT1.."]</font>"
+			elseif standData.FusedT2 ~= "None" then
+				tStr = " <font color='"..c2.."'>["..standData.FusedT2.."]</font>"
+			else
+				tStr = ""
+			end
+		end
+
+		local btn = CreateTradeItemBtn("<b>[STAND]</b>\n" .. displayName .. tStr, Color3.fromRGB(50, 15, 60), Color3.fromRGB(200, 50, 255))
 		btn.Parent = container
 
 		if isMyOffer then
@@ -1067,7 +1088,15 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 		local function AddStandBtn(slotId, attrName)
 			local sName = player:GetAttribute(attrName) or "None"
 			if sName ~= "None" then
-				local btn = CreateTradeItemBtn(sName, Color3.fromRGB(50, 15, 60), Color3.fromRGB(200, 50, 255))
+				local displayName = sName
+				if sName == "Fused Stand" then
+					-- Fused Stands get their dynamic name generated for the picker menu!
+					local fs1 = player:GetAttribute(slotId == "Active" and "Active_FusedStand1" or attrName.."_FusedStand1")
+					local fs2 = player:GetAttribute(slotId == "Active" and "Active_FusedStand2" or attrName.."_FusedStand2")
+					displayName = FusionUtility.CalculateFusedName(fs1, fs2)
+				end
+
+				local btn = CreateTradeItemBtn(displayName, Color3.fromRGB(50, 15, 60), Color3.fromRGB(200, 50, 255))
 				btn.Parent = myStandList
 				btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("AddStand", slotId) end)
 			end
@@ -1117,7 +1146,13 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 				while styleClaimModal.Visible do task.wait(0.2) end
 
 				if forceTabFocus then forceTabFocus() end 
-				claimTitle.Text = "You received " .. (data.Name or "Unknown") .. "!"
+
+				local displayClaimName = data.Name
+				if data.Name == "Fused Stand" then
+					displayClaimName = FusionUtility.CalculateFusedName(player:GetAttribute("PendingStand_FusedS1"), player:GetAttribute("PendingStand_FusedS2"))
+				end
+
+				claimTitle.Text = "You received " .. displayClaimName .. "!"
 
 				local function FormatSlotText(title, standName)
 					local safeName = standName or "None"
