@@ -304,7 +304,7 @@ local function StartRaidMatch(hostId)
 	local party = {}
 	local totalPrestige = 0
 	for _, p in ipairs(lobby.Queue) do
-		table.insert(party, CombatCore.BuildPlayerStruct(p))
+		table.insert(party, CombatCore.BuildPlayerStruct(p, true))
 		totalPrestige += (p.leaderstats.Prestige.Value or 0)
 	end
 
