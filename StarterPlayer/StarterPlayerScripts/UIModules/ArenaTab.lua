@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local ArenaTab = {}
 
 local player = game.Players.LocalPlayer
@@ -21,7 +22,7 @@ local openQueuesScroll, activeMatchesScroll
 local eloLbl
 
 local viewDefault, viewSetup, viewHosting
-local friendsToggleBtn, casualToggleBtn, capacityBtn, confirmSetupBtn, cancelSetupBtn
+local friendsToggleBtn, casualToggleBtn, noHoldsBarredBtn, capacityBtn, confirmSetupBtn, cancelSetupBtn
 local hostingLbl, cancelLobbyBtn, createRoomBtn
 
 local combatUI
@@ -40,6 +41,7 @@ local selectedTargetId = nil
 
 local isFriendsOnly = false
 local isCasual = false
+local isNoHoldsBarred = false
 local currentCapacity = 2
 
 local StatusIcons = {
@@ -189,35 +191,42 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local vsLayout = Instance.new("UIListLayout", viewSetup); vsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; vsLayout.VerticalAlignment = Enum.VerticalAlignment.Center; vsLayout.Padding = UDim.new(0.05, 0)
 
 	friendsToggleBtn = Instance.new("TextButton", viewSetup)
-	friendsToggleBtn.Size = UDim2.new(0.8, 0, 0.12, 0); friendsToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+	friendsToggleBtn.Size = UDim2.new(0.8, 0, 0.10, 0); friendsToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 	friendsToggleBtn.Font = Enum.Font.GothamBold; friendsToggleBtn.TextColor3 = Color3.new(1,1,1)
 	friendsToggleBtn.TextScaled = true; friendsToggleBtn.Text = "[ ] Friends Only"
 	friendsToggleBtn.ZIndex = 22; Instance.new("UICorner", friendsToggleBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(friendsToggleBtn, 90, 70, 110); Instance.new("UITextSizeConstraint", friendsToggleBtn).MaxTextSize = 16
 
 	casualToggleBtn = Instance.new("TextButton", viewSetup)
-	casualToggleBtn.Size = UDim2.new(0.8, 0, 0.12, 0); casualToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+	casualToggleBtn.Size = UDim2.new(0.8, 0, 0.10, 0); casualToggleBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 	casualToggleBtn.Font = Enum.Font.GothamBold; casualToggleBtn.TextColor3 = Color3.new(1,1,1)
 	casualToggleBtn.TextScaled = true; casualToggleBtn.Text = "[ ] Casual Match"
 	casualToggleBtn.ZIndex = 22; Instance.new("UICorner", casualToggleBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(casualToggleBtn, 90, 70, 110); Instance.new("UITextSizeConstraint", casualToggleBtn).MaxTextSize = 16
 
+	noHoldsBarredBtn = Instance.new("TextButton", viewSetup)
+	noHoldsBarredBtn.Size = UDim2.new(0.8, 0, 0.10, 0); noHoldsBarredBtn.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+	noHoldsBarredBtn.Font = Enum.Font.GothamBold; noHoldsBarredBtn.TextColor3 = Color3.new(1,1,1)
+	noHoldsBarredBtn.TextScaled = true; noHoldsBarredBtn.Text = "[ ] No Holds Barred"
+	noHoldsBarredBtn.ZIndex = 22; Instance.new("UICorner", noHoldsBarredBtn).CornerRadius = UDim.new(0, 6)
+	AddBtnStroke(noHoldsBarredBtn, 90, 70, 110); Instance.new("UITextSizeConstraint", noHoldsBarredBtn).MaxTextSize = 16
+
 	capacityBtn = Instance.new("TextButton", viewSetup)
-	capacityBtn.Size = UDim2.new(0.8, 0, 0.12, 0); capacityBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
+	capacityBtn.Size = UDim2.new(0.8, 0, 0.10, 0); capacityBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 160)
 	capacityBtn.Font = Enum.Font.GothamBold; capacityBtn.TextColor3 = Color3.new(1,1,1)
 	capacityBtn.TextScaled = true; capacityBtn.Text = "Mode: 1v1"
 	capacityBtn.ZIndex = 22; Instance.new("UICorner", capacityBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(capacityBtn, 180, 80, 200); Instance.new("UITextSizeConstraint", capacityBtn).MaxTextSize = 16
 
 	confirmSetupBtn = Instance.new("TextButton", viewSetup)
-	confirmSetupBtn.Size = UDim2.new(0.8, 0, 0.15, 0); confirmSetupBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
+	confirmSetupBtn.Size = UDim2.new(0.8, 0, 0.12, 0); confirmSetupBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
 	confirmSetupBtn.Font = Enum.Font.GothamBold; confirmSetupBtn.TextColor3 = Color3.new(1,1,1)
 	confirmSetupBtn.TextScaled = true; confirmSetupBtn.Text = "Host Room"
 	confirmSetupBtn.ZIndex = 22; Instance.new("UICorner", confirmSetupBtn).CornerRadius = UDim.new(0, 6)
 	AddBtnStroke(confirmSetupBtn, 80, 180, 80); Instance.new("UITextSizeConstraint", confirmSetupBtn).MaxTextSize = 18
 
 	cancelSetupBtn = Instance.new("TextButton", viewSetup)
-	cancelSetupBtn.Size = UDim2.new(0.8, 0, 0.12, 0); cancelSetupBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
+	cancelSetupBtn.Size = UDim2.new(0.8, 0, 0.10, 0); cancelSetupBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
 	cancelSetupBtn.Font = Enum.Font.GothamBold; cancelSetupBtn.TextColor3 = Color3.new(1,1,1)
 	cancelSetupBtn.TextScaled = true; cancelSetupBtn.Text = "Cancel"
 	cancelSetupBtn.ZIndex = 22; Instance.new("UICorner", cancelSetupBtn).CornerRadius = UDim.new(0, 6)
@@ -309,6 +318,15 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 		casualToggleBtn.TextColor3 = isCasual and Color3.fromRGB(50, 255, 50) or Color3.new(1,1,1)
 	end)
 
+	noHoldsBarredBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click"); isNoHoldsBarred = not isNoHoldsBarred
+		noHoldsBarredBtn.Text = isNoHoldsBarred and "[X] No Holds Barred" or "[ ] No Holds Barred"
+		noHoldsBarredBtn.TextColor3 = isNoHoldsBarred and Color3.fromRGB(50, 255, 50) or Color3.new(1,1,1)
+	end)
+
+	noHoldsBarredBtn.MouseEnter:Connect(function() cachedTooltipMgr.Show("Disables equalized stats, both teams fight using their true level and stats.") end)
+	noHoldsBarredBtn.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+
 	capacityBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		if currentCapacity == 2 then currentCapacity = 4; capacityBtn.Text = "Mode: 2v2"
@@ -318,7 +336,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	confirmSetupBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
-		Network.ArenaAction:FireServer("CreateLobby", {FriendsOnly = isFriendsOnly, Casual = isCasual, Capacity = currentCapacity}) 
+		Network.ArenaAction:FireServer("CreateLobby", {FriendsOnly = isFriendsOnly, Casual = isCasual, Capacity = currentCapacity, NoHoldsBarred = isNoHoldsBarred}) 
 	end)
 
 	cancelLobbyBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.ArenaAction:FireServer("CancelLobby") end)
@@ -584,6 +602,7 @@ function ArenaTab.HandleUpdate(action, data)
 			local infoText = "<b>" .. lobby.HostName .. "'s Room</b> | " .. modeStr .. " | Elo: " .. lobby.Elo
 			if lobby.FriendsOnly then infoText = infoText .. " <font color='#55FF55'>[Friends]</font>" end
 			if lobby.Casual then infoText = infoText .. " <font color='#55FFFF'>[Casual]</font>" end
+			if lobby.NoHoldsBarred then infoText = infoText .. " <font color='#FF5555'>[No Holds Barred]</font>" end
 
 			local info = Instance.new("TextLabel", row)
 			info.Size = UDim2.new(0.65, 0, 1, 0); info.Position = UDim2.new(0, 0, 0, 0)
