@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local LeaderboardTab = {}
 
 local player = game.Players.LocalPlayer
@@ -77,14 +76,12 @@ end
 function LeaderboardTab.Init(parentFrame, tooltipMgr)
 	cachedTooltipMgr = tooltipMgr
 
-	-- Top level layout
 	local splitFrame = Instance.new("Frame")
 	splitFrame.Name = "SplitFrame"
 	splitFrame.Size = UDim2.new(1, 0, 1, 0)
 	splitFrame.BackgroundTransparency = 1
 	splitFrame.Parent = parentFrame
 
-	-- LEFT PANEL (Categories)
 	local leftPanel = CreateCard("LeftPanel", splitFrame, UDim2.new(0.28, 0, 1, 0), UDim2.new(0, 0, 0, 0))
 	local lpPad = Instance.new("UIPadding")
 	lpPad.PaddingTop = UDim.new(0, 10); lpPad.PaddingBottom = UDim.new(0, 10)
@@ -146,7 +143,6 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 	csLayout.Padding = UDim.new(0, 8)
 	csLayout.Parent = catScroll
 
-	-- RIGHT PANEL (List)
 	local rightPanel = CreateCard("RightPanel", splitFrame, UDim2.new(0.70, 0, 1, 0), UDim2.new(0.30, 0, 0, 0))
 	local rpPad = Instance.new("UIPadding")
 	rpPad.PaddingTop = UDim.new(0, 10); rpPad.PaddingBottom = UDim.new(0, 10)
@@ -340,7 +336,6 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 			elseif entry.Rank == 2 then rankColor = Color3.fromRGB(192, 192, 192)
 			elseif entry.Rank == 3 then rankColor = Color3.fromRGB(205, 127, 50) end
 
-			-- Rank Label: Fixed width to completely avoid crushing the icon
 			local rankLbl = Instance.new("TextLabel")
 			rankLbl.Size = UDim2.new(0, 40, 1, 0)
 			rankLbl.Position = UDim2.new(0, 10, 0, 0)
@@ -371,7 +366,6 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 			else
 				if entry.Profile and entry.Profile.Emblem and entry.Profile.Emblem ~= "" then
 					local emblemStr = entry.Profile.Emblem
-					-- If players input raw ID instead of rbxassetid://
 					if tonumber(emblemStr) then
 						emblemStr = "rbxassetid://" .. emblemStr
 					end
@@ -382,7 +376,6 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 				end
 			end
 
-			-- Value Label: Anchored tightly to the right side (takes exactly 30% space)
 			local valLbl = Instance.new("TextLabel")
 			valLbl.Size = UDim2.new(0.30, 0, 1, 0)
 			valLbl.Position = UDim2.new(1, -10, 0, 0)
@@ -397,7 +390,6 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 			valLbl.Parent = row
 			Instance.new("UITextSizeConstraint", valLbl).MaxTextSize = 16
 
-			-- Name Label: Dynamically stretches exactly from the end of the icon up to the start of the Value
 			local nameLbl = Instance.new("TextLabel")
 			nameLbl.Size = hasIcon and UDim2.new(0.70, -95, 1, 0) or UDim2.new(0.70, -60, 1, 0)
 			nameLbl.Position = hasIcon and UDim2.new(0, 85, 0, 0) or UDim2.new(0, 50, 0, 0)
