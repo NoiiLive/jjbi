@@ -22,7 +22,7 @@ for p = 1, 6 do
 end
 
 local function GenerateDungeonEnemy(template, dungeonId)
-	local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 4) or 5
+	local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
 	local scaleMult = 1 + (fixedPrestige * 0.15)
 	local minorScaleMult = 1 + ((scaleMult - 1) * 0.33) 
 
@@ -142,7 +142,7 @@ local function StartDungeon(player, dungeonId)
 	}
 
 	if not isEndless then
-		local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 4) or 5
+		local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
 		local scaleMult = 1 + (fixedPrestige * 0.15)
 		for _, waveTemplate in ipairs(waves) do
 			if waveTemplate.Drops then
