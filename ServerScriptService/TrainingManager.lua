@@ -19,7 +19,9 @@ local TrainingRates = {
 	[4] = {XP = 500, Yen = 15},
 	[5] = {XP = 1000, Yen = 25},
 	[6] = {XP = 1500, Yen = 50},
-	[7] = {XP = 2500, Yen = 75}
+	[7] = {XP = 2500, Yen = 75},
+	[8] = {XP = 5000, Yen = 100},
+	[9] = {XP = 10000, Yen = 500}
 }
 
 local function GetPlayerBoosts(player)
