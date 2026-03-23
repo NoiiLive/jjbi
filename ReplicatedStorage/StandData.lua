@@ -179,6 +179,7 @@ StandData.Stands = {
 	
 	["Wonder of U"] = { Rarity = "Mythical", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 	
+	["Chiikawa"] = { Rarity = "Unique", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Steel Platinum"] = { Rarity = "Unique", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Fused Stand"] = { Rarity = "Unique", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 }
