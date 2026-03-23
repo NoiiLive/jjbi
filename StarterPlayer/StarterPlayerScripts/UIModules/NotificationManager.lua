@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local NotificationManager = {}
 
 local TweenService = game:GetService("TweenService")
