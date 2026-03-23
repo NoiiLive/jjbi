@@ -105,180 +105,30 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	cachedTooltipMgr = tooltipMgr
 	forceTabFocus = focusFunc
 
-	menuContainer = Instance.new("Frame")
-	menuContainer.Name = "MenuContainer"
-	menuContainer.Size = UDim2.new(0.95, 0, 0.95, 0)
-	menuContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-	menuContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-	menuContainer.BackgroundColor3 = Color3.fromRGB(20, 10, 30)
-	menuContainer.ZIndex = 30
-	menuContainer.Parent = parentFrame
+	menuContainer = parentFrame:WaitForChild("MenuContainer")
+	menuFrame = menuContainer:WaitForChild("MenuFrame")
 
-	local mcCorner = Instance.new("UICorner")
-	mcCorner.CornerRadius = UDim.new(0, 12)
-	mcCorner.Parent = menuContainer
+	for _, child in pairs(menuFrame:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
 
-	local mcStroke = Instance.new("UIStroke")
-	mcStroke.Color = Color3.fromRGB(90, 50, 120)
-	mcStroke.Thickness = 2
-	mcStroke.Parent = menuContainer
-
-	menuFrame = Instance.new("ScrollingFrame")
-	menuFrame.Name = "MenuFrame"
-	menuFrame.Size = UDim2.new(1, 0, 1, 0)
-	menuFrame.BackgroundTransparency = 1
-	menuFrame.BorderSizePixel = 0
-	menuFrame.ScrollBarThickness = 6
-	menuFrame.ScrollBarImageColor3 = Color3.fromRGB(90, 50, 120)
-	menuFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-	menuFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-	menuFrame.ZIndex = 31
-	menuFrame.Parent = menuContainer
-
-	local listLayout = Instance.new("UIListLayout")
-	listLayout.FillDirection = Enum.FillDirection.Vertical
-	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	listLayout.Padding = UDim.new(0, 15)
-	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	listLayout.Parent = menuFrame
-
-	local listPadding = Instance.new("UIPadding")
-	listPadding.PaddingTop = UDim.new(0, 15)
-	listPadding.PaddingBottom = UDim.new(0, 15)
-	listPadding.Parent = menuFrame
+	local templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+	local dungeonRowTpl = templates:WaitForChild("DungeonRowTemplate")
 
 	local dungeonUIElements = {}
 
 	for _, dInfo in ipairs(dungeonList) do
-		local row = Instance.new("Frame")
+		local row = dungeonRowTpl:Clone()
 		row.Name = dInfo.Name
-		row.Size = UDim2.new(0.95, 0, 0, 100)
-		row.BackgroundColor3 = Color3.fromRGB(45, 25, 65)
-		row.ZIndex = 32
 		row.Parent = menuFrame
 
-		local rowGrad = Instance.new("UIGradient")
-		rowGrad.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 30, 85)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 15, 50))
-		}
-		rowGrad.Rotation = 45
-		rowGrad.Parent = row
+		local infoContainer = row:WaitForChild("InfoContainer")
+		local title = infoContainer:WaitForChild("TitleLabel")
+		local status = infoContainer:WaitForChild("StatusLabel")
+		local reward = infoContainer:WaitForChild("RewardLabel")
+		local playBtn = row:WaitForChild("PlayBtn")
 
-		local rowCorner = Instance.new("UICorner")
-		rowCorner.CornerRadius = UDim.new(0, 8)
-		rowCorner.Parent = row
-
-		local rowStroke = Instance.new("UIStroke")
-		rowStroke.Color = Color3.fromRGB(255, 215, 50)
-		rowStroke.Thickness = 2
-		rowStroke.Parent = row
-
-		local strokeGrad = Instance.new("UIGradient")
-		strokeGrad.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 240, 120)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 150, 25))
-		}
-		strokeGrad.Rotation = 45
-		strokeGrad.Parent = rowStroke
-
-		local infoContainer = Instance.new("Frame")
-		infoContainer.Size = UDim2.new(0.7, 0, 1, 0)
-		infoContainer.BackgroundTransparency = 1
-		infoContainer.ZIndex = 33
-		infoContainer.Parent = row
-
-		local infoLayout = Instance.new("UIListLayout")
-		infoLayout.FillDirection = Enum.FillDirection.Vertical
-		infoLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		infoLayout.Padding = UDim.new(0, 4)
-		infoLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-		infoLayout.Parent = infoContainer
-
-		local infoPadding = Instance.new("UIPadding")
-		infoPadding.PaddingLeft = UDim.new(0, 15)
-		infoPadding.Parent = infoContainer
-
-		local title = Instance.new("TextLabel")
-		title.Name = "TitleLabel"
-		title.Size = UDim2.new(1, 0, 0.35, 0)
-		title.BackgroundTransparency = 1
-		title.Font = Enum.Font.GothamBold
-		title.TextColor3 = Color3.fromRGB(255, 220, 80)
-		title.TextScaled = true
-		title.TextXAlignment = Enum.TextXAlignment.Left
 		title.Text = dInfo.Name
-		title.ZIndex = 34
-		title.Parent = infoContainer
-
-		local titleUic = Instance.new("UITextSizeConstraint")
-		titleUic.MaxTextSize = 22
-		titleUic.MinTextSize = 14
-		titleUic.Parent = title
-
-		local status = Instance.new("TextLabel")
-		status.Name = "StatusLabel"
-		status.Size = UDim2.new(1, 0, 0.25, 0)
-		status.BackgroundTransparency = 1
-		status.Font = Enum.Font.GothamMedium
-		status.TextColor3 = Color3.fromRGB(200, 200, 200)
-		status.RichText = true
-		status.TextScaled = true
-		status.TextXAlignment = Enum.TextXAlignment.Left
-		status.Text = "<font color='#AAAAAA'>Status:</font> Checking Requirements..."
-		status.ZIndex = 34
-		status.Parent = infoContainer
-
-		local statusUic = Instance.new("UITextSizeConstraint")
-		statusUic.MaxTextSize = 16
-		statusUic.MinTextSize = 10
-		statusUic.Parent = status
-
-		local reward = Instance.new("TextLabel")
-		reward.Name = "RewardLabel"
-		reward.Size = UDim2.new(1, 0, 0.25, 0)
-		reward.BackgroundTransparency = 1
-		reward.Font = Enum.Font.GothamMedium
-		reward.TextColor3 = Color3.fromRGB(180, 180, 180)
-		reward.RichText = true
-		reward.TextScaled = true
-		reward.TextXAlignment = Enum.TextXAlignment.Left
-		reward.Text = "<font color='#AAAAAA'>Rewards:</font> Loading..."
-		reward.ZIndex = 34
-		reward.Parent = infoContainer
-
-		local rewardUic = Instance.new("UITextSizeConstraint")
-		rewardUic.MaxTextSize = 14
-		rewardUic.MinTextSize = 10
-		rewardUic.Parent = reward
-
-		local playBtn = Instance.new("TextButton")
-		playBtn.Name = "PlayBtn"
-		playBtn.Size = UDim2.new(0.25, 0, 0.6, 0)
-		playBtn.Position = UDim2.new(0.96, 0, 0.5, 0)
-		playBtn.AnchorPoint = Vector2.new(1, 0.5)
-		playBtn.BackgroundColor3 = Color3.fromRGB(70, 20, 100)
-		playBtn.Font = Enum.Font.GothamBold
-		playBtn.TextColor3 = Color3.new(1, 1, 1)
-		playBtn.TextScaled = true
-		playBtn.Text = "PLAY"
-		playBtn.ZIndex = 34
-		playBtn.Parent = row
-
-		local btnCorner = Instance.new("UICorner")
-		btnCorner.CornerRadius = UDim.new(0, 6)
-		btnCorner.Parent = playBtn
-
-		local btnStroke = Instance.new("UIStroke")
-		btnStroke.Color = Color3.fromRGB(255, 215, 50)
-		btnStroke.Thickness = 2
-		btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		btnStroke.Parent = playBtn
-
-		local btnUic = Instance.new("UITextSizeConstraint")
-		btnUic.MaxTextSize = 24
-		btnUic.MinTextSize = 12
-		btnUic.Parent = playBtn
 
 		playBtn.MouseButton1Click:Connect(function()
 			SFXManager.Play("Click")
@@ -345,41 +195,13 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 	combatUI.MainFrame.Visible = false
 	combatUI.MainFrame.ZIndex = 40
 
-	waveLabel = Instance.new("TextLabel")
-	waveLabel.Name = "WaveLabel"
-	waveLabel.Size = UDim2.new(0.3, 0, 0, 20)
-	waveLabel.Position = UDim2.new(0.5, 0, 0, -22)
-	waveLabel.AnchorPoint = Vector2.new(0.5, 0)
-	waveLabel.BackgroundTransparency = 1
-	waveLabel.Font = Enum.Font.GothamBlack
-	waveLabel.TextColor3 = Color3.fromRGB(255, 215, 50)
-	waveLabel.TextScaled = true
-	waveLabel.TextXAlignment = Enum.TextXAlignment.Center
-	waveLabel.Text = "Floor 1"
-	waveLabel.ZIndex = 42
+	local dControls = templates:WaitForChild("DungeonControlsTemplate")
+
+	waveLabel = dControls:WaitForChild("WaveLabel"):Clone()
 	waveLabel.Parent = combatUI.MainFrame
 
-	local wUic = Instance.new("UITextSizeConstraint")
-	wUic.MaxTextSize = 18
-	wUic.MinTextSize = 10
-	wUic.Parent = waveLabel
-
-	resourceLabel = Instance.new("TextLabel")
-	resourceLabel.Name = "ResourceLabel"
-	resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
-	resourceLabel.BackgroundTransparency = 1
-	resourceLabel.Font = Enum.Font.GothamBold
-	resourceLabel.TextColor3 = Color3.fromRGB(255, 235, 130)
-	resourceLabel.TextScaled = true
-	resourceLabel.Text = ""
-	resourceLabel.LayoutOrder = 2
-	resourceLabel.ZIndex = 42
+	resourceLabel = dControls:WaitForChild("ResourceLabel"):Clone()
 	resourceLabel.Parent = combatUI.ContentContainer
-
-	local resUic = Instance.new("UITextSizeConstraint")
-	resUic.MaxTextSize = 18
-	resUic.MinTextSize = 10
-	resUic.Parent = resourceLabel
 end
 
 function DungeonTab.RenderSkills(battleData)
@@ -388,7 +210,7 @@ function DungeonTab.RenderSkills(battleData)
 
 	local myStand, myStyle = battleData.Player.Stand or "None", battleData.Player.Style or "None"
 	local valid = {}
-	
+
 	if myStand == "Fused Stand" then
 		local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
