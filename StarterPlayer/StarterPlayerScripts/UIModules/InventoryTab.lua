@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local InventoryTab = {}
 
 local player = game.Players.LocalPlayer
@@ -271,7 +270,6 @@ local function CreateStatRow(statName, parent, isStand)
 		local b = Instance.new("TextButton", btnContainer)
 		b.LayoutOrder = order
 
-		-- PERFECT WIDTH CONTROL: RelativeYY makes X-Scale a multiplier of the Y-Height!
 		b.SizeConstraint = Enum.SizeConstraint.RelativeYY
 		b.Size = UDim2.new(widthScaleYY, 0, 0.85, 0) 
 
@@ -288,7 +286,6 @@ local function CreateStatRow(statName, parent, isStand)
 		return b
 	end
 
-	-- 1.0 makes + a perfect square. 1.8 makes MAX comfortably rectangular.
 	local bAdd = makeBtn("+", 1, 1.0) 
 	local bMax = makeBtn("MAX", 2, 1.8)
 
@@ -838,8 +835,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local itemsAreaCard = CreateCard("ItemsAreaCard", invTabContent, UDim2.new(1, 0, 0.35, 0), 2)
 	local autoSellCard = CreateCard("AutoSellCard", invTabContent, UDim2.new(1, 0, 0.20, 0), 3)
 
-	-- [[ PERFECTED STATS AREA UI STRUCTURE ]] --
-	-- 1. Main Stats Container (Takes up full 100% of Card Height since controls are floating)
 	local statsMain = Instance.new("Frame", statsAreaCard)
 	statsMain.Size = UDim2.new(1, 0, 1, 0) 
 	statsMain.BackgroundTransparency = 1
@@ -848,7 +843,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	smLayout.FillDirection = Enum.FillDirection.Horizontal
 	smLayout.Padding = UDim.new(0, 0)
 
-	-- Left Side (Player Stats)
 	local pStats = Instance.new("Frame", statsMain)
 	pStats.Size = UDim2.new(0.5, -1, 1, 0)
 	pStats.BackgroundTransparency = 1
@@ -861,13 +855,11 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	pStatsContainer.ZIndex = 21
 	Instance.new("UIListLayout", pStatsContainer).Padding = UDim.new(0, 0)
 
-	-- Separator Line
 	local sSep1 = Instance.new("Frame", statsMain)
 	sSep1.Size = UDim2.new(0, 2, 1, 0)
 	sSep1.BackgroundColor3 = Color3.fromRGB(90, 50, 120)
 	sSep1.BorderSizePixel = 0
 
-	-- Right Side (Stand Stats)
 	local sStats = Instance.new("Frame", statsMain)
 	sStats.Size = UDim2.new(0.5, -1, 1, 0)
 	sStats.BackgroundTransparency = 1
@@ -883,9 +875,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	for _, stat in ipairs(playerStatsList) do statLabels[stat] = CreateStatRow(stat, pStatsContainer, false) end
 	for _, stat in ipairs(standStatsList) do statLabels[stat] = CreateStatRow(stat, sStatsContainer, true) end
 
-	-- 2. The Floating Controls Bar (Absolutely positioned to sit perfectly on the same line as the Titles)
 	local statsTopControls = Instance.new("Frame", statsAreaCard)
-	statsTopControls.Size = UDim2.new(0.4, 0, 0, 18) -- Fits cleanly in the right side
+	statsTopControls.Size = UDim2.new(0.4, 0, 0, 18)
 	statsTopControls.Position = UDim2.new(1, 0, 0, 0)
 	statsTopControls.AnchorPoint = Vector2.new(1, 0)
 	statsTopControls.BackgroundTransparency = 1
@@ -956,7 +947,6 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		local UpgradeAllEvent = Network:FindFirstChild("UpgradeAllStats")
 		if UpgradeAllEvent then UpgradeAllEvent:FireServer(currentUpgradeAmount) end
 	end)
-	-- [[ END NEW STATS AREA UI STRUCTURE ]] --
 
 	local riTop = Instance.new("Frame", itemsAreaCard)
 	riTop.Size = UDim2.new(1, 0, 0, 20); riTop.BackgroundTransparency = 1; riTop.LayoutOrder = 1; riTop.ZIndex = 21
