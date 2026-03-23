@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local GangsTab = {}
 
 local player = game.Players.LocalPlayer
@@ -602,7 +601,6 @@ local function BuildHasGangViews()
 	pagesContainer.BackgroundTransparency = 1
 	pagesContainer.ZIndex = 21
 
-	-- INFO FRAME
 	infoPage = Instance.new("Frame", pagesContainer)
 	infoPage.Name = "InfoPage"
 	infoPage.Size = UDim2.new(1, 0, 1, 0)
@@ -798,7 +796,6 @@ local function BuildHasGangViews()
 	local rlPad = Instance.new("UIPadding", requestsList)
 	rlPad.PaddingTop = UDim.new(0, 5); rlPad.PaddingLeft = UDim.new(0, 5); rlPad.PaddingRight = UDim.new(0, 10)
 
-	-- UPGRADES PAGE
 	upgPage = Instance.new("Frame", pagesContainer)
 	upgPage.Name = "UpgradesPage"
 	upgPage.Size = UDim2.new(1, 0, 1, 0)
@@ -884,7 +881,6 @@ local function BuildHasGangViews()
 	usLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	usLayout.Padding = UDim.new(0.015, 0)
 
-	-- ORDERS PAGE
 	ordPage = Instance.new("Frame", pagesContainer)
 	ordPage.Name = "OrdersPage"
 	ordPage.Size = UDim2.new(1, 0, 1, 0)
@@ -912,7 +908,6 @@ local function BuildHasGangViews()
 	osLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	osLayout.Padding = UDim.new(0.015, 0)
 
-	-- SETTINGS PAGE
 	settingsPage = Instance.new("Frame", pagesContainer)
 	settingsPage.Name = "SettingsPage"
 	settingsPage.Size = UDim2.new(1, 0, 1, 0)
