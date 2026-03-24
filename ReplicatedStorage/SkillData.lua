@@ -397,7 +397,7 @@ SkillData.Skills = {
 	["Wall of Light"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 16, Effect = "Buff_Defense", Duration = 5, Cooldown = 6, Order = 13, Description = "Hides behind the gap in space, becoming almost entirely immune to damage." },
 	["Dimensional Clone"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Heal", HealPercent = 0.50, Cooldown = 10, Order = 14, Description = "Transfers consciousness to a fresh clone, instantly healing 50% Max HP." },
 	
-	-- PART 8
+	-- JOJOLION
 	["Peel"] = { Requirement = "Canine Style", Type = "Stand", Mult = 1.1, Hits = 2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Peels off your skin like an apple to strike the enemy." },
 	["Wire Trap"] = { Requirement = "Canine Style", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 12, Description = "Sets a wire trap made of your own skin, stunning the target." },
 	["Sling"] = { Requirement = "Canine Style", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 20, Cooldown = 3, Order = 13, Description = "Slingshots yourself using your peeled limbs for a heavy strike." },
@@ -502,6 +502,22 @@ SkillData.Skills = {
 	
 	["Revert to Zero"] = { Requirement = "Boss", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Heal", HealPercent = 0.40, Duration = 3, Cooldown = 20, Order = 13, Description = "Resets the enemy's actions to zero, where they cannot reach the truth." },
 	["Raining Debris"] = { Requirement = "Boss", Type = "Stand", Mult = 0.6, Hits = 3, StaminaCost = 0, EnergyCost = 35, Effect = "Status_Random", Duration = 2, Cooldown = 20, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing random effects." },
+	
+	-- April Fools 
+	["Lapse: Blue"] = { Requirement = "Limitless", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "Creates a magnetic center of gravity, pulling the target and slowing them." },
+	["Reversal: Red"] = { Requirement = "Limitless", Type = "Style", Mult = 3.0, StaminaCost = 15, EnergyCost = 0, Cooldown = 2, Order = 7, Description = "Unleashes a powerful repelling force that shatters the enemy's guard." },
+	["Hollow Purple"] = { Requirement = "Limitless", Type = "Style", Mult = 3.5, StaminaCost = 35, EnergyCost = 0, Cooldown = 7, Order = 8, Description = "Collides Blue and Red to create an imaginary mass that erases everything in its path." },
+	["Unlimited Void"] = { Requirement = "Limitless", Type = "Style", Mult = 0, StaminaCost = 20, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 10, Order = 9, Description = "Floods the mind of your enemy with infinite, endless knowledge, stunning them." },
+
+	["Dismantle"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Effect = "Bleed", Duration = 1, Cooldown = 2, Order = 6, Description = "A default slashing attack that easily slices mundane objects, causing Bleed." },
+	["Cleave"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 7, Description = "A slash that adjusts itself to the target's toughness to cut them down, causing Bleed" },
+	["Divine Flame"] = { Requirement = "Shrine", Type = "Style", Mult = 3.5, StaminaCost = 25, EnergyCost = 0, Effect = "Burn", Duration = 3, Cooldown = 7, Order = 8, Description = "Opens the black box to unleash a devastating arrow of pure fire." },
+	["Malevolent Shrine"] = { Requirement = "Shrine", Type = "Style", Mult = 0.2, Hits = 10, StaminaCost = 30, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 10, Order = 9, Description = "Expands your domain, relentlessly painting the area with endless slashes." },
+
+	["Waaah!"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Tears up and wildly flails around." },
+	["Pajama Party"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Heal", HealPercent = 0.5, Cooldown = 5, Order = 12, Description = "Puts on cute pajamas and dances, restoring 50% of your Max HP." },
+	["Weed Whacker"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 15, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 13, Description = "Wildly swings a weed whacker, dealing multi-hit damage." },
+	["Usagi's Help"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 3, StaminaCost = 0, EnergyCost = 20, Effect = "Status_Random", Duration = 3, Cooldown = 6, Order = 14, Description = "Usagi rushes in screaming, causing a completely random, chaotic effect." },	
 }
 
 return SkillData
