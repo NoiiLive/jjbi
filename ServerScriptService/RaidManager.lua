@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -49,7 +48,6 @@ local function ProcessTurn(match)
 	if not match then return end
 	match.IsProcessing = true
 
-	-- [[ FIXED: Group 2x Battle Speed Validation ]]
 	local waitMultiplier = 1.2
 	local partyHasFastPass = true
 	for _, pData in ipairs(match.Party) do
@@ -324,7 +322,6 @@ local function StartRaidMatch(hostId)
 		Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
 	}
 
-	-- [[ FIXED: Turn Timer increased to 15 seconds ]]
 	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, TurnDeadline = os.time() + 15 }
 	for _, pData in ipairs(party) do ActiveRaids[pData.Player] = match end
 	for _, pData in ipairs(party) do RaidUpdate:FireClient(pData.Player, "MatchStart", { State = GetClientState(match, pData.UserId), LogMsg = "The Raid Boss approaches...", Deadline = match.TurnDeadline }) end
