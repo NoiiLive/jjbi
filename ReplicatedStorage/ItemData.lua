@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local ItemData = {}
 
 ItemData.Equipment = {
@@ -91,7 +90,7 @@ ItemData.Consumables = {
 	["Rokakaka"] = { Category = "Stand", Description = "An equivalent exchange fruit. Rerolls your Stand's trait.", Rarity = "Mythical", Cost = 300000 },
 	["Saint's Corpse Part"] = { Category = "Stand", Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Mythical", Cost = 500000 },
 
-	["Heavenly Stand Disc"] = { Category = "Player", Description = "Call upon the powers of Made in Heaven to reset the universe and its modifiers.", Rarity = "Mythical", Cost = 350000},
+	["Heavenly Stand Disc"] = { Category = "Stand", Description = "Call upon the powers of Made in Heaven to reset the universe and its modifiers.", Rarity = "Mythical", Cost = 350000},
 	["Steel Ball"] = { Category = "Player", Description = "A perfect sphere. Unlocks the Spin fighting style.", Rarity = "Mythical", Cost = 400000 },
 	["Perfect Aja Mask"] = { Category = "Player", Description = "A stone mask with the Red Stone embedded. Evolves Pillarman into the Ultimate Lifeform.", Rarity = "Mythical", Cost = 450000 },
 	["Golden Spin Scroll"] = { Category = "Player", Description = "The secret of infinite rotation. Evolves the Spin style into Golden Spin.", Rarity = "Mythical", Cost = 450000 },
@@ -107,7 +106,7 @@ ItemData.Consumables = {
 
 	["Legendary Giftbox"] = { Category = "Player", Description = "Supplies you with a random Legendary-tier item!", Rarity = "Unique", Cost = 30000 },
 	["Mythical Giftbox"] = { Category = "Player", Description = "Supplies you with a random Mythical-tier item!", Rarity = "Unique", Cost = 50000 },
-
+	
 	["2x Battle Speed Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Unique", Cost = 0 },
 	["2x Inventory Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles your inventory capacity.", Rarity = "Unique", Cost = 0 },
 	["2x Drop Chance Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles all item drop rates.", Rarity = "Unique", Cost = 0 },
