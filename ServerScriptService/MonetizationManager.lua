@@ -308,6 +308,56 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		end
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
+	
+	if productId == 3564613970 then -- STARTER PACK
+		if receiver:GetAttribute("PaidRandomItemsRestricted") then
+			local ls = receiver:FindFirstChild("leaderstats")
+			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 2500000 end
+			SendPurchaseMsg("2.5M Yen (Region Compliance Compensation)")
+		else
+			GrantItem(receiver, "Stand Arrow", 15)
+		end
+
+		receiver:SetAttribute("BoughtStarterPack", true)
+
+		PromptStandClaim(receiver, "Silver Chariot", "None")
+		SendPurchaseMsg("Starter Pack")
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
+	if productId == 3564614182 then -- PRO PACK
+		if receiver:GetAttribute("PaidRandomItemsRestricted") then
+			local ls = receiver:FindFirstChild("leaderstats")
+			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 12500000 end
+			SendPurchaseMsg("12.5M Yen (Region Compliance Compensation)")
+		else
+			GrantItem(receiver, "Stand Arrow", 25)
+			GrantItem(receiver, "Rokakaka", 10)
+		end
+
+		receiver:SetAttribute("BoughtProPack", true)
+
+		PromptStandClaim(receiver, "Whitesnake", "None")
+		SendPurchaseMsg("Pro Pack")
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
+	
+	if productId == 3564614326 then
+		if buyAsItem then 
+			GrantItem(receiver, "VIP"); SendPurchaseMsg("VIP (Item)")
+		else 
+			receiver:SetAttribute("IsVIP", true); SendPurchaseMsg("VIP") 
+		end
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
+
+	if productId == 3564614546 then
+		if buyAsItem then 
+			GrantItem(receiver, "VIP"); SendPurchaseMsg("VIP Gift (Item)")
+		else 
+			receiver:SetAttribute("IsVIP", true); SendPurchaseMsg("VIP") 
+		end
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
 
 	return Enum.ProductPurchaseDecision.NotProcessedYet
 end
@@ -325,7 +375,8 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passI
 	elseif passId == 1746853452 then player:SetAttribute("HasStyleSlot2", true); passName = "Style Storage Slot 2"
 	elseif passId == 1745969849 then player:SetAttribute("HasStyleSlot3", true); passName = "Style Storage Slot 3"
 	elseif passId == 1749484465 then player:SetAttribute("HasAutoRoll", true); passName = "Auto-Roll Pass"
-	elseif passId == 1749586333 then player:SetAttribute("HasHorseNamePass", true); passName = "Custom Horse Name Pass" end
+	elseif passId == 1749586333 then player:SetAttribute("HasHorseNamePass", true); passName = "Custom Horse Name Pass"
+	elseif passId == 1772743731 then player:SetAttribute("IsVIP", true); passName = "VIP Status" end
 
 	if Network:FindFirstChild("CombatUpdate") then
 		local msg = "<font color='#55FF55'>Successfully unlocked " .. passName .. "!</font>"
