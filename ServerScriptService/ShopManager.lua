@@ -126,6 +126,9 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		elseif data == "Slot5" and prestige >= 30 then
 			player:SetAttribute("StoredStand5", pendingStand)
 			player:SetAttribute("StoredStand5_Trait", pendingTrait)
+		elseif data == "SlotVIP" and player:GetAttribute("IsVIP") then
+			player:SetAttribute("StoredStandVIP", pendingStand)
+			player:SetAttribute("StoredStandVIP_Trait", pendingTrait)
 		end
 
 		player:SetAttribute("PendingShopStand", nil)
@@ -152,6 +155,8 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute("StoredStyle2", pendingStyle)
 		elseif data == "Slot3" and player:GetAttribute("HasStyleSlot3") then
 			player:SetAttribute("StoredStyle3", pendingStyle)
+		elseif data == "SlotVIP" and player:GetAttribute("IsVIP") then
+			player:SetAttribute("StoredStyleVIP", pendingStyle)
 		end
 
 		player:SetAttribute("PendingShopStyle", nil)
