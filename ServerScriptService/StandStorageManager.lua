@@ -33,11 +33,13 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 			local prestige = pObj and pObj:FindFirstChild("Prestige") and pObj.Prestige.Value or 0
 			if prestige < 30 then return end
 		end
+		if slotNum == "VIP" and not player:GetAttribute("IsVIP") then return end
 
 		local currentStand = player:GetAttribute("Stand") or "None"
 		local currentTrait = player:GetAttribute("StandTrait") or "None"
-		local storedStand = player:GetAttribute("StoredStand"..slotNum) or "None"
-		local storedTrait = player:GetAttribute("StoredStand"..slotNum.."_Trait") or "None"
+
+		local storedStand = player:GetAttribute("StoredStand"..tostring(slotNum)) or "None"
+		local storedTrait = player:GetAttribute("StoredStand"..tostring(slotNum).."_Trait") or "None"
 
 		if currentStand == "None" and storedStand == "None" then return end
 
@@ -45,25 +47,26 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 		player:SetAttribute("StandTrait", storedTrait)
 
 		local function SwapFusedData(slot)
+			local sKey = tostring(slot)
 			local aS1 = player:GetAttribute("Active_FusedStand1") or "None"
 			local aS2 = player:GetAttribute("Active_FusedStand2") or "None"
 			local aT1 = player:GetAttribute("Active_FusedTrait1") or "None"
 			local aT2 = player:GetAttribute("Active_FusedTrait2") or "None"
 
-			local sS1 = player:GetAttribute("StoredStand"..slot.."_FusedStand1") or "None"
-			local sS2 = player:GetAttribute("StoredStand"..slot.."_FusedStand2") or "None"
-			local sT1 = player:GetAttribute("StoredStand"..slot.."_FusedTrait1") or "None"
-			local sT2 = player:GetAttribute("StoredStand"..slot.."_FusedTrait2") or "None"
+			local sS1 = player:GetAttribute("StoredStand"..sKey.."_FusedStand1") or "None"
+			local sS2 = player:GetAttribute("StoredStand"..sKey.."_FusedStand2") or "None"
+			local sT1 = player:GetAttribute("StoredStand"..sKey.."_FusedTrait1") or "None"
+			local sT2 = player:GetAttribute("StoredStand"..sKey.."_FusedTrait2") or "None"
 
 			player:SetAttribute("Active_FusedStand1", sS1)
 			player:SetAttribute("Active_FusedStand2", sS2)
 			player:SetAttribute("Active_FusedTrait1", sT1)
 			player:SetAttribute("Active_FusedTrait2", sT2)
 
-			player:SetAttribute("StoredStand"..slot.."_FusedStand1", aS1)
-			player:SetAttribute("StoredStand"..slot.."_FusedStand2", aS2)
-			player:SetAttribute("StoredStand"..slot.."_FusedTrait1", aT1)
-			player:SetAttribute("StoredStand"..slot.."_FusedTrait2", aT2)
+			player:SetAttribute("StoredStand"..sKey.."_FusedStand1", aS1)
+			player:SetAttribute("StoredStand"..sKey.."_FusedStand2", aS2)
+			player:SetAttribute("StoredStand"..sKey.."_FusedTrait1", aT1)
+			player:SetAttribute("StoredStand"..sKey.."_FusedTrait2", aT2)
 		end
 
 		SwapFusedData(slotNum)
@@ -74,7 +77,7 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 
 			local statsList = {"Power", "Speed", "Range", "Durability", "Precision", "Potential"}
 			local rankToNum = {["None"]=0, ["E"]=1, ["D"]=2, ["C"]=3, ["B"]=4, ["A"]=5, ["S"]=6}
-			local numToRank = { [0]="None", [1]="E", [2]="D", [3]="C", [4]="B", [5]="A", [6]="S" }
+			local numToRank = { [0]="None", [1]="E", [2]="D", [3]="C", [4]="B",[5]="A", [6]="S" }
 
 			local baseData1 = StandData.Stands[sS1] and StandData.Stands[sS1].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
 			local baseData2 = StandData.Stands[sS2] and StandData.Stands[sS2].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
@@ -97,23 +100,24 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 			end
 		end
 
-		player:SetAttribute("StoredStand"..slotNum, currentStand)
-		player:SetAttribute("StoredStand"..slotNum.."_Trait", currentTrait)
+		player:SetAttribute("StoredStand"..tostring(slotNum), currentStand)
+		player:SetAttribute("StoredStand"..tostring(slotNum).."_Trait", currentTrait)
 
-		NotificationEvent:FireClient(player, "<font color='#FFD700'>Swapped Stand with Storage Slot "..slotNum.."!</font>")
+		NotificationEvent:FireClient(player, "<font color='#FFD700'>Swapped Stand with Storage Slot "..tostring(slotNum).."!</font>")
 
 	elseif action == "SwapStyle" then
 		if slotNum == 2 and not player:GetAttribute("HasStyleSlot2") then return end
 		if slotNum == 3 and not player:GetAttribute("HasStyleSlot3") then return end
+		if slotNum == "VIP" and not player:GetAttribute("IsVIP") then return end
 
 		local currentStyle = player:GetAttribute("FightingStyle") or "None"
-		local storedStyle = player:GetAttribute("StoredStyle"..slotNum) or "None"
+		local storedStyle = player:GetAttribute("StoredStyle"..tostring(slotNum)) or "None"
 
 		if currentStyle == "None" and storedStyle == "None" then return end
 
 		player:SetAttribute("FightingStyle", storedStyle)
-		player:SetAttribute("StoredStyle"..slotNum, currentStyle)
+		player:SetAttribute("StoredStyle"..tostring(slotNum), currentStyle)
 
-		NotificationEvent:FireClient(player, "<font color='#FF8C00'>Swapped Style with Storage Slot "..slotNum.."!</font>")
+		NotificationEvent:FireClient(player, "<font color='#FF8C00'>Swapped Style with Storage Slot "..tostring(slotNum).."!</font>")
 	end
 end)
