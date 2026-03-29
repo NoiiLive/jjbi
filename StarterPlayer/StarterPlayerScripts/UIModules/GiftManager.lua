@@ -7,8 +7,11 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 local SFXManager = require(script.Parent:WaitForChild("SFXManager"))
 
 local standClaimModal, styleClaimModal
-local btnScActive, btnScSlot1, btnScSlot2, btnScSlot3, btnScSlot4, btnScSlot5, btnScDeny
-local btnStyleActive, btnStyleSlot1, btnStyleSlot2, btnStyleSlot3, btnStyleDeny
+
+-- [ADDED VIP BUTTON VARIABLES HERE]
+local btnScActive, btnScSlot1, btnScSlot2, btnScSlot3, btnScSlot4, btnScSlot5, btnScSlotVIP, btnScDeny
+local btnStyleActive, btnStyleSlot1, btnStyleSlot2, btnStyleSlot3, btnStyleSlotVIP, btnStyleDeny
+
 local scTitle, styleTitle
 local standScroll, styleScroll, standLL, styleLL
 
@@ -40,6 +43,7 @@ function GiftManager.Init(parentGui)
 	btnScSlot3 = standScroll:WaitForChild("BtnScSlot3")
 	btnScSlot4 = standScroll:WaitForChild("BtnScSlot4")
 	btnScSlot5 = standScroll:WaitForChild("BtnScSlot5")
+	btnScSlotVIP = standScroll:WaitForChild("BtnScSlotVIP")
 	btnScDeny = standScroll:WaitForChild("BtnScDeny")
 
 	local function SendClaimStand(slot)
@@ -56,6 +60,7 @@ function GiftManager.Init(parentGui)
 	btnScSlot3.MouseButton1Click:Connect(function() SendClaimStand("Slot3") end)
 	btnScSlot4.MouseButton1Click:Connect(function() SendClaimStand("Slot4") end)
 	btnScSlot5.MouseButton1Click:Connect(function() SendClaimStand("Slot5") end)
+	btnScSlotVIP.MouseButton1Click:Connect(function() SendClaimStand("SlotVIP") end)
 	btnScDeny.MouseButton1Click:Connect(function() SendClaimStand("Deny") end)
 
 	styleClaimModal = modals:WaitForChild("StyleClaimModal")
@@ -68,6 +73,7 @@ function GiftManager.Init(parentGui)
 	btnStyleSlot1 = styleScroll:WaitForChild("BtnStyleSlot1")
 	btnStyleSlot2 = styleScroll:WaitForChild("BtnStyleSlot2")
 	btnStyleSlot3 = styleScroll:WaitForChild("BtnStyleSlot3")
+	btnStyleSlotVIP = styleScroll:WaitForChild("BtnStyleSlotVIP")
 	btnStyleDeny = styleScroll:WaitForChild("BtnStyleDeny")
 
 	local function SendClaimStyle(slot)
@@ -82,6 +88,7 @@ function GiftManager.Init(parentGui)
 	btnStyleSlot1.MouseButton1Click:Connect(function() SendClaimStyle("Slot1") end)
 	btnStyleSlot2.MouseButton1Click:Connect(function() SendClaimStyle("Slot2") end)
 	btnStyleSlot3.MouseButton1Click:Connect(function() SendClaimStyle("Slot3") end)
+	btnStyleSlotVIP.MouseButton1Click:Connect(function() SendClaimStyle("SlotVIP") end)
 	btnStyleDeny.MouseButton1Click:Connect(function() SendClaimStyle("Deny") end)
 
 	giftModal = modals:WaitForChild("GiftSelectionModal")
@@ -120,10 +127,14 @@ processQueue = function()
 		btnScSlot4.Text = FormatSlotLabel("Slot 4 (Pres. 15)", nextData.Slot4)
 		btnScSlot5.Text = FormatSlotLabel("Slot 5 (Pres. 30)", nextData.Slot5)
 
+		btnScSlotVIP.Text = FormatSlotLabel("VIP Slot", nextData.SlotVIP)
+
 		btnScSlot2.Visible = player:GetAttribute("HasStandSlot2") == true
 		btnScSlot3.Visible = player:GetAttribute("HasStandSlot3") == true
 		btnScSlot4.Visible = prestige >= 15
 		btnScSlot5.Visible = prestige >= 30
+
+		btnScSlotVIP.Visible = player:GetAttribute("IsVIP") == true 
 
 		standClaimModal.Visible = true
 		SFXManager.Play("BuyPass")
@@ -138,8 +149,14 @@ processQueue = function()
 		btnStyleSlot2.Text = FormatSlotLabel("Slot 2", nextData.Slot2)
 		btnStyleSlot3.Text = FormatSlotLabel("Slot 3", nextData.Slot3)
 
+		-- [ADDED VIP STYLE TEXT]
+		btnStyleSlotVIP.Text = FormatSlotLabel("VIP Slot", nextData.SlotVIP) 
+
 		btnStyleSlot2.Visible = player:GetAttribute("HasStyleSlot2") == true
 		btnStyleSlot3.Visible = player:GetAttribute("HasStyleSlot3") == true
+
+		-- [ADDED VIP STYLE VISIBILITY LOGIC]
+		btnStyleSlotVIP.Visible = player:GetAttribute("IsVIP") == true 
 
 		styleClaimModal.Visible = true
 		SFXManager.Play("BuyPass")
