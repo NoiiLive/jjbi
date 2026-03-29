@@ -53,7 +53,8 @@ local requiredRemotes = {
 	"RaidUpdate",
 	"SBRAction",
 	"SBRUpdate",
-	"ExecuteFusion"
+	"ExecuteFusion",
+	"PackAction"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
@@ -85,6 +86,14 @@ ToggleMuteRemote.OnServerEvent:Connect(function(player, state)
 	end
 end)
 
+RemotesFolder:WaitForChild("PackAction").OnServerEvent:Connect(function(player, action)
+	if action == "StarterExpired" then
+		player:SetAttribute("StarterPackExpired", true)
+	elseif action == "ProExpired" then
+		player:SetAttribute("ProPackExpired", true)
+	end
+end)
+
 local DefaultData = {
 	Prestige = 0, CurrentPart = 1, CurrentMission = 1, XP = 0, Yen = 0, Elo = 1000, TutorialStep = 0, PlayTime = 0,
 	EndlessHighScore = 0, EndlessMaxMilestone = 0, RaidWins = 0, 
@@ -95,9 +104,20 @@ local DefaultData = {
 
 	UniverseModifier = "None", StandPity = 0, TraitPity = 0, ShopPity = 0, ClaimedSupporterReward = false,
 
+	BoughtStarterPack = false, 
+	BoughtProPack = false,
+	StarterPackExpired = false,
+	ProPackExpired = false,
+
 	Gang = "None", GangRole = "None", LastOnline = os.time(),
 
 	LastWorldBossHour = -1,
+
+	IsVIP = false,
+
+	StoredStandVIP = "None",
+	StoredStandVIP_Trait = "None",
+	StoredStyleVIP = "None",
 
 	StandLocked = false, StyleLocked = false, IsMuted = false, LockedItems = "",
 
@@ -132,6 +152,7 @@ local DefaultData = {
 	StoredStand3_FusedStand1 = "None", StoredStand3_FusedStand2 = "None", StoredStand3_FusedTrait1 = "None", StoredStand3_FusedTrait2 = "None",
 	StoredStand4_FusedStand1 = "None", StoredStand4_FusedStand2 = "None", StoredStand4_FusedTrait1 = "None", StoredStand4_FusedTrait2 = "None",
 	StoredStand5_FusedStand1 = "None", StoredStand5_FusedStand2 = "None", StoredStand5_FusedTrait1 = "None", StoredStand5_FusedTrait2 = "None",
+	StoredStandVIP_FusedStand1 = "None", StoredStandVIP_FusedStand2 = "None", StoredStandVIP_FusedTrait1 = "None", StoredStandVIP_FusedTrait2 = "None",
 
 	HorseName = "", HorseSpeed = 1, HorseEndurance = 1, HorseTrait = "None",
 	HorseUpgradeEnd = 0, HorseUpgradeStat = "None"
@@ -184,6 +205,7 @@ end
 
 local function SavePlayerData(player)
 	if not player:FindFirstChild("leaderstats") then return end
+	if not player:GetAttribute("DataLoaded") then return end
 
 	local dataToSave = {
 		Prestige = player.leaderstats.Prestige.Value, CurrentPart = player:GetAttribute("CurrentPart"),
@@ -213,11 +235,18 @@ local function SavePlayerData(player)
 		ShopPity = player:GetAttribute("ShopPity") or 0,
 		ClaimedSupporterReward = player:GetAttribute("ClaimedSupporterReward") or false,
 
+		BoughtStarterPack = player:GetAttribute("BoughtStarterPack") or false,
+		BoughtProPack = player:GetAttribute("BoughtProPack") or false,
+		StarterPackExpired = player:GetAttribute("StarterPackExpired") or false,
+		ProPackExpired = player:GetAttribute("ProPackExpired") or false,
+
 		Gang = player:GetAttribute("Gang") or "None",
 		GangRole = player:GetAttribute("GangRole") or "None",
 		LastOnline = player:GetAttribute("LastOnline"), 
 
 		LastWorldBossHour = player:GetAttribute("LastWorldBossHour") or -1,
+
+		IsVIP = player:GetAttribute("IsVIP") or false,
 
 		StandLocked = player:GetAttribute("StandLocked") or false,
 		StyleLocked = player:GetAttribute("StyleLocked") or false,
@@ -255,10 +284,13 @@ local function SavePlayerData(player)
 		StoredStand4_Trait = player:GetAttribute("StoredStand4_Trait") or "None",
 		StoredStand5 = player:GetAttribute("StoredStand5") or "None",
 		StoredStand5_Trait = player:GetAttribute("StoredStand5_Trait") or "None",
+		StoredStandVIP = player:GetAttribute("StoredStandVIP") or "None",
+		StoredStandVIP_Trait = player:GetAttribute("StoredStandVIP_Trait") or "None",
 
 		StoredStyle1 = player:GetAttribute("StoredStyle1") or "None",
 		StoredStyle2 = player:GetAttribute("StoredStyle2") or "None",
 		StoredStyle3 = player:GetAttribute("StoredStyle3") or "None",
+		StoredStyleVIP = player:GetAttribute("StoredStyleVIP") or "None",
 
 		Active_FusedStand1 = player:GetAttribute("Active_FusedStand1") or "None",
 		Active_FusedStand2 = player:GetAttribute("Active_FusedStand2") or "None",
@@ -285,6 +317,11 @@ local function SavePlayerData(player)
 		StoredStand5_FusedTrait1 = player:GetAttribute("StoredStand5_FusedTrait1") or "None",
 		StoredStand5_FusedTrait2 = player:GetAttribute("StoredStand5_FusedTrait2") or "None",
 
+		StoredStandVIP_FusedStand1 = player:GetAttribute("StoredStandVIP_FusedStand1") or "None",
+		StoredStandVIP_FusedStand2 = player:GetAttribute("StoredStandVIP_FusedStand2") or "None",
+		StoredStandVIP_FusedTrait1 = player:GetAttribute("StoredStandVIP_FusedTrait1") or "None",
+		StoredStandVIP_FusedTrait2 = player:GetAttribute("StoredStandVIP_FusedTrait2") or "None",
+
 		HorseName = player:GetAttribute("HorseName") or "",
 		HorseSpeed = player:GetAttribute("HorseSpeed") or 1,
 		HorseEndurance = player:GetAttribute("HorseEndurance") or 1,
@@ -303,13 +340,31 @@ local function SavePlayerData(player)
 			saveTarget[attrName] = player:GetAttribute(attrName) or 0
 		end
 	end
-
 	SaveItems(ItemData.Equipment, dataToSave)
 	SaveItems(ItemData.Consumables, dataToSave)
 
-	local success, err = pcall(function() GameDataStore:SetAsync(player.UserId, dataToSave) end)
-	if not success then warn("Failed to save data for " .. player.Name .. ": ", err) end
+	local success, err = pcall(function() 
+		GameDataStore:UpdateAsync(player.UserId, function(oldData)
+			return dataToSave
+		end)
+	end)
+
+	if not success then 
+		warn("FAILED TO SAVE DATA FOR " .. player.Name .. ": ", err) 
+	else
+		print("Successfully saved data for " .. player.Name)
+	end
 end
+
+game:BindToClose(function()
+	print("Shutting down - saving data...")
+	for _, player in ipairs(Players:GetPlayers()) do
+		task.spawn(function()
+			SavePlayerData(player)
+		end)
+	end
+	task.wait(2)
+end)
 
 local function checkPlayerCompliance(player)
 	local success, result = pcall(function()
@@ -325,13 +380,30 @@ local function checkPlayerCompliance(player)
 end
 
 Players.PlayerAdded:Connect(function(player)
-	local success, savedData = pcall(function() return GameDataStore:GetAsync(player.UserId) end)
-	if success and savedData then
+	local success, savedData
+	local retries = 3
+
+	repeat
+		success, savedData = pcall(function() return GameDataStore:GetAsync(player.UserId) end)
+		if not success then
+			task.wait(2)
+			retries -= 1
+		end
+	until success or retries <= 0
+
+	if not success then
+		player:Kick("Data failed to load. Please rejoin to protect your save file.")
+		return
+	end
+
+	if savedData then
 		for k, v in pairs(DefaultData) do if savedData[k] == nil then savedData[k] = v end end
 		SetupLeaderstats(player, savedData)
 	else
 		SetupLeaderstats(player, DefaultData)
 	end
+
+	player:SetAttribute("DataLoaded", true)
 
 	checkPlayerCompliance(player)
 
@@ -358,6 +430,7 @@ Players.PlayerAdded:Connect(function(player)
 		end
 	end
 
+	VerifyPass(1772743731, "IsVIP")
 	VerifyPass(1731694181, "Has2xBattleSpeed")
 	VerifyPass(1732129582, "HasAutoTraining")
 	VerifyPass(1732900742, "Has2xInventory")
@@ -400,15 +473,14 @@ task.spawn(function()
 	while true do
 		task.wait(300)
 		for _, player in ipairs(Players:GetPlayers()) do
-			if player:GetAttribute("LastOnline") then
-				player:SetAttribute("LastOnline", os.time())
-			end
 			SavePlayerData(player)
 
 			local notifUpdate = RemotesFolder:FindFirstChild("NotificationEvent")
 			if notifUpdate then
 				notifUpdate:FireClient(player, "<b><font color='#55FF55'>Game Auto-Saved</font></b>")
 			end
+
+			task.wait(0.5)
 		end
 	end
 end)
