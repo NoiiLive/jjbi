@@ -9,7 +9,7 @@ local UpdatesData = {
 <font color='#55FF55'>[+]</font> <b>Hybrid Abilities & Names:</b> Fused Stands take the first half of their name and abilities from Stand 1, and the second half from Stand 2. Order matters!
 <font color='#55FFFF'>[*]</font> <b>Bug Fixes:</b> Fixed mobile UI scrolling issues, Gang order tracking, and Gang renaming.
 
-Use code <b><font color='#FF55FF'>JOJOLIONPART2</font></b> for free rewards!]],
+Use code <b><font color='#FF55FF'>FUSION</font></b> for free rewards!]],
 
 	[[<b><font color='#FFD700'>v2.0 - JoJolion Update PART 1 (March 21st)</font></b>
 
@@ -18,18 +18,14 @@ Use code <b><font color='#FF55FF'>JOJOLIONPART2</font></b> for free rewards!]],
 <font color='#55FF55'>[+]</font> <b>New Combat Style:</b> Rock Human style has been added!
 <font color='#55FF55'>[+]</font> <b>Story Expansion:</b> Part 8 Story Expansion is now playable after completing Part 7.
 <font color='#55FF55'>[+]</font> <b>New Raid:</b> Added the Part 8 Raid (The Head Doctor) which drops a new accessory, weapon, and the Rokakaka Branch.
-<font color='#55FF55'>[+]</font> <b>New World Boss:</b> Wonder of U is now a World Boss! Defeat him for a chance at his Stand Disc and the New Rokakaka.
-
-Use code <b><font color='#FF55FF'>JOJOLIONPART1</font></b> for free rewards!]],
+<font color='#55FF55'>[+]</font> <b>New World Boss:</b> Wonder of U is now a World Boss! Defeat him for a chance at his Stand Disc and the New Rokakaka.]],
 
 	[[<b><font color='#FFD700'>v1.9 - UI Rework Update (March 20th)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>UI Rework:</b> Updated all the in-game UI to be cleaner and more visually interesting.
 <font color='#55FF55'>[+]</font> <b>World Boss:</b> World Boss now gives a stand arrow even if you die.
 <font color='#55FF55'>[+]</font> <b>Inventory Changes:</b> All consumables are now considered 'key items' (no longer take inventory space). Prestige inventory space has been removed.
-<font color='#55FF55'>[+]</font> <b>Combat Pace:</b> Turn deadlines in multiplayer combat have been cut down significantly.
-
-Use code <b><font color='#FF55FF'>GUIREWORK</font></b> and <b><font color='#FF55FF'>250KVISITS</font></b> for free rewards!]],
+<font color='#55FF55'>[+]</font> <b>Combat Pace:</b> Turn deadlines in multiplayer combat have been cut down significantly.]],
 
 	[[<b><font color='#FFD700'>v1.8 - Gangs & QoL Update (March 16th)</font></b>
 
