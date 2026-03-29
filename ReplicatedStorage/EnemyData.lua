@@ -136,7 +136,36 @@ EnemyData.WorldBosses = {
 			XP = 35000, Yen = 15000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1 } 
 		}
-	}
+	},
+	
+	-- April Fools
+	["Chiikawa"] = {
+		Name = "Chiikawa",
+		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Skills = {"Waaah!", "Pajama Party", "Weed Whacker", "Usagi's Help", "Block"},
+		Drops = {
+			XP = 35000, Yen = 15000, 
+			ItemChance = { ["Chiikawa Mascot"] = 1, ["Pink Sasumata"] = 1, ["Pochette's Armor"] = 1, ["Mythical Giftbox"] = 10, ["Legendary Giftbox"] = 25 }
+		}
+	},
+	["Satoru Gojo"] = {
+		Name = "Satoru Gojo",
+		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Skills = {"Lapse: Blue", "Reversal: Red", "Hollow Purple", "Unlimited Void", "Block"},
+		Drops = {
+			XP = 35000, Yen = 15000, 
+			ItemChance = { ["Limitless Manual"] = 1, ["Playful Cloud"] = 1, ["Gojo's Blindfold"] = 1, ["Mythical Giftbox"] = 15, ["Legendary Giftbox"] = 30 }
+		}
+	},
+	["Ryomen Sukuna"] = {
+		Name = "Ryomen Sukuna",
+		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Skills = {"Dismantle", "Cleave", "Divine Flame", "Malevolent Shrine", "Block"},
+		Drops = {
+			XP = 35000, Yen = 15000, 
+			ItemChance = { ["Cursed Finger"] = 1, ["Kamutoke"] = 1, ["Heian Era Robes"] = 1, ["Mythical Giftbox"] = 15, ["Legendary Giftbox"] = 30 }
+		}
+	},
 }
 
 EnemyData.Parts = {
