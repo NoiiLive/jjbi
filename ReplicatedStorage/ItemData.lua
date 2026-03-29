@@ -61,6 +61,15 @@ ItemData.Equipment = {
 
 	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Unique", Cost = 1 },
 	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 99 }, Rarity = "Unique", Cost = 1 },
+	
+	-- April Fools
+	["Pink Sasumata"] = { Slot = "Weapon", Bonus = { Strength = 120, Speed = 120, Defense = 80 }, Rarity = "Unique", Cost = 2000000 },
+	["Playful Cloud"] = { Slot = "Weapon", Bonus = { Strength = 180, Speed = 80, Stand_Power = 80 }, Rarity = "Unique", Cost = 2000000 },
+	["Kamutoke"] = { Slot = "Weapon", Bonus = { Strength = 150, Stand_Power = 150, Stand_Range = 50 }, Rarity = "Unique", Cost = 2000000 },
+
+	["Pochette's Armor"] = { Slot = "Accessory", Bonus = { Strength = 150, Defense = 150, Willpower = 100 }, Rarity = "Unique", Cost = 2000000 },
+	["Gojo's Blindfold"] = { Slot = "Accessory", Bonus = { Stand_Power = 200, Speed = 100, Willpower = 80 }, Rarity = "Unique", Cost = 2000000 },
+	["Heian Era Robes"] = { Slot = "Accessory", Bonus = { Health = 100, Defense = 100, Stand_Power = 150 }, Rarity = "Unique", Cost = 2000000 },
 }
 
 ItemData.Consumables = {
@@ -110,6 +119,7 @@ ItemData.Consumables = {
 	["2x Battle Speed Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Unique", Cost = 0 },
 	["2x Inventory Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles your inventory capacity.", Rarity = "Unique", Cost = 0 },
 	["2x Drop Chance Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles all item drop rates.", Rarity = "Unique", Cost = 0 },
+	["VIP"] = { Category = "Player", Description = "Consumable gamepass. Permanently unlocks 2x Training Speed, a VIP Stand Slot, and VIP Style Slot!", Rarity = "Unique", Cost = 0 },
 	["Auto Training Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Auto Training.", Rarity = "Unique", Cost = 0 },
 	["Stand Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 2.", Rarity = "Unique", Cost = 0 },
 	["Stand Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 3.", Rarity = "Unique", Cost = 0 },
@@ -117,6 +127,11 @@ ItemData.Consumables = {
 	["Style Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 3.", Rarity = "Unique", Cost = 0 },
 	["Auto-Roll Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Auto-Roll feature.", Rarity = "Unique", Cost = 0 },
 	["Custom Horse Name"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Unique", Cost = 0 },
+	
+	-- April Fools
+	["Chiikawa Mascot"] = { Category = "Stand", Description = "A strange little creature. Awaken the Chiikawa Stand.", Rarity = "Unique", Cost = 500000 },
+	["Limitless Manual"] = { Category = "Player", Description = "Learn the concept of infinity. Grants the Limitless style.", Rarity = "Unique", Cost = 500000 },
+	["Cursed Finger"] = { Category = "Player", Description = "A mummified finger radiating evil. Grants the Shrine style.", Rarity = "Unique", Cost = 500000 },
 }
 
 return ItemData
