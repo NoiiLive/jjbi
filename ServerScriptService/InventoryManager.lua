@@ -141,7 +141,7 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 			player:SetAttribute("IsAutoRolling", false)
 			return
 		elseif newStand == "Fused Stand" then
-			NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot Auto-Roll traits on a Fused Stand! Disassemble it first.</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot Auto-Roll traits on a Fused Stand!</font>")
 			player:SetAttribute("IsAutoRolling", false)
 			return
 		end
@@ -251,7 +251,7 @@ local function HandleGiftboxDrop(player, targetRarity)
 	return "The box was empty..."
 end
 
-UseItemRemote.OnServerEvent:Connect(function(player, itemName)
+UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targetTrait)
 	local attrName = itemName:gsub("[^%w]", "") .. "Count"
 	local itemCount = player:GetAttribute(attrName) or 0
 
@@ -260,6 +260,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 		local prestige = player.leaderstats.Prestige.Value
 		local statCap = GameData.GetStatCap(prestige)
 		local myStand = player:GetAttribute("Stand") or "None"
+		local myTrait = player:GetAttribute("StandTrait") or "None"
 		local itemConsumed = true
 
 		if ItemData.Equipment[itemName] then
@@ -281,6 +282,20 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName)
 		if isStyleItem and player:GetAttribute("StyleLocked") then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Fighting Style is locked! Unlock it to use this item.</font>")
 			return
+		end
+
+		if targetStand and targetStand ~= "Any" and targetStand ~= "" and myStand == targetStand then
+			if itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" then
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You already have your target Stand! (" .. targetStand .. ")</font>")
+				return
+			end
+		end
+
+		if targetTrait and targetTrait ~= "Any" and targetTrait ~= "" and myTrait == targetTrait then
+			if itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Rokakaka" then
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You already have your target Trait! (" .. targetTrait .. ")</font>")
+				return
+			end
 		end
 
 		local function EvolveStand(newStand)
