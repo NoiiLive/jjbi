@@ -11,12 +11,14 @@ local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 
 local trainLog, trainBarFill, currentTween, toggleTrainBtn, spinningStar, spinConnection
 local isTraining = false
-local trainTweenInfo = TweenInfo.new(4.8, Enum.EasingStyle.Linear)
+
+local currentDuration = 5
 
 local function PlayTrainingTween()
 	if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
 	trainBarFill.Size = UDim2.new(0, 0, 1, 0)
-	currentTween = TweenService:Create(trainBarFill, trainTweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
+	local tweenInfo = TweenInfo.new(currentDuration, Enum.EasingStyle.Linear)
+	currentTween = TweenService:Create(trainBarFill, tweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
 	currentTween:Play()
 end
 
@@ -58,7 +60,8 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 	end)
 
 	task.spawn(function()
-		while task.wait(5) do
+		while true do
+			task.wait(currentDuration)
 			if isTraining then PlayTrainingTween() end
 		end
 	end)
@@ -119,6 +122,10 @@ function TrainingTab.Init(parentFrame, tooltipMgr)
 end
 
 function TrainingTab.OnTick(data)
+	if data.Duration then
+		currentDuration = data.Duration
+	end
+	
 	if isTraining and trainLog then
 		trainLog.Text = "<font color='#55FFFF'>Gained +" .. data.XP .. " XP</font> and <font color='#55FF55'>+" .. data.Yen .. " Yen</font>. (Part " .. data.Part .. " Multiplier!)"
 	end
