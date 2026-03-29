@@ -44,6 +44,7 @@ local premiumItems = {
 	{ Type = "Product", Id = 3548207336, Name = "Vampire Pack", Price = 200, Desc = "<b><font color='#FFD700'>Vampire Bundle</font></b>\n<font color='#AA00AA'>Vampire Style</font> & Vampire Cape." },
 	{ Type = "Product", Id = 3548207175, Name = "Pillarman Pack", Price = 200, Desc = "<b><font color='#FFD700'>Pillarman Bundle</font></b>\n<font color='#FF5555'>Pillarman Style</font> & Red Stone of Aja." },
 
+	{ Type = "Pass", Id = 1772743731, GiftId = 3564614546, Name = "VIP Pass", Price = 900, Desc = "<b><font color='#FFD700'>VIP Status</font></b>\n<font color='#55FF55'>2x Training Speed</font>\nExclusive VIP Stand Slot\nExclusive VIP Style Slot.", Attr = "IsVIP" },
 	{ Type = "Pass", Id = 1731694181, GiftId = 3552102461, Name = "2x Speed", Price = 200, Desc = "<b><font color='#55FFFF'>2x Battle Speed</font></b>\nBattles play out <font color='#55FF55'>twice as fast!</font>", Attr = "Has2xBattleSpeed" },
 	{ Type = "Pass", Id = 1732900742, GiftId = 3552102647, Name = "2x Inventory", Price = 100, Desc = "<b><font color='#55FFFF'>2x Inventory</font></b>\nIncreases slots to <font color='#55FF55'>30</font>.", Attr = "Has2xInventory" },
 	{ Type = "Pass", Id = 1732842877, GiftId = 3552103016, Name = "2x Drops", Price = 400, Desc = "<b><font color='#55FFFF'>2x Drop Chance</font></b>\n<font color='#55FF55'>Doubles</font> the chance of items dropping.", Attr = "Has2xDropChance" },
