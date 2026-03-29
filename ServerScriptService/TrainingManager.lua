@@ -30,13 +30,19 @@ local function GetPlayerBoosts(player)
 	boosts.XP += (friends * 0.05)
 	boosts.Yen += (friends * 0.05)
 
-	if player.MembershipType == Enum.MembershipType.Premium then boosts.XP += 0.05 end
-
-	if player:GetAttribute("IsSupporter") then
+	if player.MembershipType == Enum.MembershipType.Premium then
 		boosts.XP += 0.05
 	end
 
-	local elo = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Elo") and player.leaderstats.Elo.Value or 1000
+	if player:GetAttribute("IsSupporter") == true then
+		boosts.XP += 0.05
+	end
+
+	local elo = 1000
+	if player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Elo") then
+		elo = player.leaderstats.Elo.Value
+	end
+
 	if elo >= 1500 then boosts.Yen += 0.05 end
 	if elo >= 2000 then boosts.XP += 0.05 end
 
@@ -47,33 +53,62 @@ local function GetPlayerBoosts(player)
 end
 
 ToggleTraining.OnServerEvent:Connect(function(player, isTraining)
-	if isTraining then ActiveTrainers[player] = true else ActiveTrainers[player] = nil end
+	if isTraining then
+		ActiveTrainers[player] = true
+	else
+		ActiveTrainers[player] = nil
+	end
 end)
 
+local tickCounter = 0
+
 task.spawn(function()
-	while task.wait(5) do
+	while true do
+		task.wait(2.5)
+		tickCounter += 1
+
 		for player, _ in pairs(ActiveTrainers) do
-			if player and player.Parent and player:FindFirstChild("leaderstats") then
-				local prestige = player.leaderstats.Prestige.Value
-				local currentPart = player:GetAttribute("CurrentPart") or 1
-				local safePart = math.clamp(currentPart, 1, 6)
-
-				local baseRates = TrainingRates[safePart]
-
-				local xpGain = baseRates.XP * (1 + prestige)
-				local yenGain = baseRates.Yen * (1 + prestige)
-
-				local pBoosts = GetPlayerBoosts(player)
-				xpGain = math.floor(xpGain * pBoosts.XP)
-				yenGain = math.floor(yenGain * pBoosts.Yen)
-
-				player:SetAttribute("XP", (player:GetAttribute("XP") or 0) + xpGain)
-				player.leaderstats.Yen.Value += yenGain
-
-				Network.CombatUpdate:FireClient(player, "TrainingTick", {XP = xpGain, Yen = yenGain, Part = safePart})
-			else
+			if not player or not player.Parent then
 				ActiveTrainers[player] = nil
+				continue
 			end
+
+			local leaderstats = player:FindFirstChild("leaderstats")
+			if not leaderstats then continue end
+
+			local isVIP = player:GetAttribute("IsVIP") == true
+
+			local shouldTrain = isVIP or (tickCounter % 2 == 0)
+			if not shouldTrain then
+				continue
+			end
+
+			local prestige = leaderstats:FindFirstChild("Prestige") and leaderstats.Prestige.Value or 0
+			local currentPart = player:GetAttribute("CurrentPart") or 1
+			local safePart = math.clamp(currentPart, 1, 9)
+
+			local baseRates = TrainingRates[safePart]
+			if not baseRates then continue end
+
+			local xpGain = baseRates.XP * (1 + prestige)
+			local yenGain = baseRates.Yen * (1 + prestige)
+
+			local boosts = GetPlayerBoosts(player)
+			xpGain = math.floor(xpGain * boosts.XP)
+			yenGain = math.floor(yenGain * boosts.Yen)
+
+			player:SetAttribute("XP", (player:GetAttribute("XP") or 0) + xpGain)
+
+			if leaderstats:FindFirstChild("Yen") then
+				leaderstats.Yen.Value += yenGain
+			end
+
+			Network.CombatUpdate:FireClient(player, "TrainingTick", {
+				XP = xpGain,
+				Yen = yenGain,
+				Part = safePart,
+				Duration = isVIP and 2.5 or 5
+			})
 		end
 	end
 end)
