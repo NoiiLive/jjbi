@@ -210,6 +210,9 @@ SkillData.Skills = {
 	["Bomb Plant"] = { Requirement = "Killer Queen", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Debuff_Defense", Duration = 4, Cooldown = 5, Order = 13, Description = "Plants a secondary charge to shatter enemy Defense." },
 
 	["Donut Punch"] = { Requirement = "King Crimson", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A devastating punch straight through the enemy's torso." },
+	
+	
+	
 	["Time Erasure"] = { Requirement = "King Crimson", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "TimeErase", Duration = 2, Cooldown = 6, Order = 12, Description = "Erases time, stunning the enemy and boosting Speed." },
 	["Epitaph"] = { Requirement = "King Crimson", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Predicts the future, massively increasing your Speed." },
 
