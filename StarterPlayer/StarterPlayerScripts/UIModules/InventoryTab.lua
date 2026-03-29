@@ -302,13 +302,15 @@ local function RefreshStorageList()
 		{ Backend = 2, IsUnlocked = player:GetAttribute("HasStandSlot2"), Type = "Robux", PassId = 1733160695 },
 		{ Backend = 3, IsUnlocked = player:GetAttribute("HasStandSlot3"), Type = "Robux", PassId = 1732844091 },
 		{ Backend = 4, IsUnlocked = (prestige >= 15), Type = "Prestige", Req = 15 },
-		{ Backend = 5, IsUnlocked = (prestige >= 30), Type = "Prestige", Req = 30 }
+		{ Backend = 5, IsUnlocked = (prestige >= 30), Type = "Prestige", Req = 30 },
+		{ Backend = "VIP", IsUnlocked = player:GetAttribute("IsVIP"), Type = "VIP", Prefix = "VIP" }
 	}
 
 	local styleSlots = {
 		{ Backend = 1, IsUnlocked = true, Type = "Base" },
 		{ Backend = 2, IsUnlocked = player:GetAttribute("HasStyleSlot2"), Type = "Robux", PassId = 1746853452 },
-		{ Backend = 3, IsUnlocked = player:GetAttribute("HasStyleSlot3"), Type = "Robux", PassId = 1745969849 }
+		{ Backend = 3, IsUnlocked = player:GetAttribute("HasStyleSlot3"), Type = "Robux", PassId = 1745969849 },
+		{ Backend = "VIP", IsUnlocked = player:GetAttribute("IsVIP"), Type = "VIP", Prefix = "VIP" }
 	}
 
 	local function RenderSlots(slotsTable, container, isStand)
@@ -316,20 +318,22 @@ local function RefreshStorageList()
 			local row = Templates:WaitForChild("StorageSlotTemplate"):Clone()
 			row.Parent = container
 
+			local prefix = slotData.Prefix or ("S"..visualNum)
+
 			local nameLabel = row:WaitForChild("NameLabel")
 			local btn = row:WaitForChild("ActionBtn")
 
 			if slotData.IsUnlocked then
 				if isStand then
-					local storedName = player:GetAttribute("StoredStand"..slotData.Backend) or "None"
-					local storedTrait = player:GetAttribute("StoredStand"..slotData.Backend.."_Trait") or "None"
+					local storedName = player:GetAttribute("StoredStand"..tostring(slotData.Backend)) or "None"
+					local storedTrait = player:GetAttribute("StoredStand"..tostring(slotData.Backend).."_Trait") or "None"
 					local traitDisplay = ""
 
 					if storedName == "Fused Stand" then
-						local fs1 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedStand1") or "Unknown"
-						local fs2 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedStand2") or "Unknown"
-						local ft1 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedTrait1") or "None"
-						local ft2 = player:GetAttribute("StoredStand"..slotData.Backend.."_FusedTrait2") or "None"
+						local fs1 = player:GetAttribute("StoredStand"..tostring(slotData.Backend).."_FusedStand1") or "Unknown"
+						local fs2 = player:GetAttribute("StoredStand"..tostring(slotData.Backend).."_FusedStand2") or "Unknown"
+						local ft1 = player:GetAttribute("StoredStand"..tostring(slotData.Backend).."_FusedTrait1") or "None"
+						local ft2 = player:GetAttribute("StoredStand"..tostring(slotData.Backend).."_FusedTrait2") or "None"
 
 						storedName = FusionUtility.CalculateFusedName(fs1, fs2)
 
@@ -347,8 +351,8 @@ local function RefreshStorageList()
 						end
 					end
 
-					nameLabel.Text = "S"..visualNum..": <font color='#A020F0'>" .. storedName .. "</font>" .. traitDisplay
-					local realStoredName = player:GetAttribute("StoredStand"..slotData.Backend) or "None"
+					nameLabel.Text = prefix..": <font color='#A020F0'>" .. storedName .. "</font>" .. traitDisplay
+					local realStoredName = player:GetAttribute("StoredStand"..tostring(slotData.Backend)) or "None"
 					if realStoredName == "None" and (player:GetAttribute("Stand") or "None") == "None" then
 						btn.Text = "Empty"; btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 					else
@@ -356,8 +360,8 @@ local function RefreshStorageList()
 						btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("StandStorageAction"):FireServer("Swap", slotData.Backend) end)
 					end
 				else
-					local storedName = player:GetAttribute("StoredStyle"..slotData.Backend) or "None"
-					nameLabel.Text = "S"..visualNum..": <font color='#FF8C00'>" .. storedName .. "</font>"
+					local storedName = player:GetAttribute("StoredStyle"..tostring(slotData.Backend)) or "None"
+					nameLabel.Text = prefix..": <font color='#FF8C00'>" .. storedName .. "</font>"
 					if storedName == "None" and (player:GetAttribute("FightingStyle") or "None") == "None" then
 						btn.Text = "Empty"; btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 					else
@@ -367,10 +371,14 @@ local function RefreshStorageList()
 				end
 			else
 				if slotData.Type == "Prestige" then
-					nameLabel.Text = "S"..visualNum..": <font color='#FF5555'>Locked (P."..slotData.Req..")</font>"
+					nameLabel.Text = prefix..": <font color='#FF5555'>Locked (P."..slotData.Req..")</font>"
 					btn.Text = "Lock"; btn.BackgroundColor3 = Color3.fromRGB(100, 50, 50); btn.AutoButtonColor = false
+				elseif slotData.Type == "VIP" then
+					nameLabel.Text = prefix..": <font color='#FFD700'>Locked (VIP)</font>"
+					btn.Text = "Buy"; btn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
+					btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); MarketplaceService:PromptGamePassPurchase(player, 1772743731) end)
 				else
-					nameLabel.Text = "S"..visualNum..": <font color='#FF5555'>Locked (R$)</font>"
+					nameLabel.Text = prefix..": <font color='#FF5555'>Locked (R$)</font>"
 					btn.Text = "Buy"; btn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
 					btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); MarketplaceService:PromptGamePassPurchase(player, slotData.PassId) end)
 				end
@@ -479,14 +487,14 @@ local function RefreshInventoryList()
 		else
 			useBtn.MouseButton1Click:Connect(function()
 				if useBtn.Text == "Equip" then
-					SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName)
+					SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
 				else
 					if ItemData.Consumables[itemName] and not isConfirmingUse then
 						isConfirmingUse = true; useBtn.Text = "Confirm?"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
 						task.delay(3, function() if isConfirmingUse and useBtn.Parent then isConfirmingUse = false; useBtn.Text = "Use"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0) end end)
 						return
 					end
-					isConfirmingUse = false; SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName)
+					isConfirmingUse = false; SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
 				end
 			end)
 		end
@@ -825,7 +833,12 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("StandTrait"):Connect(function() UpdateTopDisplays(); RefreshStorageList() end)
 
 	for i = 1, 5 do player:GetAttributeChangedSignal("StoredStand"..i):Connect(RefreshStorageList) end
+	player:GetAttributeChangedSignal("StoredStandVIP"):Connect(RefreshStorageList)
+
 	for i = 1, 3 do player:GetAttributeChangedSignal("StoredStyle"..i):Connect(RefreshStorageList) end
+	player:GetAttributeChangedSignal("StoredStyleVIP"):Connect(RefreshStorageList)
+
+	player:GetAttributeChangedSignal("IsVIP"):Connect(RefreshStorageList)
 
 	player:GetAttributeChangedSignal("HasStandSlot2"):Connect(RefreshStorageList)
 	player:GetAttributeChangedSignal("HasStandSlot3"):Connect(RefreshStorageList)
