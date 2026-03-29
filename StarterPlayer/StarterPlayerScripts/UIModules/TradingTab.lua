@@ -41,6 +41,8 @@ local rarityOrder = { Common = 1, Uncommon = 2, Rare = 3, Legendary = 4, Mythica
 
 local function IsRestrictedPass(name)
 	local passes = {
+		["VIP Pass"] = true,
+		["VIP"] = true,
 		["2x Battle Speed Pass"] = true,
 		["2x Inventory Pass"] = true,
 		["2x Drop Chance Pass"] = true,
