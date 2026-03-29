@@ -38,10 +38,34 @@ local AdminForcedEndTime = 0
 
 local BOSS_ACTIVE_MINUTES = 30
 
+local APRIL_FOOLS_BOSSES = {
+	"Chiikawa",
+	"Satoru Gojo",
+	"Ryomen Sukuna"
+}
+
 local function IsBossActive()
 	if os.time() < AdminForcedEndTime then return true end
 	local utc = os.date("!*t")
 	return utc.min < BOSS_ACTIVE_MINUTES
+end
+
+local function GetAvailableBosses()
+	local utc = os.date("!*t")
+	local isAprilFools = (utc.month == 4 and utc.day == 1)
+	local list = {}
+
+	for bossName, _ in pairs(EnemyData.WorldBosses or {}) do
+		if table.find(APRIL_FOOLS_BOSSES, bossName) then
+			if isAprilFools then 
+				table.insert(list, bossName) 
+			end
+		else
+			table.insert(list, bossName)
+		end
+	end
+
+	return list
 end
 
 pcall(function()
@@ -50,10 +74,7 @@ pcall(function()
 			p:SetAttribute("LastWorldBossHour", -1)
 		end
 
-		local bossList = {}
-		for bossName, _ in pairs(EnemyData.WorldBosses or {}) do
-			table.insert(bossList, bossName)
-		end
+		local bossList = GetAvailableBosses()
 
 		if #bossList > 0 then
 			if specificBossName and EnemyData.WorldBosses[specificBossName] then
@@ -81,10 +102,7 @@ task.spawn(function()
 			if os.time() > AdminForcedEndTime and LastSpawnHour ~= utc.hour then
 				LastSpawnHour = utc.hour
 
-				local bossList = {}
-				for bossName, _ in pairs(EnemyData.WorldBosses or {}) do
-					table.insert(bossList, bossName)
-				end
+				local bossList = GetAvailableBosses()
 
 				if #bossList > 0 then
 					local timeSeed = (utc.year * 10000) + (utc.yday * 100) + utc.hour
