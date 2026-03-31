@@ -342,6 +342,10 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		elseif itemName == "Custom Horse Name" then
 			if player:GetAttribute("HasHorseNamePass") then message = "You already own this pass!"; itemConsumed = false
 			else player:SetAttribute("HasHorseNamePass", true); message = "Unlocked Custom Horse Names!" end
+		elseif itemName == "VIP" then
+			if player:GetAttribute("IsVIP") then message = "You already own this pass!"; itemConsumed = false
+			else player:SetAttribute("IsVIP", true); message = "Unlocked VIP!" end
+
 
 		elseif itemName == "Stand Arrow" then
 			local pBoosts = GetPlayerBoosts(player)
@@ -581,8 +585,39 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				message = "You must be at least Prestige 15 to use the New Rokakaka!"
 				itemConsumed = false
 			end
-		end
+			
+		-- April Fools
+		elseif itemName == "Scratch-Off Ticket" then
+			if myStand == "None" then
+				message = "You need a Stand to gamble your life away!"
+				itemConsumed = false
+			elseif myStand == "Fused Stand" then
+				message = "You cannot use a Scratch-Off Ticket on a Fused Stand!"
+				itemConsumed = false
+			else
+				player:SetAttribute("StandTrait", "Gambling Addict")
+				message = "You vigorously scratch the ticket... You gained the Gambling Addict trait!"
+			end
+		elseif itemName == "Chiikawa Mascot" then
+			player:SetAttribute("Stand", "Chiikawa")
+			player:SetAttribute("StandTrait", "None")
+			local stats = StandData.Stands["Chiikawa"].Stats
+			for statName, rank in pairs(stats) do
+				player:SetAttribute("Stand_"..statName, rank)
+			end
+			message = "A strange little creature has chosen you! Awakened Stand: Chiikawa!"
 
+		elseif itemName == "Limitless Manual" then
+			player:SetAttribute("FightingStyle", "Limitless")
+			message = "You have understood the concept of infinity! Gained Limitless Style."
+
+		elseif itemName == "Cursed Finger" then
+			player:SetAttribute("FightingStyle", "Shrine")
+			message = "The finger's curse flows through you! Gained Shrine Style."			
+		--
+		end
+		
+		
 		if itemConsumed then
 			player:SetAttribute(attrName, itemCount - 1)
 			if message ~= "" then
