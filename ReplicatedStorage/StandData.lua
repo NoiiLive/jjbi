@@ -42,6 +42,7 @@ StandData.Traits = {
 	["Perseverance"] = { Rarity = "Unique", Color = "#AAAAAA", Desc = "+50% HP & Willpower, Fatal damage now heals you for 25%." },
 	["Requiem"] = { Rarity = "Unique", Color = "#F5AA3D", Desc = "All base damage is increase by 50%" },
 	["Overheaven"] = { Rarity = "Unique", Color = "#FAE5C7", Desc = "All base damage is increase by 30%" },
+	["Gambling Addict"] = { Rarity = "Unique", Color = "#7FFF1C", Desc = "99% of gamblers quit right before they win big." },
 }
 
 StandData.Stands = {
