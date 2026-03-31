@@ -532,6 +532,20 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local reqCount = CombatCore.CountTrait(attacker, "Requiem")
 		if reqCount > 0 then mult *= (1.50 ^ reqCount) end
 
+		local gachaMsg = ""
+		local gachaCount = CombatCore.CountTrait(attacker, "Gambling Addict")
+		if gachaCount > 0 then
+			local roulette = math.random(1, 100)
+			if roulette == 1 then
+				mult = 99999
+				gachaMsg = " <font color='#FFD700'>...JACKPOT!</font>"
+			elseif roulette == 100 then
+				attacker.HP = 0
+				mult = 0
+				gachaMsg = " <font color='#FF0000'>...BANKRUPT! (Instantly died!)</font>"
+			end
+		end
+
 		local isBlocking = (t.BlockTurns or 0) > 0
 
 		local damage = CombatCore.CalculateDamage(attacker, t, mult, isBlocking, uniModStr, skill.Type)
@@ -543,6 +557,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local hitMsg = hitsToDo == 1 and (msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> and dealt " .. math.floor(damage) .. " damage to " .. tName .. "!") or ("- Hit " .. i .. " dealt " .. math.floor(damage) .. " damage")
 		if isBlocking then hitMsg = hitMsg .. " <font color='#AAAAAA'>(Blocked)</font>" end
 		if isCrit then hitMsg = hitMsg .. " <font color='#FFAA00'>(CRIT!)</font>" end
+		if gachaMsg ~= "" then hitMsg = hitMsg .. gachaMsg end
 
 		if survivalTriggered then 
 			local persCount = CombatCore.CountTrait(t, "Perseverance")
@@ -617,6 +632,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		end
 
 		if hitsToDo == 1 then msg = hitMsg .. postMsg else table.insert(hitLogs, hitMsg .. postMsg) end
+
+		if attacker.HP < 1 then break end
 	end
 
 	if hitsToDo > 1 then
