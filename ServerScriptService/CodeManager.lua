@@ -13,6 +13,7 @@ local ActiveCodes = {
 	["BIZARRE"] = {Yen = 1000, XP = 2500, Items = {["Stand Arrow"] = 1}},
 	["7KFAVS"] = {Items = {["Stand Arrow"] = 70, ["Rokakaka"] = 70, ["Saint's Corpse Part"] = 35}},
 	["FUSION"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 25, ["Rokakaka"] = 15, ["Saint's Corpse Part"] = 10}},
+	["APRILFOOLS"] = {Items = {["Mythical Giftbox"] = 3, ["Steel Pipe"] = 99}},
 }
 
 RedeemCode.OnServerEvent:Connect(function(player, codeStr)
