@@ -145,7 +145,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Waaah!", "Pajama Party", "Weed Whacker", "Usagi's Help", "Block"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Chiikawa Mascot"] = 1, ["Pink Sasumata"] = 1, ["Pochette's Armor"] = 1, ["Mythical Giftbox"] = 10, ["Legendary Giftbox"] = 25 }
+			ItemChance = { ["Chiikawa Mascot"] = 1, ["Pink Sasumata"] = 1, ["Pochette's Armor"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
 		}
 	},
 	["Satoru Gojo"] = {
@@ -154,7 +154,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Lapse: Blue", "Reversal: Red", "Hollow Purple", "Unlimited Void", "Block"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Limitless Manual"] = 1, ["Playful Cloud"] = 1, ["Gojo's Blindfold"] = 1, ["Mythical Giftbox"] = 15, ["Legendary Giftbox"] = 30 }
+			ItemChance = { ["Limitless Manual"] = 1, ["Playful Cloud"] = 1, ["Gojo's Blindfold"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
 		}
 	},
 	["Ryomen Sukuna"] = {
@@ -163,7 +163,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Dismantle", "Cleave", "Divine Flame", "Malevolent Shrine", "Block"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Cursed Finger"] = 1, ["Kamutoke"] = 1, ["Heian Era Robes"] = 1, ["Mythical Giftbox"] = 15, ["Legendary Giftbox"] = 30 }
+			ItemChance = { ["Cursed Finger"] = 1, ["Kamutoke"] = 1, ["Heian Era Robes"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
 		}
 	},
 }
