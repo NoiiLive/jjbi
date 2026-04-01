@@ -7,6 +7,13 @@ local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 
+local AdminLogger = Network:FindFirstChild("AdminLogger")
+if not AdminLogger then
+	AdminLogger = Instance.new("BindableEvent")
+	AdminLogger.Name = "AdminLogger"
+	AdminLogger.Parent = Network
+end
+
 local TradeAction = Network:WaitForChild("TradeAction")
 local TradeUpdate = Network:WaitForChild("TradeUpdate")
 
@@ -329,6 +336,22 @@ local function ExecuteTrade(session)
 		saveEvent:Fire(p1)
 		saveEvent:Fire(p2)
 	end
+
+	local function GetOfferDetails(offer)
+		local details = ""
+		for k, v in pairs(offer.Items) do details = details .. v .. "x " .. k .. ", " end
+		if offer.Stand then details = details .. "Stand: " .. offer.Stand.Name .. ", " end
+		if offer.Style then details = details .. "Style: " .. offer.Style.Name .. ", " end
+		if offer.Yen > 0 then details = details .. offer.Yen .. " Yen" end
+		return details == "" and "Nothing" or details
+	end
+
+	AdminLogger:Fire("Trade", {
+		Player1 = p1.Name,
+		Player2 = p2.Name,
+		Offer1 = GetOfferDetails(o1),
+		Offer2 = GetOfferDetails(o2)
+	})
 
 	EndTrade(session, "<font color='#55FF55'>Trade successfully completed!</font>")
 end
