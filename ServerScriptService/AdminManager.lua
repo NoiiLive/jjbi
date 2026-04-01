@@ -1,9 +1,11 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 
 local NotificationEvent = Network:FindFirstChild("NotificationEvent")
@@ -20,13 +22,23 @@ local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 
 local GangStore = DataStoreService:GetDataStore("Jojo_Gangs_V3")
 
-local ADMIN_IDS = {
-	[342662401] = true,
-	[3558244991] = true
+local GROUP_ID = 11280027
+
+local ADMIN_RANKS = {
+	[255] = true,
+	[11] = true,
+	[10] = true,
+	[8] = true
 }
 
-local ANNOUNCER_IDS = {
-	[1182272211] = true
+local MOD_RANKS = {
+	[9] = true,
+	[7] = true,
+	[5] = true
+}
+
+local ANNOUNCER_RANKS = {
+	[6] = true
 }
 
 local GLOBAL_TOPIC = "AdminGlobalCommands"
@@ -184,7 +196,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		end
 
 		if #targets == 0 then
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Player not found.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Player not found.</font>") end
 			return
 		end
 	end
@@ -197,7 +209,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		for _, p in ipairs(Players:GetPlayers()) do
 			SendAdminNotice(p, "\n<font color='#FF55FF' size='16'><b>[GLOBAL ANNOUNCEMENT - " .. actualSenderName .. "]</b></font>\n<font color='#FFFFFF'>" .. announcementText .. "</font>\n")
 		end
-		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Global announcement broadcasted!</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Global announcement broadcasted!</font>") end
 
 	elseif cmd == "!spawnwb" then
 		local forceEvent = Network:FindFirstChild("AdminForceSpawnWB")
@@ -209,9 +221,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 
 			if adminPlayer then 
 				if properBossName then
-					SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Force-spawned specific World Boss ("..properBossName..") globally!</font>") 
+					SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Force-spawned specific World Boss ("..properBossName..") globally!</font>") 
 				else
-					SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Force-spawned a random World Boss globally!</font>") 
+					SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Force-spawned a random World Boss globally!</font>") 
 				end
 			end
 		end
@@ -231,9 +243,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> You received " .. amount .. "x " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Gave " .. amount .. "x " .. properName .. " to " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Gave " .. amount .. "x " .. properName .. " to " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Item '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Item '" .. rawName .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!addpass" then
@@ -243,11 +255,11 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		if properAttr then
 			for _, target in ipairs(targets) do
 				target:SetAttribute(properAttr, true)
-				SendAdminNotice(target, "<font color='#55FF55'>🎁 An Admin has granted you the " .. properAttr .. " GamePass!</font>")
+				SendAdminNotice(target, "<font color='#55FF55'>🎁 An Admin/Mod has granted you the " .. properAttr .. " GamePass!</font>")
 			end
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Gave GamePass '" .. properAttr .. "' to " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Gave GamePass '" .. properAttr .. "' to " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Invalid Pass. Try: speed, inventory, drops, autotrain, slot2, slot3.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Invalid Pass. Try: speed, inventory, drops, autotrain, slot2, slot3.</font>") end
 		end
 
 	elseif cmd == "!setstand" then
@@ -261,9 +273,67 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Stand was set to: " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Set Stand " .. properName .. " for " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Set Stand " .. properName .. " for " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Stand '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Stand '" .. rawName .. "' does not exist.</font>") end
+		end
+
+	elseif cmd == "!setfusedstand" then
+		local rawContent = table.concat(parts, " ", 3)
+		local standParts = string.split(rawContent, "/")
+		local s1Raw = standParts[1] and string.gsub(standParts[1], "^%s*(.-)%s*$", "%1")
+		local s2Raw = standParts[2] and string.gsub(standParts[2], "^%s*(.-)%s*$", "%1")
+
+		local s1Proper = GetProperStandName(s1Raw)
+		local s2Proper = GetProperStandName(s2Raw)
+
+		if s1Proper and s2Proper then
+			for _, target in ipairs(targets) do
+				target:SetAttribute("Active_FusedStand1", s1Proper)
+				target:SetAttribute("Active_FusedStand2", s2Proper)
+				target:SetAttribute("Active_FusedTrait1", target:GetAttribute("Active_FusedTrait1") or "None")
+				target:SetAttribute("Active_FusedTrait2", target:GetAttribute("Active_FusedTrait2") or "None")
+				target:SetAttribute("Stand", "Fused Stand")
+				target:SetAttribute("StandTrait", "Fused")
+
+				local statsList = {"Power", "Speed", "Range", "Durability", "Precision", "Potential"}
+				local rankToNum = {["None"]=0, ["E"]=1, ["D"]=2, ["C"]=3, ["B"]=4, ["A"]=5, ["S"]=6}
+				local numToRank = { [0]="None", [1]="E", [2]="D", [3]="C", [4]="B", [5]="A", [6]="S" }
+				local baseData1 = StandData.Stands[s1Proper].Stats
+				local baseData2 = StandData.Stands[s2Proper].Stats
+				for _, stat in ipairs(statsList) do
+					local v1 = rankToNum[baseData1[stat]] or 0
+					local v2 = rankToNum[baseData2[stat]] or 0
+					local avg = math.ceil((v1 + v2) / 2)
+					target:SetAttribute("Stand_" .. stat, numToRank[avg] or "C")
+				end
+				SendAdminNotice(target, "<font color='#A020F0'>System set your Fused Stand: " .. s1Proper .. " / " .. s2Proper .. "!</font>")
+			end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Set Fused Stand for " .. displayTarget .. ".</font>") end
+		else
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Usage: !setfusedstand [target] Stand1 / Stand2</font>") end
+		end
+
+	elseif cmd == "!setfusedtrait" then
+		local rawContent = table.concat(parts, " ", 3)
+		local traitParts = string.split(rawContent, "/")
+		local t1Raw = traitParts[1] and string.gsub(traitParts[1], "^%s*(.-)%s*$", "%1")
+		local t2Raw = traitParts[2] and string.gsub(traitParts[2], "^%s*(.-)%s*$", "%1")
+
+		local t1Proper = GetProperTraitName(t1Raw)
+		local t2Proper = GetProperTraitName(t2Raw)
+
+		if t1Proper and t2Proper then
+			for _, target in ipairs(targets) do
+				if target:GetAttribute("Stand") == "Fused Stand" then
+					target:SetAttribute("Active_FusedTrait1", t1Proper)
+					target:SetAttribute("Active_FusedTrait2", t2Proper)
+					SendAdminNotice(target, "<font color='#A020F0'>System set your Fused Traits: " .. t1Proper .. " & " .. t2Proper .. "!</font>")
+				end
+			end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Set Fused Traits for " .. displayTarget .. ".</font>") end
+		else
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Usage: !setfusedtrait [target] Trait1 / Trait2</font>") end
 		end
 
 	elseif cmd == "!setstyle" then
@@ -277,9 +347,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Fighting Style was set to: " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Set Fighting Style " .. properName .. " for " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Set Fighting Style " .. properName .. " for " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Fighting Style '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Fighting Style '" .. rawName .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!settrait" then
@@ -293,9 +363,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Stand Trait was set to: " .. properName .. "!</font>")
 				end
 			end
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Set Stand Trait " .. properName .. " for " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Set Stand Trait " .. properName .. " for " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Trait '" .. rawName .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Trait '" .. rawName .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!addstat" then
@@ -319,9 +389,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> You received " .. amount .. " " .. properStat .. "!</font>")
 				end
 			end
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Added " .. amount .. " " .. properStat .. " to " .. displayTarget .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Added " .. amount .. " " .. properStat .. " to " .. displayTarget .. "!</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Stat '" .. rawStat .. "' does not exist.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Stat '" .. rawStat .. "' does not exist.</font>") end
 		end
 
 	elseif cmd == "!joingang" then
@@ -355,11 +425,11 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 
 				target:SetAttribute("Gang", gangKey)
 				target:SetAttribute("GangRole", "Grunt")
-				SendAdminNotice(target, "<font color='#FFD700'>Admin force-joined you to " .. gangData.Name .. "!</font>")
+				SendAdminNotice(target, "<font color='#FFD700'>System force-joined you to " .. gangData.Name .. "!</font>")
 			end
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Force-joined " .. displayTarget .. " to " .. gangData.Name .. ".</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Force-joined " .. displayTarget .. " to " .. gangData.Name .. ".</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Gang '" .. rawGangName .. "' not found in DataStore.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Gang '" .. rawGangName .. "' not found in DataStore.</font>") end
 		end
 
 	elseif cmd == "!addrep" then
@@ -380,9 +450,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					return oldData
 				end)
 			end)
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Added " .. amount .. " Rep to " .. d.Name .. "!</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Added " .. amount .. " Rep to " .. d.Name .. "!</font>") end
 		else
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Gang '" .. rawGangName .. "' not found.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Gang '" .. rawGangName .. "' not found.</font>") end
 		end
 
 	elseif cmd == "!promote" then
@@ -391,7 +461,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 		local newRole = roles[rankNum]
 
 		if not newRole then
-			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>Admin Error: Rank must be 1-4.</font>") end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Rank must be 1-4.</font>") end
 			return
 		end
 
@@ -409,7 +479,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 									local oldMember = Players:GetPlayerByUserId(tonumber(u))
 									if oldMember then 
 										oldMember:SetAttribute("GangRole", "Grunt")
-										SendAdminNotice(oldMember, "<font color='#FF5555'>Admin demoted your Gang Rank.</font>")
+										SendAdminNotice(oldMember, "<font color='#FF5555'>System demoted your Gang Rank.</font>")
 									end
 								end
 							end
@@ -421,12 +491,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 							end) end)
 
 						target:SetAttribute("GangRole", newRole)
-						SendAdminNotice(target, "<font color='#FFD700'>Admin set your Gang Rank to " .. newRole .. "!</font>")
+						SendAdminNotice(target, "<font color='#FFD700'>System set your Gang Rank to " .. newRole .. "!</font>")
 					end
 				end
 			end
 		end
-		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Promoted " .. displayTarget .. " to " .. newRole .. ".</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Promoted " .. displayTarget .. " to " .. newRole .. ".</font>") end
 
 	elseif cmd == "!kickgang" then
 		for _, target in ipairs(targets) do
@@ -443,10 +513,10 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 				end)
 				target:SetAttribute("Gang", "None")
 				target:SetAttribute("GangRole", "None")
-				SendAdminNotice(target, "<font color='#FF5555'>Admin forcefully kicked you from your gang.</font>")
+				SendAdminNotice(target, "<font color='#FF5555'>System forcefully kicked you from your gang.</font>")
 			end
 		end
-		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Kicked " .. displayTarget .. " from their gang.</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Kicked " .. displayTarget .. " from their gang.</font>") end
 
 	elseif cmd == "!deletegang" then
 		local rawGangName = table.concat(parts, " ", 2)
@@ -457,13 +527,60 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 			wipeEvent:Fire(gangKey)
 		end
 
-		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>Admin: Obliterated gang '" .. rawGangName .. "' from all servers and leaderboards.</font>") end
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Obliterated gang '" .. rawGangName .. "' from all servers and leaderboards.</font>") end
 	end
 end
 
 pcall(function()
 	MessagingService:SubscribeAsync(GLOBAL_TOPIC, function(message)
 		local data = message.Data
+
+		if data.Cmd == "!bring_req" then
+			local t = FindPlayer(data.TargetName)
+			if t then
+				SendAdminNotice(t, "<font color='#FF5555'>System " .. tostring(data.SenderName) .. " is forcing you to their server...</font>")
+				pcall(function()
+					TeleportService:TeleportToPlaceInstance(game.PlaceId, data.ServerId, t)
+				end)
+
+				pcall(function()
+					MessagingService:PublishAsync(GLOBAL_TOPIC, {
+						Cmd = "!bring_res",
+						TargetName = t.Name,
+						AdminId = data.AdminId
+					})
+				end)
+			end
+			return
+		elseif data.Cmd == "!bring_res" then
+			local admin = Players:GetPlayerByUserId(data.AdminId)
+			if admin then
+				SendAdminNotice(admin, "<font color='#55FF55'>System: Target " .. data.TargetName .. " found! Teleporting them to your server...</font>")
+			end
+			return
+		elseif data.Cmd == "!goto_req" then
+			local t = FindPlayer(data.TargetName)
+			if t then
+				pcall(function()
+					MessagingService:PublishAsync(GLOBAL_TOPIC, {
+						Cmd = "!goto_res",
+						TargetServer = game.JobId,
+						AdminId = data.AdminId
+					})
+				end)
+			end
+			return
+		elseif data.Cmd == "!goto_res" then
+			local admin = Players:GetPlayerByUserId(data.AdminId)
+			if admin then
+				SendAdminNotice(admin, "<font color='#55FF55'>System: Target found! Teleporting to their server...</font>")
+				pcall(function()
+					TeleportService:TeleportToPlaceInstance(game.PlaceId, data.TargetServer, admin)
+				end)
+			end
+			return
+		end
+
 		if data.ServerId == game.JobId then return end 
 
 		ExecuteCommandLocally(data.Cmd, data.Parts, nil, true, data.SenderName)
@@ -474,27 +591,71 @@ local validCmds = {
 	["!additem"] = true, ["!setstand"] = true, ["!setstyle"] = true, ["!addstat"] = true,
 	["!joingang"] = true, ["!promote"] = true, ["!deletegang"] = true, ["!spawnwb"] = true,
 	["!kickgang"] = true, ["!settrait"] = true, ["!announcement"] = true,
-	["!addpass"] = true, ["!addrep"] = true
+	["!addpass"] = true, ["!addrep"] = true, ["!setfusedstand"] = true, ["!setfusedtrait"] = true,
+	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true
+}
+
+local modAllowedCmds = {
+	["!additem"] = true, ["!setstand"] = true, ["!setstyle"] = true, ["!settrait"] = true,
+	["!setfusedstand"] = true, ["!setfusedtrait"] = true, ["!goto"] = true, ["!bring"] = true,
+	["!teleport"] = true, ["!addstat"] = true, ["!addpass"] = true, 
+	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true
 }
 
 local function OnPlayerAdded(player)
 	player.Chatted:Connect(function(message)
 		local isStudio = RunService:IsStudio()
-		local isFullAdmin = ADMIN_IDS[player.UserId] or isStudio
-		local isAnnouncer = ANNOUNCER_IDS[player.UserId] or isStudio
+		local rank = player:GetRankInGroup(GROUP_ID)
 
-		if not isFullAdmin and not isAnnouncer then return end
+		local isFullAdmin = ADMIN_RANKS[rank] or isStudio
+		local isMod = MOD_RANKS[rank] or isStudio
+		local isAnnouncer = ANNOUNCER_RANKS[rank] or isStudio
+
+		if not isFullAdmin and not isMod and not isAnnouncer then return end
 
 		local parts = string.split(message, " ")
 		local cmd = string.lower(parts[1])
 
 		if not validCmds[cmd] then return end
 
-		if isAnnouncer and not isFullAdmin and cmd ~= "!announcement" then return end
+		if isAnnouncer and not isFullAdmin and not isMod and cmd ~= "!announcement" then return end
+
+		if isMod and not isFullAdmin and not modAllowedCmds[cmd] then
+			SendAdminNotice(player, "<font color='#FF5555'>Mod Error: You lack permission for command " .. cmd .. "</font>")
+			return
+		end
 
 		if #parts < 2 and cmd ~= "!spawnwb" then return end
 
 		local targetStr = parts[2] and string.lower(parts[2]) or ""
+
+		if isMod and not isFullAdmin and (targetStr == "@all" or targetStr == "@server") then
+			SendAdminNotice(player, "<font color='#FF5555'>Mod Error: You cannot use mass targeting selectors (@all, @server).</font>")
+			return
+		end
+
+		if cmd == "!goto" or cmd == "!teleport" or cmd == "!bring" then
+			local targetName = parts[2]
+			if not targetName then return end
+
+			local targetPlayer = FindPlayer(targetName)
+			if targetPlayer then
+				SendAdminNotice(player, "<font color='#FFD700'>System: " .. targetPlayer.Name .. " is already in your current server.</font>")
+			else
+				pcall(function()
+					MessagingService:PublishAsync(GLOBAL_TOPIC, {
+						Cmd = (cmd == "!bring") and "!bring_req" or "!goto_req",
+						TargetName = targetName,
+						AdminId = player.UserId,
+						ServerId = game.JobId,
+						SenderName = player.Name
+					})
+				end)
+				SendAdminNotice(player, "<font color='#FFD700'>System: Searching cross-servers for " .. targetName .. "...</font>")
+			end
+			return
+		end
+
 		local isGlobal = (targetStr == "@all") or (cmd == "!announcement") or (cmd == "!spawnwb") or (cmd == "!deletegang")
 
 		if isGlobal then
