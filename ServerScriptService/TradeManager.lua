@@ -170,16 +170,41 @@ local function ExecuteTrade(session)
 		if not offer.Stand then return true end
 		local slot = offer.Stand.Slot
 		local expectedName = offer.Stand.Name
-		local actual = "None"
 
-		if slot == "Active" then actual = plr:GetAttribute("Stand") or "None"
-		elseif slot == "Slot1" then actual = plr:GetAttribute("StoredStand1") or "None"
-		elseif slot == "Slot2" then actual = plr:GetAttribute("StoredStand2") or "None"
-		elseif slot == "Slot3" then actual = plr:GetAttribute("StoredStand3") or "None"
-		elseif slot == "Slot4" then actual = plr:GetAttribute("StoredStand4") or "None"
-		elseif slot == "Slot5" then actual = plr:GetAttribute("StoredStand5") or "None" end
+		local actual, actualTrait = "None", "None"
+		local actualFS1, actualFS2, actualFT1, actualFT2 = "None", "None", "None", "None"
 
-		return actual == expectedName
+		if slot == "Active" then 
+			actual = plr:GetAttribute("Stand") or "None"
+			actualTrait = plr:GetAttribute("StandTrait") or "None"
+			if actual == "Fused Stand" then
+				actualFS1 = plr:GetAttribute("Active_FusedStand1") or "None"
+				actualFS2 = plr:GetAttribute("Active_FusedStand2") or "None"
+				actualFT1 = plr:GetAttribute("Active_FusedTrait1") or "None"
+				actualFT2 = plr:GetAttribute("Active_FusedTrait2") or "None"
+			end
+		else
+			local num = string.sub(slot, 5)
+			actual = plr:GetAttribute("StoredStand"..num) or "None"
+			actualTrait = plr:GetAttribute("StoredStand"..num.."_Trait") or "None"
+			if actual == "Fused Stand" then
+				actualFS1 = plr:GetAttribute("StoredStand"..num.."_FusedStand1") or "None"
+				actualFS2 = plr:GetAttribute("StoredStand"..num.."_FusedStand2") or "None"
+				actualFT1 = plr:GetAttribute("StoredStand"..num.."_FusedTrait1") or "None"
+				actualFT2 = plr:GetAttribute("StoredStand"..num.."_FusedTrait2") or "None"
+			end
+		end
+
+		if actual ~= expectedName then return false end
+		if actualTrait ~= offer.Stand.Trait then return false end
+
+		if expectedName == "Fused Stand" then
+			if actualFS1 ~= offer.Stand.FusedS1 or actualFS2 ~= offer.Stand.FusedS2 or actualFT1 ~= offer.Stand.FusedT1 or actualFT2 ~= offer.Stand.FusedT2 then
+				return false
+			end
+		end
+
+		return true
 	end
 
 	local function VerifyStyle(plr, offer)
@@ -418,13 +443,43 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 						player:SetAttribute("StoredStand"..numSuffix.."_FusedStand1", fs1); player:SetAttribute("StoredStand"..numSuffix.."_FusedStand2", fs2)
 						player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait1", ft1); player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait2", ft2)
 					end
+				else
+					if numSuffix == "Active" then
+						player:SetAttribute("Active_FusedStand1", "None"); player:SetAttribute("Active_FusedStand2", "None")
+						player:SetAttribute("Active_FusedTrait1", "None"); player:SetAttribute("Active_FusedTrait2", "None")
+					else
+						player:SetAttribute("StoredStand"..numSuffix.."_FusedStand1", "None"); player:SetAttribute("StoredStand"..numSuffix.."_FusedStand2", "None")
+						player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait1", "None"); player:SetAttribute("StoredStand"..num.."_FusedTrait2", "None")
+					end
 				end
 			end
 
 			if slot == "Active" then
 				applyStandToSlot("Stand", "StandTrait", "Active")
-				local stats = StandData.Stands[pName] and StandData.Stands[pName].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
-				for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
+				if pName == "Fused Stand" then
+					local fs1 = player:GetAttribute("PendingStand_FusedS1") or "None"
+					local fs2 = player:GetAttribute("PendingStand_FusedS2") or "None"
+					local statsList = {"Power", "Speed", "Range", "Durability", "Precision", "Potential"}
+					local rankToNum = {["None"]=0, ["E"]=1, ["D"]=2, ["C"]=3, ["B"]=4, ["A"]=5, ["S"]=6}
+					local numToRank = { [0]="None", [1]="E", [2]="D", [3]="C", [4]="B", [5]="A", [6]="S" }
+
+					local s1Data = StandData.Stands[fs1]
+					local s2Data = StandData.Stands[fs2]
+
+					if s1Data and s2Data then
+						for _, stat in ipairs(statsList) do
+							local v1 = rankToNum[s1Data.Stats[stat]] or 0
+							local v2 = rankToNum[s2Data.Stats[stat]] or 0
+							local avg = math.ceil((v1 + v2) / 2)
+							player:SetAttribute("Stand_" .. stat, numToRank[avg] or "C")
+						end
+					else
+						for _, stat in ipairs(statsList) do player:SetAttribute("Stand_"..stat, "E") end
+					end
+				else
+					local stats = StandData.Stands[pName] and StandData.Stands[pName].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
+					for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
+				end
 			elseif slot == "Slot1" then applyStandToSlot("StoredStand1", "StoredStand1_Trait", "1")
 			elseif slot == "Slot2" then applyStandToSlot("StoredStand2", "StoredStand2_Trait", "2")
 			elseif slot == "Slot3" then applyStandToSlot("StoredStand3", "StoredStand3_Trait", "3")
@@ -437,6 +492,9 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 
 			TradeUpdate:FireClient(player, "HideClaimPrompt")
 			NotificationEvent:FireClient(player, "<font color='#A020F0'>Stand safely stored!</font>")
+
+			local saveEvent = ReplicatedStorage:FindFirstChild("ForcePlayerSave")
+			if saveEvent then saveEvent:Fire(player) end
 
 		elseif action == "ClaimStyle" then
 			local pName = player:GetAttribute("PendingStyle_Name")
@@ -456,6 +514,9 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute("PendingStyle_Name", "None")
 			TradeUpdate:FireClient(player, "HideStyleClaimPrompt")
 			NotificationEvent:FireClient(player, "<font color='#FF8C00'>Style safely stored!</font>")
+
+			local saveEvent = ReplicatedStorage:FindFirstChild("ForcePlayerSave")
+			if saveEvent then saveEvent:Fire(player) end
 
 		elseif action == "ToggleRequests" then
 			if not CanTrade(player) then return end
