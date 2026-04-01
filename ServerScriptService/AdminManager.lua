@@ -21,7 +21,8 @@ local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local GangStore = DataStoreService:GetDataStore("Jojo_Gangs_V3")
 
 local ADMIN_IDS = {
-	[342662401] = true
+	[342662401] = true,
+	[3558244991] = true
 }
 
 local ANNOUNCER_IDS = {
