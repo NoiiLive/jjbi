@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PolicyService = game:GetService("PolicyService")
@@ -112,6 +113,13 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 	end
 
 	local productId = receiptInfo.ProductId
+
+	if productId == 3567043458 then
+		local rerollEvent = Network:FindFirstChild("RerollWorldBoss")
+		if rerollEvent then rerollEvent:Fire(purchaser) end
+		SendPurchaseMsg("Private World Boss Spawn")
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
 
 	if productId == 3552102461 then
 		if buyAsItem then 
@@ -308,8 +316,8 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		end
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
-	
-	if productId == 3564613970 then -- STARTER PACK
+
+	if productId == 3564613970 then
 		if receiver:GetAttribute("PaidRandomItemsRestricted") then
 			local ls = receiver:FindFirstChild("leaderstats")
 			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 2500000 end
@@ -324,7 +332,7 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		SendPurchaseMsg("Starter Pack")
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
-	if productId == 3564614182 then -- PRO PACK
+	if productId == 3564614182 then
 		if receiver:GetAttribute("PaidRandomItemsRestricted") then
 			local ls = receiver:FindFirstChild("leaderstats")
 			if ls and ls:FindFirstChild("Yen") then ls.Yen.Value += 12500000 end
@@ -340,7 +348,7 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		SendPurchaseMsg("Pro Pack")
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
-	
+
 	if productId == 3564614326 then
 		if buyAsItem then 
 			GrantItem(receiver, "VIP"); SendPurchaseMsg("VIP (Item)")
