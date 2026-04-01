@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PolicyService = game:GetService("PolicyService")
@@ -9,6 +8,13 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 
 local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
 NotificationEvent.Name = "NotificationEvent"
+
+local AdminLogger = Network:FindFirstChild("AdminLogger")
+if not AdminLogger then
+	AdminLogger = Instance.new("BindableEvent")
+	AdminLogger.Name = "AdminLogger"
+	AdminLogger.Parent = Network
+end
 
 local function checkPlayerPolicy(player)
 	local success, result = pcall(function()
@@ -94,6 +100,12 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 	end
 
 	local function SendPurchaseMsg(itemName)
+		AdminLogger:Fire("Purchase", {
+			Player = purchaser.Name,
+			Target = receiver.Name,
+			Item = itemName
+		})
+
 		if purchaser ~= receiver then
 			if Network:FindFirstChild("CombatUpdate") then
 				local pMsg = "<font color='#55FF55'>Successfully gifted " .. itemName .. " to " .. receiver.Name .. "!</font>"
@@ -385,6 +397,12 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passI
 	elseif passId == 1749484465 then player:SetAttribute("HasAutoRoll", true); passName = "Auto-Roll Pass"
 	elseif passId == 1749586333 then player:SetAttribute("HasHorseNamePass", true); passName = "Custom Horse Name Pass"
 	elseif passId == 1772743731 then player:SetAttribute("IsVIP", true); passName = "VIP Status" end
+
+	AdminLogger:Fire("Purchase", {
+		Player = player.Name,
+		Target = player.Name,
+		Item = passName
+	})
 
 	if Network:FindFirstChild("CombatUpdate") then
 		local msg = "<font color='#55FF55'>Successfully unlocked " .. passName .. "!</font>"
