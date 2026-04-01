@@ -508,19 +508,19 @@ SkillData.Skills = {
 	
 	-- April Fools 
 	["Lapse: Blue"] = { Requirement = "Limitless", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "Creates a magnetic center of gravity, pulling the target and slowing them." },
-	["Reversal: Red"] = { Requirement = "Limitless", Type = "Style", Mult = 3.0, StaminaCost = 15, EnergyCost = 0, Cooldown = 2, Order = 7, Description = "Unleashes a powerful repelling force that shatters the enemy's guard." },
-	["Hollow Purple"] = { Requirement = "Limitless", Type = "Style", Mult = 3.5, StaminaCost = 35, EnergyCost = 0, Cooldown = 7, Order = 8, Description = "Collides Blue and Red to create an imaginary mass that erases everything in its path." },
+	["Reversal: Red"] = { Requirement = "Limitless", Type = "Style", Mult = 3.5, StaminaCost = 15, EnergyCost = 0, Cooldown = 3, Order = 7, Description = "Unleashes a powerful repelling force that shatters the enemy's guard." },
+	["Hollow Purple"] = { Requirement = "Limitless", Type = "Style", Mult = 4.0, StaminaCost = 35, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 7, Order = 8, Description = "Collides Blue and Red to create an imaginary mass that erases everything in its path." },
 	["Unlimited Void"] = { Requirement = "Limitless", Type = "Style", Mult = 0, StaminaCost = 20, EnergyCost = 0, Effect = "Stun", Duration = 3, Cooldown = 10, Order = 9, Description = "Floods the mind of your enemy with infinite, endless knowledge, stunning them." },
 
 	["Dismantle"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "A default slashing attack that easily slices mundane objects." },
 	["Cleave"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 7, Description = "A slash that adjusts itself to the target's toughness to cut them down, causing Bleed" },
 	["Divine Flame"] = { Requirement = "Shrine", Type = "Style", Mult = 3.0, StaminaCost = 25, EnergyCost = 0, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 8, Description = "Opens the black box to unleash a devastating arrow of pure fire." },
-	["Malevolent Shrine"] = { Requirement = "Shrine", Type = "Style", Mult = 0.7, Hits = 5, StaminaCost = 30, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 10, Order = 9, Description = "Expands your domain, relentlessly painting the area with endless slashes." },
+	["Malevolent Shrine"] = { Requirement = "Shrine", Type = "Style", Mult = 0.6, Hits = 5, StaminaCost = 30, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 10, Order = 9, Description = "Expands your domain, relentlessly painting the area with endless slashes." },
 
 	["Waaah!"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Tears up and wildly flails around." },
 	["Usagi's Help"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 3, StaminaCost = 0, EnergyCost = 20, Effect = "Status_Random", Duration = 3, Cooldown = 6, Order = 12, Description = "Usagi rushes in screaming, causing a completely random, chaotic effect." },	
 	["Pajama Party"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Heal", HealPercent = 0.5, Cooldown = 5, Order = 13, Description = "Puts on cute pajamas and dances, restoring 50% of your Max HP." },
-	["Weed Whacker"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0.6, Hits = 5, StaminaCost = 0, EnergyCost = 15, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 14, Description = "Wildly swings a weed whacker, dealing multi-hit damage." },
+	["Weed Whacker"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0.7, Hits = 5, StaminaCost = 0, EnergyCost = 15, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 14, Description = "Wildly swings a weed whacker, dealing multi-hit damage." },
 }
 
 return SkillData
