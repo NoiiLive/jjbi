@@ -2,6 +2,16 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.2 - April Fools Update (April 1st)</font></b>
+
+<font color='#55FF55'>[+]</font> <b>New Bosses:</b> 3 NEW World Bosses with LIMITED TIME Drops!
+<font color='#55FF55'>[+]</font> <b>New Stand:</b> Chiikawa
+<font color='#55FF55'>[+]</font> <b>New Styles:</b> 2 New Fighting Styles: Shrine & Limitless
+<font color='#55FF55'>[+]</font> <b>New Gear:</b> 3 New Weapons & 3 New Accessories
+<font color='#55FF55'>[+]</font> <b>New Trait:</b> Gambling Addict
+
+Use code <b><font color='#FF55FF'>APRILFOOLS</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.1 - JoJolion Update PART 2 (March 22nd)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>Stand Fusion:</b> Fuse two Stands from your storage to create a hybrid Stand!
