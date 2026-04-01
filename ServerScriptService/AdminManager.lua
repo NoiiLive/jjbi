@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -14,6 +13,36 @@ if not NotificationEvent then
 	NotificationEvent.Name = "NotificationEvent"
 	NotificationEvent.Parent = Network
 end
+
+local AdminLogger = Network:FindFirstChild("AdminLogger")
+if not AdminLogger then
+	AdminLogger = Instance.new("BindableEvent")
+	AdminLogger.Name = "AdminLogger"
+	AdminLogger.Parent = Network
+end
+
+local AdminLogsUI = Network:FindFirstChild("AdminLogsUI")
+if not AdminLogsUI then
+	AdminLogsUI = Instance.new("RemoteEvent")
+	AdminLogsUI.Name = "AdminLogsUI"
+	AdminLogsUI.Parent = Network
+end
+
+local ServerLogs = { Commands = {}, Trades = {}, Purchases = {} }
+
+AdminLogger.Event:Connect(function(logType, logData)
+	logData.Time = os.time()
+	if logType == "Command" then
+		table.insert(ServerLogs.Commands, 1, logData)
+		if #ServerLogs.Commands > 500 then table.remove(ServerLogs.Commands) end
+	elseif logType == "Trade" then
+		table.insert(ServerLogs.Trades, 1, logData)
+		if #ServerLogs.Trades > 500 then table.remove(ServerLogs.Trades) end
+	elseif logType == "Purchase" then
+		table.insert(ServerLogs.Purchases, 1, logData)
+		if #ServerLogs.Purchases > 500 then table.remove(ServerLogs.Purchases) end
+	end
+end)
 
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
@@ -173,6 +202,14 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 	local targets = {}
 	local displayTarget = ""
 	local actualSenderName = senderName or (adminPlayer and adminPlayer.Name) or "System"
+
+	if cmd == "!logs" then
+		if adminPlayer then
+			AdminLogsUI:FireClient(adminPlayer, ServerLogs)
+			SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Opened Admin Logs.</font>")
+		end
+		return
+	end
 
 	if cmd ~= "!deletegang" and cmd ~= "!announcement" and cmd ~= "!addrep" and cmd ~= "!spawnwb" then
 		if targetStr == "@all" then
@@ -592,14 +629,14 @@ local validCmds = {
 	["!joingang"] = true, ["!promote"] = true, ["!deletegang"] = true, ["!spawnwb"] = true,
 	["!kickgang"] = true, ["!settrait"] = true, ["!announcement"] = true,
 	["!addpass"] = true, ["!addrep"] = true, ["!setfusedstand"] = true, ["!setfusedtrait"] = true,
-	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true
+	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true, ["!logs"] = true
 }
 
 local modAllowedCmds = {
 	["!additem"] = true, ["!setstand"] = true, ["!setstyle"] = true, ["!settrait"] = true,
 	["!setfusedstand"] = true, ["!setfusedtrait"] = true, ["!goto"] = true, ["!bring"] = true,
 	["!teleport"] = true, ["!addstat"] = true, ["!addpass"] = true, 
-	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true
+	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true, ["!logs"] = true
 }
 
 local function OnPlayerAdded(player)
@@ -618,6 +655,12 @@ local function OnPlayerAdded(player)
 
 		if not validCmds[cmd] then return end
 
+		AdminLogger:Fire("Command", {
+			Player = player.Name,
+			Command = cmd,
+			FullText = message
+		})
+
 		if isAnnouncer and not isFullAdmin and not isMod and cmd ~= "!announcement" then return end
 
 		if isMod and not isFullAdmin and not modAllowedCmds[cmd] then
@@ -625,7 +668,7 @@ local function OnPlayerAdded(player)
 			return
 		end
 
-		if #parts < 2 and cmd ~= "!spawnwb" then return end
+		if #parts < 2 and cmd ~= "!spawnwb" and cmd ~= "!logs" then return end
 
 		local targetStr = parts[2] and string.lower(parts[2]) or ""
 
