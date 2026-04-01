@@ -1,8 +1,10 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local WorldBossTab = {}
 
 local player = game.Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MarketplaceService = game:GetService("MarketplaceService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
@@ -11,7 +13,7 @@ local CombatTemplate = require(script.Parent:WaitForChild("CombatTemplate"))
 local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 
 local menuContainer, infoCard
-local bossNameLabel, timerLabel, engageBtn
+local bossNameLabel, timerLabel, engageBtn, rerollBtn
 local combatUI
 local activeFighters = {}
 local rootFrame, forceTabFocus, cachedTooltipMgr
@@ -118,6 +120,9 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 	bossNameLabel = infoCard:WaitForChild("BossNameLabel")
 	timerLabel = infoCard:WaitForChild("TimerLabel")
 	engageBtn = infoCard:WaitForChild("EngageBtn")
+	rerollBtn = infoCard:WaitForChild("RerollBtn")
+
+	rerollBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 
 	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
 	combatUI.MainFrame.Visible = false
@@ -133,10 +138,15 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 	resourceLabel.Parent = combatUI.ContentContainer
 
 	engageBtn.MouseButton1Click:Connect(function()
-		if engageBtn.Text == "ENGAGE BOSS" then
+		if engageBtn.Text == "ENGAGE BOSS" or engageBtn.Text == "ENGAGE PRIVATE BOSS" then
 			SFXManager.Play("Click")
 			Network.WorldBossAction:FireServer("Engage")
 		end
+	end)
+
+	rerollBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		MarketplaceService:PromptProductPurchase(player, 3567043458)
 	end)
 
 	task.delay(0.5, function()
@@ -148,36 +158,52 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 		while task.wait(1) do
 			if inBattle then continue end
 
-			local utc = os.date("!*t")
-			local mins = utc.min
-			local secs = utc.sec
-			local currentHour = utc.hour
-			local lastFought = player:GetAttribute("LastWorldBossHour")
-			local isStudio = RunService:IsStudio()
+			local instancedBoss = player:GetAttribute("InstancedWorldBoss")
+			local instancedEndTime = player:GetAttribute("InstancedWorldBossEndTime") or 0
+			local hasInstanced = instancedBoss and instancedEndTime > os.time()
 
-			local endTime = ReplicatedStorage:GetAttribute("WorldBossEndTime") or 0
-			local timeRemaining = endTime - os.time()
-
-			if lastFought == currentHour and not isStudio then
-				local secondsLeft = (60 * 60) - ((mins * 60) + secs)
-				timerLabel.Text = "NEXT IN: " .. FormatTime(secondsLeft)
-				timerLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-				engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-				engageBtn.Text = "ALREADY FOUGHT"
-				engageBtn.AutoButtonColor = false
-			elseif timeRemaining > 0 then
-				timerLabel.Text = "DESPAWNS IN: " .. FormatTime(math.floor(timeRemaining))
-				timerLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-				engageBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
-				engageBtn.Text = "ENGAGE BOSS"
+			if hasInstanced then
+				local timeRemaining = instancedEndTime - os.time()
+				timerLabel.Text = "PRIVATE BOSS DESPAWNS IN: " .. FormatTime(math.floor(timeRemaining))
+				timerLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+				engageBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+				engageBtn.Text = "ENGAGE PRIVATE BOSS"
 				engageBtn.AutoButtonColor = true
+				if bossNameLabel.Text ~= string.upper(instancedBoss) .. " (PRIVATE)" then
+					bossNameLabel.Text = string.upper(instancedBoss) .. " (PRIVATE)"
+				end
 			else
-				local secondsLeft = (60 * 60) - ((mins * 60) + secs)
-				timerLabel.Text = "SPAWNS IN: " .. FormatTime(secondsLeft)
-				timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-				engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-				engageBtn.Text = "WAITING..."
-				engageBtn.AutoButtonColor = false
+				local utc = os.date("!*t")
+				local mins = utc.min
+				local secs = utc.sec
+				local currentHour = utc.hour
+				local lastFought = player:GetAttribute("LastWorldBossHour")
+				local isStudio = RunService:IsStudio()
+
+				local endTime = ReplicatedStorage:GetAttribute("WorldBossEndTime") or 0
+				local timeRemaining = endTime - os.time()
+
+				if lastFought == currentHour and not isStudio then
+					local secondsLeft = (60 * 60) - ((mins * 60) + secs)
+					timerLabel.Text = "NEXT IN: " .. FormatTime(secondsLeft)
+					timerLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+					engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+					engageBtn.Text = "ALREADY FOUGHT"
+					engageBtn.AutoButtonColor = false
+				elseif timeRemaining > 0 then
+					timerLabel.Text = "DESPAWNS IN: " .. FormatTime(math.floor(timeRemaining))
+					timerLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+					engageBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
+					engageBtn.Text = "ENGAGE BOSS"
+					engageBtn.AutoButtonColor = true
+				else
+					local secondsLeft = (60 * 60) - ((mins * 60) + secs)
+					timerLabel.Text = "SPAWNS IN: " .. FormatTime(secondsLeft)
+					timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+					engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+					engageBtn.Text = "WAITING..."
+					engageBtn.AutoButtonColor = false
+				end
 			end
 		end
 	end)
@@ -261,8 +287,12 @@ end
 
 function WorldBossTab.UpdateWorldBoss(status, data)
 	if status == "SyncBoss" then
-		if bossNameLabel then
-			bossNameLabel.Text = data and string.upper(data) or "UNKNOWN THREAT"
+		local instancedBoss = player:GetAttribute("InstancedWorldBoss")
+		local instancedEndTime = player:GetAttribute("InstancedWorldBossEndTime") or 0
+		if instancedBoss and instancedEndTime > os.time() then
+			if bossNameLabel then bossNameLabel.Text = string.upper(instancedBoss) .. " (PRIVATE)" end
+		else
+			if bossNameLabel then bossNameLabel.Text = data and string.upper(data) or "UNKNOWN THREAT" end
 		end
 		return
 	end
