@@ -133,6 +133,9 @@ ItemData.Consumables = {
 	["Limitless Manual"] = { Category = "Player", Description = "Learn the concept of infinity. Grants the Limitless style.", Rarity = "Unique", Cost = 500000 },
 	["Cursed Finger"] = { Category = "Player", Description = "A mummified finger radiating evil. Grants the Shrine style.", Rarity = "Unique", Cost = 500000 },
 	["Scratch-Off Ticket"] = { Category = "Stand", Description = "99% of gamblers quit right before they hit the jackpot. (Replaces your Stand's Trait)", Rarity = "Unique", Cost = 777777 },
+	
+	-- Easter
+	["Easter Egg"] = { Category = "Player", Description = "A decorative egg dropped from battles. Currency for the Easter Shop.", Rarity = "Unique", Cost = 0 },
 }
 
 return ItemData
