@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -29,6 +30,7 @@ end
 local WorldBossAction = GetOrCreateEvent("WorldBossAction", false)
 local WorldBossUpdate = GetOrCreateEvent("WorldBossUpdate", false)
 local AdminForceSpawnWB = GetOrCreateEvent("AdminForceSpawnWB", true)
+local RerollWorldBoss = GetOrCreateEvent("RerollWorldBoss", true)
 local NotificationEvent = GetOrCreateEvent("NotificationEvent", false)
 
 local ActiveBossBattles = {}
@@ -94,6 +96,25 @@ pcall(function()
 	end)
 end)
 
+RerollWorldBoss.Event:Connect(function(player)
+	local bossList = GetAvailableBosses()
+
+	if #bossList > 0 then
+		local instancedBoss = bossList[math.random(1, #bossList)]
+		local endTime = os.time() + (BOSS_ACTIVE_MINUTES * 60)
+
+		player:SetAttribute("InstancedWorldBoss", instancedBoss)
+		player:SetAttribute("InstancedWorldBossEndTime", endTime)
+		player:SetAttribute("LastWorldBossHour", -1)
+
+		local spawnMsg = "<font color='#55FF55'><b>[SYSTEM] You spawned a private " .. instancedBoss .. "! You have " .. BOSS_ACTIVE_MINUTES .. " minutes to engage!</b></font>"
+		Network.CombatUpdate:FireClient(player, "SystemMessage", spawnMsg)
+		NotificationEvent:FireClient(player, "<font color='#55FF55'><b>Private " .. instancedBoss .. " spawned!</b></font>")
+
+		WorldBossUpdate:FireClient(player, "SyncBoss", CurrentActiveBoss)
+	end
+end)
+
 task.spawn(function()
 	while task.wait(1) do
 		local utc = os.date("!*t")
@@ -132,20 +153,30 @@ end)
 local function StartBossBattle(player)
 	local utc = os.date("!*t")
 
-	if not CurrentActiveBoss or not IsBossActive() then
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>The World Boss is not currently active!</font>")
-		return
+	local instancedBossName = player:GetAttribute("InstancedWorldBoss")
+	local instancedEndTime = player:GetAttribute("InstancedWorldBossEndTime") or 0
+	local hasInstanced = instancedBossName and (instancedEndTime > os.time())
+
+	local activeBossName
+
+	if hasInstanced then
+		activeBossName = instancedBossName
+	else
+		activeBossName = CurrentActiveBoss
+		if not activeBossName or not IsBossActive() then
+			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>The World Boss is not currently active!</font>")
+			return
+		end
+
+		local isStudio = game:GetService("RunService"):IsStudio()
+		if player:GetAttribute("LastWorldBossHour") == utc.hour and not isStudio then
+			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this hour!</font>")
+			return
+		end
 	end
 
-	local isStudio = game:GetService("RunService"):IsStudio()
-	if player:GetAttribute("LastWorldBossHour") == utc.hour and not isStudio then
-		Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this hour!</font>")
-		return
-	end
-
-	local bossTemplate = EnemyData.WorldBosses[CurrentActiveBoss]
+	local bossTemplate = EnemyData.WorldBosses[activeBossName]
 	if not bossTemplate then 
-		warn("World Boss Error: Boss Template missing for " .. tostring(CurrentActiveBoss))
 		return 
 	end
 
@@ -168,11 +199,14 @@ local function StartBossBattle(player)
 	ActiveBossBattles[player.UserId] = {
 		IsProcessing = false, TurnCounter = 1, Boosts = pData.Boosts, Drops = bossTemplate.Drops,
 		Player = pData,
-		Enemy = bossEntity
+		Enemy = bossEntity,
+		IsInstanced = hasInstanced
 	}
 
-	WorldBossUpdate:FireClient(player, "Start", { Battle = ActiveBossBattles[player.UserId], LogMsg = "<font color='#FF5555'>The sky darkens... " .. CurrentActiveBoss .. " has arrived!</font>" })
-	player:SetAttribute("LastWorldBossHour", utc.hour)
+	WorldBossUpdate:FireClient(player, "Start", { Battle = ActiveBossBattles[player.UserId], LogMsg = "<font color='#FF5555'>The sky darkens... " .. activeBossName .. " has arrived!</font>" })
+	if not hasInstanced then
+		player:SetAttribute("LastWorldBossHour", utc.hour)
+	end
 end
 
 WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
@@ -212,7 +246,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		if success then
 			WorldBossUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = msg, DidHit = didHit, ShakeType = shakeType})
 			task.wait(waitMultiplier)
-		else warn("Combat Strike Error: ", msg) end
+		end
 	end
 
 	local combatants = { battle.Player, battle.Enemy }
@@ -250,8 +284,14 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		if combatant.IsPlayer then
 			if skill.Effect == "Flee" then
+				if battle.IsInstanced then
+					player:SetAttribute("InstancedWorldBoss", nil)
+					player:SetAttribute("InstancedWorldBossEndTime", 0)
+				end
 				WorldBossUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#AAAAAA'>You fled the boss fight!</font>", DidHit = false, ShakeType = "None"})
-				task.wait(waitMultiplier); WorldBossUpdate:FireClient(player, "Fled", {Battle = battle}); ActiveBossBattles[player.UserId] = nil; return
+				task.wait(waitMultiplier); WorldBossUpdate:FireClient(player, "Fled", {Battle = battle}); ActiveBossBattles[player.UserId] = nil
+				if battle.IsInstanced then WorldBossUpdate:FireClient(player, "SyncBoss", CurrentActiveBoss) end
+				return
 			end
 			DispatchStrike(battle.Player, battle.Enemy, skillName)
 		else
@@ -333,9 +373,18 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		local resultLog = isDeath and "<font color='#FF5555'>You were defeated by the World Boss!</font>" or "<font color='#55FF55'>Battle Finished! The boss flees.</font>"
 		resultLog = resultLog .. "\n<font color='#FFAA00'>Total Damage Dealt: " .. math.floor(damageDealt) .. "</font>"
 
+		if battle.IsInstanced then
+			player:SetAttribute("InstancedWorldBoss", nil)
+			player:SetAttribute("InstancedWorldBossEndTime", 0)
+		end
+
 		local finalPack = { XP = fXP, Yen = fYen, Items = droppedItems }
 		WorldBossUpdate:FireClient(player, isDeath and "Defeat" or "Victory", {Battle = battle, Drops = finalPack, CustomLog = resultLog})
 		ActiveBossBattles[player.UserId] = nil
+
+		if battle.IsInstanced then
+			WorldBossUpdate:FireClient(player, "SyncBoss", CurrentActiveBoss)
+		end
 	else
 		if stamCost == 0 then battle.Player.Stamina = math.min(battle.Player.MaxStamina, battle.Player.Stamina + 5) end
 		if nrgCost == 0 then battle.Player.StandEnergy = math.min(battle.Player.MaxStandEnergy, battle.Player.StandEnergy + 5) end
@@ -353,4 +402,6 @@ end)
 
 game.Players.PlayerRemoving:Connect(function(player)
 	ActiveBossBattles[player.UserId] = nil
+	player:SetAttribute("InstancedWorldBoss", nil)
+	player:SetAttribute("InstancedWorldBossEndTime", 0)
 end)
