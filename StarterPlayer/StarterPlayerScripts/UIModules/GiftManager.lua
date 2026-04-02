@@ -111,6 +111,13 @@ function GiftManager.Init(parentGui)
 	Network:WaitForChild("ShopAction").OnClientEvent:Connect(CatchPrompt)
 end
 
+local function FormatFusedStand(baseStr, name, fs1, fs2)
+	if name == "Fused Stand" then
+		return baseStr .. "\n(" .. tostring(fs1) .. " + " .. tostring(fs2) .. ")"
+	end
+	return baseStr .. "\n[" .. tostring(name) .. "]"
+end
+
 processQueue = function()
 	if isPromptShowing or #promptQueue == 0 then return end
 	local nextData = table.remove(promptQueue, 1)
@@ -119,15 +126,21 @@ processQueue = function()
 	local prestige = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
 
 	if nextData.StandName then
-		scTitle.Text = "GIFT: " .. nextData.StandName
-		btnScActive.Text = FormatSlotLabel("Active", nextData.Active)
-		btnScSlot1.Text = FormatSlotLabel("Slot 1", nextData.Slot1)
-		btnScSlot2.Text = FormatSlotLabel("Slot 2", nextData.Slot2)
-		btnScSlot3.Text = FormatSlotLabel("Slot 3", nextData.Slot3)
-		btnScSlot4.Text = FormatSlotLabel("Slot 4 (Pres. 15)", nextData.Slot4)
-		btnScSlot5.Text = FormatSlotLabel("Slot 5 (Pres. 30)", nextData.Slot5)
+		local sNameFormatted = nextData.StandName
+		if nextData.StandName == "Fused Stand" then
+			local tS1 = player:GetAttribute("PendingStand_FusedS1") or "None"
+			local tS2 = player:GetAttribute("PendingStand_FusedS2") or "None"
+			sNameFormatted = "Fused Stand\n(" .. tS1 .. " + " .. tS2 .. ")"
+		end
+		scTitle.Text = "GIFT: " .. sNameFormatted
 
-		btnScSlotVIP.Text = FormatSlotLabel("VIP Slot", nextData.SlotVIP)
+		btnScActive.Text = FormatFusedStand("Active", nextData.Active, player:GetAttribute("Active_FusedStand1"), player:GetAttribute("Active_FusedStand2"))
+		btnScSlot1.Text = FormatFusedStand("Slot 1", nextData.Slot1, player:GetAttribute("StoredStand1_FusedStand1"), player:GetAttribute("StoredStand1_FusedStand2"))
+		btnScSlot2.Text = FormatFusedStand("Slot 2", nextData.Slot2, player:GetAttribute("StoredStand2_FusedStand1"), player:GetAttribute("StoredStand2_FusedStand2"))
+		btnScSlot3.Text = FormatFusedStand("Slot 3", nextData.Slot3, player:GetAttribute("StoredStand3_FusedStand1"), player:GetAttribute("StoredStand3_FusedStand2"))
+		btnScSlot4.Text = FormatFusedStand("Slot 4 (Pres. 15)", nextData.Slot4, player:GetAttribute("StoredStand4_FusedStand1"), player:GetAttribute("StoredStand4_FusedStand2"))
+		btnScSlot5.Text = FormatFusedStand("Slot 5 (Pres. 30)", nextData.Slot5, player:GetAttribute("StoredStand5_FusedStand1"), player:GetAttribute("StoredStand5_FusedStand2"))
+		btnScSlotVIP.Text = FormatFusedStand("VIP Slot", nextData.SlotVIP, player:GetAttribute("StoredStandVIP_FusedStand1"), player:GetAttribute("StoredStandVIP_FusedStand2"))
 
 		btnScSlot2.Visible = player:GetAttribute("HasStandSlot2") == true
 		btnScSlot3.Visible = player:GetAttribute("HasStandSlot3") == true
