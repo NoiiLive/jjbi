@@ -826,4 +826,29 @@ EnemyData.Parts = {
 	}
 }
 
+local globalDrops = {
+	["Easter Egg"] = 100
+}
+
+local function injectDrops(enemyTable)
+	for _, enemy in pairs(enemyTable) do
+		if enemy.Drops then
+			enemy.Drops.ItemChance = enemy.Drops.ItemChance or {}
+			for itemName, dropChance in pairs(globalDrops) do
+				enemy.Drops.ItemChance[itemName] = dropChance
+			end
+		end
+	end
+end
+
+injectDrops(EnemyData.RaidBosses)
+injectDrops(EnemyData.WorldBosses)
+injectDrops(EnemyData.Parts)
+
+for _, partData in pairs(EnemyData.Parts) do
+	if partData.Boss then injectDrops({partData.Boss}) end
+	if partData.Mobs then injectDrops(partData.Mobs) end
+	if partData.Templates then injectDrops(partData.Templates) end
+end
+
 return EnemyData
