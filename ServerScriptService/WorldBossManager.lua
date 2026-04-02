@@ -1,6 +1,7 @@
 -- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local MemoryStoreService = game:GetService("MemoryStoreService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
@@ -93,7 +94,24 @@ pcall(function()
 			NotificationEvent:FireAllClients("<font color='#FF55FF'><b>[ADMIN EVENT] " .. CurrentActiveBoss .. " has been summoned!</b></font>")
 			WorldBossUpdate:FireAllClients("SyncBoss", CurrentActiveBoss)
 
-			WorldBossLogger:Fire(CurrentActiveBoss)
+			local adminTimeKey = "AdminBossLog_Debounce"
+			local lockMap = MemoryStoreService:GetHashMap("BossLogs")
+			local didClaimLock = false
+
+			local success, err = pcall(function()
+				lockMap:UpdateAsync(adminTimeKey, function(oldValue)
+					if oldValue then
+						didClaimLock = false -- Reset if we are on a collision retry!
+						return nil
+					end
+					didClaimLock = true
+					return true
+				end, 15)
+			end)
+
+			if success and didClaimLock then
+				WorldBossLogger:Fire(CurrentActiveBoss)
+			end
 		end
 	end)
 end)
@@ -141,7 +159,24 @@ task.spawn(function()
 					NotificationEvent:FireAllClients("<font color='#FF5555'><b>[WORLD BOSS] " .. CurrentActiveBoss .. " has spawned!</b></font>")
 					WorldBossUpdate:FireAllClients("SyncBoss", CurrentActiveBoss)
 
-					WorldBossLogger:Fire(CurrentActiveBoss)
+					local timeKey = "WorldBossLog_" .. tostring(utc.year) .. "_" .. tostring(utc.yday) .. "_" .. tostring(utc.hour)
+					local lockMap = MemoryStoreService:GetHashMap("BossLogs")
+					local didClaimLock = false
+
+					local success, err = pcall(function()
+						lockMap:UpdateAsync(timeKey, function(oldValue)
+							if oldValue then
+								didClaimLock = false -- Reset if we are on a collision retry!
+								return nil
+							end
+							didClaimLock = true
+							return true
+						end, 3600)
+					end)
+
+					if success and didClaimLock then
+						WorldBossLogger:Fire(CurrentActiveBoss)
+					end
 				end
 			end
 		else
