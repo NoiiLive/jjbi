@@ -20,9 +20,19 @@ local selectedName1, selectedName2
 local selectedTrait1, selectedTrait2
 local dropdownBtnTpl
 
+local function FormatStandNameForDropdown(slot, standAttr, fusedS1Attr, fusedS2Attr)
+	local sName = player:GetAttribute(standAttr) or "None"
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute(fusedS1Attr) or "None"
+		local fs2 = player:GetAttribute(fusedS2Attr) or "None"
+		return "Fused Stand (" .. fs1 .. " + " .. fs2 .. ")"
+	end
+	return sName
+end
+
 local function GetAvailableStands()
 	local opts = {}
-	local function check(slot, standAttr, traitAttr)
+	local function check(slot, standAttr, traitAttr, fs1, fs2)
 		local sName = player:GetAttribute(standAttr) or "None"
 		local sTrait = player:GetAttribute(traitAttr) or "None"
 		if sName ~= "None" and sName ~= "Fused Stand" then
@@ -30,14 +40,15 @@ local function GetAvailableStands()
 		end
 	end
 
-	check("Active", "Stand", "StandTrait")
-	check("Slot1", "StoredStand1", "StoredStand1_Trait")
-	if player:GetAttribute("HasStandSlot2") then check("Slot2", "StoredStand2", "StoredStand2_Trait") end
-	if player:GetAttribute("HasStandSlot3") then check("Slot3", "StoredStand3", "StoredStand3_Trait") end
+	check("Active", "Stand", "StandTrait", "Active_FusedStand1", "Active_FusedStand2")
+	check("Slot1", "StoredStand1", "StoredStand1_Trait", "StoredStand1_FusedStand1", "StoredStand1_FusedStand2")
+	if player:GetAttribute("HasStandSlot2") then check("Slot2", "StoredStand2", "StoredStand2_Trait", "StoredStand2_FusedStand1", "StoredStand2_FusedStand2") end
+	if player:GetAttribute("HasStandSlot3") then check("Slot3", "StoredStand3", "StoredStand3_Trait", "StoredStand3_FusedStand1", "StoredStand3_FusedStand2") end
 
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige") and player.leaderstats.Prestige.Value or 0
-	if prestige >= 15 then check("Slot4", "StoredStand4", "StoredStand4_Trait") end
-	if prestige >= 30 then check("Slot5", "StoredStand5", "StoredStand5_Trait") end
+	if prestige >= 15 then check("Slot4", "StoredStand4", "StoredStand4_Trait", "StoredStand4_FusedStand1", "StoredStand4_FusedStand2") end
+	if prestige >= 30 then check("Slot5", "StoredStand5", "StoredStand5_Trait", "StoredStand5_FusedStand1", "StoredStand5_FusedStand2") end
+	if player:GetAttribute("IsVIP") then check("SlotVIP", "StoredStandVIP", "StoredStandVIP_Trait", "StoredStandVIP_FusedStand1", "StoredStandVIP_FusedStand2") end
 
 	return opts
 end
@@ -153,6 +164,7 @@ function FusionModal.Init(parentGui)
 	local btnS3 = slotGrid:WaitForChild("BtnS3")
 	local btnS4 = slotGrid:WaitForChild("BtnS4")
 	local btnS5 = slotGrid:WaitForChild("BtnS5")
+	local btnSVIP = slotGrid:WaitForChild("BtnSVIP")
 
 	local function setupSlotBtn(btn, slotId)
 		btn.MouseButton1Click:Connect(function()
@@ -170,6 +182,7 @@ function FusionModal.Init(parentGui)
 	setupSlotBtn(btnS3, "Slot3")
 	setupSlotBtn(btnS4, "Slot4")
 	setupSlotBtn(btnS5, "Slot5")
+	setupSlotBtn(btnSVIP, "SlotVIP")
 
 	local cancelSlotBtn = slotSelectView:WaitForChild("CancelSlotBtn")
 	cancelSlotBtn.MouseButton1Click:Connect(function()
@@ -177,6 +190,16 @@ function FusionModal.Init(parentGui)
 		slotSelectView.Visible = false
 		mainView.Visible = true
 	end)
+
+	local function SetReplaceSlotText(btn, label, nameAttr, fs1Attr, fs2Attr)
+		local sName = player:GetAttribute(nameAttr) or "None"
+		if sName == "Fused Stand" then
+			local fs1 = player:GetAttribute(fs1Attr) or "None"
+			local fs2 = player:GetAttribute(fs2Attr) or "None"
+			sName = "" .. fs1 .. " + " .. fs2 .. ""
+		end
+		btn.Text = label .. "\n[" .. sName .. "]"
+	end
 
 	fuseBtn.MouseButton1Click:Connect(function()
 		if selectedSlot1 and selectedSlot2 then
@@ -193,6 +216,15 @@ function FusionModal.Init(parentGui)
 			btnS3.Visible = player:GetAttribute("HasStandSlot3") == true
 			btnS4.Visible = prestige >= 15
 			btnS5.Visible = prestige >= 30
+			btnSVIP.Visible = player:GetAttribute("IsVIP") == true
+
+			SetReplaceSlotText(btnActive, "Active", "Stand", "Active_FusedStand1", "Active_FusedStand2")
+			SetReplaceSlotText(btnS1, "Slot 1", "StoredStand1", "StoredStand1_FusedStand1", "StoredStand1_FusedStand2")
+			SetReplaceSlotText(btnS2, "Slot 2", "StoredStand2", "StoredStand2_FusedStand1", "StoredStand2_FusedStand2")
+			SetReplaceSlotText(btnS3, "Slot 3", "StoredStand3", "StoredStand3_FusedStand1", "StoredStand3_FusedStand2")
+			SetReplaceSlotText(btnS4, "Slot 4", "StoredStand4", "StoredStand4_FusedStand1", "StoredStand4_FusedStand2")
+			SetReplaceSlotText(btnS5, "Slot 5", "StoredStand5", "StoredStand5_FusedStand1", "StoredStand5_FusedStand2")
+			SetReplaceSlotText(btnSVIP, "VIP Slot", "StoredStandVIP", "StoredStandVIP_FusedStand1", "StoredStandVIP_FusedStand2")
 
 			mainView.Visible = false
 			slotSelectView.Visible = true
