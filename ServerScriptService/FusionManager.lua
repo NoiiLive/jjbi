@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
@@ -7,6 +8,13 @@ local ExecuteFusion = Network:FindFirstChild("ExecuteFusion") or Instance.new("R
 ExecuteFusion.Name = "ExecuteFusion"
 
 local NotificationEvent = Network:WaitForChild("NotificationEvent")
+
+local AdminLogger = Network:FindFirstChild("AdminLogger")
+if not AdminLogger then
+	AdminLogger = Instance.new("BindableEvent")
+	AdminLogger.Name = "AdminLogger"
+	AdminLogger.Parent = Network
+end
 
 ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 	local rokaCount = player:GetAttribute("NewRokakakaCount") or 0
@@ -23,6 +31,7 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
 	if targetSlot == "Slot4" and prestige < 15 then return end
 	if targetSlot == "Slot5" and prestige < 30 then return end
+	if targetSlot == "SlotVIP" and not player:GetAttribute("IsVIP") then return end
 
 	local function GetStandDataFromSlot(slot)
 		if slot == "Active" then return player:GetAttribute("Stand") or "None", player:GetAttribute("StandTrait") or "None"
@@ -30,12 +39,35 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 		elseif slot == "Slot2" then return player:GetAttribute("StoredStand2") or "None", player:GetAttribute("StoredStand2_Trait") or "None"
 		elseif slot == "Slot3" then return player:GetAttribute("StoredStand3") or "None", player:GetAttribute("StoredStand3_Trait") or "None"
 		elseif slot == "Slot4" then return player:GetAttribute("StoredStand4") or "None", player:GetAttribute("StoredStand4_Trait") or "None"
-		elseif slot == "Slot5" then return player:GetAttribute("StoredStand5") or "None", player:GetAttribute("StoredStand5_Trait") or "None" end
+		elseif slot == "Slot5" then return player:GetAttribute("StoredStand5") or "None", player:GetAttribute("StoredStand5_Trait") or "None"
+		elseif slot == "SlotVIP" then return player:GetAttribute("StoredStandVIP") or "None", player:GetAttribute("StoredStandVIP_Trait") or "None" end
 		return "None", "None"
 	end
 
 	local stand1, trait1 = GetStandDataFromSlot(slot1)
 	local stand2, trait2 = GetStandDataFromSlot(slot2)
+
+	local oldTargetStandName = GetStandDataFromSlot(targetSlot)
+	if oldTargetStandName == "Fused Stand" then
+		local fs1, fs2 = "None", "None"
+		if targetSlot == "Active" then
+			fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+			fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		else
+			local num = targetSlot:gsub("Slot", "")
+			fs1 = player:GetAttribute("StoredStand"..num.."_FusedStand1") or "None"
+			fs2 = player:GetAttribute("StoredStand"..num.."_FusedStand2") or "None"
+		end
+		oldTargetStandName = "Fused Stand (" .. tostring(fs1) .. " + " .. tostring(fs2) .. ")"
+	end
+
+	local newStandFormatted = "Fused Stand (" .. tostring(stand1) .. " + " .. tostring(stand2) .. ")"
+
+	if oldTargetStandName ~= "None" then
+		AdminLogger:Fire("Replacement", {
+			Player = player.Name, Context = "Fusion", OldItem = oldTargetStandName, NewItem = newStandFormatted, Slot = targetSlot
+		})
+	end
 
 	if stand1 == "None" or stand2 == "None" then
 		NotificationEvent:FireClient(player, "<font color='#FF5555'>Both slots must contain a valid Stand!</font>")
