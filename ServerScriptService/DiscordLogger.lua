@@ -67,6 +67,12 @@ AdminLogger.Event:Connect(function(logType, logData)
 		table.insert(embed.fields, {name = "Purchaser", value = logData.Player, inline = true})
 		table.insert(embed.fields, {name = "Target (Gifted To)", value = logData.Target, inline = true})
 		table.insert(embed.fields, {name = "Item Purchased", value = logData.Item, inline = false})
+
+	elseif logType == "Replacement" then
+		embed.color = 0xE67E22
+		table.insert(embed.fields, {name = "Player", value = logData.Player, inline = true})
+		table.insert(embed.fields, {name = "Context", value = logData.Context, inline = true})
+		table.insert(embed.fields, {name = "Action", value = "Replaced **" .. logData.OldItem .. "** with **" .. logData.NewItem .. "** in slot: `" .. logData.Slot .. "`", inline = false})
 	end
 
 	SendToDiscord(ADMIN_WEBHOOK_URL, embed)
