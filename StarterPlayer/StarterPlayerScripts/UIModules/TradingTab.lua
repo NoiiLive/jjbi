@@ -24,10 +24,10 @@ local myOfferGrid, oppOfferGrid, myInvList, myStandList, myStyleList
 local myYenLbl, oppYenLbl, tradeStatusLbl
 local addYenInput, lockBtn, confirmBtn
 local claimModal, claimContainer, claimTitle
-local btnActive, btnSlot1, btnSlot2, btnSlot3, btnSlot4, btnSlot5
+local btnActive, btnSlot1, btnSlot2, btnSlot3, btnSlot4, btnSlot5, btnSlotVIP
 
 local styleClaimModal, styleClaimContainer, styleClaimTitle
-local btnStyleActive, btnStyleSlot1, btnStyleSlot2, btnStyleSlot3
+local btnStyleActive, btnStyleSlot1, btnStyleSlot2, btnStyleSlot3, btnStyleSlotVIP
 
 local rarityColors = {
 	Common = Color3.fromRGB(150, 150, 150),
@@ -317,6 +317,7 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	btnSlot3 = claimBtnGrid:WaitForChild("BtnSlot3")
 	btnSlot4 = claimBtnGrid:WaitForChild("BtnSlot4")
 	btnSlot5 = claimBtnGrid:WaitForChild("BtnSlot5")
+	btnSlotVIP = claimBtnGrid:WaitForChild("BtnSlotVIP")
 
 	styleClaimModal = parentFrame:WaitForChild("StyleClaimModal")
 	styleClaimContainer = styleClaimModal:WaitForChild("StyleClaimContainer")
@@ -327,6 +328,7 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	btnStyleSlot1 = styleClaimBtnGrid:WaitForChild("BtnStyleSlot1")
 	btnStyleSlot2 = styleClaimBtnGrid:WaitForChild("BtnStyleSlot2")
 	btnStyleSlot3 = styleClaimBtnGrid:WaitForChild("BtnStyleSlot3")
+	btnStyleSlotVIP = styleClaimBtnGrid:WaitForChild("BtnStyleSlotVIP")
 
 	local toggleReqsBtn = topCard:WaitForChild("ToggleReqsBtn")
 	local actNav = topCard:WaitForChild("ActNav")
@@ -491,11 +493,13 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	btnSlot3.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot3") end)
 	btnSlot4.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot4") end)
 	btnSlot5.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "Slot5") end)
+	btnSlotVIP.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStand", "SlotVIP") end)
 
 	btnStyleActive.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStyle", "Active") end)
 	btnStyleSlot1.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStyle", "Slot1") end)
 	btnStyleSlot2.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStyle", "Slot2") end)
 	btnStyleSlot3.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStyle", "Slot3") end)
+	btnStyleSlotVIP.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("ClaimStyle", "SlotVIP") end)
 
 	local function RefreshPickers()
 		for _, c in pairs(myInvList:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
@@ -599,6 +603,8 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 		if prestige >= 15 then AddStandBtn("Slot4", "StoredStand4") end
 		if prestige >= 30 then AddStandBtn("Slot5", "StoredStand5") end
 
+		if player:GetAttribute("IsVIP") then AddStandBtn("SlotVIP", "StoredStandVIP") end
+
 		local l2 = myStandList:FindFirstChildWhichIsA("UIGridLayout")
 		if l2 then myStandList.CanvasSize = UDim2.new(0, 0, 0, math.ceil(#myStandList:GetChildren() / 3) * 60 + 10) end
 
@@ -619,6 +625,8 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 		AddStyleBtn("Slot1", "StoredStyle1")
 		if player:GetAttribute("HasStyleSlot2") then AddStyleBtn("Slot2", "StoredStyle2") end
 		if player:GetAttribute("HasStyleSlot3") then AddStyleBtn("Slot3", "StoredStyle3") end
+
+		if player:GetAttribute("IsVIP") then AddStyleBtn("SlotVIP", "StoredStyleVIP") end
 
 		local l3 = myStyleList:FindFirstChildWhichIsA("UIGridLayout")
 		if l3 then myStyleList.CanvasSize = UDim2.new(0, 0, 0, math.ceil(#myStyleList:GetChildren() / 3) * 60 + 10) end
@@ -643,18 +651,22 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 				claimTitle.Text = "You received " .. displayClaimName .. "!"
 
-				local function FormatSlotText(title, standName)
+				local function FormatFusedStand(title, standName, fs1, fs2)
 					local safeName = standName or "None"
 					if safeName == "None" or safeName == "" then return title .. "\n[Empty]" end
+					if safeName == "Fused Stand" then
+						return title .. "\n(" .. tostring(fs1) .. " + " .. tostring(fs2) .. ")"
+					end
 					return title .. "\n[" .. safeName .. "]"
 				end
 
-				btnActive.Text = FormatSlotText("Active Stand", data.Active)
-				btnSlot1.Text = FormatSlotText("Storage 1", data.Slot1)
-				btnSlot2.Text = FormatSlotText("Storage 2", data.Slot2)
-				btnSlot3.Text = FormatSlotText("Storage 3", data.Slot3)
-				btnSlot4.Text = FormatSlotText("Storage 4", data.Slot4)
-				btnSlot5.Text = FormatSlotText("Storage 5", data.Slot5)
+				btnActive.Text = FormatFusedStand("Active Stand", data.Active, player:GetAttribute("Active_FusedStand1"), player:GetAttribute("Active_FusedStand2"))
+				btnSlot1.Text = FormatFusedStand("Storage 1", data.Slot1, player:GetAttribute("StoredStand1_FusedStand1"), player:GetAttribute("StoredStand1_FusedStand2"))
+				btnSlot2.Text = FormatFusedStand("Storage 2", data.Slot2, player:GetAttribute("StoredStand2_FusedStand1"), player:GetAttribute("StoredStand2_FusedStand2"))
+				btnSlot3.Text = FormatFusedStand("Storage 3", data.Slot3, player:GetAttribute("StoredStand3_FusedStand1"), player:GetAttribute("StoredStand3_FusedStand2"))
+				btnSlot4.Text = FormatFusedStand("Storage 4", data.Slot4, player:GetAttribute("StoredStand4_FusedStand1"), player:GetAttribute("StoredStand4_FusedStand2"))
+				btnSlot5.Text = FormatFusedStand("Storage 5", data.Slot5, player:GetAttribute("StoredStand5_FusedStand1"), player:GetAttribute("StoredStand5_FusedStand2"))
+				btnSlotVIP.Text = FormatFusedStand("VIP Slot", data.SlotVIP, player:GetAttribute("StoredStandVIP_FusedStand1"), player:GetAttribute("StoredStandVIP_FusedStand2"))
 
 				local ls = player:FindFirstChild("leaderstats")
 				local prestige = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
@@ -663,6 +675,7 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 				btnSlot3.Visible = player:GetAttribute("HasStandSlot3") == true
 				btnSlot4.Visible = prestige >= 15
 				btnSlot5.Visible = prestige >= 30
+				btnSlotVIP.Visible = player:GetAttribute("IsVIP") == true
 
 				claimModal.Visible = true
 			end)
@@ -687,9 +700,11 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 				btnStyleSlot1.Text = FormatSlotText("Storage 1", data.Slot1)
 				btnStyleSlot2.Text = FormatSlotText("Storage 2", data.Slot2)
 				btnStyleSlot3.Text = FormatSlotText("Storage 3", data.Slot3)
+				btnStyleSlotVIP.Text = FormatSlotText("VIP Slot", data.SlotVIP)
 
 				btnStyleSlot2.Visible = player:GetAttribute("HasStyleSlot2") == true
 				btnStyleSlot3.Visible = player:GetAttribute("HasStyleSlot3") == true
+				btnStyleSlotVIP.Visible = player:GetAttribute("IsVIP") == true
 
 				styleClaimModal.Visible = true
 			end)
