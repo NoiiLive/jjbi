@@ -13,9 +13,9 @@ if not WorldBossLogEvent then
 end
 
 local ADMIN_WEBHOOK_URL = "https://discord.com/api/webhooks/1488980762165379213/yLjM6XIzDo0sSGiMOpFJQ8gYGs5hiDS-8bJoFzyrrh5Jw5e7EuNI2QdlzQimIZRnrpFW"
-local BOSS_WEBHOOK_URL = ""
+local BOSS_WEBHOOK_URL = "https://discord.com/api/webhooks/1488994023652724736/szzJf00-CBHsvW0AIWqzy4N1P3QZaDr0SULPXcduiCLEwJ67Pju1DF7bcsxwhUhwvQwW"
 
-local function SendToDiscord(webhookUrl, embedData)
+local function SendToDiscord(webhookUrl, embedData, contentText)
 	if webhookUrl == "" then
 		warn("Discord Webhook URL not set correctly in DiscordLogger! Logs are not saving permanently.")
 		return
@@ -24,6 +24,10 @@ local function SendToDiscord(webhookUrl, embedData)
 	local payload = {
 		["embeds"] = {embedData}
 	}
+
+	if contentText then
+		payload["content"] = contentText
+	end
 
 	local jsonData = HttpService:JSONEncode(payload)
 
@@ -76,5 +80,5 @@ WorldBossLogEvent.Event:Connect(function(bossName)
 		["color"] = 0xFF0000,
 	}
 
-	SendToDiscord(BOSS_WEBHOOK_URL, embed)
+	SendToDiscord(BOSS_WEBHOOK_URL, embed, "<@&1488983964592111857>")
 end)
