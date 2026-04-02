@@ -236,7 +236,7 @@ SkillData.Skills = {
 	["SIZZLE!"] = { Requirement = "Echoes Act 2", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 9, Effect = "Burn", Duration = 3, Cooldown = 4, Order = 12, Description = "Places a burning sound effect on the target." },
 	["WHOOSH!"] = { Requirement = "Echoes Act 2", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Applies a wind sound effect to vastly boost Speed." },
 
-	["S-H-I-T"] = { Requirement = "Echoes Act 3", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "A heavy, concentrated strike." },
+	["C-R-A-P"] = { Requirement = "Echoes Act 3", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "A heavy, concentrated strike." },
 	["3 FREEZE"] = { Requirement = "Echoes Act 3", Type = "Stand", Mult = 1.5, StaminaCost = 0, EnergyCost = 12, Effect = "Stun", Duration = 3, Cooldown = 6, Order = 12, Description = "Increases gravity on the target, pinning and Stunning them for 3 turns." },
 	["Heavy Gravity"] = { Requirement = "Echoes Act 3", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Debuff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Locks down the enemy's legs, heavily reducing their Speed." },
 
@@ -521,6 +521,9 @@ SkillData.Skills = {
 	["Usagi's Help"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 3, StaminaCost = 0, EnergyCost = 20, Effect = "Status_Random", Duration = 3, Cooldown = 6, Order = 12, Description = "Usagi rushes in screaming, causing a completely random, chaotic effect." },	
 	["Pajama Party"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Heal", HealPercent = 0.5, Cooldown = 5, Order = 13, Description = "Puts on cute pajamas and dances, restoring 50% of your Max HP." },
 	["Weed Whacker"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0.7, Hits = 5, StaminaCost = 0, EnergyCost = 15, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 14, Description = "Wildly swings a weed whacker, dealing multi-hit damage." },
+	
+	["Urya Urya Rush"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 0.8, Hits = 3, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A ruthless, high-speed barrage of punches." },
+	["Emerald Star Finger"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 12, Description = "A concentrated piercing strike combining Star Platinum and Hierophant Green." },
 }
 
 return SkillData
