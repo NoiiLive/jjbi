@@ -104,6 +104,9 @@ local function GetProperItemName(inputStr)
 	for key, _ in pairs(ItemData.Equipment) do if CleanStr(key) == search then return key end end
 	for key, _ in pairs(ItemData.Consumables) do if CleanStr(key) == search then return key end end
 
+	for key, _ in pairs(ItemData.Equipment) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
+	for key, _ in pairs(ItemData.Consumables) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
+
 	for key, _ in pairs(ItemData.Equipment) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	for key, _ in pairs(ItemData.Consumables) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
@@ -114,6 +117,8 @@ local function GetProperStandName(inputStr)
 
 	for key, _ in pairs(StandData.Stands) do if CleanStr(key) == search then return key end end
 
+	for key, _ in pairs(StandData.Stands) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
+
 	for key, _ in pairs(StandData.Stands) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -123,6 +128,9 @@ local function GetProperStyleName(inputStr)
 	if search == "none" then return "None" end
 
 	for key, _ in pairs(GameData.StyleBonuses) do if CleanStr(key) == search then return key end end
+
+	for key, _ in pairs(GameData.StyleBonuses) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
+
 	for key, _ in pairs(GameData.StyleBonuses) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -132,6 +140,9 @@ local function GetProperTraitName(inputStr)
 	if search == "none" then return "None" end
 
 	for key, _ in pairs(StandData.Traits) do if CleanStr(key) == search then return key end end
+
+	for key, _ in pairs(StandData.Traits) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
+
 	for key, _ in pairs(StandData.Traits) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -145,12 +156,21 @@ local function GetProperStatName(inputStr)
 		standdurability = "Stand_Durability_Val", standprecision = "Stand_Precision_Val", standpotential = "Stand_Potential_Val"
 	}
 
-	return validStats[search]
+	if validStats[search] then return validStats[search] end
+
+	for key, val in pairs(validStats) do if string.sub(key, 1, #search) == search then return val end end
+	for key, val in pairs(validStats) do if string.find(key, search, 1, true) then return val end end
+
+	return nil
 end
 
 local function GetProperWorldBossName(inputStr)
 	local search = CleanStr(inputStr)
+
 	for key, _ in pairs(EnemyData.WorldBosses) do if CleanStr(key) == search then return key end end
+
+	for key, _ in pairs(EnemyData.WorldBosses) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
+
 	for key, _ in pairs(EnemyData.WorldBosses) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
