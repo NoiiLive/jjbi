@@ -226,7 +226,7 @@ local function FetchPlayerData(target)
 	local t2 = target:GetAttribute("Active_FusedTrait2")
 	local st = target:GetAttribute("StandTrait") or "None"
 
-	data.Stands["Active"] = {
+	data.Stands["1_Active"] = {
 		Name = (sName == "Fused Stand") and f1 or sName,
 		FusedWith = (sName == "Fused Stand") and f2 or nil,
 		Trait1 = (sName == "Fused Stand") and t1 or st,
@@ -237,17 +237,18 @@ local function FetchPlayerData(target)
 	local pObj = target:FindFirstChild("leaderstats")
 	local prestige = pObj and pObj:FindFirstChild("Prestige") and pObj.Prestige.Value or 0
 
-	data.Stands["Slot 1"] = GetStandSlotData(target, "2", not target:GetAttribute("HasStandSlot2"))
-	data.Stands["Slot 2"] = GetStandSlotData(target, "3", not target:GetAttribute("HasStandSlot3"))
-	data.Stands["Slot 3"] = GetStandSlotData(target, "4", prestige < 15)
-	data.Stands["Slot 4"] = GetStandSlotData(target, "5", prestige < 30)
-	data.Stands["VIP Slot"] = GetStandSlotData(target, "VIP", not target:GetAttribute("IsVIP"))
+	data.Stands["2_Slot 1"] = GetStandSlotData(target, "1", false)
+	data.Stands["3_Slot 2"] = GetStandSlotData(target, "2", not target:GetAttribute("HasStandSlot2"))
+	data.Stands["4_Slot 3"] = GetStandSlotData(target, "3", not target:GetAttribute("HasStandSlot3"))
+	data.Stands["5_Slot 4"] = GetStandSlotData(target, "4", prestige < 15)
+	data.Stands["6_Slot 5"] = GetStandSlotData(target, "5", prestige < 30)
+	data.Stands["7_VIP Slot"] = GetStandSlotData(target, "VIP", not target:GetAttribute("IsVIP"))
 
-	data.Styles["Active"] = { Name = target:GetAttribute("FightingStyle") or "None", Locked = false }
-	data.Styles["Slot 1"] = { Name = target:GetAttribute("StoredStyle1") or "None", Locked = false }
-	data.Styles["Slot 2"] = { Locked = not target:GetAttribute("HasStyleSlot2"), Name = target:GetAttribute("StoredStyle2") or "None" }
-	data.Styles["Slot 3"] = { Locked = (not target:GetAttribute("HasStyleSlot3")) and (prestige < 15), Name = target:GetAttribute("StoredStyle3") or "None" }
-	data.Styles["VIP Slot"] = { Locked = not target:GetAttribute("IsVIP"), Name = target:GetAttribute("StoredStyleVIP") or "None" }
+	data.Styles["1_Active"] = { Name = target:GetAttribute("FightingStyle") or "None", Locked = false }
+	data.Styles["2_Slot 1"] = { Name = target:GetAttribute("StoredStyle1") or "None", Locked = false }
+	data.Styles["3_Slot 2"] = { Locked = not target:GetAttribute("HasStyleSlot2"), Name = target:GetAttribute("StoredStyle2") or "None" }
+	data.Styles["4_Slot 3"] = { Locked = (not target:GetAttribute("HasStyleSlot3")) and (prestige < 15), Name = target:GetAttribute("StoredStyle3") or "None" }
+	data.Styles["5_VIP Slot"] = { Locked = not target:GetAttribute("IsVIP"), Name = target:GetAttribute("StoredStyleVIP") or "None" }
 
 	return data
 end
@@ -281,7 +282,7 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 	elseif action == "UpdateStand" then
 		local slot = arg1
 		local updateData = arg2
-		if slot == "1_Active" then
+		if string.find(slot, "Active") then
 			if updateData.FusedWith and updateData.FusedWith ~= "" then
 				local s1Proper = GetProperStandName(updateData.Name)
 				local s2Proper = GetProperStandName(updateData.FusedWith)
@@ -314,7 +315,7 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 				end
 			end
 		else
-			local slotNum = string.match(slot, "%d+")
+			local slotNum = string.match(slot, "Slot (%d+)")
 			if string.find(slot, "VIP") then slotNum = "VIP" end
 			if slotNum then
 				if updateData.FusedWith and updateData.FusedWith ~= "" then
@@ -338,7 +339,7 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
 	elseif action == "ClearStand" then
 		local slot = arg1
-		if slot == "1_Active" then
+		if string.find(slot, "Active") then
 			GrantStand(target, "None")
 			target:SetAttribute("Stand", "None")
 			target:SetAttribute("StandTrait", "None")
@@ -347,7 +348,7 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 			target:SetAttribute("Active_FusedTrait1", "None")
 			target:SetAttribute("Active_FusedTrait2", "None")
 		else
-			local slotNum = string.match(slot, "%d+")
+			local slotNum = string.match(slot, "Slot (%d+)")
 			if string.find(slot, "VIP") then slotNum = "VIP" end
 			if slotNum then
 				target:SetAttribute("StoredStand"..slotNum, "None")
@@ -363,10 +364,10 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 		local slot = arg1
 		local styleName = GetProperStyleName(arg2)
 		if styleName then
-			if slot == "1_Active" then
+			if string.find(slot, "Active") then
 				target:SetAttribute("FightingStyle", styleName)
 			else
-				local slotNum = string.match(slot, "%d+")
+				local slotNum = string.match(slot, "Slot (%d+)")
 				if string.find(slot, "VIP") then slotNum = "VIP" end
 				if slotNum then
 					target:SetAttribute("StoredStyle"..slotNum, styleName)
@@ -376,10 +377,10 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
 	elseif action == "ClearStyle" then
 		local slot = arg1
-		if slot == "1_Active" then
+		if string.find(slot, "Active") then
 			target:SetAttribute("FightingStyle", "None")
 		else
-			local slotNum = string.match(slot, "%d+")
+			local slotNum = string.match(slot, "Slot (%d+)")
 			if string.find(slot, "VIP") then slotNum = "VIP" end
 			if slotNum then
 				target:SetAttribute("StoredStyle"..slotNum, "None")
