@@ -16,6 +16,7 @@ local topCard, bottomCard, activeTradeCard
 local reqView, hostView, browserLobbyView, browserInboxView
 local requestsEnabled = true
 local isHosting = false
+local cachedTooltipMgr = nil
 
 local forceTabFocus
 
@@ -205,9 +206,17 @@ local function DrawTradeItems(container, itemsTable, standData, styleData, isMyO
 		btn.LayoutOrder = order
 		btn.Parent = container
 
+		btn.MouseEnter:Connect(function()
+			if cachedTooltipMgr and cachedTooltipMgr.GetItemTooltip then
+				cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(itemName))
+			end
+		end)
+		btn.MouseLeave:Connect(function() if cachedTooltipMgr then cachedTooltipMgr.Hide() end end)
+
 		if isMyOffer then
 			btn.MouseButton1Click:Connect(function()
 				SFXManager.Play("Click")
+				if cachedTooltipMgr then cachedTooltipMgr.Hide() end
 				Network.TradeAction:FireServer("RemoveItem", itemName)
 			end)
 		end
@@ -240,9 +249,27 @@ local function DrawTradeItems(container, itemsTable, standData, styleData, isMyO
 		btn.LayoutOrder = order
 		btn.Parent = container
 
+		btn.MouseEnter:Connect(function()
+			if standData.Name == "Fused Stand" then
+				local desc = "<b><font color='#A020F0'>" .. displayName .. "</font></b>\n____________________\n\n"
+				desc = desc .. "<font color='#AAAAAA'>" .. standData.FusedS1 .. " + " .. standData.FusedS2 .. "</font>\n\n"
+				local tData1 = StandData.Traits[standData.FusedT1]
+				local tData2 = StandData.Traits[standData.FusedT2]
+				if standData.FusedT1 ~= "None" then desc = desc .. "<font color='"..(tData1 and tData1.Color or "#FFFFFF").."'>["..standData.FusedT1.."]</font>: " .. (tData1 and tData1.Desc or "") .. "\n" end
+				if standData.FusedT2 ~= "None" then desc = desc .. "<font color='"..(tData2 and tData2.Color or "#FFFFFF").."'>["..standData.FusedT2.."]</font>: " .. (tData2 and tData2.Desc or "") .. "\n" end
+				if cachedTooltipMgr then cachedTooltipMgr.Show(desc) end
+			else
+				local tData = StandData.Traits[standData.Trait]
+				local desc = tData and tData.Desc or "No special traits."
+				if cachedTooltipMgr then cachedTooltipMgr.Show("<b><font color='#A020F0'>" .. displayName .. "</font></b>\nTrait: " .. standData.Trait .. "\n____________________\n\n" .. desc) end
+			end
+		end)
+		btn.MouseLeave:Connect(function() if cachedTooltipMgr then cachedTooltipMgr.Hide() end end)
+
 		if isMyOffer then
 			btn.MouseButton1Click:Connect(function()
 				SFXManager.Play("Click")
+				if cachedTooltipMgr then cachedTooltipMgr.Hide() end
 				Network.TradeAction:FireServer("RemoveStand")
 			end)
 		end
@@ -271,6 +298,7 @@ end
 
 function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 	forceTabFocus = focusFunc
+	cachedTooltipMgr = tooltipMgr
 	templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 
 	local lobbyContainer = parentFrame:WaitForChild("LobbyContainer")
@@ -491,7 +519,18 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 				btn.LayoutOrder = order
 				btn.Parent = myInvList
 
-				btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("AddItem", itemName) end)
+				btn.MouseEnter:Connect(function()
+					if cachedTooltipMgr and cachedTooltipMgr.GetItemTooltip then
+						cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(itemName))
+					end
+				end)
+				btn.MouseLeave:Connect(function() if cachedTooltipMgr then cachedTooltipMgr.Hide() end end)
+
+				btn.MouseButton1Click:Connect(function()
+					SFXManager.Play("Click")
+					if cachedTooltipMgr then cachedTooltipMgr.Hide() end
+					Network.TradeAction:FireServer("AddItem", itemName)
+				end)
 				order += 1
 			end
 		end
@@ -508,16 +547,43 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 			local sName = player:GetAttribute(attrName) or "None"
 			if sName ~= "None" then
 				local displayName = sName
+				local fs1, fs2, ft1, ft2
+				local trait = player:GetAttribute(slotId == "Active" and "StandTrait" or attrName.."_Trait") or "None"
+
 				if sName == "Fused Stand" then
-					local fs1 = player:GetAttribute(slotId == "Active" and "Active_FusedStand1" or attrName.."_FusedStand1")
-					local fs2 = player:GetAttribute(slotId == "Active" and "Active_FusedStand2" or attrName.."_FusedStand2")
+					fs1 = player:GetAttribute(slotId == "Active" and "Active_FusedStand1" or attrName.."_FusedStand1") or "Unknown"
+					fs2 = player:GetAttribute(slotId == "Active" and "Active_FusedStand2" or attrName.."_FusedStand2") or "Unknown"
+					ft1 = player:GetAttribute(slotId == "Active" and "Active_FusedTrait1" or attrName.."_FusedTrait1") or "None"
+					ft2 = player:GetAttribute(slotId == "Active" and "Active_FusedTrait2" or attrName.."_FusedTrait2") or "None"
 					displayName = FusionUtility.CalculateFusedName(fs1, fs2)
 				end
 
 				local btn = CreateTradeItemBtn(displayName, Color3.fromRGB(50, 15, 60), Color3.fromRGB(200, 50, 255))
 				btn.LayoutOrder = order
 				btn.Parent = myStandList
-				btn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.TradeAction:FireServer("AddStand", slotId) end)
+
+				btn.MouseEnter:Connect(function()
+					if sName == "Fused Stand" then
+						local desc = "<b><font color='#A020F0'>" .. displayName .. "</font></b>\n____________________\n\n"
+						desc = desc .. "<font color='#AAAAAA'>" .. fs1 .. " + " .. fs2 .. "</font>\n\n"
+						local tData1 = StandData.Traits[ft1]
+						local tData2 = StandData.Traits[ft2]
+						if ft1 ~= "None" then desc = desc .. "<font color='"..(tData1 and tData1.Color or "#FFFFFF").."'>["..ft1.."]</font>: " .. (tData1 and tData1.Desc or "") .. "\n" end
+						if ft2 ~= "None" then desc = desc .. "<font color='"..(tData2 and tData2.Color or "#FFFFFF").."'>["..ft2.."]</font>: " .. (tData2 and tData2.Desc or "") .. "\n" end
+						if cachedTooltipMgr then cachedTooltipMgr.Show(desc) end
+					else
+						local tData = StandData.Traits[trait]
+						local desc = tData and tData.Desc or "No special traits."
+						if cachedTooltipMgr then cachedTooltipMgr.Show("<b><font color='#A020F0'>" .. displayName .. "</font></b>\nTrait: " .. trait .. "\n____________________\n\n" .. desc) end
+					end
+				end)
+				btn.MouseLeave:Connect(function() if cachedTooltipMgr then cachedTooltipMgr.Hide() end end)
+
+				btn.MouseButton1Click:Connect(function()
+					SFXManager.Play("Click")
+					if cachedTooltipMgr then cachedTooltipMgr.Hide() end
+					Network.TradeAction:FireServer("AddStand", slotId)
+				end)
 				order += 1
 			end
 		end
