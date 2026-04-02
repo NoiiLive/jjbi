@@ -48,6 +48,7 @@ local function PromptStandClaim(receiver, standName, traitName)
 	local currentS3 = receiver:GetAttribute("StoredStand3") or "None"
 	local currentS4 = receiver:GetAttribute("StoredStand4") or "None"
 	local currentS5 = receiver:GetAttribute("StoredStand5") or "None"
+	local currentSVIP = receiver:GetAttribute("StoredStandVIP") or "None"
 
 	if Network:FindFirstChild("ShopUpdate") then
 		Network.ShopUpdate:FireClient(receiver, "ShowStandClaim", {
@@ -57,7 +58,8 @@ local function PromptStandClaim(receiver, standName, traitName)
 			Slot2 = currentS2,
 			Slot3 = currentS3,
 			Slot4 = currentS4,
-			Slot5 = currentS5
+			Slot5 = currentS5,
+			SlotVIP = currentSVIP
 		})
 	end
 end
@@ -69,6 +71,7 @@ local function PromptStyleClaim(receiver, styleName)
 	local currentS1 = receiver:GetAttribute("StoredStyle1") or "None"
 	local currentS2 = receiver:GetAttribute("StoredStyle2") or "None"
 	local currentS3 = receiver:GetAttribute("StoredStyle3") or "None"
+	local currentSVIP = receiver:GetAttribute("StoredStyleVIP") or "None"
 
 	if Network:FindFirstChild("ShopUpdate") then
 		Network.ShopUpdate:FireClient(receiver, "ShowStandClaim", {
@@ -76,7 +79,8 @@ local function PromptStyleClaim(receiver, styleName)
 			Active = currentActive,
 			Slot1 = currentS1,
 			Slot2 = currentS2,
-			Slot3 = currentS3
+			Slot3 = currentS3,
+			SlotVIP = currentSVIP
 		})
 	end
 end
