@@ -178,8 +178,12 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local iconImg = iconBox:WaitForChild("IconImage")
 		local iconTxt = iconBox:WaitForChild("IconText")
 
-		if isAlly and iconId and iconId ~= "" then
-			iconImg.Image = "rbxthumb://type=AvatarHeadShot&id=" .. iconId .. "&w=150&h=150"
+		if iconId and iconId ~= "" then
+			if string.match(tostring(iconId), "^rbx") then
+				iconImg.Image = iconId
+			else
+				iconImg.Image = "rbxthumb://type=AvatarHeadShot&id=" .. iconId .. "&w=150&h=150"
+			end
 			iconImg.Visible = true
 			iconTxt.Visible = false
 		else
