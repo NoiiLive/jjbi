@@ -11,6 +11,13 @@ local ShopUpdate = Network:WaitForChild("ShopUpdate")
 local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
 NotificationEvent.Name = "NotificationEvent"
 
+local AdminLogger = Network:FindFirstChild("AdminLogger")
+if not AdminLogger then
+	AdminLogger = Instance.new("BindableEvent")
+	AdminLogger.Name = "AdminLogger"
+	AdminLogger.Parent = Network
+end
+
 local function RollItem(forcedRarity)
 	local targetRarity = "Common"
 	if forcedRarity then
@@ -99,6 +106,26 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			return
 		end
 
+		local oldStand = "None"
+		if data == "Active" then
+			oldStand = player:GetAttribute("Stand") or "None"
+			if oldStand == "Fused Stand" then
+				oldStand = "Fused Stand (" .. tostring(player:GetAttribute("Active_FusedStand1")) .. " + " .. tostring(player:GetAttribute("Active_FusedStand2")) .. ")"
+			end
+		else
+			local num = data:gsub("Slot", "")
+			oldStand = player:GetAttribute("StoredStand"..num) or "None"
+			if oldStand == "Fused Stand" then
+				oldStand = "Fused Stand (" .. tostring(player:GetAttribute("StoredStand"..num.."_FusedStand1")) .. " + " .. tostring(player:GetAttribute("StoredStand"..num.."_FusedStand2")) .. ")"
+			end
+		end
+
+		if oldStand ~= "None" then
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name, Context = "Shop/Gift", OldItem = oldStand, NewItem = pendingStand, Slot = data
+			})
+		end
+
 		local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
 		local stats = StandData.Stands[pendingStand] and StandData.Stands[pendingStand].Stats
 
@@ -145,6 +172,19 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute("PendingShopStyle", nil)
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>You declined the gifted Style.</font>")
 			return
+		end
+
+		local oldStyle = "None"
+		if data == "Active" then oldStyle = player:GetAttribute("FightingStyle") or "None"
+		elseif data == "Slot1" then oldStyle = player:GetAttribute("StoredStyle1") or "None"
+		elseif data == "Slot2" then oldStyle = player:GetAttribute("StoredStyle2") or "None"
+		elseif data == "Slot3" then oldStyle = player:GetAttribute("StoredStyle3") or "None"
+		elseif data == "SlotVIP" then oldStyle = player:GetAttribute("StoredStyleVIP") or "None" end
+
+		if oldStyle ~= "None" then
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name, Context = "Shop/Gift", OldItem = oldStyle, NewItem = pendingStyle, Slot = data
+			})
 		end
 
 		if data == "Active" then
@@ -212,7 +252,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		else
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen to restock!</font>")
 		end
-		
+
 	elseif action == "BuyEaster" then
 		local itemName = data
 		local EasterPrices = {
