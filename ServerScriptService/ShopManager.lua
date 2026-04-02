@@ -212,6 +212,41 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		else
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen to restock!</font>")
 		end
+		
+	elseif action == "BuyEaster" then
+		local itemName = data
+		local EasterPrices = {
+			["Stand Arrow"] = 1,
+			["Rokakaka"] = 1,
+			["Requiem Arrow"] = 1,
+			["New Rokakaka"] = 1,
+			["Green Dish Soap"] = 1
+		}
+
+		local cost = EasterPrices[itemName]
+		if not cost then return end
+
+		local currentEggs = player:GetAttribute("BankedEasterEggs") or 0
+		if currentEggs < cost then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You do not have enough Easter Eggs!</font>")
+			return
+		end
+
+		local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka")
+		if not isIgnored and GameData.GetInventoryCount(player) >= GameData.GetMaxInventory(player) then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Inventory Full!</font>")
+			return
+		end
+
+		player:SetAttribute("BankedEasterEggs", currentEggs - cost)
+		if leaderstats and leaderstats:FindFirstChild("Easter Eggs") then
+			leaderstats["Easter Eggs"].Value = currentEggs - cost
+		end
+
+		local attrName = itemName:gsub("[^%w]", "") .. "Count"
+		player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
+
+		NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Successfully purchased " .. itemName .. " from the Easter Shop!</font>")
 
 	elseif action == "Sell" then
 		local itemName = data
