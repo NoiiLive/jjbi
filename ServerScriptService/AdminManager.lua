@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -189,6 +188,23 @@ local function SendAdminNotice(targetPlayer, message)
 	NotificationEvent:FireClient(targetPlayer, message)
 end
 
+local function GetStandSlotData(target, slotKey, locked)
+	local sName = target:GetAttribute("StoredStand" .. slotKey) or "None"
+	local f1 = target:GetAttribute("StoredStand" .. slotKey .. "_FusedStand1")
+	local f2 = target:GetAttribute("StoredStand" .. slotKey .. "_FusedStand2")
+	local t1 = target:GetAttribute("StoredStand" .. slotKey .. "_FusedTrait1")
+	local t2 = target:GetAttribute("StoredStand" .. slotKey .. "_FusedTrait2")
+	local st = target:GetAttribute("StoredStand" .. slotKey .. "_Trait") or "None"
+
+	return {
+		Name = (sName == "Fused Stand") and f1 or sName,
+		FusedWith = (sName == "Fused Stand") and f2 or nil,
+		Trait1 = (sName == "Fused Stand") and t1 or st,
+		Trait2 = (sName == "Fused Stand") and t2 or nil,
+		Locked = locked
+	}
+end
+
 local function FetchPlayerData(target)
 	local data = { Inventory = {}, Stands = {}, Styles = {} }
 
@@ -208,9 +224,9 @@ local function FetchPlayerData(target)
 	local f2 = target:GetAttribute("Active_FusedStand2")
 	local t1 = target:GetAttribute("Active_FusedTrait1")
 	local t2 = target:GetAttribute("Active_FusedTrait2")
-	local st = target:GetAttribute("StandTrait")
+	local st = target:GetAttribute("StandTrait") or "None"
 
-	data.Stands["1_Active"] = {
+	data.Stands["Active"] = {
 		Name = (sName == "Fused Stand") and f1 or sName,
 		FusedWith = (sName == "Fused Stand") and f2 or nil,
 		Trait1 = (sName == "Fused Stand") and t1 or st,
@@ -221,24 +237,24 @@ local function FetchPlayerData(target)
 	local pObj = target:FindFirstChild("leaderstats")
 	local prestige = pObj and pObj:FindFirstChild("Prestige") and pObj.Prestige.Value or 0
 
-	data.Stands["2_Slot 2"] = { Locked = not target:GetAttribute("HasStandSlot2"), Name = target:GetAttribute("StoredStand2") or "None" }
-	data.Stands["3_Slot 3"] = { Locked = not target:GetAttribute("HasStandSlot3"), Name = target:GetAttribute("StoredStand3") or "None" }
-	data.Stands["4_Slot 4"] = { Locked = prestige < 15, Name = target:GetAttribute("StoredStand4") or "None" }
-	data.Stands["5_Slot 5"] = { Locked = prestige < 30, Name = target:GetAttribute("StoredStand5") or "None" }
-	data.Stands["6_VIP Slot"] = { Locked = not target:GetAttribute("IsVIP"), Name = target:GetAttribute("StoredStandVIP") or "None" }
+	data.Stands["Slot 1"] = GetStandSlotData(target, "2", not target:GetAttribute("HasStandSlot2"))
+	data.Stands["Slot 2"] = GetStandSlotData(target, "3", not target:GetAttribute("HasStandSlot3"))
+	data.Stands["Slot 3"] = GetStandSlotData(target, "4", prestige < 15)
+	data.Stands["Slot 4"] = GetStandSlotData(target, "5", prestige < 30)
+	data.Stands["VIP Slot"] = GetStandSlotData(target, "VIP", not target:GetAttribute("IsVIP"))
 
-	data.Styles["1_Active"] = { Name = target:GetAttribute("FightingStyle") or "None", Locked = false }
-	data.Styles["2_Slot 2"] = { Locked = not target:GetAttribute("HasStyleSlot2"), Name = target:GetAttribute("StoredStyle2") or "None" }
-	data.Styles["3_Slot 3"] = { Locked = not target:GetAttribute("HasStyleSlot3"), Name = target:GetAttribute("StoredStyle3") or "None" }
-	data.Styles["4_Slot 4"] = { Locked = (not target:GetAttribute("HasStyleSlot4")) and (prestige < 15), Name = target:GetAttribute("StoredStyle4") or "None" }
-	data.Styles["5_VIP Slot"] = { Locked = not target:GetAttribute("IsVIP"), Name = target:GetAttribute("StoredStyleVIP") or "None" }
+	data.Styles["Active"] = { Name = target:GetAttribute("FightingStyle") or "None", Locked = false }
+	data.Styles["Slot 1"] = { Name = target:GetAttribute("StoredStyle1") or "None", Locked = false }
+	data.Styles["Slot 2"] = { Locked = not target:GetAttribute("HasStyleSlot2"), Name = target:GetAttribute("StoredStyle2") or "None" }
+	data.Styles["Slot 3"] = { Locked = (not target:GetAttribute("HasStyleSlot3")) and (prestige < 15), Name = target:GetAttribute("StoredStyle3") or "None" }
+	data.Styles["VIP Slot"] = { Locked = not target:GetAttribute("IsVIP"), Name = target:GetAttribute("StoredStyleVIP") or "None" }
 
 	return data
 end
 
 AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1, arg2)
 	local isStudio = RunService:IsStudio()
-	local rank = player:GetRankInGroup(GROUP_ID)
+	local rank = player:GetRankInGroupAsync(GROUP_ID)
 	local isModOrAdmin = ADMIN_RANKS[rank] or MOD_RANKS[rank] or isStudio
 	if not isModOrAdmin then return end
 
@@ -301,8 +317,22 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 			local slotNum = string.match(slot, "%d+")
 			if string.find(slot, "VIP") then slotNum = "VIP" end
 			if slotNum then
-				local properName = GetProperStandName(updateData.Name) or "None"
-				target:SetAttribute("StoredStand"..slotNum, properName)
+				if updateData.FusedWith and updateData.FusedWith ~= "" then
+					local s1Proper = GetProperStandName(updateData.Name)
+					local s2Proper = GetProperStandName(updateData.FusedWith)
+					if s1Proper and s2Proper then
+						target:SetAttribute("StoredStand"..slotNum.."_FusedStand1", s1Proper)
+						target:SetAttribute("StoredStand"..slotNum.."_FusedStand2", s2Proper)
+						target:SetAttribute("StoredStand"..slotNum.."_FusedTrait1", GetProperTraitName(updateData.Trait1) or "None")
+						target:SetAttribute("StoredStand"..slotNum.."_FusedTrait2", GetProperTraitName(updateData.Trait2) or "None")
+						target:SetAttribute("StoredStand"..slotNum, "Fused Stand")
+						target:SetAttribute("StoredStand"..slotNum.."_Trait", "Fused")
+					end
+				else
+					local properName = GetProperStandName(updateData.Name) or "None"
+					target:SetAttribute("StoredStand"..slotNum, properName)
+					target:SetAttribute("StoredStand"..slotNum.."_Trait", GetProperTraitName(updateData.Trait1) or "None")
+				end
 			end
 		end
 		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
@@ -314,11 +344,18 @@ AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1,
 			target:SetAttribute("StandTrait", "None")
 			target:SetAttribute("Active_FusedStand1", "None")
 			target:SetAttribute("Active_FusedStand2", "None")
+			target:SetAttribute("Active_FusedTrait1", "None")
+			target:SetAttribute("Active_FusedTrait2", "None")
 		else
 			local slotNum = string.match(slot, "%d+")
 			if string.find(slot, "VIP") then slotNum = "VIP" end
 			if slotNum then
 				target:SetAttribute("StoredStand"..slotNum, "None")
+				target:SetAttribute("StoredStand"..slotNum.."_Trait", "None")
+				target:SetAttribute("StoredStand"..slotNum.."_FusedStand1", "None")
+				target:SetAttribute("StoredStand"..slotNum.."_FusedStand2", "None")
+				target:SetAttribute("StoredStand"..slotNum.."_FusedTrait1", "None")
+				target:SetAttribute("StoredStand"..slotNum.."_FusedTrait2", "None")
 			end
 		end
 		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
