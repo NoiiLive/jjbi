@@ -43,9 +43,6 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 
 		if currentStand == "None" and storedStand == "None" then return end
 
-		player:SetAttribute("Stand", storedStand)
-		player:SetAttribute("StandTrait", storedTrait)
-
 		local function SwapFusedData(slot)
 			local sKey = tostring(slot)
 			local aS1 = player:GetAttribute("Active_FusedStand1") or "None"
@@ -99,6 +96,9 @@ StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
 				player:SetAttribute("Stand_"..stat, "None")
 			end
 		end
+
+		player:SetAttribute("StandTrait", storedTrait)
+		player:SetAttribute("Stand", storedStand)
 
 		player:SetAttribute("StoredStand"..tostring(slotNum), currentStand)
 		player:SetAttribute("StoredStand"..tostring(slotNum).."_Trait", currentTrait)
