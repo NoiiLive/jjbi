@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -21,28 +22,19 @@ if not AdminLogger then
 	AdminLogger.Parent = Network
 end
 
-local AdminLogsUI = Network:FindFirstChild("AdminLogsUI")
-if not AdminLogsUI then
-	AdminLogsUI = Instance.new("RemoteEvent")
-	AdminLogsUI.Name = "AdminLogsUI"
-	AdminLogsUI.Parent = Network
+local AdminEditUI = Network:FindFirstChild("AdminEditUI")
+if not AdminEditUI then
+	AdminEditUI = Instance.new("RemoteEvent")
+	AdminEditUI.Name = "AdminEditUI"
+	AdminEditUI.Parent = Network
 end
 
-local ServerLogs = { Commands = {}, Trades = {}, Purchases = {} }
-
-AdminLogger.Event:Connect(function(logType, logData)
-	logData.Time = os.time()
-	if logType == "Command" then
-		table.insert(ServerLogs.Commands, 1, logData)
-		if #ServerLogs.Commands > 500 then table.remove(ServerLogs.Commands) end
-	elseif logType == "Trade" then
-		table.insert(ServerLogs.Trades, 1, logData)
-		if #ServerLogs.Trades > 500 then table.remove(ServerLogs.Trades) end
-	elseif logType == "Purchase" then
-		table.insert(ServerLogs.Purchases, 1, logData)
-		if #ServerLogs.Purchases > 500 then table.remove(ServerLogs.Purchases) end
-	end
-end)
+local AdminEditAction = Network:FindFirstChild("AdminEditAction")
+if not AdminEditAction then
+	AdminEditAction = Instance.new("RemoteEvent")
+	AdminEditAction.Name = "AdminEditAction"
+	AdminEditAction.Parent = Network
+end
 
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
@@ -104,9 +96,6 @@ local function GetProperItemName(inputStr)
 	for key, _ in pairs(ItemData.Equipment) do if CleanStr(key) == search then return key end end
 	for key, _ in pairs(ItemData.Consumables) do if CleanStr(key) == search then return key end end
 
-	for key, _ in pairs(ItemData.Equipment) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
-	for key, _ in pairs(ItemData.Consumables) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
-
 	for key, _ in pairs(ItemData.Equipment) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	for key, _ in pairs(ItemData.Consumables) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
@@ -117,8 +106,6 @@ local function GetProperStandName(inputStr)
 
 	for key, _ in pairs(StandData.Stands) do if CleanStr(key) == search then return key end end
 
-	for key, _ in pairs(StandData.Stands) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
-
 	for key, _ in pairs(StandData.Stands) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -128,9 +115,6 @@ local function GetProperStyleName(inputStr)
 	if search == "none" then return "None" end
 
 	for key, _ in pairs(GameData.StyleBonuses) do if CleanStr(key) == search then return key end end
-
-	for key, _ in pairs(GameData.StyleBonuses) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
-
 	for key, _ in pairs(GameData.StyleBonuses) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -140,9 +124,6 @@ local function GetProperTraitName(inputStr)
 	if search == "none" then return "None" end
 
 	for key, _ in pairs(StandData.Traits) do if CleanStr(key) == search then return key end end
-
-	for key, _ in pairs(StandData.Traits) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
-
 	for key, _ in pairs(StandData.Traits) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -156,21 +137,12 @@ local function GetProperStatName(inputStr)
 		standdurability = "Stand_Durability_Val", standprecision = "Stand_Precision_Val", standpotential = "Stand_Potential_Val"
 	}
 
-	if validStats[search] then return validStats[search] end
-
-	for key, val in pairs(validStats) do if string.sub(key, 1, #search) == search then return val end end
-	for key, val in pairs(validStats) do if string.find(key, search, 1, true) then return val end end
-
-	return nil
+	return validStats[search]
 end
 
 local function GetProperWorldBossName(inputStr)
 	local search = CleanStr(inputStr)
-
 	for key, _ in pairs(EnemyData.WorldBosses) do if CleanStr(key) == search then return key end end
-
-	for key, _ in pairs(EnemyData.WorldBosses) do if string.sub(CleanStr(key), 1, #search) == search then return key end end
-
 	for key, _ in pairs(EnemyData.WorldBosses) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -217,19 +189,174 @@ local function SendAdminNotice(targetPlayer, message)
 	NotificationEvent:FireClient(targetPlayer, message)
 end
 
+local function FetchPlayerData(target)
+	local data = { Inventory = {}, Stands = {}, Styles = {} }
+
+	for key, _ in pairs(ItemData.Equipment) do
+		local attrName = key:gsub("[^%w]", "") .. "Count"
+		local c = target:GetAttribute(attrName) or 0
+		if c > 0 then data.Inventory[key] = c end
+	end
+	for key, _ in pairs(ItemData.Consumables) do
+		local attrName = key:gsub("[^%w]", "") .. "Count"
+		local c = target:GetAttribute(attrName) or 0
+		if c > 0 then data.Inventory[key] = c end
+	end
+
+	local sName = target:GetAttribute("Stand") or "None"
+	local f1 = target:GetAttribute("Active_FusedStand1")
+	local f2 = target:GetAttribute("Active_FusedStand2")
+	local t1 = target:GetAttribute("Active_FusedTrait1")
+	local t2 = target:GetAttribute("Active_FusedTrait2")
+	local st = target:GetAttribute("StandTrait")
+
+	data.Stands["1_Active"] = {
+		Name = (sName == "Fused Stand") and f1 or sName,
+		FusedWith = (sName == "Fused Stand") and f2 or nil,
+		Trait1 = (sName == "Fused Stand") and t1 or st,
+		Trait2 = (sName == "Fused Stand") and t2 or nil,
+		Locked = false
+	}
+
+	local pObj = target:FindFirstChild("leaderstats")
+	local prestige = pObj and pObj:FindFirstChild("Prestige") and pObj.Prestige.Value or 0
+
+	data.Stands["2_Slot 2"] = { Locked = not target:GetAttribute("HasStandSlot2"), Name = target:GetAttribute("StoredStand2") or "None" }
+	data.Stands["3_Slot 3"] = { Locked = not target:GetAttribute("HasStandSlot3"), Name = target:GetAttribute("StoredStand3") or "None" }
+	data.Stands["4_Slot 4"] = { Locked = prestige < 15, Name = target:GetAttribute("StoredStand4") or "None" }
+	data.Stands["5_Slot 5"] = { Locked = prestige < 30, Name = target:GetAttribute("StoredStand5") or "None" }
+	data.Stands["6_VIP Slot"] = { Locked = not target:GetAttribute("IsVIP"), Name = target:GetAttribute("StoredStandVIP") or "None" }
+
+	data.Styles["1_Active"] = { Name = target:GetAttribute("FightingStyle") or "None", Locked = false }
+	data.Styles["2_Slot 2"] = { Locked = not target:GetAttribute("HasStyleSlot2"), Name = target:GetAttribute("StoredStyle2") or "None" }
+	data.Styles["3_Slot 3"] = { Locked = not target:GetAttribute("HasStyleSlot3"), Name = target:GetAttribute("StoredStyle3") or "None" }
+	data.Styles["4_Slot 4"] = { Locked = (not target:GetAttribute("HasStyleSlot4")) and (prestige < 15), Name = target:GetAttribute("StoredStyle4") or "None" }
+	data.Styles["5_VIP Slot"] = { Locked = not target:GetAttribute("IsVIP"), Name = target:GetAttribute("StoredStyleVIP") or "None" }
+
+	return data
+end
+
+AdminEditAction.OnServerEvent:Connect(function(player, action, targetName, arg1, arg2)
+	local isStudio = RunService:IsStudio()
+	local rank = player:GetRankInGroup(GROUP_ID)
+	local isModOrAdmin = ADMIN_RANKS[rank] or MOD_RANKS[rank] or isStudio
+	if not isModOrAdmin then return end
+
+	local target = FindPlayer(targetName)
+	if not target then return end
+
+	if action == "AddItem" then
+		local properName = GetProperItemName(arg1)
+		if properName then
+			local attrName = properName:gsub("[^%w]", "") .. "Count"
+			target:SetAttribute(attrName, (target:GetAttribute(attrName) or 0) + 1)
+			AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
+		end
+	elseif action == "RemoveItem" then
+		local properName = GetProperItemName(arg1)
+		if properName then
+			local attrName = properName:gsub("[^%w]", "") .. "Count"
+			local current = target:GetAttribute(attrName) or 0
+			if current > 0 then
+				target:SetAttribute(attrName, current - 1)
+				AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
+			end
+		end
+	elseif action == "UpdateStand" then
+		local slot = arg1
+		local updateData = arg2
+		if slot == "1_Active" then
+			if updateData.FusedWith and updateData.FusedWith ~= "" then
+				local s1Proper = GetProperStandName(updateData.Name)
+				local s2Proper = GetProperStandName(updateData.FusedWith)
+				if s1Proper and s2Proper then
+					target:SetAttribute("Active_FusedStand1", s1Proper)
+					target:SetAttribute("Active_FusedStand2", s2Proper)
+					target:SetAttribute("Active_FusedTrait1", GetProperTraitName(updateData.Trait1) or "None")
+					target:SetAttribute("Active_FusedTrait2", GetProperTraitName(updateData.Trait2) or "None")
+					target:SetAttribute("Stand", "Fused Stand")
+					target:SetAttribute("StandTrait", "Fused")
+
+					local statsList = {"Power", "Speed", "Range", "Durability", "Precision", "Potential"}
+					local rankToNum = {["None"]=0, ["E"]=1, ["D"]=2, ["C"]=3, ["B"]=4, ["A"]=5, ["S"]=6}
+					local numToRank = { [0]="None", [1]="E", [2]="D", [3]="C", [4]="B", [5]="A", [6]="S" }
+					local baseData1 = StandData.Stands[s1Proper].Stats
+					local baseData2 = StandData.Stands[s2Proper].Stats
+					for _, stat in ipairs(statsList) do
+						local v1 = rankToNum[baseData1[stat]] or 0
+						local v2 = rankToNum[baseData2[stat]] or 0
+						local avg = math.ceil((v1 + v2) / 2)
+						target:SetAttribute("Stand_" .. stat, numToRank[avg] or "C")
+					end
+				end
+			else
+				local properName = GetProperStandName(updateData.Name)
+				if properName then
+					GrantStand(target, properName)
+					local pTrait = GetProperTraitName(updateData.Trait1)
+					if pTrait then target:SetAttribute("StandTrait", pTrait) end
+				end
+			end
+		else
+			local slotNum = string.match(slot, "%d+")
+			if string.find(slot, "VIP") then slotNum = "VIP" end
+			if slotNum then
+				local properName = GetProperStandName(updateData.Name) or "None"
+				target:SetAttribute("StoredStand"..slotNum, properName)
+			end
+		end
+		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
+	elseif action == "ClearStand" then
+		local slot = arg1
+		if slot == "1_Active" then
+			GrantStand(target, "None")
+			target:SetAttribute("Stand", "None")
+			target:SetAttribute("StandTrait", "None")
+			target:SetAttribute("Active_FusedStand1", "None")
+			target:SetAttribute("Active_FusedStand2", "None")
+		else
+			local slotNum = string.match(slot, "%d+")
+			if string.find(slot, "VIP") then slotNum = "VIP" end
+			if slotNum then
+				target:SetAttribute("StoredStand"..slotNum, "None")
+			end
+		end
+		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
+	elseif action == "UpdateStyle" then
+		local slot = arg1
+		local styleName = GetProperStyleName(arg2)
+		if styleName then
+			if slot == "1_Active" then
+				target:SetAttribute("FightingStyle", styleName)
+			else
+				local slotNum = string.match(slot, "%d+")
+				if string.find(slot, "VIP") then slotNum = "VIP" end
+				if slotNum then
+					target:SetAttribute("StoredStyle"..slotNum, styleName)
+				end
+			end
+		end
+		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
+	elseif action == "ClearStyle" then
+		local slot = arg1
+		if slot == "1_Active" then
+			target:SetAttribute("FightingStyle", "None")
+		else
+			local slotNum = string.match(slot, "%d+")
+			if string.find(slot, "VIP") then slotNum = "VIP" end
+			if slotNum then
+				target:SetAttribute("StoredStyle"..slotNum, "None")
+			end
+		end
+		AdminEditUI:FireClient(player, target.Name, FetchPlayerData(target))
+	end
+end)
+
 local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer, senderName)
 	local targetStr = string.lower(parts[2] or "")
 	local targets = {}
 	local displayTarget = ""
 	local actualSenderName = senderName or (adminPlayer and adminPlayer.Name) or "System"
-
-	if cmd == "!logs" then
-		if adminPlayer then
-			AdminLogsUI:FireClient(adminPlayer, ServerLogs)
-			SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Opened Admin Logs.</font>")
-		end
-		return
-	end
 
 	if cmd ~= "!deletegang" and cmd ~= "!announcement" and cmd ~= "!addrep" and cmd ~= "!spawnwb" then
 		if targetStr == "@all" then
@@ -260,6 +387,18 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 
 	local isMassEvent = (targetStr == "@all" or targetStr == "@server" or isFromCrossServer)
 	local eventTag = (isFromCrossServer or targetStr == "@all") and "GLOBAL EVENT" or "SERVER EVENT"
+
+	if cmd == "!edit" then
+		if adminPlayer then
+			if #targets == 1 then
+				AdminEditUI:FireClient(adminPlayer, targets[1].Name, FetchPlayerData(targets[1]))
+				SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Opened Edit Menu for " .. targets[1].Name .. ".</font>")
+			else
+				SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: !edit requires exactly one player target.</font>")
+			end
+		end
+		return
+	end
 
 	if cmd == "!announcement" then
 		local announcementText = table.concat(parts, " ", 2)
@@ -649,14 +788,14 @@ local validCmds = {
 	["!joingang"] = true, ["!promote"] = true, ["!deletegang"] = true, ["!spawnwb"] = true,
 	["!kickgang"] = true, ["!settrait"] = true, ["!announcement"] = true,
 	["!addpass"] = true, ["!addrep"] = true, ["!setfusedstand"] = true, ["!setfusedtrait"] = true,
-	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true, ["!logs"] = true
+	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true, ["!edit"] = true
 }
 
 local modAllowedCmds = {
 	["!additem"] = true, ["!setstand"] = true, ["!setstyle"] = true, ["!settrait"] = true,
 	["!setfusedstand"] = true, ["!setfusedtrait"] = true, ["!goto"] = true, ["!bring"] = true,
 	["!teleport"] = true, ["!addstat"] = true, ["!addpass"] = true, 
-	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true, ["!logs"] = true
+	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true, ["!edit"] = true
 }
 
 local function OnPlayerAdded(player)
@@ -688,7 +827,7 @@ local function OnPlayerAdded(player)
 			return
 		end
 
-		if #parts < 2 and cmd ~= "!spawnwb" and cmd ~= "!logs" then return end
+		if #parts < 2 and cmd ~= "!spawnwb" and cmd ~= "!edit" then return end
 
 		local targetStr = parts[2] and string.lower(parts[2]) or ""
 
