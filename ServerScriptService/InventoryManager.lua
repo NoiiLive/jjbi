@@ -613,7 +613,18 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 
 		elseif itemName == "Cursed Finger" then
 			player:SetAttribute("FightingStyle", "Shrine")
-			message = "The finger's curse flows through you! Gained Shrine Style."			
+			message = "The finger's curse flows through you! Gained Shrine Style."	
+			
+		elseif itemName == "Easter Egg" then
+			local leaderstats = player:FindFirstChild("leaderstats")
+			local currentBank = player:GetAttribute("BankedEasterEggs") or 0
+			local newBankValue = currentBank + 1
+
+			player:SetAttribute("BankedEasterEggs", newBankValue)
+			if leaderstats and leaderstats:FindFirstChild("Easter Eggs") then
+				leaderstats["Easter Eggs"].Value = newBankValue
+			end
+			message = "Cracked the Egg! Added +1 to your total Easter Eggs balance."
 		--
 		end
 		
