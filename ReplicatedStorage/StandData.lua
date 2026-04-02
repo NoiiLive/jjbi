@@ -183,6 +183,7 @@ StandData.Stands = {
 	["Chiikawa"] = { Rarity = "Unique", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Steel Platinum"] = { Rarity = "Unique", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Fused Stand"] = { Rarity = "Unique", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	["Charmy Green"] = { Rarity = "Unique", Stats = {Power="A", Speed="A", Range="C", Durability="B", Precision="A", Potential="B"} },
 }
 
 function StandData.RollStand(luckBoost, pityCount, targetPool)
