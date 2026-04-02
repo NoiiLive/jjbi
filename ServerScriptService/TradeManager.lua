@@ -365,7 +365,13 @@ local function ExecuteTrade(session)
 	local function GetOfferDetails(offer)
 		local details = ""
 		for k, v in pairs(offer.Items) do details = details .. v .. "x " .. k .. ", " end
-		if offer.Stand then details = details .. "Stand: " .. offer.Stand.Name .. ", " end
+		if offer.Stand then
+			if offer.Stand.Name == "Fused Stand" then
+				details = details .. "Stand: Fused Stand (" .. tostring(offer.Stand.FusedS1) .. " + " .. tostring(offer.Stand.FusedS2) .. "), "
+			else
+				details = details .. "Stand: " .. offer.Stand.Name .. ", "
+			end
+		end
 		if offer.Style then details = details .. "Style: " .. offer.Style.Name .. ", " end
 		if offer.Yen > 0 then details = details .. offer.Yen .. " Yen" end
 		return details == "" and "Nothing" or details
@@ -449,7 +455,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 						player:SetAttribute("Active_FusedTrait1", "None"); player:SetAttribute("Active_FusedTrait2", "None")
 					else
 						player:SetAttribute("StoredStand"..numSuffix.."_FusedStand1", "None"); player:SetAttribute("StoredStand"..numSuffix.."_FusedStand2", "None")
-						player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait1", "None"); player:SetAttribute("StoredStand"..num.."_FusedTrait2", "None")
+						player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait1", "None"); player:SetAttribute("StoredStand"..numSuffix.."_FusedTrait2", "None")
 					end
 				end
 			end
