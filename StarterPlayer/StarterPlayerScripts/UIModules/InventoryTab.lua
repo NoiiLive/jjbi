@@ -789,7 +789,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 			local color1 = tData1 and tData1.Color or "#FFFFFF"
 			local color2 = tData2 and tData2.Color or "#FFFFFF"
 
-			local combinedDesc = "Fused Stand\n\n"
+			local combinedDesc = "<font color='#AAAAAA'>" .. fs1 .. " + " .. fs2 .. "</font>\n\n"
 			if ft1 ~= "None" then combinedDesc = combinedDesc .. "<font color='"..color1.."'>["..ft1.."]</font>: " .. desc1 .. "\n" end
 			if ft2 ~= "None" then combinedDesc = combinedDesc .. "<font color='"..color2.."'>["..ft2.."]</font>: " .. desc2 .. "\n" end
 
@@ -832,8 +832,20 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("Stand"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
 	player:GetAttributeChangedSignal("StandTrait"):Connect(function() UpdateTopDisplays(); RefreshStorageList() end)
 
-	for i = 1, 5 do player:GetAttributeChangedSignal("StoredStand"..i):Connect(RefreshStorageList) end
+	player:GetAttributeChangedSignal("Active_FusedStand1"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
+	player:GetAttributeChangedSignal("Active_FusedStand2"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
+	player:GetAttributeChangedSignal("Active_FusedTrait1"):Connect(function() UpdateTopDisplays(); RefreshStorageList() end)
+	player:GetAttributeChangedSignal("Active_FusedTrait2"):Connect(function() UpdateTopDisplays(); RefreshStorageList() end)
+
+	for i = 1, 5 do 
+		player:GetAttributeChangedSignal("StoredStand"..i):Connect(RefreshStorageList) 
+		player:GetAttributeChangedSignal("StoredStand"..i.."_FusedStand1"):Connect(RefreshStorageList) 
+		player:GetAttributeChangedSignal("StoredStand"..i.."_FusedStand2"):Connect(RefreshStorageList) 
+	end
+
 	player:GetAttributeChangedSignal("StoredStandVIP"):Connect(RefreshStorageList)
+	player:GetAttributeChangedSignal("StoredStandVIP_FusedStand1"):Connect(RefreshStorageList)
+	player:GetAttributeChangedSignal("StoredStandVIP_FusedStand2"):Connect(RefreshStorageList)
 
 	for i = 1, 3 do player:GetAttributeChangedSignal("StoredStyle"..i):Connect(RefreshStorageList) end
 	player:GetAttributeChangedSignal("StoredStyleVIP"):Connect(RefreshStorageList)
