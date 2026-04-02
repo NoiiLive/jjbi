@@ -129,7 +129,7 @@ local function RenderStands()
 		slotLabel.Position = UDim2.new(0, 10, 0, 5)
 		slotLabel.BackgroundTransparency = 1
 		slotLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		slotLabel.Text = slotName
+		slotLabel.Text = string.gsub(slotName, "^%d+_", "")
 		slotLabel.TextXAlignment = Enum.TextXAlignment.Left
 		slotLabel.Font = Enum.Font.GothamBold
 		slotLabel.TextSize = 14
@@ -284,7 +284,7 @@ local function RenderStyles()
 		slotLabel.Position = UDim2.new(0, 10, 0, 5)
 		slotLabel.BackgroundTransparency = 1
 		slotLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		slotLabel.Text = slotName
+		slotLabel.Text = string.gsub(slotName, "^%d+_", "")
 		slotLabel.TextXAlignment = Enum.TextXAlignment.Left
 		slotLabel.Font = Enum.Font.GothamBold
 		slotLabel.TextSize = 14
