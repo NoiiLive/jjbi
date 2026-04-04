@@ -256,11 +256,13 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 	elseif action == "BuyEaster" then
 		local itemName = data
 		local EasterPrices = {
-			["Stand Arrow"] = 1,
-			["Rokakaka"] = 1,
-			["Requiem Arrow"] = 1,
-			["New Rokakaka"] = 1,
-			["Green Dish Soap"] = 1
+			["Stand Arrow"] = 25,
+			["Saint's Corpse Part"] = 50,
+			["Rokakaka"] = 50,
+			["Requiem Arrow"] = 250,
+			["New Rokakaka"] = 500,
+			["Shoshinsha Mark"] = 1000,
+			["Kakyoin's Egg"] = 1000
 		}
 
 		local cost = EasterPrices[itemName]
