@@ -20,13 +20,22 @@ end
 
 local EasterStockList = {
 	{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
-	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
+	{ Name = "Dio's Diary", Price = 100, Rarity = "Legendary" },
+	{ Name = "Green Baby", Price = 100, Rarity = "Legendary" },
+	{ Name = "Strange Arrow", Price = 100, Rarity = "Legendary" },
 	{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
-	{ Name = "Requiem Arrow", Price = 500, Rarity = "Mythical" },
-	{ Name = "New Rokakaka", Price = 500, Rarity = "Mythical" },
-	{ Name = "Shoshinsha Mark", Price = 999, Rarity = "Unique" },
-	{ Name = "Kakyoin's Egg", Price = 999, Rarity = "Unique" },
-	{ Name = "Parasitic Egg", Price = 999, Rarity = "Unique" },
+	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
+	{ Name = "Requiem Arrow", Price = 1000, Rarity = "Mythical" },
+	{ Name = "New Rokakaka", Price = 1000, Rarity = "Mythical" },
+	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Unique" },
+	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Unique" },	
+	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
+	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
+	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
+	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
+	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
+	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
+	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Unique" },
 }
 
 local function RollItem(forcedRarity)
@@ -51,6 +60,34 @@ local function RollItem(forcedRarity)
 
 	if #validItems > 0 then return validItems[math.random(1, #validItems)] end
 	return "Wooden Bat"
+end
+
+local function RollEasterItem()
+	local targetRarity = "Uncommon"
+	local rng = math.random(1, 100)
+
+	if rng <= 5 then 
+		targetRarity = "Unique"
+	elseif rng <= 30 then 
+		targetRarity = "Mythical"
+	elseif rng <= 70 then 
+		targetRarity = "Legendary"
+	else 
+		targetRarity = "Uncommon" 
+	end
+
+	local validItems = {}
+	for _, itemData in ipairs(EasterStockList) do
+		if itemData.Rarity == targetRarity then
+			table.insert(validItems, itemData.Name)
+		end
+	end
+
+	if #validItems > 0 then
+		return validItems[math.random(1, #validItems)]
+	end
+
+	return "Stand Arrow"
 end
 
 local function GenerateShopStock(player)
@@ -80,17 +117,9 @@ end
 
 local function GenerateEasterShopStock(player)
 	local newStock = {}
-	local availableItems = {}
-
-	for _, item in ipairs(EasterStockList) do
-		table.insert(availableItems, item.Name)
-	end
 
 	for i = 1, 6 do
-		if #availableItems == 0 then break end
-		local idx = math.random(1, #availableItems)
-		table.insert(newStock, availableItems[idx])
-		table.remove(availableItems, idx)
+		table.insert(newStock, RollEasterItem())
 	end
 
 	player:SetAttribute("EasterShopStock", table.concat(newStock, ","))
