@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local WorldBossTab = {}
 
 local player = game.Players.LocalPlayer
@@ -66,9 +65,7 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 		activeFighters[fKey] = combatUI:AddFighter(isAlly, id, name, iconId, hp, maxHp)
 	else
 		local f = activeFighters[fKey]
-		if f.InfoArea and f.InfoArea:FindFirstChild("NameLabel") then
-			f.InfoArea.NameLabel.Text = name
-		end
+		f:UpdateIcon(iconId, name)
 	end
 	local f = activeFighters[fKey]
 	f:UpdateHealth(hp, maxHp)
@@ -305,6 +302,11 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		combatUI.MainFrame.Visible = true
 		combatUI.AbilitiesArea.Visible = true
 
+		for fKey, f in pairs(activeFighters) do
+			if f.Frame then f.Frame:Destroy() end
+		end
+		activeFighters = {}
+
 		AddLog(data.LogMsg or "", false)
 		WorldBossTab.RenderSkills(data.Battle)
 
@@ -345,7 +347,7 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		combatUI.AbilitiesArea.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
-			f.Frame:Destroy()
+			if f.Frame then f.Frame:Destroy() end
 		end
 		activeFighters = {}
 
@@ -385,7 +387,7 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		end
 
 		if battle.Enemy then
-			SyncFighter("Enemy", false, "Enemy", battle.Enemy.Name, "", battle.Enemy.HP, battle.Enemy.MaxHP, battle.Enemy.Statuses, {Stun=battle.Enemy.StunImmunity, Confusion=battle.Enemy.ConfusionImmunity})
+			SyncFighter("Enemy", false, "Enemy", battle.Enemy.Name, battle.Enemy.Icon, battle.Enemy.HP, battle.Enemy.MaxHP, battle.Enemy.Statuses, {Stun=battle.Enemy.StunImmunity, Confusion=battle.Enemy.ConfusionImmunity})
 			if battle.Enemy.HP <= 0 and activeFighters["Enemy"] then
 				activeFighters["Enemy"].Frame:FindFirstChild("InfoArea").NameLabel.Text = battle.Enemy.Name .. " (KO)"
 			end
@@ -397,7 +399,7 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		end
 
 		if battle.Ally then
-			SyncFighter("Ally", true, "Ally", battle.Ally.Name, "", battle.Ally.HP, battle.Ally.MaxHP, battle.Ally.Statuses, {Stun=battle.Ally.StunImmunity, Confusion=battle.Ally.ConfusionImmunity})
+			SyncFighter("Ally", true, "Ally", battle.Ally.Name, battle.Ally.Icon, battle.Ally.HP, battle.Ally.MaxHP, battle.Ally.Statuses, {Stun=battle.Ally.StunImmunity, Confusion=battle.Ally.ConfusionImmunity})
 			if battle.Ally.HP <= 0 and activeFighters["Ally"] then
 				activeFighters["Ally"].Frame:FindFirstChild("InfoArea").NameLabel.Text = battle.Ally.Name .. " (KO)"
 			end
