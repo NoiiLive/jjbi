@@ -217,6 +217,7 @@ local function SavePlayerData(player)
 		CurrentMission = player:GetAttribute("CurrentMission"), XP = player:GetAttribute("XP"), 
 		Yen = player.leaderstats.Yen.Value, Elo = player.leaderstats.Elo.Value,
 		TutorialStep = player:GetAttribute("TutorialStep"), PlayTime = player:GetAttribute("PlayTime") or 0,
+		BankedEasterEggs = player:GetAttribute("BankedEasterEggs") or 0,
 
 		EndlessHighScore = player:GetAttribute("EndlessHighScore") or 0,
 		EndlessMaxMilestone = player:GetAttribute("EndlessMaxMilestone") or 0,
