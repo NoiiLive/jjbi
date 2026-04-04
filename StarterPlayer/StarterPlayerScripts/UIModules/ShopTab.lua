@@ -60,13 +60,22 @@ local premiumItems = {
 
 local EasterStockList = {
 	{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
-	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
+	{ Name = "Dio's Diary", Price = 100, Rarity = "Legendary" },
+	{ Name = "Green Baby", Price = 100, Rarity = "Legendary" },
+	{ Name = "Strange Arrow", Price = 100, Rarity = "Legendary" },
 	{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
-	{ Name = "Requiem Arrow", Price = 500, Rarity = "Mythical" },
-	{ Name = "New Rokakaka", Price = 500, Rarity = "Mythical" },
-	{ Name = "Shoshinsha Mark", Price = 999, Rarity = "Unique" },
-	{ Name = "Kakyoin's Egg", Price = 999, Rarity = "Unique" },
-	{ Name = "Parasitic Egg", Price = 999, Rarity = "Unique" },
+	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
+	{ Name = "Requiem Arrow", Price = 1000, Rarity = "Mythical" },
+	{ Name = "New Rokakaka", Price = 1000, Rarity = "Mythical" },
+	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Unique" },
+	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Unique" },	
+	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
+	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
+	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
+	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
+	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
+	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
+	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Unique" },
 }
 
 local function FormatTime(seconds)
