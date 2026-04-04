@@ -73,6 +73,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local subNavFrame = innerContent:WaitForChild("SubNavFrame")
 	local marketTabBtn = subNavFrame:WaitForChild("MarketTabBtn")
 	local premiumTabBtn = subNavFrame:WaitForChild("PremiumTabBtn")
+	local easterTabBtn = subNavFrame:WaitForChild("TempEasterTabBtn")
 
 	local tabContainer = innerContent:WaitForChild("TabContainer")
 	local marketTabContent = tabContainer:WaitForChild("MarketTabContent")
@@ -106,6 +107,13 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 	local shopItemTpl = Templates:WaitForChild("ShopItemTemplate")
 	local premiumItemTpl = Templates:WaitForChild("PremiumItemTemplate")
+	
+	local easterTabContent = tabContainer:WaitForChild("EasterTabContent")
+	local easterStockCard = easterTabContent:WaitForChild("StockCard")
+	local easterShopContainer = easterStockCard:WaitForChild("ShopContainer")
+	local easterTopArea = easterStockCard:WaitForChild("TopArea")
+	local eggLabel = easterTopArea:WaitForChild("EggLabel")
+	local shopItemTplEaster = Templates:WaitForChild("ShopItemTemplateEaster")
 
 	local premLabels = {}
 	local gachaBtns = {}
@@ -216,6 +224,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		SFXManager.Play("Click")
 		marketTabContent.Visible = (target == "MARKET")
 		premiumTabContent.Visible = (target == "PREMIUM")
+		easterTabContent.Visible = (target == "EASTER")
 
 		marketTabBtn.BackgroundColor3 = (target == "MARKET") and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)
 		marketTabBtn.TextColor3 = (target == "MARKET") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220)
@@ -226,10 +235,16 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		premiumTabBtn.TextColor3 = (target == "PREMIUM") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220)
 		premiumTabBtn:FindFirstChild("UIStroke").Color = (target == "PREMIUM") and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120)
 		premiumTabBtn:FindFirstChild("UIStroke").Thickness = (target == "PREMIUM") and 2 or 1
+
+		easterTabBtn.BackgroundColor3 = (target == "EASTER") and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)
+		easterTabBtn.TextColor3 = (target == "EASTER") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220)
+		easterTabBtn:FindFirstChild("UIStroke").Color = (target == "EASTER") and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120)
+		easterTabBtn:FindFirstChild("UIStroke").Thickness = (target == "EASTER") and 2 or 1
 	end
 
 	marketTabBtn.MouseButton1Click:Connect(function() SwitchTab("MARKET") end)
 	premiumTabBtn.MouseButton1Click:Connect(function() SwitchTab("PREMIUM") end)
+	easterTabBtn.MouseButton1Click:Connect(function() SwitchTab("EASTER") end)
 
 	redeemBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
@@ -442,6 +457,47 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	task.delay(1, function() 
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
 	end)
+	
+	local easterStockItems = {
+		{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
+		{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
+		{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
+		{ Name = "Requiem Arrow", Price = 250, Rarity = "Mythical" },
+		{ Name = "New Rokakaka", Price = 500, Rarity = "Mythical" },
+		{ Name = "Shoshinsha Mark", Price = 1000, Rarity = "Mythical" },
+		{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
+	}
+
+	for _, c in pairs(easterShopContainer:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+	for _, item in ipairs(easterStockItems) do
+		local eFrm = shopItemTplEaster:Clone()
+		eFrm.Name = item.Name
+
+		local sCol = rarityColors[item.Rarity] or rarityColors.Common
+		eFrm:WaitForChild("UIStroke").Color = sCol
+
+		local nLabel = eFrm:WaitForChild("NameLabel")
+		nLabel.TextColor3 = sCol
+		nLabel.Text = item.Name .. "\n<font color='#AAFFAA'>Eggs: " .. item.Price .. "</font>"
+
+		local buyBtn = eFrm:WaitForChild("BuyBtn")
+		buyBtn.MouseButton1Click:Connect(function() 
+			SFXManager.Play("Click") 
+			Network.ShopAction:FireServer("BuyEaster", item.Name) 
+		end)
+
+		eFrm.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) end)
+		eFrm.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+
+		eFrm.Parent = easterShopContainer
+	end
+
+	local function SyncEasterEggsText()
+		local count = player:GetAttribute("BankedEasterEggs") or 0
+		eggLabel.Text = "Eggs: <font color='#AAFFAA'>" .. count .. "</font>"
+	end
+	player:GetAttributeChangedSignal("BankedEasterEggs"):Connect(SyncEasterEggsText)
+	SyncEasterEggsText()
 
 	local camera = workspace.CurrentCamera
 	local resizeConn
