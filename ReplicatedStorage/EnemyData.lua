@@ -137,8 +137,6 @@ EnemyData.WorldBosses = {
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1 } 
 		}
 	},
-
-	-- April Fools
 	["Chiikawa"] = {
 		Name = "Chiikawa", IsBoss = true, Icon = "", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
@@ -537,7 +535,7 @@ EnemyData.Parts = {
 			[4] = { Name = "Man in the Mirror", Waves = { { Template = "Illuso", Flavor = "You are pulled into the mirror world where your Stand can't reach." } } },
 			[5] = { Name = "The Grateful Death", Waves = { { Template = "Pesci", Flavor = "Pesci hooks your heart with Beach Boy!" } } },
 			[6] = { Name = "Baby Face", Waves = { { Template = "Melone", Flavor = "A homunculus tracks you down via your DNA. Baby Face attacks." } } },
-			[7] = { Name = "White Album", Waves = { { Template = "Ghiaccio", Flavor = "The air freezes around you. Ghiaccio glides in!" } } },
+			[7] = { Name = "White Album", Waves = { { Template = "White Album", Flavor = "The air freezes around you. Ghiaccio glides in!" } } },
 			[8] = { Name = "Venice Church", Waves = { { Template = "KC Base", Flavor = "Time skips. A hole is punched through your ally. The Boss is here." } } },
 			[9] = { Name = "Green Day", Waves = { { Template = "Cioccolata", Flavor = "Mold consumes Rome. Cioccolata looks down on you." } } },
 			[10] = { Name = "The Arrow", Waves = { { Template = "Diavolo", Flavor = "Time is erased. Diavolo approaches the Requiem Arrow!" } } }
@@ -830,14 +828,19 @@ EnemyData.Parts = {
 }
 
 local globalDrops = {
-	["Easter Egg"] = 100
+	["Easter Egg"] = 5
+}
+
+local globalBossDrops = {
+	["Easter Egg"] = 50
 }
 
 local function injectDrops(enemyTable)
 	for _, enemy in pairs(enemyTable) do
 		if enemy.Drops then
 			enemy.Drops.ItemChance = enemy.Drops.ItemChance or {}
-			for itemName, dropChance in pairs(globalDrops) do
+			local dropsToUse = enemy.IsBoss and globalBossDrops or globalDrops
+			for itemName, dropChance in pairs(dropsToUse) do
 				enemy.Drops.ItemChance[itemName] = dropChance
 			end
 		end
