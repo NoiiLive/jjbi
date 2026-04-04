@@ -524,6 +524,7 @@ SkillData.Skills = {
 	
 	["Urya Urya Rush"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 0.8, Hits = 3, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A ruthless, high-speed barrage of punches." },
 	["Emerald Star Finger"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 12, Description = "A concentrated piercing strike combining Star Platinum and Hierophant Green." },
+	["Green Trap"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 8, Effect = "Stun", Duration = 2, Cooldown = 5, Order = 12, Description = "Triggers a sudden emerald bind that strikes and immobilizes the enemy for 2 turns." },
 }
 
 return SkillData
