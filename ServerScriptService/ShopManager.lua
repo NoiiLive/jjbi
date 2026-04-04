@@ -4,6 +4,7 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local DataStoreService = game:GetService("DataStoreService")
 
 local ShopAction = Network:WaitForChild("ShopAction")
 local ShopUpdate = Network:WaitForChild("ShopUpdate")
@@ -17,6 +18,57 @@ if not AdminLogger then
 	AdminLogger.Name = "AdminLogger"
 	AdminLogger.Parent = Network
 end
+
+local GlobalEggStore = DataStoreService:GetDataStore("GlobalEasterEvent2026")
+local GLOBAL_EGG_GOAL = 5000
+local pendingDonations = 0
+local currentGlobalEggs = 0
+local lastProcessedMilestone = -1
+
+task.spawn(function()
+	local success, val = pcall(function() return GlobalEggStore:GetAsync("TotalDonated") end)
+	if success and val then
+		currentGlobalEggs = val
+	else
+		currentGlobalEggs = 0
+	end
+
+	lastProcessedMilestone = math.floor(currentGlobalEggs / GLOBAL_EGG_GOAL)
+
+	while task.wait(300) do
+		local increment = pendingDonations
+		pendingDonations = 0
+
+		if increment > 0 or true then
+			local successUpdate, newVal = pcall(function()
+				return GlobalEggStore:UpdateAsync("TotalDonated", function(oldVal)
+					oldVal = oldVal or 0
+					return oldVal + increment
+				end)
+			end)
+
+			if successUpdate and newVal then
+				currentGlobalEggs = newVal
+				local currentMilestone = math.floor(currentGlobalEggs / GLOBAL_EGG_GOAL)
+
+				if currentMilestone > lastProcessedMilestone then
+					local boxesToGive = currentMilestone - lastProcessedMilestone
+					lastProcessedMilestone = currentMilestone
+
+					for _, p in ipairs(game.Players:GetPlayers()) do
+						local attr = "MythicalGiftboxCount"
+						p:SetAttribute(attr, (p:GetAttribute(attr) or 0) + boxesToGive)
+						NotificationEvent:FireClient(p, "<font color='#FF55FF'>Global Easter Goal Reached! You received " .. boxesToGive .. "x Mythical Giftbox!</font>")
+					end
+				end
+
+				ShopUpdate:FireAllClients("UpdateGlobalEggs", currentGlobalEggs)
+			else
+				pendingDonations += increment
+			end
+		end
+	end
+end)
 
 local EasterStockList = {
 	{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
@@ -32,9 +84,9 @@ local EasterStockList = {
 	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
 	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
 	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
+	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
 	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
 	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
-	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
 	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Unique" },
 }
 
@@ -66,9 +118,9 @@ local function RollEasterItem()
 	local targetRarity = "Uncommon"
 	local rng = math.random(1, 100)
 
-	if rng <= 5 then 
+	if rng <= 10 then 
 		targetRarity = "Unique"
-	elseif rng <= 30 then 
+	elseif rng <= 35 then 
 		targetRarity = "Mythical"
 	elseif rng <= 70 then 
 		targetRarity = "Legendary"
@@ -161,9 +213,37 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		return
 	end
 
+	if action == "RequestGlobalEggs" then
+		ShopUpdate:FireClient(player, "UpdateGlobalEggs", currentGlobalEggs + pendingDonations)
+		return
+	end
+
 	if action == "SetRestockType" then
 		if data == "Easter" or data == "Normal" then
 			player:SetAttribute("PendingRestockType", data)
+		end
+		return
+	end
+
+	if action == "DonateEasterEggs" then
+		local currentEggs = player:GetAttribute("EasterEggCount") or 0
+		local amount = 0
+
+		if data == "All" then
+			amount = currentEggs
+		else
+			amount = tonumber(data) or 0
+		end
+
+		if amount <= 0 then return end
+
+		if currentEggs >= amount then
+			player:SetAttribute("EasterEggCount", currentEggs - amount)
+			pendingDonations += amount
+			NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Donated " .. amount .. " eggs to the global pool!</font>")
+			ShopUpdate:FireAllClients("UpdateGlobalEggs", currentGlobalEggs + pendingDonations)
+		else
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Easter Eggs to donate!</font>")
 		end
 		return
 	end
