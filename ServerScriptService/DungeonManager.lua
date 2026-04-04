@@ -35,7 +35,7 @@ local function GenerateDungeonEnemy(template, dungeonId)
 	local dXP = math.floor((template.Drops and template.Drops.XP or 0) * scaleMult)
 
 	return {
-		IsPlayer = false, Name = template.Name, Trait = "None",
+		IsPlayer = false, Name = template.Name, Icon = template.Icon or "", Trait = "None",
 		IsBoss = template.IsBoss or false,
 		HP = eHP, MaxHP = eHP, TotalStrength = eStr, TotalDefense = eDef, TotalSpeed = eSpd,
 		TotalWillpower = (template.Willpower or 1) * minorScaleMult,
@@ -96,7 +96,7 @@ local function GenerateRandomEndlessEnemy(floor)
 	if hasStand then fullName = fullName .. " (" .. eStand .. ")" .. displayTrait end
 
 	return {
-		IsPlayer = false, Name = fullName, Trait = eTrait,
+		IsPlayer = false, Name = fullName, Icon = "", Trait = eTrait,
 		IsBoss = isBossFloor,
 		HP = eHP, MaxHP = eHP, TotalStrength = eStr, TotalDefense = eDef, TotalSpeed = eSpd, TotalWillpower = finalWill,
 		TotalRange = (GameData.StandRanks[standRan] or 0), TotalPrecision = (GameData.StandRanks[standPre] or 0),
@@ -320,7 +320,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 						local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 						local itemRarity = itemData and itemData.Rarity or "Common"
 						local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand"))
-						
+
 						if player:GetAttribute("AutoSell_" .. itemRarity) and not isIgnored then
 							local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
 							player.leaderstats.Yen.Value += sellVal
