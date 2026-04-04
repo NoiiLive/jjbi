@@ -58,9 +58,7 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 		activeFighters[fKey] = combatUI:AddFighter(isAlly, id, name, iconId, hp, maxHp)
 	else
 		local f = activeFighters[fKey]
-		if f.InfoArea and f.InfoArea:FindFirstChild("NameLabel") then
-			f.InfoArea.NameLabel.Text = name
-		end
+		f:UpdateIcon(iconId, name)
 	end
 	local f = activeFighters[fKey]
 	f:UpdateHealth(hp, maxHp)
@@ -294,6 +292,11 @@ function StoryTab.UpdateCombat(status, data)
 		combatUI.AbilitiesArea.Visible = true
 		resourceLabel.Visible = true
 
+		for fKey, f in pairs(activeFighters) do
+			if f.Frame then f.Frame:Destroy() end
+		end
+		activeFighters = {}
+
 		AddLog(data.LogMsg or "", false)
 		StoryTab.RenderSkills(data.Battle)
 
@@ -349,7 +352,7 @@ function StoryTab.UpdateCombat(status, data)
 		resourceLabel.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
-			f.Frame:Destroy()
+			if f.Frame then f.Frame:Destroy() end
 		end
 		activeFighters = {}
 
@@ -376,10 +379,10 @@ function StoryTab.UpdateCombat(status, data)
 			activeFighters["Player"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Player.Name .. " (KO)"
 		end
 
-		SyncFighter("Enemy", false, "Enemy", data.Battle.Enemy.Name, "", data.Battle.Enemy.HP, data.Battle.Enemy.MaxHP, data.Battle.Enemy.Statuses, {Stun=data.Battle.Enemy.StunImmunity, Confusion=data.Battle.Enemy.ConfusionImmunity})
+		SyncFighter("Enemy", false, "Enemy", data.Battle.Enemy.Name, data.Battle.Enemy.Icon, data.Battle.Enemy.HP, data.Battle.Enemy.MaxHP, data.Battle.Enemy.Statuses, {Stun=data.Battle.Enemy.StunImmunity, Confusion=data.Battle.Enemy.ConfusionImmunity})
 
 		if data.Battle.Ally then
-			SyncFighter("Ally", true, "Ally", data.Battle.Ally.Name, "", data.Battle.Ally.HP, data.Battle.Ally.MaxHP, data.Battle.Ally.Statuses, {Stun=data.Battle.Ally.StunImmunity, Confusion=data.Battle.Ally.ConfusionImmunity})
+			SyncFighter("Ally", true, "Ally", data.Battle.Ally.Name, data.Battle.Ally.Icon, data.Battle.Ally.HP, data.Battle.Ally.MaxHP, data.Battle.Ally.Statuses, {Stun=data.Battle.Ally.StunImmunity, Confusion=data.Battle.Ally.ConfusionImmunity})
 			if data.Battle.Ally.HP <= 0 and activeFighters["Ally"] then
 				activeFighters["Ally"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Ally.Name .. " (KO)"
 			end
