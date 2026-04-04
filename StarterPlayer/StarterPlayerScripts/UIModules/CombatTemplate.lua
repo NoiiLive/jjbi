@@ -178,11 +178,13 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local iconImg = iconBox:WaitForChild("IconImage")
 		local iconTxt = iconBox:WaitForChild("IconText")
 
+		iconImg.ResampleMode = Enum.ResamplerMode.Pixelated
+
 		if iconId and iconId ~= "" then
 			if string.match(tostring(iconId), "^rbx") then
 				iconImg.Image = iconId
 			else
-				iconImg.Image = "rbxthumb://type=AvatarHeadShot&id=" .. iconId .. "&w=150&h=150"
+				iconImg.Image = "rbxthumb://type=AvatarHeadShot&id=" .. iconId .. "&w=420&h=420"
 			end
 			iconImg.Visible = true
 			iconTxt.Visible = false
@@ -210,7 +212,9 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			HpFill = hpFill,
 			HpText = hpText,
 			StatusContainer = statusContainer,
-			MaxHp = maxHp
+			MaxHp = maxHp,
+			IconImage = iconImg,
+			IconText = iconTxt
 		}
 
 		function fighterObj:UpdateHealth(newHp, newMax)
@@ -220,6 +224,24 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			TweenService:Create(self.HpFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				Size = UDim2.new(newPct, 0, 1, 0)
 			}):Play()
+		end
+
+		function fighterObj:UpdateIcon(newIconId, newName)
+			if self.InfoArea and self.InfoArea:FindFirstChild("NameLabel") then
+				self.InfoArea.NameLabel.Text = newName or "Unknown"
+			end
+			if newIconId and newIconId ~= "" then
+				if string.match(tostring(newIconId), "^rbx") then
+					self.IconImage.Image = newIconId
+				else
+					self.IconImage.Image = "rbxthumb://type=AvatarHeadShot&id=" .. newIconId .. "&w=420&h=420"
+				end
+				self.IconImage.Visible = true
+				self.IconText.Visible = false
+			else
+				self.IconImage.Visible = false
+				self.IconText.Visible = true
+			end
 		end
 
 		function fighterObj:SetStatus(statusId, iconString, durationText, descText, isImmunity)
