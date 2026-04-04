@@ -268,7 +268,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		local cost = EasterPrices[itemName]
 		if not cost then return end
 
-		local currentEggs = player:GetAttribute("BankedEasterEggs") or 0
+		local currentEggs = player:GetAttribute("EasterEggCount") or 0
 		if currentEggs < cost then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>You do not have enough Easter Eggs!</font>")
 			return
@@ -280,10 +280,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			return
 		end
 
-		player:SetAttribute("BankedEasterEggs", currentEggs - cost)
-		if leaderstats and leaderstats:FindFirstChild("Easter Eggs") then
-			leaderstats["Easter Eggs"].Value = currentEggs - cost
-		end
+		player:SetAttribute("EasterEggCount", currentEggs - cost)
 
 		local attrName = itemName:gsub("[^%w]", "") .. "Count"
 		player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
