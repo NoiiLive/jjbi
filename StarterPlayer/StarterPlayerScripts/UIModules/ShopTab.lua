@@ -107,7 +107,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 	local shopItemTpl = Templates:WaitForChild("ShopItemTemplate")
 	local premiumItemTpl = Templates:WaitForChild("PremiumItemTemplate")
-	
+
 	local easterTabContent = tabContainer:WaitForChild("EasterTabContent")
 	local easterStockCard = easterTabContent:WaitForChild("StockCard")
 	local easterShopContainer = easterStockCard:WaitForChild("ShopContainer")
@@ -236,9 +236,9 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		premiumTabBtn:FindFirstChild("UIStroke").Color = (target == "PREMIUM") and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120)
 		premiumTabBtn:FindFirstChild("UIStroke").Thickness = (target == "PREMIUM") and 2 or 1
 
-		easterTabBtn.BackgroundColor3 = (target == "EASTER") and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)
-		easterTabBtn.TextColor3 = (target == "EASTER") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220)
-		easterTabBtn:FindFirstChild("UIStroke").Color = (target == "EASTER") and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120)
+		easterTabBtn.BackgroundColor3 = (target == "EASTER") and Color3.fromRGB(172, 88, 180) or Color3.fromRGB(141, 69, 141)
+		easterTabBtn.TextColor3 = (target == "EASTER") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(242, 242, 255)
+		easterTabBtn:FindFirstChild("UIStroke").Color = (target == "EASTER") and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(255, 156, 250)
 		easterTabBtn:FindFirstChild("UIStroke").Thickness = (target == "EASTER") and 2 or 1
 	end
 
@@ -457,7 +457,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	task.delay(1, function() 
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
 	end)
-	
+
 	local easterStockItems = {
 		{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
 		{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
@@ -478,7 +478,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 
 		local nLabel = eFrm:WaitForChild("NameLabel")
 		nLabel.TextColor3 = sCol
-		nLabel.Text = item.Name .. "\n<font color='#AAFFAA'>Eggs: " .. item.Price .. "</font>"
+		nLabel.Text = item.Name .. "\n<font color='#AAFFAA'>Easter Eggs: " .. item.Price .. " 🥚</font>"
 
 		local buyBtn = eFrm:WaitForChild("BuyBtn")
 		buyBtn.MouseButton1Click:Connect(function() 
@@ -493,10 +493,10 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	end
 
 	local function SyncEasterEggsText()
-		local count = player:GetAttribute("BankedEasterEggs") or 0
-		eggLabel.Text = "Eggs: <font color='#AAFFAA'>" .. count .. "</font>"
+		local count = player:GetAttribute("EasterEggCount") or 0
+		eggLabel.Text = "Easter Eggs: <font color='#AAFFAA'>" .. count .. " 🥚</font>"
 	end
-	player:GetAttributeChangedSignal("BankedEasterEggs"):Connect(SyncEasterEggsText)
+	player:GetAttributeChangedSignal("EasterEggCount"):Connect(SyncEasterEggsText)
 	SyncEasterEggsText()
 
 	local camera = workspace.CurrentCamera
