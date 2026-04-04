@@ -25,6 +25,7 @@ GameData.StyleBonuses = {
 	["Man of Steel"] = { Defense = 50, Health = 50 },
 	["Limitless"] = { Strength = 75, Defense = 75 },
 	["Shrine"] = { Strength = 75, Defense = 75 },
+	["Baoh Armed Phenomenon"] = { Defense = 75, Strength = 75, Speed = 25 },
 }
 
 GameData.StatDescriptions = {
