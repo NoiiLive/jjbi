@@ -16,6 +16,7 @@ local GiftManager = require(UIModules:WaitForChild("GiftManager"))
 local PREMIUM_RESTOCK_PRODUCT_ID = 3548843760
 
 local shopContainer, timerLabel, yenLabel
+local easterTimerLabel
 local cachedTooltipMgr = nil
 
 local rarityColors = {
@@ -55,6 +56,17 @@ local premiumItems = {
 	{ Type = "Pass", Id = 1745969849, GiftId = 3554936823, Name = "Style Slot 3", Price = 100, Desc = "<b><font color='#55FFFF'>Style Storage 3</font></b>\nUnlocks the <font color='#55FF55'>third</font> style slot.", Attr = "HasStyleSlot3" },
 	{ Type = "Pass", Id = 1732129582, GiftId = 3552103397, Name = "Auto Train", Price = 40, Desc = "<b><font color='#55FFFF'>Auto Training</font></b>\nAuto-starts training on join!", Attr = "HasAutoTraining" },
 	{ Type = "Pass", Id = 1749586333, GiftId = 3557535781, Name = "Custom Horse", Price = 40, Desc = "<b><font color='#55FFFF'>Horse Name</font></b>\nAbility to <font color='#55FF55'>name your horse</font>!", Attr = "HasHorseNamePass" },
+}
+
+local EasterStockList = {
+	{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
+	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
+	{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
+	{ Name = "Requiem Arrow", Price = 500, Rarity = "Mythical" },
+	{ Name = "New Rokakaka", Price = 500, Rarity = "Mythical" },
+	{ Name = "Shoshinsha Mark", Price = 999, Rarity = "Unique" },
+	{ Name = "Kakyoin's Egg", Price = 999, Rarity = "Unique" },
+	{ Name = "Parasitic Egg", Price = 999, Rarity = "Unique" },
 }
 
 local function FormatTime(seconds)
@@ -115,6 +127,11 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local eggLabel = easterTopArea:WaitForChild("EggLabel")
 	local shopItemTplEaster = Templates:WaitForChild("ShopItemTemplateEaster")
 
+	easterTimerLabel = easterTopArea:WaitForChild("TimerLabel")
+	local easterRestockArea = easterTopArea:WaitForChild("RestockArea")
+	local easterRestockYenBtn = easterRestockArea:WaitForChild("RestockYenBtn")
+	local easterRestockRobuxBtn = easterRestockArea:WaitForChild("RestockRobuxBtn")
+
 	local premLabels = {}
 	local gachaBtns = {}
 
@@ -125,6 +142,18 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 
 	restockRobuxBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("SetRestockType", "Normal")
+		MarketplaceService:PromptProductPurchase(player, PREMIUM_RESTOCK_PRODUCT_ID)
+	end)
+
+	easterRestockYenBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("RestockEasterYen")
+	end)
+
+	easterRestockRobuxBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("SetRestockType", "Easter")
 		MarketplaceService:PromptProductPurchase(player, PREMIUM_RESTOCK_PRODUCT_ID)
 	end)
 
@@ -396,6 +425,57 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		end
 	end
 
+	local function RefreshEasterShopItems(stockStr)
+		for _, child in pairs(easterShopContainer:GetChildren()) do 
+			if child:IsA("Frame") then 
+				child:Destroy() 
+			end 
+		end
+
+		if not stockStr or stockStr == "" then return end
+
+		local items = string.split(stockStr, ",")
+		local stockData = {}
+
+		for _, name in ipairs(items) do
+			if name ~= "" then
+				local cost = 0
+				local rarity = "Common"
+				for _, itemData in ipairs(EasterStockList) do
+					if itemData.Name == name then
+						cost = itemData.Price
+						rarity = itemData.Rarity
+						break
+					end
+				end
+				table.insert(stockData, { Name = name, Price = cost, Rarity = rarity })
+			end
+		end
+
+		for _, item in ipairs(stockData) do
+			local eFrm = shopItemTplEaster:Clone()
+			eFrm.Name = item.Name
+
+			local sCol = rarityColors[item.Rarity] or rarityColors.Common
+			eFrm:WaitForChild("UIStroke").Color = sCol
+
+			local nLabel = eFrm:WaitForChild("NameLabel")
+			nLabel.TextColor3 = sCol
+			nLabel.Text = item.Name .. "\n<font color='#AAFFAA'>Easter Eggs: " .. item.Price .. " 🥚</font>"
+
+			local buyBtn = eFrm:WaitForChild("BuyBtn")
+			buyBtn.MouseButton1Click:Connect(function() 
+				SFXManager.Play("Click") 
+				Network.ShopAction:FireServer("BuyEaster", item.Name) 
+			end)
+
+			eFrm.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) end)
+			eFrm.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+
+			eFrm.Parent = easterShopContainer
+		end
+	end
+
 	Network:WaitForChild("ShopUpdate").OnClientEvent:Connect(function(action, data)
 		if action == "Refresh" then 
 			RefreshShopItems(table.concat(data, ",")) 
@@ -429,6 +509,10 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
 	end)
 
+	player:GetAttributeChangedSignal("EasterShopStock"):Connect(function()
+		RefreshEasterShopItems(player:GetAttribute("EasterShopStock"))
+	end)
+
 	task.spawn(function()
 		local leaderstats = player:WaitForChild("leaderstats", 5)
 		if leaderstats then
@@ -451,46 +535,21 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			else 
 				timerLabel.Text = "Restocking..." 
 			end
+
+			local ert = player:GetAttribute("EasterShopRefreshTime") or 0
+			local eremain = ert - os.time()
+			if eremain > 0 then
+				easterTimerLabel.Text = "Restocks in: " .. FormatTime(eremain)
+			else
+				easterTimerLabel.Text = "Restocking..."
+			end
 		end
 	end)
 
 	task.delay(1, function() 
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
+		RefreshEasterShopItems(player:GetAttribute("EasterShopStock")) 
 	end)
-
-	local easterStockItems = {
-		{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
-		{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
-		{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
-		{ Name = "Requiem Arrow", Price = 250, Rarity = "Mythical" },
-		{ Name = "New Rokakaka", Price = 500, Rarity = "Mythical" },
-		{ Name = "Shoshinsha Mark", Price = 1000, Rarity = "Mythical" },
-		{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
-	}
-
-	for _, c in pairs(easterShopContainer:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
-	for _, item in ipairs(easterStockItems) do
-		local eFrm = shopItemTplEaster:Clone()
-		eFrm.Name = item.Name
-
-		local sCol = rarityColors[item.Rarity] or rarityColors.Common
-		eFrm:WaitForChild("UIStroke").Color = sCol
-
-		local nLabel = eFrm:WaitForChild("NameLabel")
-		nLabel.TextColor3 = sCol
-		nLabel.Text = item.Name .. "\n<font color='#AAFFAA'>Easter Eggs: " .. item.Price .. " 🥚</font>"
-
-		local buyBtn = eFrm:WaitForChild("BuyBtn")
-		buyBtn.MouseButton1Click:Connect(function() 
-			SFXManager.Play("Click") 
-			Network.ShopAction:FireServer("BuyEaster", item.Name) 
-		end)
-
-		eFrm.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) end)
-		eFrm.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
-
-		eFrm.Parent = easterShopContainer
-	end
 
 	local function SyncEasterEggsText()
 		local count = player:GetAttribute("EasterEggCount") or 0
