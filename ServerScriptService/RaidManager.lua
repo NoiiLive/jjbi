@@ -36,7 +36,7 @@ end
 local function GetClientState(match, myId)
 	local state = {
 		Party = {}, StunImmunity = match.Boss.StunImmunity,
-		Boss = { Name = match.Boss.Name, HP = match.Boss.HP, MaxHP = match.Boss.MaxHP, StunImmunity = match.Boss.StunImmunity, ConfusionImmunity = match.Boss.ConfusionImmunity, Statuses = match.Boss.Statuses }, MyId = myId
+		Boss = { Name = match.Boss.Name, Icon = match.Boss.Icon, HP = match.Boss.HP, MaxHP = match.Boss.MaxHP, StunImmunity = match.Boss.StunImmunity, ConfusionImmunity = match.Boss.ConfusionImmunity, Statuses = match.Boss.Statuses }, MyId = myId
 	}
 	for _, pData in ipairs(match.Party) do
 		table.insert(state.Party, { UserId = pData.UserId, Name = pData.Name, HP = pData.HP, MaxHP = pData.MaxHP, Stamina = pData.Stamina, StandEnergy = pData.StandEnergy, Cooldowns = pData.Cooldowns, Stand = pData.Stand, Style = pData.Style, Statuses = pData.Statuses, StunImmunity = pData.StunImmunity, ConfusionImmunity = pData.ConfusionImmunity })
@@ -316,7 +316,7 @@ local function StartRaidMatch(hostId)
 	local finalStr = math.floor(bossTemplate.Strength * prestigeMult * (1 + partyMult))
 
 	local raidBoss = {
-		IsBoss = true, Name = bossTemplate.Name, HP = finalHP, MaxHP = finalHP, TotalStrength = finalStr,
+		IsBoss = true, Name = bossTemplate.Name, Icon = bossTemplate.Icon or "", HP = finalHP, MaxHP = finalHP, TotalStrength = finalStr,
 		TotalDefense = math.floor(bossTemplate.Defense * prestigeMult), TotalSpeed = math.floor(bossTemplate.Speed * minorMult), TotalWillpower = math.floor(bossTemplate.Willpower * minorMult),
 		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
 		Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
