@@ -271,7 +271,6 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			return
 		end
 
-		-- add new stand items here
 		local isStandItem = 
 			(itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Stand Disc" or itemName == "Requiem Arrow" 
 				or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" 
@@ -279,12 +278,12 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "Chiikawa Mascot" or itemName == "Kakyoin's Egg"
 				or itemName == "Scratch-Off Ticket"
 				or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
-		
-		-- add new style items here
+
 		local isStyleItem = 
 			(itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" 
 				or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" 
-				or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit" or itemName == "Limitless Manual" or itemName == "Cursed Finger")
+				or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit" or itemName == "Limitless Manual" or itemName == "Cursed Finger"
+				or itemName == "Parasitic Egg")
 
 		if isStandItem and player:GetAttribute("StandLocked") then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Stand is locked! Unlock it to use this item.</font>")
@@ -323,7 +322,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 
 		elseif itemName == "Mythical Giftbox" then
 			message = HandleGiftboxDrop(player, "Mythical")
-			
+
 		elseif itemName == "Unique Giftbox" then
 			message = HandleGiftboxDrop(player, "Unique")
 
@@ -360,7 +359,6 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		elseif itemName == "VIP" then
 			if player:GetAttribute("IsVIP") then message = "You already own this pass!"; itemConsumed = false
 			else player:SetAttribute("IsVIP", true); message = "Unlocked VIP!" end
-
 
 		elseif itemName == "Stand Arrow" then
 			local pBoosts = GetPlayerBoosts(player)
@@ -600,8 +598,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				message = "You must be at least Prestige 15 to use the New Rokakaka!"
 				itemConsumed = false
 			end
-			
-			-- April Fools
+
 		elseif itemName == "Scratch-Off Ticket" then
 			if myStand == "None" then
 				message = "You need a Stand to gamble your life away!"
@@ -630,7 +627,10 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			player:SetAttribute("FightingStyle", "Shrine")
 			message = "The finger's curse flows through you! Gained Shrine Style."	
 
-			-- Easter
+		elseif itemName == "Parasitic Egg" then
+			player:SetAttribute("FightingStyle", "Baoh Armed Phenomenon")
+			message = "A mysterious parasite burrows into your host body! Gained Baoh Style."
+
 		elseif itemName == "Kakyoin's Egg" then
 			player:SetAttribute("Stand", "Charmy Green")
 			player:SetAttribute("StandTrait", "None")
