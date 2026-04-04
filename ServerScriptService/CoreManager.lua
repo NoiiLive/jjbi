@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -95,7 +96,7 @@ RemotesFolder:WaitForChild("PackAction").OnServerEvent:Connect(function(player, 
 end)
 
 local DefaultData = {
-	Prestige = 0, CurrentPart = 1, CurrentMission = 1, XP = 0, Yen = 0, Elo = 1000, TutorialStep = 0, PlayTime = 0, BankedEasterEggs = 0,
+	Prestige = 0, CurrentPart = 1, CurrentMission = 1, XP = 0, Yen = 0, Elo = 1000, TutorialStep = 0, PlayTime = 0,
 	EndlessHighScore = 0, EndlessMaxMilestone = 0, RaidWins = 0, 
 	DungeonClear_Part1 = false, DungeonClear_Part2 = false, DungeonClear_Part3 = false,
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
@@ -178,11 +179,6 @@ local function SetupLeaderstats(player, savedData)
 	elo.Value = savedData.Elo or DefaultData.Elo
 	elo.Parent = leaderstats
 
-	local eStat = Instance.new("IntValue")
-	eStat.Name = "Easter Eggs"
-	eStat.Value = savedData.BankedEasterEggs or DefaultData.BankedEasterEggs or 0
-	eStat.Parent = leaderstats
-
 	player:SetAttribute("ShopStock", savedData.ShopStock or DefaultData.ShopStock)
 	player:SetAttribute("ShopRefreshTime", savedData.ShopRefreshTime or DefaultData.ShopRefreshTime)
 	player:SetAttribute("RedeemedCodes", savedData.RedeemedCodes or DefaultData.RedeemedCodes)
@@ -217,7 +213,6 @@ local function SavePlayerData(player)
 		CurrentMission = player:GetAttribute("CurrentMission"), XP = player:GetAttribute("XP"), 
 		Yen = player.leaderstats.Yen.Value, Elo = player.leaderstats.Elo.Value,
 		TutorialStep = player:GetAttribute("TutorialStep"), PlayTime = player:GetAttribute("PlayTime") or 0,
-		BankedEasterEggs = player:GetAttribute("BankedEasterEggs") or 0,
 
 		EndlessHighScore = player:GetAttribute("EndlessHighScore") or 0,
 		EndlessMaxMilestone = player:GetAttribute("EndlessMaxMilestone") or 0,
