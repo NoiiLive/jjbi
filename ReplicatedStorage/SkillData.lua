@@ -8,7 +8,7 @@ SkillData.Skills = {
 	["Rest"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Rest", Order = 4, Description = "Skip your turn to rapidly recover 20 Stamina and 20 Energy." },
 	["Flee"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Flee", Order = 5, Description = "Escape from the current battle." },
 
-	-- Styles
+	-- Style Skills
 	["Haymaker"] = { Requirement = "Boxing", Type = "Style", Mult = 1.6, StaminaCost = 6, EnergyCost = 0, Order = 6, Description = "A devastating boxing punch." },
 	["Liver Blow"] = { Requirement = "Boxing", Type = "Style", Mult = 1.3, StaminaCost = 8, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 4, Order = 7, Description = "A precise hook that stuns the enemy for 2 turns." },
 	["Footwork"] = { Requirement = "Boxing", Type = "Style", Mult = 0, StaminaCost = 5, EnergyCost = 0, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 8, Description = "Increases evasion and Speed for 3 turns." },
@@ -51,8 +51,25 @@ SkillData.Skills = {
 	["Rock Armor"] = { Requirement = "Rock Human", Type = "Style", Mult = 0, StaminaCost = 12, EnergyCost = 0, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 7, Description = "Hardens your skin into impenetrable rock, massively boosting Defense." },
 	["Parasitic Shedding"] = { Requirement = "Rock Human", Type = "Style", Mult = 2.6, StaminaCost = 15, EnergyCost = 0, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 8, Description = "Sheds toxic, rock-like scales that burrow into the enemy, causing Poison." },
 	["Hibernation"] = { Requirement = "Rock Human", Type = "Style", Mult = 0, StaminaCost = 10, EnergyCost = 0, Effect = "Heal", HealPercent = 0.35, Cooldown = 8, Order = 9, Description = "Enters a brief state of rock hibernation, instantly restoring 35% of Max HP." },
-	
-	-- Stands
+
+	-- April Fools
+	["Lapse: Blue"] = { Requirement = "Limitless", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "Creates a magnetic center of gravity, pulling the target and slowing them." },
+	["Reversal: Red"] = { Requirement = "Limitless", Type = "Style", Mult = 3.5, StaminaCost = 15, EnergyCost = 0, Cooldown = 3, Order = 7, Description = "Unleashes a powerful repelling force that shatters the enemy's guard." },
+	["Hollow Purple"] = { Requirement = "Limitless", Type = "Style", Mult = 4.0, StaminaCost = 35, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 7, Order = 8, Description = "Collides Blue and Red to create an imaginary mass that erases everything in its path." },
+	["Unlimited Void"] = { Requirement = "Limitless", Type = "Style", Mult = 0, StaminaCost = 20, EnergyCost = 0, Effect = "Stun", Duration = 3, Cooldown = 10, Order = 9, Description = "Floods the mind of your enemy with infinite, endless knowledge, stunning them." },
+
+	["Dismantle"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "A default slashing attack that easily slices mundane objects." },
+	["Cleave"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 7, Description = "A slash that adjusts itself to the target's toughness to cut them down, causing Bleed" },
+	["Divine Flame"] = { Requirement = "Shrine", Type = "Style", Mult = 3.0, StaminaCost = 25, EnergyCost = 0, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 8, Description = "Opens the black box to unleash a devastating arrow of pure fire." },
+	["Malevolent Shrine"] = { Requirement = "Shrine", Type = "Style", Mult = 0.6, Hits = 5, StaminaCost = 30, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 10, Order = 9, Description = "Expands your domain, relentlessly painting the area with endless slashes." },
+
+	-- Easter
+	["Reskiniharden Saber"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.8, StaminaCost = 10, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 6, Order = 6, Description = "Hardens skin into wrist blades, violently slashing and causing Bleed." },
+	["Meltedin Palm"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.4, StaminaCost = 8, EnergyCost = 0, Effect = "Poison", Duration = 2, Cooldown = 6, Order = 7, Description = "Secretes corrosive enzymes from your palms, poisoning the enemy." },
+	["Shooting-Bees Stinger"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 0, StaminaCost = 15, EnergyCost = 0, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 8, Description = "Shoots out hardened hair, instantly combusting upon contact, burning the enemy." },
+	["Break Dark Thunder"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 0, StaminaCost = 12, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 9, Description = "Discharges high-voltage bio-electricity, stunning the enemy." },
+
+	-- Stand Skills
 	["Stand Barrage"] = { Requirement = "AnyStand", Type = "Stand", Mult = 0.4, Hits = 3, StaminaCost = 0, EnergyCost = 10, Cooldown = 3, Order = 10, Description = "A rapid flurry of 3 Stand punches." },
 
 	["Spirit Photo"] = { Requirement = "Hermit Purple", Type = "Stand", Mult = 1.4, StaminaCost = 0, EnergyCost = 3, Order = 11, Description = "Uses the environment to strike with spirit vines." },
@@ -210,9 +227,7 @@ SkillData.Skills = {
 	["Bomb Plant"] = { Requirement = "Killer Queen", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Debuff_Defense", Duration = 4, Cooldown = 5, Order = 13, Description = "Plants a secondary charge to shatter enemy Defense." },
 
 	["Donut Punch"] = { Requirement = "King Crimson", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A devastating punch straight through the enemy's torso." },
-	
-	
-	
+
 	["Time Erasure"] = { Requirement = "King Crimson", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "TimeErase", Duration = 2, Cooldown = 6, Order = 12, Description = "Erases time, stunning the enemy and boosting Speed." },
 	["Epitaph"] = { Requirement = "King Crimson", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Predicts the future, massively increasing your Speed." },
 
@@ -300,7 +315,6 @@ SkillData.Skills = {
 	["Rewrite Truth"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 5, Cooldown = 7, Order = 13, Description = "Rewrites the truth to enforce your absolute victory, shattering their defense." },
 	["Time Stop (Over Heaven)"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "TimeStop", Duration = 3, Cooldown = 10, Order = 14, Description = "Stops time on a universal scale, completely freezing the enemy." },
 
-	-- SBR
 	["Assassination Shot"] = { Requirement = "TATOO YOU!", Type = "Stand", Mult = 1.9, StaminaCost = 0, EnergyCost = 5, Order = 11, Description = "A calculated shot from a hidden angle." },
 	["Eleven Men Swarm"] = { Requirement = "TATOO YOU!", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 8, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 12, Description = "Assassins emerge from your back to ambush the target, causing Bleed." },
 	["Hide in the Canvas"] = { Requirement = "TATOO YOU!", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 7, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Retreats into the tattoo dimension, drastically increasing Speed." },
@@ -399,8 +413,7 @@ SkillData.Skills = {
 	["Misfortune Redirection"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 18, Effect = "Burn", Duration = 4, Cooldown = 8, Order = 12, Description = "Pushes bad luck into the target, causing them to spontaneously ignite." },
 	["Wall of Light"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 16, Effect = "Buff_Defense", Duration = 5, Cooldown = 6, Order = 13, Description = "Hides behind the gap in space, becoming almost entirely immune to damage." },
 	["Dimensional Clone"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Heal", HealPercent = 0.50, Cooldown = 10, Order = 14, Description = "Transfers consciousness to a fresh clone, instantly healing 50% Max HP." },
-	
-	-- JOJOLION
+
 	["Peel"] = { Requirement = "Canine Style", Type = "Stand", Mult = 1.1, Hits = 2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Peels off your skin like an apple to strike the enemy." },
 	["Wire Trap"] = { Requirement = "Canine Style", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Stun", Duration = 1, Cooldown = 4, Order = 12, Description = "Sets a wire trap made of your own skin, stunning the target." },
 	["Sling"] = { Requirement = "Canine Style", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 20, Cooldown = 3, Order = 13, Description = "Slingshots yourself using your peeled limbs for a heavy strike." },
@@ -502,29 +515,21 @@ SkillData.Skills = {
 	["Flow of Calamity"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 5, Cooldown = 6, Order = 12, Description = "Manipulates the logic of the world to make the target succeptible to attacks." },
 	["Illusory Presence"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Confusion", Duration = 3, Cooldown = 6, Order = 13, Description = "Appears in the corner of their eye, Confusing them completely." },
 	["Rain of Debris"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0.6, Hits = 5, StaminaCost = 0, EnergyCost = 35, Effect = "Status_Random", Duration = 5, Cooldown = 6, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing random effects." },
-	
+
+	-- Boss Alternatives
 	["Revert to Zero"] = { Requirement = "Boss", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Heal", HealPercent = 0.40, Duration = 3, Cooldown = 20, Order = 13, Description = "Resets the enemy's actions to zero, where they cannot reach the truth." },
 	["Raining Debris"] = { Requirement = "Boss", Type = "Stand", Mult = 0.6, Hits = 3, StaminaCost = 0, EnergyCost = 35, Effect = "Status_Random", Duration = 2, Cooldown = 20, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing random effects." },
-	
-	-- April Fools 
-	["Lapse: Blue"] = { Requirement = "Limitless", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "Creates a magnetic center of gravity, pulling the target and slowing them." },
-	["Reversal: Red"] = { Requirement = "Limitless", Type = "Style", Mult = 3.5, StaminaCost = 15, EnergyCost = 0, Cooldown = 3, Order = 7, Description = "Unleashes a powerful repelling force that shatters the enemy's guard." },
-	["Hollow Purple"] = { Requirement = "Limitless", Type = "Style", Mult = 4.0, StaminaCost = 35, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 7, Order = 8, Description = "Collides Blue and Red to create an imaginary mass that erases everything in its path." },
-	["Unlimited Void"] = { Requirement = "Limitless", Type = "Style", Mult = 0, StaminaCost = 20, EnergyCost = 0, Effect = "Stun", Duration = 3, Cooldown = 10, Order = 9, Description = "Floods the mind of your enemy with infinite, endless knowledge, stunning them." },
 
-	["Dismantle"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "A default slashing attack that easily slices mundane objects." },
-	["Cleave"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 7, Description = "A slash that adjusts itself to the target's toughness to cut them down, causing Bleed" },
-	["Divine Flame"] = { Requirement = "Shrine", Type = "Style", Mult = 3.0, StaminaCost = 25, EnergyCost = 0, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 8, Description = "Opens the black box to unleash a devastating arrow of pure fire." },
-	["Malevolent Shrine"] = { Requirement = "Shrine", Type = "Style", Mult = 0.6, Hits = 5, StaminaCost = 30, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 10, Order = 9, Description = "Expands your domain, relentlessly painting the area with endless slashes." },
-
+	-- April Fools
 	["Waaah!"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Tears up and wildly flails around." },
 	["Usagi's Help"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 3, StaminaCost = 0, EnergyCost = 20, Effect = "Status_Random", Duration = 3, Cooldown = 6, Order = 12, Description = "Usagi rushes in screaming, causing a completely random, chaotic effect." },	
 	["Pajama Party"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Heal", HealPercent = 0.5, Cooldown = 5, Order = 13, Description = "Puts on cute pajamas and dances, restoring 50% of your Max HP." },
 	["Weed Whacker"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 0.7, Hits = 5, StaminaCost = 0, EnergyCost = 15, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 14, Description = "Wildly swings a weed whacker, dealing multi-hit damage." },
-	
-	["Urya Urya Rush"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 0.8, Hits = 3, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A ruthless, high-speed barrage of punches." },
-	["Emerald Star Finger"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 12, Description = "A concentrated piercing strike combining Star Platinum and Hierophant Green." },
-	["Green Trap"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 8, Effect = "Stun", Duration = 2, Cooldown = 5, Order = 12, Description = "Triggers a sudden emerald bind that strikes and immobilizes the enemy for 2 turns." },
+
+	-- Easter
+	["Urya Urya Rush"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 0.7, Hits = 4, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A ruthless, high-speed barrage of punches." },
+	["Emerald Star Finger"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 12, Description = "A concentrated piercing strike combining Star Platinum and Hierophant Green." },
+	["Green Trap"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Effect = "Stun", Duration = 2, Cooldown = 5, Order = 12, Description = "Triggers a sudden emerald bind that strikes and immobilizes the enemy for 2 turns." },
 }
 
 return SkillData
