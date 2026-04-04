@@ -58,7 +58,6 @@ ItemData.Equipment = {
 	["Priest's Rosary"] = { Slot = "Accessory", Bonus = { Stand_Durability = 100, Willpower = 50, Defense = 30 }, Rarity = "Mythical", Cost = 1250000 },
 	["The First Napkin"] = { Slot = "Accessory", Bonus = { Stand_Power = 100, Stand_Durability = 100, Defense = 80 }, Rarity = "Mythical", Cost = 1500000 },
 	["Rock Insect"] = { Slot = "Accessory", Bonus = { Stand_Durability = 150, Defense = 100, Strength = 80 }, Rarity = "Mythical", Cost = 1750000 },
-	["Shoshinsha Mark"] = { Slot = "Accessory", Bonus = { Stand_Power = 70, Health = 30, Strength = 70 }, Rarity = "Mythical", Cost = 2000000 },
 
 	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Unique", Cost = 1 },
 	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 99 }, Rarity = "Unique", Cost = 1 },
@@ -71,6 +70,9 @@ ItemData.Equipment = {
 	["Pochette's Armor"] = { Slot = "Accessory", Bonus = { Strength = 150, Defense = 150, Willpower = 100 }, Rarity = "Unique", Cost = 2000000 },
 	["Gojo's Blindfold"] = { Slot = "Accessory", Bonus = { Stand_Power = 200, Speed = 100, Willpower = 80 }, Rarity = "Unique", Cost = 2000000 },
 	["Heian Era Robes"] = { Slot = "Accessory", Bonus = { Health = 100, Defense = 100, Stand_Power = 150 }, Rarity = "Unique", Cost = 2000000 },
+	
+	-- Easter
+	["Shoshinsha Mark"] = { Slot = "Accessory", Bonus = { Stand_Power = 70, Health = 30, Strength = 70 }, Rarity = "Unique", Cost = 2000000 },
 }
 
 ItemData.Consumables = {
@@ -138,7 +140,8 @@ ItemData.Consumables = {
 	
 	-- Easter
 	["Easter Egg"] = { Category = "Player", Description = "A decorative egg dropped from battles. Currency for the Easter Shop.", Rarity = "Unique", Cost = 0 },
-	["Kakyoin's Egg"] = { Category = "Stand", Description = "A mysterious egg, presumably laid by Kakyoin. Awakens the stand, Charmy Green.", Rarity = "Unique", Cost = 0 },
+	["Kakyoin's Egg"] = { Category = "Stand", Description = "A mysterious egg, presumably laid by Kakyoin. Awakens the stand, Charmy Green.", Rarity = "Unique", Cost = 500000 },
+	["Parasitic Egg"] = { Category = "Player", Description = "", Rarity = "Unique", Cost = 500000 },
 }
 
 return ItemData
