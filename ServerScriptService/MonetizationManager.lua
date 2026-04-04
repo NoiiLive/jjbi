@@ -225,9 +225,20 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 	end
 
 	if productId == 3548843760 then
-		receiver:SetAttribute("ShopPity", 10); receiver:SetAttribute("ShopRefreshTime", 0) 
-		SendPurchaseMsg("Premium Shop Restock")
-		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+		local restockType = receiver:GetAttribute("PendingRestockType") or "Normal"
+
+		if restockType == "Easter" then
+			receiver:SetAttribute("EasterShopRefreshTime", 0)
+			SendPurchaseMsg("Premium Easter Shop Restock")
+		else
+			receiver:SetAttribute("ShopPity", 10)
+			receiver:SetAttribute("ShopRefreshTime", 0) 
+			SendPurchaseMsg("Premium Shop Restock")
+		end
+
+		receiver:SetAttribute("PendingRestockType", "Normal")
+		purchaser:SetAttribute("GiftTarget", nil)
+		return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
 
 	if productId == 3548207626 then
