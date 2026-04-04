@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
@@ -33,7 +34,7 @@ local function GetEnemyTemplate(partIndex, templateName)
 			if mob.Name == templateName then return mob end
 		end
 	end
-	return { Name = "Glitch Entity", Health = 10, Strength = 1, Defense = 0, Speed = 1, Willpower = 1, StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, Skills = {"Basic Attack"}, Drops = { Yen = 0, XP = 0 } }
+	return { Name = "Glitch Entity", Icon = "", Health = 10, Strength = 1, Defense = 0, Speed = 1, Willpower = 1, StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, Skills = {"Basic Attack"}, Drops = { Yen = 0, XP = 0 } }
 end
 
 local function GetAllyTemplate(allyName)
@@ -47,7 +48,7 @@ local function GetAllyTemplate(allyName)
 			end
 		end
 	end
-	return { Name = allyName, Health = 150, Strength = 5, Defense = 5, Speed = 5, Willpower = 5, StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, Skills = {"Basic Attack"}, Drops = { Yen = 0, XP = 0 } }
+	return { Name = allyName, Icon = "", Health = 150, Strength = 5, Defense = 5, Speed = 5, Willpower = 5, StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, Skills = {"Basic Attack"}, Drops = { Yen = 0, XP = 0 } }
 end
 
 local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentPart)
@@ -81,7 +82,7 @@ local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentP
 	local sStats = template.StandStats or {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}
 
 	return {
-		IsPlayer = false, IsAlly = isAlly, Name = template.Name, Trait = "None",
+		IsPlayer = false, IsAlly = isAlly, Name = template.Name, Icon = template.Icon or "", Trait = "None",
 		IsBoss = template.IsBoss or false,
 		HP = template.Health * scaleHP, MaxHP = template.Health * scaleHP,
 		TotalStrength = (template.Strength + (GameData.StandRanks[sStats.Power] or 0)) * scaleStr,
@@ -295,10 +296,31 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			for itemName, chance in pairs(battle.Drops.ItemChance) do
 				local boostedChance = (chance + battle.Boosts.Luck) * dropMultiplier
 				if math.random(1, 100) <= boostedChance then
+
+					-- EASTER EGG BANK HANDLING
+					if itemName == "Easter Egg" then
+						local currentBank = player:GetAttribute("BankedEasterEggs") or 0
+						local newBank = currentBank + 1
+
+						player:SetAttribute("BankedEasterEggs", newBank)
+
+						local leaderstats = player:FindFirstChild("leaderstats")
+						if leaderstats and leaderstats:FindFirstChild("Easter Eggs") then
+							leaderstats["Easter Eggs"].Value = newBank
+						end
+
+						local notif = Network:FindFirstChild("NotificationEvent")
+						if notif then notif:FireClient(player, "<font color='#AAFFAA'>+1 Easter Egg Found!</font>") end
+						table.insert(droppedItems, itemName .. " <font color='#AAFFAA'>(Added to bank)</font>")
+
+						continue
+					end
+					--
+
 					local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 					local itemRarity = itemData and itemData.Rarity or "Common"
 					local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand"))
-					
+
 					if player:GetAttribute("AutoSell_" .. itemRarity) and not isIgnored then
 						local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
 						player.leaderstats.Yen.Value += sellVal
