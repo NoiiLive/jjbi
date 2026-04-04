@@ -24,8 +24,9 @@ local EasterStockList = {
 	{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
 	{ Name = "Requiem Arrow", Price = 500, Rarity = "Mythical" },
 	{ Name = "New Rokakaka", Price = 500, Rarity = "Mythical" },
-	{ Name = "Shoshinsha Mark", Price = 999, Rarity = "Mythical" },
-	{ Name = "Kakyoin's Egg", Price = 999, Rarity = "Unique" }
+	{ Name = "Shoshinsha Mark", Price = 999, Rarity = "Unique" },
+	{ Name = "Kakyoin's Egg", Price = 999, Rarity = "Unique" },
+	{ Name = "Parasitic Egg", Price = 999, Rarity = "Unique" },
 }
 
 local function RollItem(forcedRarity)
