@@ -271,8 +271,20 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			return
 		end
 
-		local isStandItem = (itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Stand Disc" or itemName == "Requiem Arrow" or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
-		local isStyleItem = (itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit")
+		-- add new stand items here
+		local isStandItem = 
+			(itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" or itemName == "Stand Disc" or itemName == "Requiem Arrow" 
+				or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" 
+				or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" 
+				or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "Chiikawa Mascot" or itemName == "Kakyoin's Egg"
+				or itemName == "Scratch-Off Ticket"
+				or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
+		
+		-- add new style items here
+		local isStyleItem = 
+			(itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" 
+				or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" 
+				or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit" or itemName == "Limitless Manual" or itemName == "Cursed Finger")
 
 		if isStandItem and player:GetAttribute("StandLocked") then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Stand is locked! Unlock it to use this item.</font>")
@@ -311,6 +323,9 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 
 		elseif itemName == "Mythical Giftbox" then
 			message = HandleGiftboxDrop(player, "Mythical")
+			
+		elseif itemName == "Unique Giftbox" then
+			message = HandleGiftboxDrop(player, "Unique")
 
 		elseif itemName == "2x Battle Speed Pass" then
 			if player:GetAttribute("Has2xBattleSpeed") then message = "You already own this pass!"; itemConsumed = false
@@ -586,7 +601,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				itemConsumed = false
 			end
 			
-		-- April Fools
+			-- April Fools
 		elseif itemName == "Scratch-Off Ticket" then
 			if myStand == "None" then
 				message = "You need a Stand to gamble your life away!"
@@ -614,21 +629,20 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		elseif itemName == "Cursed Finger" then
 			player:SetAttribute("FightingStyle", "Shrine")
 			message = "The finger's curse flows through you! Gained Shrine Style."	
-			
-		elseif itemName == "Easter Egg" then
-			local leaderstats = player:FindFirstChild("leaderstats")
-			local currentBank = player:GetAttribute("BankedEasterEggs") or 0
-			local newBankValue = currentBank + 1
 
-			player:SetAttribute("BankedEasterEggs", newBankValue)
-			if leaderstats and leaderstats:FindFirstChild("Easter Eggs") then
-				leaderstats["Easter Eggs"].Value = newBankValue
+			-- Easter
+		elseif itemName == "Kakyoin's Egg" then
+			player:SetAttribute("Stand", "Charmy Green")
+			player:SetAttribute("StandTrait", "None")
+			local stats = StandData.Stands["Charmy Green"].Stats
+			if stats then
+				for statName, rank in pairs(stats) do
+					player:SetAttribute("Stand_"..statName, rank)
+				end
 			end
-			message = "Cracked the Egg! Added +1 to your total Easter Eggs balance."
-		--
+			message = "A mysterious egg hatched! Awakened Stand: Charmy Green!"
 		end
-		
-		
+
 		if itemConsumed then
 			player:SetAttribute(attrName, itemCount - 1)
 			if message ~= "" then
