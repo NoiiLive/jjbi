@@ -220,6 +220,7 @@ function RaidsTab.UpdateCombatState(state)
 			activeFighters[id] = fObj
 		else
 			fObj:UpdateHealth(pData.HP, pData.MaxHP)
+			fObj:UpdateIcon(id, pData.Name)
 		end
 
 		local currentStatuses = {}
@@ -262,10 +263,11 @@ function RaidsTab.UpdateCombatState(state)
 	local bObj = activeFighters[bId]
 
 	if not bObj then
-		bObj = combatUI:AddFighter(false, bId, state.Boss.Name, "", state.Boss.HP, state.Boss.MaxHP)
+		bObj = combatUI:AddFighter(false, bId, state.Boss.Name, state.Boss.Icon, state.Boss.HP, state.Boss.MaxHP)
 		activeFighters[bId] = bObj
 	else
 		bObj:UpdateHealth(state.Boss.HP, state.Boss.MaxHP)
+		bObj:UpdateIcon(state.Boss.Icon, state.Boss.Name)
 	end
 
 	local bossStatuses = {}
@@ -487,6 +489,11 @@ function RaidsTab.HandleUpdate(action, data)
 
 		currentDeadline = data.Deadline or 0
 		currentLog = "" 
+
+		for fKey, f in pairs(activeFighters) do
+			if f.Frame then f.Frame:Destroy() end
+		end
+		activeFighters = {}
 
 		if combatUI.ChatScroll and combatUI.ChatScroll.Parent then
 			combatUI.ChatScroll.Parent.Size = UDim2.new(1, 0, 0.13, 0)
