@@ -72,9 +72,9 @@ local EasterStockList = {
 	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
 	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
 	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
-	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
-	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
 	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
+	{ Name = "Baoh Arm Blade", Price = 5000, Rarity = "Unique" },
+	{ Name = "Ikuro's Jacket", Price = 5000, Rarity = "Unique" },
 	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Unique" },
 }
 
@@ -99,6 +99,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local tabContainer = innerContent:WaitForChild("TabContainer")
 	local marketTabContent = tabContainer:WaitForChild("MarketTabContent")
 	local premiumTabContent = tabContainer:WaitForChild("PremiumTabContent")
+	local easterTabContent = tabContainer:WaitForChild("EasterTabContent")
 
 	local stockCard = marketTabContent:WaitForChild("StockCard")
 	local scTop = stockCard:WaitForChild("TopArea")
@@ -121,25 +122,50 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 
 	local prodCard = premiumTabContent:WaitForChild("ProductsCard")
 	local prodScroll = prodCard:WaitForChild("ProdScroll")
-
 	local passCard = premiumTabContent:WaitForChild("PassesCard")
 	local passScroll = passCard:WaitForChild("PassScroll")
 
-	local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
-	local shopItemTpl = Templates:WaitForChild("ShopItemTemplate")
-	local premiumItemTpl = Templates:WaitForChild("PremiumItemTemplate")
-
-	local easterTabContent = tabContainer:WaitForChild("EasterTabContent")
 	local easterStockCard = easterTabContent:WaitForChild("StockCard")
 	local easterShopContainer = easterStockCard:WaitForChild("ShopContainer")
 	local easterTopArea = easterStockCard:WaitForChild("TopArea")
 	local eggLabel = easterTopArea:WaitForChild("EggLabel")
-	local shopItemTplEaster = Templates:WaitForChild("ShopItemTemplateEaster")
-
 	easterTimerLabel = easterTopArea:WaitForChild("TimerLabel")
+
 	local easterRestockArea = easterTopArea:WaitForChild("RestockArea")
 	local easterRestockYenBtn = easterRestockArea:WaitForChild("RestockYenBtn")
 	local easterRestockRobuxBtn = easterRestockArea:WaitForChild("RestockRobuxBtn")
+
+	local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+	local shopItemTpl = Templates:WaitForChild("ShopItemTemplate")
+	local premiumItemTpl = Templates:WaitForChild("PremiumItemTemplate")
+	local shopItemTplEaster = Templates:WaitForChild("ShopItemTemplateEaster")
+
+	-- Global Egg Pool Bindings
+	local donationCard = easterTabContent:WaitForChild("DonationCard")
+	local btnContainer = donationCard:WaitForChild("ButtonContainer")
+
+	btnContainer:WaitForChild("Donate1Btn").MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("DonateEasterEggs", 1)
+	end)
+
+	btnContainer:WaitForChild("Donate10Btn").MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("DonateEasterEggs", 10)
+	end)
+
+	btnContainer:WaitForChild("Donate100Btn").MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("DonateEasterEggs", 100)
+	end)
+
+	btnContainer:WaitForChild("DonateAllBtn").MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		Network.ShopAction:FireServer("DonateEasterEggs", "All")
+	end)
+
+	Network.ShopAction:FireServer("RequestGlobalEggs")
+
 
 	local premLabels = {}
 	local gachaBtns = {}
@@ -382,19 +408,12 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			end 
 		end
 
-		if not stockStr or stockStr == "" then 
-			return 
-		end
-
+		if not stockStr or stockStr == "" then return end
 		local stockData = {}
 
 		if string.sub(stockStr, 1, 1) == "[" then
-			local success, decoded = pcall(function() 
-				return game:GetService("HttpService"):JSONDecode(stockStr) 
-			end)
-			if success and decoded then 
-				stockData = decoded 
-			end
+			local success, decoded = pcall(function() return game:GetService("HttpService"):JSONDecode(stockStr) end)
+			if success and decoded then stockData = decoded end
 		else
 			local items = string.split(stockStr, ",")
 			for _, name in ipairs(items) do
@@ -424,13 +443,8 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 				Network.ShopAction:FireServer("Buy", item.Name) 
 			end)
 
-			itemFrame.MouseEnter:Connect(function() 
-				cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) 
-			end)
-
-			itemFrame.MouseLeave:Connect(function()
-				cachedTooltipMgr.Hide()
-			end)
+			itemFrame.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) end)
+			itemFrame.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
 		end
 	end
 
@@ -442,7 +456,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		end
 
 		if not stockStr or stockStr == "" then return end
-
 		local items = string.split(stockStr, ",")
 		local stockData = {}
 
@@ -488,6 +501,23 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	Network:WaitForChild("ShopUpdate").OnClientEvent:Connect(function(action, data)
 		if action == "Refresh" then 
 			RefreshShopItems(table.concat(data, ",")) 
+
+		elseif action == "UpdateGlobalEggs" then
+			local currentEggs = tonumber(data) or 0
+			local goal = 5000
+			local progress = currentEggs % goal
+			local fillPercent = math.clamp(progress / goal, 0, 1)
+
+			local donCard = easterTabContent:FindFirstChild("DonationCard")
+			if donCard then
+				local middleArea = donCard:FindFirstChild("MiddleArea")
+				local bBg = middleArea and middleArea:FindFirstChild("BarBG")
+				if bBg then
+					bBg.BarFill.Size = UDim2.new(fillPercent, 0, 1, 0)
+					bBg.BarText.Text = progress .. " / " .. goal .. " Eggs"
+				end
+			end
+
 		elseif type(data) == "string" and (action == "Notify" or action == "Notification" or action == "SystemMessage" or action == "Message" or action == "Error" or action == "Success") then
 			NotificationManager.Show(data)
 		elseif type(action) == "string" and data == nil then
@@ -521,6 +551,13 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("EasterShopStock"):Connect(function()
 		RefreshEasterShopItems(player:GetAttribute("EasterShopStock"))
 	end)
+
+	local function SyncEasterEggsText()
+		local count = player:GetAttribute("EasterEggCount") or 0
+		eggLabel.Text = "Easter Eggs: <font color='#AAFFAA'>" .. count .. " 🥚</font>"
+	end
+	player:GetAttributeChangedSignal("EasterEggCount"):Connect(SyncEasterEggsText)
+	SyncEasterEggsText()
 
 	task.spawn(function()
 		local leaderstats = player:WaitForChild("leaderstats", 5)
@@ -559,13 +596,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
 		RefreshEasterShopItems(player:GetAttribute("EasterShopStock")) 
 	end)
-
-	local function SyncEasterEggsText()
-		local count = player:GetAttribute("EasterEggCount") or 0
-		eggLabel.Text = "Easter Eggs: <font color='#AAFFAA'>" .. count .. " 🥚</font>"
-	end
-	player:GetAttributeChangedSignal("EasterEggCount"):Connect(SyncEasterEggsText)
-	SyncEasterEggsText()
 
 	local camera = workspace.CurrentCamera
 	local resizeConn
