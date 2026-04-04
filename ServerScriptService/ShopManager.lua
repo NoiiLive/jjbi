@@ -18,6 +18,16 @@ if not AdminLogger then
 	AdminLogger.Parent = Network
 end
 
+local EasterStockList = {
+	{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
+	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
+	{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
+	{ Name = "Requiem Arrow", Price = 500, Rarity = "Mythical" },
+	{ Name = "New Rokakaka", Price = 500, Rarity = "Mythical" },
+	{ Name = "Shoshinsha Mark", Price = 999, Rarity = "Mythical" },
+	{ Name = "Kakyoin's Egg", Price = 999, Rarity = "Unique" }
+}
+
 local function RollItem(forcedRarity)
 	local targetRarity = "Common"
 	if forcedRarity then
@@ -67,11 +77,33 @@ local function GenerateShopStock(player)
 	ShopUpdate:FireClient(player, "Refresh", newStock)
 end
 
+local function GenerateEasterShopStock(player)
+	local newStock = {}
+	local availableItems = {}
+
+	for _, item in ipairs(EasterStockList) do
+		table.insert(availableItems, item.Name)
+	end
+
+	for i = 1, 6 do
+		if #availableItems == 0 then break end
+		local idx = math.random(1, #availableItems)
+		table.insert(newStock, availableItems[idx])
+		table.remove(availableItems, idx)
+	end
+
+	player:SetAttribute("EasterShopStock", table.concat(newStock, ","))
+	player:SetAttribute("EasterShopRefreshTime", os.time() + 1800)
+end
+
 task.spawn(function()
 	while task.wait(1) do
 		for _, player in ipairs(game.Players:GetPlayers()) do
 			local refreshTime = player:GetAttribute("ShopRefreshTime")
 			if refreshTime and os.time() >= refreshTime then GenerateShopStock(player) end
+
+			local easterRefreshTime = player:GetAttribute("EasterShopRefreshTime")
+			if not easterRefreshTime or os.time() >= easterRefreshTime then GenerateEasterShopStock(player) end
 		end
 	end
 end)
@@ -80,6 +112,11 @@ game.Players.PlayerAdded:Connect(function(player)
 	player:GetAttributeChangedSignal("ShopRefreshTime"):Connect(function()
 		local rt = player:GetAttribute("ShopRefreshTime")
 		if rt and rt < os.time() then GenerateShopStock(player) end
+	end)
+
+	player:GetAttributeChangedSignal("EasterShopRefreshTime"):Connect(function()
+		local rt = player:GetAttribute("EasterShopRefreshTime")
+		if rt and rt < os.time() then GenerateEasterShopStock(player) end
 	end)
 end)
 
@@ -90,6 +127,13 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute("GiftTarget", targetId)
 		else
 			player:SetAttribute("GiftTarget", nil)
+		end
+		return
+	end
+
+	if action == "SetRestockType" then
+		if data == "Easter" or data == "Normal" then
+			player:SetAttribute("PendingRestockType", data)
 		end
 		return
 	end
@@ -255,17 +299,20 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 
 	elseif action == "BuyEaster" then
 		local itemName = data
-		local EasterPrices = {
-			["Stand Arrow"] = 25,
-			["Saint's Corpse Part"] = 50,
-			["Rokakaka"] = 50,
-			["Requiem Arrow"] = 250,
-			["New Rokakaka"] = 500,
-			["Shoshinsha Mark"] = 1000,
-			["Kakyoin's Egg"] = 1000
-		}
 
-		local cost = EasterPrices[itemName]
+		local stockStr = player:GetAttribute("EasterShopStock") or ""
+		local stockList = string.split(stockStr, ",")
+		local itemIndex = table.find(stockList, itemName)
+		if not itemIndex then return end
+
+		local cost = nil
+		for _, itemData in ipairs(EasterStockList) do
+			if itemData.Name == itemName then
+				cost = itemData.Price
+				break
+			end
+		end
+
 		if not cost then return end
 
 		local currentEggs = player:GetAttribute("EasterEggCount") or 0
@@ -285,7 +332,23 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		local attrName = itemName:gsub("[^%w]", "") .. "Count"
 		player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
 
+		table.remove(stockList, itemIndex)
+		player:SetAttribute("EasterShopStock", table.concat(stockList, ","))
+
 		NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Successfully purchased " .. itemName .. " from the Easter Shop!</font>")
+
+	elseif action == "RestockEasterYen" then
+		local cost = 100000
+		if yen.Value >= cost then
+			yen.Value -= cost
+			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
+			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Yen", cost) end
+
+			player:SetAttribute("EasterShopRefreshTime", 0) 
+			NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Restocked Easter Shop for 100k Yen!</font>")
+		else
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen to restock!</font>")
+		end
 
 	elseif action == "Sell" then
 		local itemName = data
