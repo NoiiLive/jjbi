@@ -1,6 +1,7 @@
 -- @ScriptType: Script
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 
 local AdminLogger = Network:WaitForChild("AdminLogger")
@@ -16,6 +17,11 @@ local ADMIN_WEBHOOK_URL = "https://discord.com/api/webhooks/1488980762165379213/
 local BOSS_WEBHOOK_URL = "https://discord.com/api/webhooks/1488994023652724736/szzJf00-CBHsvW0AIWqzy4N1P3QZaDr0SULPXcduiCLEwJ67Pju1DF7bcsxwhUhwvQwW"
 
 local function SendToDiscord(webhookUrl, embedData, contentText)
+	if RunService:IsStudio() then
+		print("[Studio Intercept] Discord log prevented from sending: " .. (embedData and embedData.title or "Unknown Log"))
+		return
+	end
+
 	if webhookUrl == "" then
 		warn("Discord Webhook URL not set correctly in DiscordLogger! Logs are not saving permanently.")
 		return
