@@ -58,6 +58,7 @@ ItemData.Equipment = {
 	["Priest's Rosary"] = { Slot = "Accessory", Bonus = { Stand_Durability = 100, Willpower = 50, Defense = 30 }, Rarity = "Mythical", Cost = 1250000 },
 	["The First Napkin"] = { Slot = "Accessory", Bonus = { Stand_Power = 100, Stand_Durability = 100, Defense = 80 }, Rarity = "Mythical", Cost = 1500000 },
 	["Rock Insect"] = { Slot = "Accessory", Bonus = { Stand_Durability = 150, Defense = 100, Strength = 80 }, Rarity = "Mythical", Cost = 1750000 },
+	["Shoshinsha Mark"] = { Slot = "Accessory", Bonus = { Stand_Power = 70, Health = 30, Strength = 70 }, Rarity = "Mythical", Cost = 2000000 },
 
 	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Unique", Cost = 1 },
 	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 99 }, Rarity = "Unique", Cost = 1 },
@@ -88,13 +89,13 @@ ItemData.Consumables = {
 	["Saint's Left Arm"] = { Category = "Stand", Description = "A mummified left arm. Evolves Tusk Act 1 into Act 2.", Rarity = "Legendary", Cost = 150000 },
 	["Saint's Right Eye"] = { Category = "Stand", Description = "A mummified right eye. Evolves Tusk Act 2 into Act 3.", Rarity = "Legendary", Cost = 250000 },
 
-	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Heaven's Door Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["The Hand Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Metallica Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["The World Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Star Platinum Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
-	["Wonder of U Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power.", Rarity = "Mythical", Cost = 300000},
+	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Weather Report.", Rarity = "Mythical", Cost = 300000},
+	["Heaven's Door Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Heaven's Door.", Rarity = "Mythical", Cost = 300000},
+	["The Hand Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, The Hand.", Rarity = "Mythical", Cost = 300000},
+	["Metallica Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Metallica.", Rarity = "Mythical", Cost = 300000},
+	["The World Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, The World.", Rarity = "Mythical", Cost = 300000},
+	["Star Platinum Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Star Platinum.", Rarity = "Mythical", Cost = 300000},
+	["Wonder of U Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Wonder of U.", Rarity = "Mythical", Cost = 300000},
 
 	["Rokakaka"] = { Category = "Stand", Description = "An equivalent exchange fruit. Rerolls your Stand's trait.", Rarity = "Mythical", Cost = 300000 },
 	["Saint's Corpse Part"] = { Category = "Stand", Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Mythical", Cost = 500000 },
@@ -115,6 +116,7 @@ ItemData.Consumables = {
 
 	["Legendary Giftbox"] = { Category = "Player", Description = "Supplies you with a random Legendary-tier item!", Rarity = "Unique", Cost = 30000 },
 	["Mythical Giftbox"] = { Category = "Player", Description = "Supplies you with a random Mythical-tier item!", Rarity = "Unique", Cost = 50000 },
+	["Unique Giftbox"] = { Category = "Player", Description = "Supplies you with a random Unique-tier item!", Rarity = "Unique", Cost = 100000 },
 	
 	["2x Battle Speed Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Unique", Cost = 0 },
 	["2x Inventory Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles your inventory capacity.", Rarity = "Unique", Cost = 0 },
@@ -129,13 +131,14 @@ ItemData.Consumables = {
 	["Custom Horse Name"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Unique", Cost = 0 },
 	
 	-- April Fools
-	["Chiikawa Mascot"] = { Category = "Stand", Description = "A strange little creature. Awaken the Chiikawa Stand.", Rarity = "Unique", Cost = 500000 },
+	["Chiikawa Mascot"] = { Category = "Stand", Description = "A strange little creature. Awakens the stand, Chiikawa.", Rarity = "Unique", Cost = 500000 },
 	["Limitless Manual"] = { Category = "Player", Description = "Learn the concept of infinity. Grants the Limitless style.", Rarity = "Unique", Cost = 500000 },
 	["Cursed Finger"] = { Category = "Player", Description = "A mummified finger radiating evil. Grants the Shrine style.", Rarity = "Unique", Cost = 500000 },
 	["Scratch-Off Ticket"] = { Category = "Stand", Description = "99% of gamblers quit right before they hit the jackpot. (Replaces your Stand's Trait)", Rarity = "Unique", Cost = 777777 },
 	
 	-- Easter
 	["Easter Egg"] = { Category = "Player", Description = "A decorative egg dropped from battles. Currency for the Easter Shop.", Rarity = "Unique", Cost = 0 },
+	["Kakyoin's Egg"] = { Category = "Stand", Description = "A mysterious egg, presumably laid by Kakyoin. Awakens the stand, Charmy Green.", Rarity = "Unique", Cost = 0 },
 }
 
 return ItemData
