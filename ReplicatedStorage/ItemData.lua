@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- noii
 local ItemData = {}
 
 ItemData.Equipment = {
