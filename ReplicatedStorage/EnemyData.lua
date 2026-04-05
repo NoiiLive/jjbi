@@ -137,6 +137,15 @@ EnemyData.WorldBosses = {
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1 } 
 		}
 	},
+	["Easter Bunny"] = {
+		Name = "Easter Bunny", IsBoss = true, Icon = "rbxassetid://85162561703221", 
+		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Skills = {"Block"},
+		Drops = {
+			XP = 35000, Yen = 15000, 
+			ItemChance = { ["Easter Egg"] = 100, ["Lucky Egg"] = 1 }
+		}
+	},
 	["Chiikawa"] = {
 		Name = "Chiikawa", IsBoss = true, Icon = "", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
