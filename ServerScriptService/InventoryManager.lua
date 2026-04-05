@@ -216,16 +216,12 @@ local function HandleGiftboxDrop(player, targetRarity)
 	local pool = {}
 	for name, data in pairs(ItemData.Equipment) do 
 		if data.Rarity == targetRarity then 
-			if not string.find(string.lower(name), "disc") then
 				table.insert(pool, name) 
-			end
 		end 
 	end
 	for name, data in pairs(ItemData.Consumables) do 
 		if data.Rarity == targetRarity then 
-			if not string.find(string.lower(name), "disc") then
 				table.insert(pool, name) 
-			end
 		end 
 	end
 
