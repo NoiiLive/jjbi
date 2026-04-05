@@ -255,6 +255,7 @@ local function ProcessTurn(match)
 
 			ArenaUpdate:FireClient(pData.Player, "MatchOver", {Result = "Win", EloChange = wGain, LogMsg = logStr .. "\n\n<font color='#55FF55'>"..wMsg.."</font>"})
 			ActiveMatches[pData.Player] = nil
+			pData.Player:SetAttribute("InCombat", false)
 			local repEvent = ReplicatedStorage:FindFirstChild("AwardGangReputation")
 			if repEvent then repEvent:Fire(pData.Player.UserId, 10) end
 		end
@@ -262,6 +263,7 @@ local function ProcessTurn(match)
 		for _, pData in ipairs(losingTeam) do
 			ArenaUpdate:FireClient(pData.Player, "MatchOver", {Result = "Loss", EloChange = -lLoss, LogMsg = logStr .. "\n\n<font color='#FF5555'>"..lMsg.."</font>"})
 			ActiveMatches[pData.Player] = nil
+			pData.Player:SetAttribute("InCombat", false)
 		end
 
 		local winPool = (winningTeamNum == 1) and match.Pool1 or match.Pool2
@@ -392,8 +394,8 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 			}
 			MatchRegistry[matchId] = match
 
-			for _, pData in ipairs(t1) do ActiveMatches[pData.Player] = match end
-			for _, pData in ipairs(t2) do ActiveMatches[pData.Player] = match end
+			for _, pData in ipairs(t1) do ActiveMatches[pData.Player] = match; pData.Player:SetAttribute("InCombat", true) end
+			for _, pData in ipairs(t2) do ActiveMatches[pData.Player] = match; pData.Player:SetAttribute("InCombat", true) end
 
 			for _, pData in ipairs(match.Team1) do ArenaUpdate:FireClient(pData.Player, "MatchStart", { State = GetClientState(match, pData.Player, false), LogMsg = "The team battle begins!", Deadline = match.TurnDeadline }) end
 			for _, pData in ipairs(match.Team2) do ArenaUpdate:FireClient(pData.Player, "MatchStart", { State = GetClientState(match, pData.Player, false), LogMsg = "The team battle begins!", Deadline = match.TurnDeadline }) end
@@ -505,4 +507,5 @@ game.Players.PlayerRemoving:Connect(function(player)
 			end
 		end
 	end
+	player:SetAttribute("InCombat", false)
 end)
