@@ -297,26 +297,6 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				local boostedChance = (chance + battle.Boosts.Luck) * dropMultiplier
 				if math.random(1, 100) <= boostedChance then
 
-					-- EASTER EGG BANK HANDLING
-					if itemName == "Easter Egg" then
-						local currentBank = player:GetAttribute("BankedEasterEggs") or 0
-						local newBank = currentBank + 1
-
-						player:SetAttribute("BankedEasterEggs", newBank)
-
-						local leaderstats = player:FindFirstChild("leaderstats")
-						if leaderstats and leaderstats:FindFirstChild("Easter Eggs") then
-							leaderstats["Easter Eggs"].Value = newBank
-						end
-
-						local notif = Network:FindFirstChild("NotificationEvent")
-						if notif then notif:FireClient(player, "<font color='#AAFFAA'>+1 Easter Egg Found!</font>") end
-						table.insert(droppedItems, itemName .. " <font color='#AAFFAA'>(Added to bank)</font>")
-
-						continue
-					end
-					--
-
 					local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 					local itemRarity = itemData and itemData.Rarity or "Common"
 					local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand"))
