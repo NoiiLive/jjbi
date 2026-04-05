@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- noiilive/jjbi/jjbi-main/StarterPlayer/StarterPlayerScripts/UIModules/DungeonTab.lua
 local DungeonTab = {}
 
 local player = game.Players.LocalPlayer
@@ -51,9 +52,20 @@ local dungeonList = {
 local currentLog = ""
 local isClientProcessing = false
 
+local MAX_LOG_LINES = 40
+
 local function AddLog(text, append)
 	if append then
 		currentLog = currentLog .. "\n" .. text
+
+		local lines = string.split(currentLog, "\n")
+		if #lines > MAX_LOG_LINES then
+			local newLines = {}
+			for i = #lines - MAX_LOG_LINES + 1, #lines do
+				table.insert(newLines, lines[i])
+			end
+			currentLog = table.concat(newLines, "\n")
+		end
 	else
 		currentLog = text
 	end
@@ -223,7 +235,17 @@ function DungeonTab.RenderSkills(battleData)
 	for n, s in pairs(SkillData.Skills) do
 		local isStandReq = (s.Requirement == myStand and myStand ~= "Fused Stand")
 		if s.Requirement == "None" or isStandReq or s.Requirement == myStyle or (s.Requirement == "AnyStand" and myStand ~= "None") then 
-			table.insert(valid, {Name = n, Data = s}) 
+			-- Protection block to ensure button pooling/iteration doesn't accidentally duplicate generic abilities
+			local alreadyAdded = false
+			for _, existing in ipairs(valid) do
+				if existing.Name == n then
+					alreadyAdded = true
+					break
+				end
+			end
+			if not alreadyAdded then
+				table.insert(valid, {Name = n, Data = s}) 
+			end
 		end
 	end
 
@@ -287,6 +309,7 @@ function DungeonTab.UpdateDungeon(status, data)
 	if status == "Start" then
 		if forceTabFocus then forceTabFocus() end 
 		combatUI.ChatText.Text = ""
+		currentLog = ""
 		menuContainer.Visible = false
 		combatUI.MainFrame.Visible = true
 		combatUI.AbilitiesArea.Visible = true
