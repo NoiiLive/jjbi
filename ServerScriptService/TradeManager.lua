@@ -47,7 +47,7 @@ local function IsKeyItem(name)
 	end
 
 	local itemInfo = ItemData.Equipment[name] or ItemData.Consumables[name]
-	if itemInfo and itemInfo.Rarity == "Unique" then
+	if itemInfo and (itemInfo.Rarity == "Unique" or itemInfo.Rarity == "Special") then
 		return true
 	end
 
@@ -66,7 +66,7 @@ local function IsRestrictedPass(name)
 		["Style Storage Slot 3"] = true,
 		["Auto-Roll Pass"] = true,
 		["Custom Horse Name"] = true,
-		["Custom Horse Name Pass"] = true
+		["VIP"] = true
 	}
 	return passes[name] == true
 end
