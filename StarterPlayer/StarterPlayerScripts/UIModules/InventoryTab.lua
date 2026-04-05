@@ -40,7 +40,7 @@ local rarityColors = {
 	Special = Color3.fromRGB(239, 255, 62),
 }
 
-local raritySortTiers = { Unique = 1000, Mythical = 2000, Legendary = 3000, Rare = 4000, Uncommon = 5000, Common = 6000 }
+local raritySortTiers = { Special = 500, Unique = 1000, Mythical = 2000, Legendary = 3000, Rare = 4000, Uncommon = 5000, Common = 6000 }
 
 local playerStatsList = {"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}
 local standStatsList = {"Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", "Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"}
@@ -416,7 +416,7 @@ local function RefreshInventoryList()
 		if count > 0 then
 			if ItemData.Equipment[itemName] then 
 				table.insert(equipItems, {Name = itemName, Count = count})
-				if ItemData.Equipment[itemName].Rarity ~= "Unique" then
+				if ItemData.Equipment[itemName].Rarity ~= "Unique" and ItemData.Equipment[itemName].Rarity ~= "Special" then
 					currentInvCount += count
 				end
 			elseif ItemData.Consumables[itemName] then
@@ -424,7 +424,7 @@ local function RefreshInventoryList()
 					table.insert(standConsItems, {Name = itemName, Count = count})
 				else 
 					table.insert(playerConsItems, {Name = itemName, Count = count}) 
-					if ItemData.Consumables[itemName].Rarity ~= "Unique" then
+					if ItemData.Consumables[itemName].Rarity ~= "Unique" and ItemData.Consumables[itemName].Rarity ~= "Special" then
 						currentInvCount += count
 					end
 				end
