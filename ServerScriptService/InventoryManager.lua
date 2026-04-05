@@ -4,6 +4,7 @@ local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 local UseItemRemote = Network:FindFirstChild("UseItem") or Instance.new("RemoteEvent", Network)
 UseItemRemote.Name = "UseItem"
@@ -20,12 +21,27 @@ NotificationEvent.Name = "NotificationEvent"
 local OpenFusionUIRemote = Network:FindFirstChild("OpenFusionUI") or Instance.new("RemoteEvent", Network)
 OpenFusionUIRemote.Name = "OpenFusionUI"
 
-UnequipItemRemote.OnServerEvent:Connect(function(player, slot)
-	if player:GetAttribute("InCombat") then
-		local notif = Network:FindFirstChild("NotificationEvent")
-		if notif then notif:FireClient(player, "<font color='#FF5555'>You cannot unequip items while in combat!</font>") end
+local ToggleAutoStatRemote = Network:FindFirstChild("ToggleAutoStat") or Instance.new("RemoteEvent", Network)
+ToggleAutoStatRemote.Name = "ToggleAutoStat"
+
+ToggleAutoStatRemote.OnServerEvent:Connect(function(player, target, amount)
+	if not player:GetAttribute("HasAutoStatPass") then
+		MarketplaceService:PromptGamePassPurchase(player, 1785974455)
 		return
 	end
+
+	if type(amount) == "number" and amount > 0 then
+		player:SetAttribute("AutoStatAmount", math.floor(amount))
+	end
+
+	if target == "Player" then
+		player:SetAttribute("AutoStatPlayer", not player:GetAttribute("AutoStatPlayer"))
+	elseif target == "Stand" then
+		player:SetAttribute("AutoStatStand", not player:GetAttribute("AutoStatStand"))
+	end
+end)
+
+UnequipItemRemote.OnServerEvent:Connect(function(player, slot)
 	if slot == "Weapon" or slot == "Accessory" or slot == "Head" or slot == "Torso" or slot == "Legs" then
 		local currentEq = player:GetAttribute("Equipped" .. slot)
 		if currentEq and currentEq ~= "None" then
@@ -73,10 +89,6 @@ local AutoRollRemote = Network:FindFirstChild("AutoRoll") or Instance.new("Remot
 AutoRollRemote.Name = "AutoRoll"
 
 AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, targetTrait)
-	if player:GetAttribute("InCombat") then
-		NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot Auto-Roll while in combat!</font>")
-		return
-	end
 	if player:GetAttribute("IsAutoRolling") then return end
 	player:SetAttribute("IsAutoRolling", true)
 
@@ -257,10 +269,6 @@ local function HandleGiftboxDrop(player, targetRarity)
 end
 
 UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targetTrait)
-	if player:GetAttribute("InCombat") then
-		NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot use items while in combat!</font>")
-		return
-	end
 	local attrName = itemName:gsub("[^%w]", "") .. "Count"
 	local itemCount = player:GetAttribute(attrName) or 0
 
@@ -368,6 +376,9 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		elseif itemName == "VIP" then
 			if player:GetAttribute("IsVIP") then message = "You already own this pass!"; itemConsumed = false
 			else player:SetAttribute("IsVIP", true); message = "Unlocked VIP!" end
+		elseif itemName == "Auto-Stat Invest" then
+			if player:GetAttribute("HasAutoStatPass") then message = "You already own this pass!"; itemConsumed = false
+			else player:SetAttribute("HasAutoStatPass", true); message = "Unlocked Auto-Stat Invest!" end
 
 		elseif itemName == "Stand Arrow" then
 			local pBoosts = GetPlayerBoosts(player)
