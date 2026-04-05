@@ -25,7 +25,8 @@ local rarityColors = {
 	Rare = Color3.fromRGB(50, 100, 255),
 	Legendary = Color3.fromRGB(255, 150, 0),
 	Mythical = Color3.fromRGB(255, 50, 50),
-	Unique = Color3.fromRGB(215, 69, 255)
+	Unique = Color3.fromRGB(215, 69, 255),
+	Special = Color3.fromRGB(239, 255, 62)
 }
 
 local premiumItems = {
@@ -59,23 +60,23 @@ local premiumItems = {
 }
 
 local EasterStockList = {
-	{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
+	{ Name = "Stand Arrow", Price = 25, Rarity = "Legendary" },
 	{ Name = "Dio's Diary", Price = 100, Rarity = "Legendary" },
 	{ Name = "Green Baby", Price = 100, Rarity = "Legendary" },
 	{ Name = "Strange Arrow", Price = 100, Rarity = "Legendary" },
-	{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
-	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
-	{ Name = "Requiem Arrow", Price = 1000, Rarity = "Mythical" },
-	{ Name = "New Rokakaka", Price = 1000, Rarity = "Mythical" },
-	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Unique" },
-	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Unique" },	
+	{ Name = "Rokakaka", Price = 50, Rarity = "Legendary" },
+	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Legendary" },
+	{ Name = "Requiem Arrow", Price = 2500, Rarity = "Mythical" },
+	{ Name = "New Rokakaka", Price = 2500, Rarity = "Mythical" },
+	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Special" },
+	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Special" },	
 	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
 	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
 	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
 	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
 	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
 	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
-	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Unique" },
+	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Special" },
 }
 
 local function FormatTime(seconds)
@@ -503,7 +504,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 
 		elseif action == "UpdateGlobalEggs" then
 			local currentEggs = tonumber(data) or 0
-			local goal = 5000
+			local goal = 10000
 			local progress = currentEggs % goal
 			local fillPercent = math.clamp(progress / goal, 0, 1)
 
