@@ -2,24 +2,33 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.3 - Easter Event Update (April 4th)</font></b>
+
+<font color='#55FF55'>[+]</font> <b>Easter Event:</b> Obtain Easter Eggs by defeating enemies (5% drop from normal mobs, 40% from bosses)!
+<font color='#55FF55'>[+]</font> <b>Easter Shop:</b> Spend your collected Eggs in the new rotating event shop.
+<font color='#55FF55'>[+]</font> <b>Global Donations:</b> Contribute Eggs to a global pool across all servers. Everyone gets rewarded when the goal is met!
+<font color='#55FF55'>[+]</font> <b>New Limited Stand:</b> Charmy Green
+<font color='#55FF55'>[+]</font> <b>New Limited Style:</b> Baoh Armed Phenomenon
+<font color='#55FF55'>[+]</font> <b>New World Boss:</b> Easter Bunny, that provides players with large amounts of eggs!
+<font color='#55FF55'>[+]</font> <b>New Gear:</b> Added 2 New Weapons and 2 New Accessories.
+<font color='#55FFFF'>[*]</font> <b>Boss Icons:</b> World Bosses now feature profile icons during combat!
+
+Use codes <b><font color='#FF55FF'>1MVISITS</font></b> and <b><font color='#FF55FF'>EASTER</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.2 - April Fools Update (April 1st)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>New Bosses:</b> 3 NEW World Bosses with LIMITED TIME Drops!
 <font color='#55FF55'>[+]</font> <b>New Stand:</b> Chiikawa
 <font color='#55FF55'>[+]</font> <b>New Styles:</b> 2 New Fighting Styles: Shrine & Limitless
 <font color='#55FF55'>[+]</font> <b>New Gear:</b> 3 New Weapons & 3 New Accessories
-<font color='#55FF55'>[+]</font> <b>New Trait:</b> Gambling Addict
-
-Use code <b><font color='#FF55FF'>APRILFOOLS</font></b> for free rewards!]],
+<font color='#55FF55'>[+]</font> <b>New Trait:</b> Gambling Addict]],
 
 	[[<b><font color='#FFD700'>v2.1 - JoJolion Update PART 2 (March 22nd)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>Stand Fusion:</b> Fuse two Stands from your storage to create a hybrid Stand!
 <font color='#55FF55'>[+]</font> <b>New Rokakaka:</b> A new item that opens up the Stand Fusion menu.
 <font color='#55FF55'>[+]</font> <b>Hybrid Abilities & Names:</b> Fused Stands take the first half of their name and abilities from Stand 1, and the second half from Stand 2. Order matters!
-<font color='#55FFFF'>[*]</font> <b>Bug Fixes:</b> Fixed mobile UI scrolling issues, Gang order tracking, and Gang renaming.
-
-Use code <b><font color='#FF55FF'>FUSION</font></b> for free rewards!]],
+<font color='#55FFFF'>[*]</font> <b>Bug Fixes:</b> Fixed mobile UI scrolling issues, Gang order tracking, and Gang renaming.]],
 
 	[[<b><font color='#FFD700'>v2.0 - JoJolion Update PART 1 (March 21st)</font></b>
 
