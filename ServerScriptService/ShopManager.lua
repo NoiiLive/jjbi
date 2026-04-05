@@ -25,48 +25,54 @@ local pendingDonations = 0
 local currentGlobalEggs = 0
 local lastProcessedMilestone = -1
 
-task.spawn(function()
-	local success, val = pcall(function() return GlobalEggStore:GetAsync("TotalDonated") end)
-	if success and val then
-		currentGlobalEggs = val
-	else
-		currentGlobalEggs = 0
-	end
+local function SyncGlobalEggs()
+	local increment = pendingDonations
+	pendingDonations = 0 
 
-	lastProcessedMilestone = math.floor(currentGlobalEggs / GLOBAL_EGG_GOAL)
-
-	while task.wait(300) do
-		local increment = pendingDonations
-		pendingDonations = 0
-
-		if increment > 0 or true then
-			local successUpdate, newVal = pcall(function()
-				return GlobalEggStore:UpdateAsync("TotalDonated", function(oldVal)
-					oldVal = oldVal or 0
-					return oldVal + increment
-				end)
+	local success, newVal = pcall(function()
+		if increment > 0 then
+			return GlobalEggStore:UpdateAsync("TotalDonated", function(oldVal)
+				return (oldVal or 0) + increment
 			end)
+		else
+			return GlobalEggStore:GetAsync("TotalDonated") or 0
+		end
+	end)
 
-			if successUpdate and newVal then
-				currentGlobalEggs = newVal
-				local currentMilestone = math.floor(currentGlobalEggs / GLOBAL_EGG_GOAL)
+	if success and newVal then
+		currentGlobalEggs = newVal
+		local currentMilestone = math.floor(currentGlobalEggs / GLOBAL_EGG_GOAL)
 
-				if currentMilestone > lastProcessedMilestone then
-					local boxesToGive = currentMilestone - lastProcessedMilestone
-					lastProcessedMilestone = currentMilestone
+		if lastProcessedMilestone == -1 then
+			lastProcessedMilestone = currentMilestone
+		elseif currentMilestone > lastProcessedMilestone then
+			local boxesToGive = currentMilestone - lastProcessedMilestone
+			lastProcessedMilestone = currentMilestone
 
-					for _, p in ipairs(game.Players:GetPlayers()) do
-						local attr = "MythicalGiftboxCount"
-						p:SetAttribute(attr, (p:GetAttribute(attr) or 0) + boxesToGive)
-						NotificationEvent:FireClient(p, "<font color='#FF55FF'>Global Easter Goal Reached! You received " .. boxesToGive .. "x Mythical Giftbox!</font>")
-					end
-				end
-
-				ShopUpdate:FireAllClients("UpdateGlobalEggs", currentGlobalEggs)
-			else
-				pendingDonations += increment
+			for _, p in ipairs(game.Players:GetPlayers()) do
+				local attr = "MythicalGiftboxCount"
+				p:SetAttribute(attr, (p:GetAttribute(attr) or 0) + boxesToGive)
+				NotificationEvent:FireClient(p, "<font color='#FF55FF'>Global Easter Goal Reached! You received " .. boxesToGive .. "x Mythical Giftbox!</font>")
 			end
 		end
+
+		ShopUpdate:FireAllClients("UpdateGlobalEggs", currentGlobalEggs)
+	else
+		pendingDonations += increment
+	end
+end
+
+task.spawn(function()
+	SyncGlobalEggs()
+
+	while task.wait(300) do
+		SyncGlobalEggs()
+	end
+end)
+
+game:BindToClose(function()
+	if pendingDonations > 0 then
+		SyncGlobalEggs()
 	end
 end)
 
