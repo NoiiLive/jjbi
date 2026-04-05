@@ -21,6 +21,11 @@ local OpenFusionUIRemote = Network:FindFirstChild("OpenFusionUI") or Instance.ne
 OpenFusionUIRemote.Name = "OpenFusionUI"
 
 UnequipItemRemote.OnServerEvent:Connect(function(player, slot)
+	if player:GetAttribute("InCombat") then
+		local notif = Network:FindFirstChild("NotificationEvent")
+		if notif then notif:FireClient(player, "<font color='#FF5555'>You cannot unequip items while in combat!</font>") end
+		return
+	end
 	if slot == "Weapon" or slot == "Accessory" or slot == "Head" or slot == "Torso" or slot == "Legs" then
 		local currentEq = player:GetAttribute("Equipped" .. slot)
 		if currentEq and currentEq ~= "None" then
@@ -68,6 +73,10 @@ local AutoRollRemote = Network:FindFirstChild("AutoRoll") or Instance.new("Remot
 AutoRollRemote.Name = "AutoRoll"
 
 AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, targetTrait)
+	if player:GetAttribute("InCombat") then
+		NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot Auto-Roll while in combat!</font>")
+		return
+	end
 	if player:GetAttribute("IsAutoRolling") then return end
 	player:SetAttribute("IsAutoRolling", true)
 
@@ -216,12 +225,12 @@ local function HandleGiftboxDrop(player, targetRarity)
 	local pool = {}
 	for name, data in pairs(ItemData.Equipment) do 
 		if data.Rarity == targetRarity then 
-				table.insert(pool, name) 
+			table.insert(pool, name) 
 		end 
 	end
 	for name, data in pairs(ItemData.Consumables) do 
 		if data.Rarity == targetRarity then 
-				table.insert(pool, name) 
+			table.insert(pool, name) 
 		end 
 	end
 
@@ -248,6 +257,10 @@ local function HandleGiftboxDrop(player, targetRarity)
 end
 
 UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targetTrait)
+	if player:GetAttribute("InCombat") then
+		NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot use items while in combat!</font>")
+		return
+	end
 	local attrName = itemName:gsub("[^%w]", "") .. "Count"
 	local itemCount = player:GetAttribute(attrName) or 0
 
@@ -594,8 +607,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				message = "You must be at least Prestige 15 to use the New Rokakaka!"
 				itemConsumed = false
 			end
-		
-		-- April Fools
+
+			-- April Fools
 		elseif itemName == "Scratch-Off Ticket" then
 			if myStand == "None" then
 				message = "You need a Stand to gamble your life away!"
@@ -624,7 +637,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			player:SetAttribute("FightingStyle", "Shrine")
 			message = "The finger's curse flows through you! Gained Shrine Style."	
 
-		-- Easter
+			-- Easter
 		elseif itemName == "Parasitic Egg" then
 			player:SetAttribute("FightingStyle", "Baoh Armed Phenomenon")
 			message = "A mysterious parasite burrows into your host body! Gained Baoh Style."
@@ -639,7 +652,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				end
 			end
 			message = "A mysterious egg hatched! Awakened Stand: Charmy Green!"
-			
+
 		elseif itemName == "Easter Egg" then
 			message = "Spend this in the Easter Shop!"
 			itemConsumed = false
