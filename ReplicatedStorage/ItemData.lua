@@ -136,6 +136,7 @@ ItemData.Consumables = {
 	["Style Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 2.", Rarity = "Special", Cost = 0 },
 	["Style Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 3.", Rarity = "Special", Cost = 0 },
 	["Auto-Roll Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Auto-Roll feature.", Rarity = "Special", Cost = 0 },
+	["Auto-Stat Invest"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Auto-Stat Invest feature.", Rarity = "Special", Cost = 0 },
 	["Custom Horse Name"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Special", Cost = 0 },
 	
 	-- Rewards
