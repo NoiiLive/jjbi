@@ -19,6 +19,10 @@ if not NotificationEvent then
 end
 
 StandStorageAction.OnServerEvent:Connect(function(player, action, slotNum)
+	if player:GetAttribute("InCombat") then
+		NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot swap Stands or Styles while in combat!</font>")
+		return
+	end
 	if action == "Swap" then
 		if slotNum == 2 and not player:GetAttribute("HasStandSlot2") then return end
 		if slotNum == 3 and not player:GetAttribute("HasStandSlot3") then return end
