@@ -70,18 +70,21 @@ if not UpgradeAllEvent then
 	UpgradeAllEvent.Parent = Network
 end
 
-UpgradeAllEvent.OnServerEvent:Connect(function(player, amount)
+UpgradeAllEvent.OnServerEvent:Connect(function(player, amount, statType)
 	if type(amount) ~= "number" or amount <= 0 then return end
 
 	local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
 	local prestige = prestigeObj and prestigeObj.Value or 0
 	local statCap = GameData.GetStatCap(prestige)
 
-	local statsList = {
-		"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower", 
-		"Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", 
-		"Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"
-	}
+	local statsList = {}
+	if statType == "Player" then
+		statsList = {"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}
+	elseif statType == "Stand" then
+		statsList = {"Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", "Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"}
+	else
+		return
+	end
 
 	local totalUpgrades = 0
 
@@ -113,6 +116,86 @@ UpgradeAllEvent.OnServerEvent:Connect(function(player, amount)
 			NotificationEvent:FireClient(player, "<font color='#55FF55'>Equally leveled stats " .. totalUpgrades .. " total times!</font>") 
 		else
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough XP or stats are already maxed!</font>") 
+		end
+	end
+end)
+
+local function ProcessAutoUpgrade(player, isStand)
+	local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+	local prestige = prestigeObj and prestigeObj.Value or 0
+	local statCap = GameData.GetStatCap(prestige)
+	local currentXP = player:GetAttribute("XP") or 0
+	local autoAmt = player:GetAttribute("AutoStatAmount") or 1
+
+	local statsList = isStand and {
+		"Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", 
+		"Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"
+	} or {
+		"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"
+	}
+
+	local didAnyUpgrade = false
+	local maxUpgradesPerCycle = 1000
+	local upgradesDone = 0
+
+	while upgradesDone < maxUpgradesPerCycle do
+		local lowestVal = math.huge
+		local lowestStats = {}
+
+		for _, statName in ipairs(statsList) do
+			local val = player:GetAttribute(statName) or 1
+			if val < statCap then
+				if val < lowestVal then
+					lowestVal = val
+					lowestStats = {statName}
+				elseif val == lowestVal then
+					table.insert(lowestStats, statName)
+				end
+			end
+		end
+
+		if #lowestStats == 0 then break end
+
+		local statToUpgrade = lowestStats[1]
+		local cleanName = statToUpgrade:gsub("_Val", "")
+		local base = (prestige == 0) and (GameData.BaseStats[cleanName] or 0) or (prestige * 5)
+
+		local targetAdd = autoAmt
+		if lowestVal + targetAdd > statCap then
+			targetAdd = statCap - lowestVal
+		end
+
+		if targetAdd <= 0 then break end
+
+		local cost = 0
+		for i = 0, targetAdd - 1 do
+			cost += GameData.CalculateStatCost(lowestVal + i, base, prestige)
+		end
+
+		if currentXP >= cost then
+			currentXP -= cost
+			player:SetAttribute(statToUpgrade, lowestVal + targetAdd)
+			didAnyUpgrade = true
+			upgradesDone += 1
+		else
+			break
+		end
+	end
+
+	if didAnyUpgrade then
+		player:SetAttribute("XP", currentXP)
+	end
+end
+
+task.spawn(function()
+	while task.wait(1) do
+		for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+			if player:GetAttribute("AutoStatPlayer") then
+				ProcessAutoUpgrade(player, false)
+			end
+			if player:GetAttribute("AutoStatStand") then
+				ProcessAutoUpgrade(player, true)
+			end
 		end
 	end
 end)
