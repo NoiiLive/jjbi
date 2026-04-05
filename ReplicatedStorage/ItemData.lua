@@ -88,7 +88,7 @@ ItemData.Consumables = {
 	["Cyborg Blueprints"] = { Category = "Player", Description = "German science is the best! Grants the Cyborg style.", Rarity = "Uncommon", Cost = 5000 },
 	["Vampire Mask"] = { Category = "Player", Description = "I REJECT MY HUMANITY! Grants the Vampirism style.", Rarity = "Rare", Cost = 25000 },
 	["Ancient Mask"] = { Category = "Player", Description = "Awaken ancient biology. Grants the Pillarman style.", Rarity = "Legendary", Cost = 100000 },
-	["Steel Ball"] = { Category = "Player", Description = "A perfect sphere. Unlocks the Spin fighting style.", Rarity = "Mythical", Cost = 400000 },
+	["Steel Ball"] = { Category = "Player", Description = "A perfect sphere. Unlocks the Spin fighting style.", Rarity = "Legendary", Cost = 400000 },
 	["Perfect Aja Mask"] = { Category = "Player", Description = "A stone mask with the Red Stone embedded. Evolves Pillarman into the Ultimate Lifeform.", Rarity = "Mythical", Cost = 450000 },
 	["Golden Spin Scroll"] = { Category = "Player", Description = "The secret of infinite rotation. Evolves the Spin style into Golden Spin.", Rarity = "Mythical", Cost = 450000 },
 	["Rokakaka Fruit"] = { Category = "Player", Description = "A mysterious fruit from the Higashikata orchard. Consuming it transforms your biology into that of a Rock Human.", Rarity = "Mythical", Cost = 450000 },
@@ -105,25 +105,25 @@ ItemData.Consumables = {
 	["Rokakaka Branch"] = { Category = "Stand", Description = "A miraculously grafted branch. Evolves Soft & Wet to push its bubbles beyond logic.", Rarity = "Mythical", Cost = 500000},
 
 	-- Reroll Items
-	["Stand Arrow"] = { Category = "Stand", Description = "Pierce yourself to awaken a random Stand.", Rarity = "Uncommon", Cost = 35000 },
-	["Rokakaka"] = { Category = "Stand", Description = "An equivalent exchange fruit. Rerolls your Stand's trait.", Rarity = "Mythical", Cost = 300000 },
-	["Saint's Corpse Part"] = { Category = "Stand", Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Mythical", Cost = 500000 },
+	["Stand Arrow"] = { Category = "Stand", Description = "Pierce yourself to awaken a random Stand.", Rarity = "Legendary", Cost = 35000 },
+	["Rokakaka"] = { Category = "Stand", Description = "An equivalent exchange fruit. Rerolls your Stand's trait.", Rarity = "Legendary", Cost = 300000 },
+	["Saint's Corpse Part"] = { Category = "Stand", Description = "A holy relic. Rolls a Stand from an alternate universe.", Rarity = "Legendary", Cost = 500000 },
 
 	-- Misc Items
-	["Heavenly Stand Disc"] = { Category = "Stand", Description = "Call upon the powers of Made in Heaven to reset the universe and its modifiers.", Rarity = "Mythical", Cost = 350000},
+	["Heavenly Stand Disc"] = { Category = "Stand", Description = "Call upon the powers of Made in Heaven to reset the universe and its modifiers.", Rarity = "Legendary", Cost = 350000},
 	["Stand Disc"] = { Category = "Stand", Description = "Wipes your soul. Removes your current Stand and Trait.", Rarity = "Uncommon", Cost = 15000 },
-	["Memory Disc"] = { Category = "Player", Description = "Wipes your memory. Removes your current Fighting Style.", Rarity = "Common", Cost = 5000 },
+	["Memory Disc"] = { Category = "Player", Description = "Wipes your memory. Removes your current Fighting Style.", Rarity = "Uncommon", Cost = 5000 },
 	["Requiem Arrow"] = { Category = "Stand", Description = "An arrow with a bizzare beetle design. Pushes your stand beyond anything ever seen.", Rarity = "Mythical", Cost = 500000},
 	["New Rokakaka"] = { Category = "Stand", Description = "The ultimate fruit of equivalent exchange. Fuses two of your Stands into a powerful hybrid.", Rarity = "Mythical", Cost = 500000},
 	
 	-- Stand Discs
-	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Weather Report.", Rarity = "Mythical", Cost = 300000},
-	["Heaven's Door Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Heaven's Door.", Rarity = "Mythical", Cost = 300000},
-	["The Hand Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, The Hand.", Rarity = "Mythical", Cost = 300000},
-	["Metallica Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Metallica.", Rarity = "Mythical", Cost = 300000},
-	["The World Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, The World.", Rarity = "Mythical", Cost = 300000},
-	["Star Platinum Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Star Platinum.", Rarity = "Mythical", Cost = 300000},
-	["Wonder of U Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Wonder of U.", Rarity = "Mythical", Cost = 300000},
+	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Weather Report.", Rarity = "Unique", Cost = 300000},
+	["Heaven's Door Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Heaven's Door.", Rarity = "Unique", Cost = 300000},
+	["The Hand Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, The Hand.", Rarity = "Unique", Cost = 300000},
+	["Metallica Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Metallica.", Rarity = "Unique", Cost = 300000},
+	["The World Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, The World.", Rarity = "Unique", Cost = 300000},
+	["Star Platinum Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Star Platinum.", Rarity = "Unique", Cost = 300000},
+	["Wonder of U Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Wonder of U.", Rarity = "Unique", Cost = 300000},
 
 	-- Passes
 	["2x Battle Speed Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Special", Cost = 0 },
@@ -150,7 +150,7 @@ ItemData.Consumables = {
 	["Scratch-Off Ticket"] = { Category = "Stand", Description = "99% of gamblers quit right before they hit the jackpot. (Replaces your Stand's Trait)", Rarity = "Unique", Cost = 777777 },
 
 	-- Easter
-	["Easter Egg"] = { Category = "Player", Description = "A decorative egg dropped from battles. Currency for the Easter Shop.", Rarity = "Unique", Cost = 0 },
+	["Easter Egg"] = { Category = "Player", Description = "A decorative egg dropped from battles. Currency for the Easter Shop.", Rarity = "Special", Cost = 0 },
 	["Lucky Egg"] = { Category = "Player", Description = "A shiny egg, opening it provides a random amount of Easter Eggs, or even a Limited item!", Rarity = "Unique", Cost = 0 },
 	["Kakyoin's Egg"] = { Category = "Stand", Description = "A mysterious egg, presumably laid by Kakyoin. Awakens the stand, Charmy Green.", Rarity = "Unique", Cost = 500000 },
 	["Parasitic Egg"] = { Category = "Player", Description = "A mysterious egg containing a bio-engineered parasite. Grants the Baoh fighting style.", Rarity = "Unique", Cost = 500000 },	
