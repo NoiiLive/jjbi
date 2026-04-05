@@ -336,6 +336,7 @@ end
 
 local function EliminateRacer(racer, reasonMsg)
 	racer.HasFinished = true
+	racer.Player:SetAttribute("InCombat", false)
 	SBRUpdate:FireClient(racer.Player, "Eliminated", reasonMsg)
 	EventState.Racers[racer.Player.UserId] = nil
 end
@@ -363,6 +364,7 @@ function ExecuteCombatTurn(racer)
 			racer.Distance = racer.Distance + gain
 			SBRUpdate:FireClient(racer.Player, "CombatEnd", "Your opponent fled! You pushed forward and gained " .. gain .. "m.")
 		end
+		racer.Player:SetAttribute("InCombat", false)
 
 		if b.OpponentRacer then
 			if p2Fled then
@@ -373,6 +375,7 @@ function ExecuteCombatTurn(racer)
 				b.OpponentRacer.Distance = b.OpponentRacer.Distance + gain
 				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "Your opponent fled! You pushed forward and gained " .. gain .. "m.")
 			end
+			b.OpponentRacer.Player:SetAttribute("InCombat", false)
 			SBRUpdate:FireClient(b.OpponentRacer.Player, "PathResult", {Log = "", Dist = b.OpponentRacer.Distance, Stam = b.OpponentRacer.Stamina, Region = GetRegion(b.OpponentRacer.Distance)})
 			b.OpponentRacer.Battle = nil
 			CheckWinCondition(b.OpponentRacer)
@@ -467,6 +470,7 @@ function ExecuteCombatTurn(racer)
 		if b.OpponentRacer then
 			b.OpponentRacer.Distance += 1500
 			b.OpponentRacer.Battle = nil
+			b.OpponentRacer.Player:SetAttribute("InCombat", false)
 			SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "You survived the ambush and eliminated your opponent! Pushing forward 1500m.")
 			CheckWinCondition(b.OpponentRacer)
 		end
@@ -474,6 +478,7 @@ function ExecuteCombatTurn(racer)
 		local gain = b.OpponentRacer and 1500 or 800
 		racer.Distance += gain
 		racer.Battle = nil
+		racer.Player:SetAttribute("InCombat", false)
 		SBRUpdate:FireClient(racer.Player, "CombatEnd", "Victory! You defeated the enemy and pushed forward " .. gain .. "m.")
 		CheckWinCondition(racer)
 		if b.OpponentRacer then EliminateRacer(b.OpponentRacer, "Defeated in Combat!") end
@@ -646,6 +651,8 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 					r.Distance += distGained
 					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					player:SetAttribute("InCombat", true)
+					p2.Player:SetAttribute("InCombat", true)
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
 					r.IsProcessing = false
@@ -672,6 +679,8 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				if p2 then
 					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					player:SetAttribute("InCombat", true)
+					p2.Player:SetAttribute("InCombat", true)
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
 					r.IsProcessing = false
@@ -715,6 +724,7 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			elseif rng <= 60 then
 				r.Distance += distGained
 				r.Battle = { Player = CombatCore.BuildPlayerStruct(player, true), Opponent = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+				player:SetAttribute("InCombat", true)
 				SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>A bandit blocks the path!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 				r.IsProcessing = false
 				return
@@ -724,6 +734,8 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 					r.Distance += distGained
 					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
 					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = os.time() + 15 }
+					player:SetAttribute("InCombat", true)
+					p2.Player:SetAttribute("InCombat", true)
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>CROSSED PATHS WITH " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
 					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>" .. player.Name .. " ATTACKED YOU!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
 					r.IsProcessing = false
@@ -764,8 +776,10 @@ Players.PlayerRemoving:Connect(function(player)
 		local r = EventState.Racers[player.UserId]
 		if r.Battle and r.Battle.OpponentRacer then
 			r.Battle.OpponentRacer.Battle = nil
+			r.Battle.OpponentRacer.Player:SetAttribute("InCombat", false)
 			SBRUpdate:FireClient(r.Battle.OpponentRacer.Player, "CombatEnd", "Opponent disconnected! Path is clear.")
 		end
 		EventState.Racers[player.UserId] = nil
 	end
+	player:SetAttribute("InCombat", false)
 end)
