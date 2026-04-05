@@ -49,6 +49,8 @@ local dungeonList = {
 }
 
 local currentLog = ""
+local isClientProcessing = false
+
 local function AddLog(text, append)
 	if append then
 		currentLog = currentLog .. "\n" .. text
@@ -204,6 +206,7 @@ end
 
 function DungeonTab.RenderSkills(battleData)
 	if not battleData then return end
+	isClientProcessing = false
 	combatUI:ClearAbilities()
 
 	local myStand, myStyle = battleData.Player.Stand or "None", battleData.Player.Style or "None"
@@ -235,7 +238,8 @@ function DungeonTab.RenderSkills(battleData)
 		local btnText = (currentCooldown > 0) and (sk.Name .. " (" .. currentCooldown .. ")") or sk.Name
 
 		local cb = function()
-			if disabled then return end
+			if disabled or isClientProcessing then return end
+			isClientProcessing = true
 			SFXManager.Play("Click")
 			cachedTooltipMgr.Hide()
 			Network:WaitForChild("DungeonAction"):FireServer("Attack", sk.Name)
@@ -251,23 +255,23 @@ function DungeonTab.RenderSkills(battleData)
 			if sk.Name == "Flee" then
 				local isConfirmingFlee = false
 				btn.MouseButton1Click:Connect(function() 
-					if not disabled then
-						SFXManager.Play("Click")
-						if not isConfirmingFlee then
-							isConfirmingFlee = true
-							btn.Text = "Confirm Flee?"
-							btn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-							task.delay(3, function()
-								if isConfirmingFlee and btn and btn.Parent then
-									isConfirmingFlee = false
-									btn.Text = sk.Name
-									btn.BackgroundColor3 = c
-								end
-							end)
-						else
-							cachedTooltipMgr.Hide()
-							Network:WaitForChild("DungeonAction"):FireServer("Attack", sk.Name) 
-						end
+					if disabled or isClientProcessing then return end
+					SFXManager.Play("Click")
+					if not isConfirmingFlee then
+						isConfirmingFlee = true
+						btn.Text = "Confirm Flee?"
+						btn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+						task.delay(3, function()
+							if isConfirmingFlee and btn and btn.Parent then
+								isConfirmingFlee = false
+								btn.Text = sk.Name
+								btn.BackgroundColor3 = c
+							end
+						end)
+					else
+						isClientProcessing = true
+						cachedTooltipMgr.Hide()
+						Network:WaitForChild("DungeonAction"):FireServer("Attack", sk.Name) 
 					end
 				end)
 			end
@@ -279,6 +283,7 @@ function DungeonTab.RenderSkills(battleData)
 end
 
 function DungeonTab.UpdateDungeon(status, data)
+	isClientProcessing = false
 	if status == "Start" then
 		if forceTabFocus then forceTabFocus() end 
 		combatUI.ChatText.Text = ""
