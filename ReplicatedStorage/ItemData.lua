@@ -126,22 +126,22 @@ ItemData.Consumables = {
 	["Wonder of U Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Wonder of U.", Rarity = "Mythical", Cost = 300000},
 
 	-- Passes
-	["2x Battle Speed Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Unique", Cost = 0 },
-	["2x Inventory Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles your inventory capacity.", Rarity = "Unique", Cost = 0 },
-	["2x Drop Chance Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles all item drop rates.", Rarity = "Unique", Cost = 0 },
-	["VIP"] = { Category = "Player", Description = "Consumable gamepass. Permanently unlocks 2x Training Speed, a VIP Stand Slot, and VIP Style Slot!", Rarity = "Unique", Cost = 0 },
-	["Auto Training Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Auto Training.", Rarity = "Unique", Cost = 0 },
-	["Stand Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 2.", Rarity = "Unique", Cost = 0 },
-	["Stand Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 3.", Rarity = "Unique", Cost = 0 },
-	["Style Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 2.", Rarity = "Unique", Cost = 0 },
-	["Style Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 3.", Rarity = "Unique", Cost = 0 },
-	["Auto-Roll Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Auto-Roll feature.", Rarity = "Unique", Cost = 0 },
-	["Custom Horse Name"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Unique", Cost = 0 },
+	["2x Battle Speed Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks 2x Battle Speed.", Rarity = "Special", Cost = 0 },
+	["2x Inventory Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles your inventory capacity.", Rarity = "Special", Cost = 0 },
+	["2x Drop Chance Pass"] = { Category = "Player", Description = "Consumable gamepass. Doubles all item drop rates.", Rarity = "Special", Cost = 0 },
+	["VIP"] = { Category = "Player", Description = "Consumable gamepass. Permanently unlocks 2x Training Speed, a VIP Stand Slot, and VIP Style Slot!", Rarity = "Special", Cost = 0 },
+	["Auto Training Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Auto Training.", Rarity = "Special", Cost = 0 },
+	["Stand Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 2.", Rarity = "Special", Cost = 0 },
+	["Stand Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Stand Storage Slot 3.", Rarity = "Special", Cost = 0 },
+	["Style Storage Slot 2"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 2.", Rarity = "Special", Cost = 0 },
+	["Style Storage Slot 3"] = { Category = "Player", Description = "Consumable gamepass. Unlocks Style Storage Slot 3.", Rarity = "Special", Cost = 0 },
+	["Auto-Roll Pass"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Auto-Roll feature.", Rarity = "Special", Cost = 0 },
+	["Custom Horse Name"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Special", Cost = 0 },
 	
 	-- Rewards
-	["Legendary Giftbox"] = { Category = "Player", Description = "Supplies you with a random Legendary-tier item!", Rarity = "Unique", Cost = 30000 },
-	["Mythical Giftbox"] = { Category = "Player", Description = "Supplies you with a random Mythical-tier item!", Rarity = "Unique", Cost = 50000 },
-	["Unique Giftbox"] = { Category = "Player", Description = "Supplies you with a random Unique-tier item!", Rarity = "Unique", Cost = 100000 },
+	["Legendary Giftbox"] = { Category = "Player", Description = "Supplies you with a random Legendary-tier item!", Rarity = "Special", Cost = 30000 },
+	["Mythical Giftbox"] = { Category = "Player", Description = "Supplies you with a random Mythical-tier item!", Rarity = "Special", Cost = 50000 },
+	["Unique Giftbox"] = { Category = "Player", Description = "Supplies you with a random Unique-tier item!", Rarity = "Special", Cost = 100000 },
 
 	-- April Fools
 	["Chiikawa Mascot"] = { Category = "Stand", Description = "A strange little creature. Awakens the stand, Chiikawa.", Rarity = "Unique", Cost = 500000 },
