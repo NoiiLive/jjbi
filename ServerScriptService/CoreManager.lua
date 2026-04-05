@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -55,7 +54,8 @@ local requiredRemotes = {
 	"SBRAction",
 	"SBRUpdate",
 	"ExecuteFusion",
-	"PackAction"
+	"PackAction",
+	"ToggleAutoStat"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
@@ -102,6 +102,8 @@ local DefaultData = {
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
 
 	AutoSell_Common = false, AutoSell_Uncommon = false, AutoSell_Rare = false, AutoSell_Legendary = false, AutoSell_Mythical = false,
+
+	AutoStatPlayer = false, AutoStatStand = false, AutoStatAmount = 1, HasAutoStatPass = false,
 
 	UniverseModifier = "None", StandPity = 0, TraitPity = 0, ShopPity = 0, ClaimedSupporterReward = false,
 
@@ -233,6 +235,10 @@ local function SavePlayerData(player)
 		AutoSell_Rare = player:GetAttribute("AutoSell_Rare") or false,
 		AutoSell_Legendary = player:GetAttribute("AutoSell_Legendary") or false,
 		AutoSell_Mythical = player:GetAttribute("AutoSell_Mythical") or false,
+
+		AutoStatPlayer = player:GetAttribute("AutoStatPlayer") or false,
+		AutoStatStand = player:GetAttribute("AutoStatStand") or false,
+		AutoStatAmount = player:GetAttribute("AutoStatAmount") or 1,
 
 		UniverseModifier = player:GetAttribute("UniverseModifier") or "None",
 		StandPity = player:GetAttribute("StandPity") or 0,
@@ -448,6 +454,7 @@ Players.PlayerAdded:Connect(function(player)
 	VerifyPass(1745969849, "HasStyleSlot3")
 	VerifyPass(1749484465, "HasAutoRoll")
 	VerifyPass(1749586333, "HasHorseNamePass")
+	VerifyPass(1785974455, "HasAutoStatPass")
 
 	task.spawn(function()
 		while player and player.Parent do
