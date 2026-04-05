@@ -72,9 +72,9 @@ local EasterStockList = {
 	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
 	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
 	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
+	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
+	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
 	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
-	{ Name = "Baoh Arm Blade", Price = 5000, Rarity = "Unique" },
-	{ Name = "Ikuro's Jacket", Price = 5000, Rarity = "Unique" },
 	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Unique" },
 }
 
@@ -140,7 +140,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local premiumItemTpl = Templates:WaitForChild("PremiumItemTemplate")
 	local shopItemTplEaster = Templates:WaitForChild("ShopItemTemplateEaster")
 
-	-- Global Egg Pool Bindings
 	local donationCard = easterTabContent:WaitForChild("DonationCard")
 	local btnContainer = donationCard:WaitForChild("ButtonContainer")
 
