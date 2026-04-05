@@ -643,6 +643,10 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				end
 			end
 			message = "A mysterious egg hatched! Awakened Stand: Charmy Green!"
+			
+		elseif itemName == "Easter Egg" then
+			message = "Spend this in the Easter Shop!"
+			itemConsumed = false
 
 		elseif itemName == "Lucky Egg" then
 			local roll = math.random(1, 100)
