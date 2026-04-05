@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local RaidsTab = {}
 
 local player = game.Players.LocalPlayer
@@ -31,6 +32,7 @@ local cachedTooltipMgr, forceTabFocus
 
 local currentLog = ""
 local templates
+local eventConnected = false
 
 local raidBosses = {
 	{ Id = "Raid_Part1", Name = "Vampire King", Req = 1, Desc = "A deadly raid against the progenitor of the stone mask." },
@@ -202,9 +204,12 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		end
 	end)
 
-	RaidUpdate.OnClientEvent:Connect(function(action, data)
-		RaidsTab.HandleUpdate(action, data)
-	end)
+	if not eventConnected then
+		eventConnected = true
+		RaidUpdate.OnClientEvent:Connect(function(action, data)
+			RaidsTab.HandleUpdate(action, data)
+		end)
+	end
 end
 
 function RaidsTab.UpdateCombatState(state)
