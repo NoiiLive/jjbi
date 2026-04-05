@@ -454,16 +454,15 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Successfully purchased " .. itemName .. " from the Easter Shop!</font>")
 
 	elseif action == "RestockEasterYen" then
-		local cost = 100000
-		if yen.Value >= cost then
-			yen.Value -= cost
-			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
-			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Yen", cost) end
+		local cost = 25
+		local currentEggs = player:GetAttribute("EasterEggCount") or 0
+		if currentEggs >= cost then
+			player:SetAttribute("EasterEggCount", currentEggs - cost)
 
 			player:SetAttribute("EasterShopRefreshTime", 0) 
-			NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Restocked Easter Shop for 100k Yen!</font>")
+			NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Restocked Easter Shop for 25 Easter Eggs!</font>")
 		else
-			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen to restock!</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Easter Eggs to restock!</font>")
 		end
 
 	elseif action == "Sell" then
