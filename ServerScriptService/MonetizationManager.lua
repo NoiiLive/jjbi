@@ -376,20 +376,20 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
 
-	if productId == 3564614326 then
-		if buyAsItem then 
-			GrantItem(receiver, "VIP"); SendPurchaseMsg("VIP (Item)")
-		else 
-			receiver:SetAttribute("IsVIP", true); SendPurchaseMsg("VIP") 
-		end
-		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
-	end
-
 	if productId == 3564614546 then
 		if buyAsItem then 
 			GrantItem(receiver, "VIP"); SendPurchaseMsg("VIP Gift (Item)")
 		else 
 			receiver:SetAttribute("IsVIP", true); SendPurchaseMsg("VIP") 
+		end
+		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
+	
+	if productId == 3564614326 then
+		if buyAsItem then 
+			GrantItem(receiver, "Auto-Stat Invest"); SendPurchaseMsg("Auto-Stat Invest Gift (Item)")
+		else 
+			receiver:SetAttribute("HasAutoStatPass", true); SendPurchaseMsg("Auto-Stat Invest") 
 		end
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
@@ -411,7 +411,8 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passI
 	elseif passId == 1745969849 then player:SetAttribute("HasStyleSlot3", true); passName = "Style Storage Slot 3"
 	elseif passId == 1749484465 then player:SetAttribute("HasAutoRoll", true); passName = "Auto-Roll Pass"
 	elseif passId == 1749586333 then player:SetAttribute("HasHorseNamePass", true); passName = "Custom Horse Name Pass"
-	elseif passId == 1772743731 then player:SetAttribute("IsVIP", true); passName = "VIP Status" end
+	elseif passId == 1772743731 then player:SetAttribute("IsVIP", true); passName = "VIP Status"
+	elseif passId == 1785974455 then player:SetAttribute("HasAutoStatPass", true); passName = "Auto-Stat Invest" end
 
 	AdminLogger:Fire("Purchase", {
 		Player = player.Name,
