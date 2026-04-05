@@ -1,6 +1,4 @@
 -- @ScriptType: Script
--- noiilive/jjbi/jjbi-main/ServerScriptService/WorldBossManager.lua
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local MemoryStoreService = game:GetService("MemoryStoreService")
@@ -244,6 +242,7 @@ local function StartBossBattle(player)
 		IsInstanced = hasInstanced
 	}
 
+	player:SetAttribute("InCombat", true)
 	WorldBossUpdate:FireClient(player, "Start", { Battle = ActiveBossBattles[player.UserId], LogMsg = "<font color='#FF5555'>The sky darkens... " .. activeBossName .. " has arrived!</font>" })
 	if not hasInstanced then
 		player:SetAttribute("LastWorldBossHour", utc.hour)
@@ -330,7 +329,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 					player:SetAttribute("InstancedWorldBossEndTime", 0)
 				end
 				WorldBossUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#AAAAAA'>You fled the boss fight!</font>", DidHit = false, ShakeType = "None"})
-				task.wait(waitMultiplier); WorldBossUpdate:FireClient(player, "Fled", {Battle = battle}); ActiveBossBattles[player.UserId] = nil
+				task.wait(waitMultiplier); WorldBossUpdate:FireClient(player, "Fled", {Battle = battle}); ActiveBossBattles[player.UserId] = nil; player:SetAttribute("InCombat", false)
 				if battle.IsInstanced then WorldBossUpdate:FireClient(player, "SyncBoss", CurrentActiveBoss) end
 				return
 			end
@@ -434,6 +433,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		local finalPack = { XP = fXP, Yen = fYen, Items = droppedItems }
 		WorldBossUpdate:FireClient(player, isDeath and "Defeat" or "Victory", {Battle = battle, Drops = finalPack, CustomLog = resultLog})
 		ActiveBossBattles[player.UserId] = nil
+		player:SetAttribute("InCombat", false)
 
 		if battle.IsInstanced then
 			WorldBossUpdate:FireClient(player, "SyncBoss", CurrentActiveBoss)
@@ -457,4 +457,5 @@ game.Players.PlayerRemoving:Connect(function(player)
 	ActiveBossBattles[player.UserId] = nil
 	player:SetAttribute("InstancedWorldBoss", nil)
 	player:SetAttribute("InstancedWorldBossEndTime", 0)
+	player:SetAttribute("InCombat", false)
 end)
