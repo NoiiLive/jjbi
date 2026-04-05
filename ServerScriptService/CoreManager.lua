@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -134,7 +135,9 @@ local DefaultData = {
 	EquippedWeapon = "None", EquippedAccessory = "None",
 	StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"},
 	StandStatsVal = {Power=0, Speed=0, Range=0, Durability=0, Precision=0, Potential=0},
+
 	ShopStock = "", ShopRefreshTime = 0, RedeemedCodes = "",
+	EasterShopStock = "", EasterShopRefreshTime = 0, EasterEggCount = 0,
 
 	StoredStand1 = "None", StoredStand1_Trait = "None",
 	StoredStand2 = "None", StoredStand2_Trait = "None",
@@ -180,11 +183,13 @@ local function SetupLeaderstats(player, savedData)
 
 	player:SetAttribute("ShopStock", savedData.ShopStock or DefaultData.ShopStock)
 	player:SetAttribute("ShopRefreshTime", savedData.ShopRefreshTime or DefaultData.ShopRefreshTime)
+	player:SetAttribute("EasterShopStock", savedData.EasterShopStock or DefaultData.EasterShopStock)
+	player:SetAttribute("EasterShopRefreshTime", savedData.EasterShopRefreshTime or DefaultData.EasterShopRefreshTime)
 	player:SetAttribute("RedeemedCodes", savedData.RedeemedCodes or DefaultData.RedeemedCodes)
 	player:SetAttribute("LastOnline", savedData.LastOnline or os.time())
 
 	for key, val in pairs(savedData) do
-		if type(val) ~= "table" and key ~= "Prestige" and key ~= "Yen" and key ~= "Elo" and key ~= "ShopStock" and key ~= "ShopRefreshTime" and key ~= "RedeemedCodes" and key ~= "LastOnline" then
+		if type(val) ~= "table" and key ~= "Prestige" and key ~= "Yen" and key ~= "Elo" and key ~= "ShopStock" and key ~= "ShopRefreshTime" and key ~= "EasterShopStock" and key ~= "EasterShopRefreshTime" and key ~= "RedeemedCodes" and key ~= "LastOnline" then
 			player:SetAttribute(key, val)
 		end
 	end
@@ -271,7 +276,9 @@ local function SavePlayerData(player)
 		Stand = player:GetAttribute("Stand"), StandTrait = player:GetAttribute("StandTrait") or "None",
 		FightingStyle = player:GetAttribute("FightingStyle"),
 		EquippedWeapon = player:GetAttribute("EquippedWeapon"), EquippedAccessory = player:GetAttribute("EquippedAccessory"),
+
 		ShopStock = player:GetAttribute("ShopStock"), ShopRefreshTime = player:GetAttribute("ShopRefreshTime"),
+		EasterShopStock = player:GetAttribute("EasterShopStock") or "", EasterShopRefreshTime = player:GetAttribute("EasterShopRefreshTime") or 0, EasterEggCount = player:GetAttribute("EasterEggCount") or 0,
 		RedeemedCodes = player:GetAttribute("RedeemedCodes") or "",
 
 		StoredStand1 = player:GetAttribute("StoredStand1") or "None",
