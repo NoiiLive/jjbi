@@ -12,8 +12,8 @@ NotificationEvent.Name = "NotificationEvent"
 local ActiveCodes = {
 	["BIZARRE"] = {Yen = 1000, XP = 2500, Items = {["Stand Arrow"] = 1}},
 	["7KFAVS"] = {Items = {["Stand Arrow"] = 70, ["Rokakaka"] = 70, ["Saint's Corpse Part"] = 35}},
-	["1MVISITS"] = {Items = {["Mythical Giftbox"] = 11, ["Stand Arrow"] = 111, ["Rokakaka"] = 111, ["Saint's Corpse Part"] = 111}},
-	["EASTER"] = {Items = {["Mythical Giftbox"] = 1, ["Easter Egg"] = 100}},
+	["1MVISITS"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 111, ["Rokakaka"] = 111, ["Saint's Corpse Part"] = 111}},
+	["EASTER"] = {Items = {["Mythical Giftbox"] = 1, ["Lucky Egg"] = 1}},
 }
 
 RedeemCode.OnServerEvent:Connect(function(player, codeStr)
