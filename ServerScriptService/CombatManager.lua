@@ -1,6 +1,4 @@
 -- @ScriptType: Script
--- noiilive/jjbi/jjbi-main/ServerScriptService/CombatManager.lua
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
@@ -173,6 +171,7 @@ local function StartBattle(player, encounterType)
 		Drops = generatedEnemy.ScaledDrops, TurnCounter = 1
 	}
 
+	player:SetAttribute("InCombat", true)
 	CombatUpdate:FireClient(player, "Start", { Battle = ActiveBattles[player.UserId], LogMsg = initialLogMsg })
 end
 
@@ -252,7 +251,7 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		if combatant.IsPlayer then
 			if skill.Effect == "Flee" then
 				CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#AAAAAA'>You fled from the battle!</font>", DidHit = false, ShakeType = "None"})
-				task.wait(waitMultiplier); CombatUpdate:FireClient(player, "Fled", {Battle = battle}); ActiveBattles[player.UserId] = nil; return
+				task.wait(waitMultiplier); CombatUpdate:FireClient(player, "Fled", {Battle = battle}); ActiveBattles[player.UserId] = nil; player:SetAttribute("InCombat", false); return
 			end
 			DispatchStrike(battle.Player, battle.Enemy, skillName)
 		elseif combatant.IsAlly then
@@ -273,7 +272,7 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	end
 
 	if battle.Player.HP < 1 then
-		CombatUpdate:FireClient(player, "Defeat", {Battle = battle}); ActiveBattles[player.UserId] = nil
+		CombatUpdate:FireClient(player, "Defeat", {Battle = battle}); ActiveBattles[player.UserId] = nil; player:SetAttribute("InCombat", false)
 	elseif battle.Enemy.HP < 1 then
 		local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
 		if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Kills", 1) end
@@ -366,6 +365,7 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		end
 		CombatUpdate:FireClient(player, "Victory", {Battle = battle, XP = fXP, Yen = fYen, Items = droppedItems})
 		ActiveBattles[player.UserId] = nil
+		player:SetAttribute("InCombat", false)
 	else
 		if stamCost == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then battle.Player.Stamina = math.min(battle.Player.MaxStamina, battle.Player.Stamina + 5) end
 		if nrgCost == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then battle.Player.StandEnergy = math.min(battle.Player.MaxStandEnergy, battle.Player.StandEnergy + 5) end
