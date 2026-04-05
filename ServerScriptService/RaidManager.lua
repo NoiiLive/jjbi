@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -14,6 +15,7 @@ local RaidUpdate = Network:WaitForChild("RaidUpdate")
 
 local OpenLobbies = {} 
 local ActiveRaids = {} 
+local StartLocks = {}
 
 local function GetLobbyData(raidId)
 	local list = {}
@@ -33,6 +35,31 @@ local function GetLobbyData(raidId)
 	return list
 end
 
+local function LeaveAllLobbies(player)
+	if OpenLobbies[player.UserId] then
+		local rId = OpenLobbies[player.UserId].RaidId
+		for _, qp in ipairs(OpenLobbies[player.UserId].Queue) do 
+			if qp ~= player then RaidUpdate:FireClient(qp, "LobbyStatus", {IsHosting = false}) end
+		end
+		OpenLobbies[player.UserId] = nil
+		RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = rId, Lobbies = GetLobbyData(rId)})
+	end
+
+	for hId, lobby in pairs(OpenLobbies) do
+		for i, qp in ipairs(lobby.Queue) do
+			if qp == player then
+				table.remove(lobby.Queue, i)
+				RaidUpdate:FireClient(player, "LobbyStatus", {IsHosting = false})
+				for _, rem in ipairs(lobby.Queue) do 
+					RaidUpdate:FireClient(rem, "LobbyStatus", {IsHosting = true, IsLobbyOwner = (rem.UserId == hId), PlayerCount = #lobby.Queue}) 
+				end
+				RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = lobby.RaidId, Lobbies = GetLobbyData(lobby.RaidId)})
+				break
+			end
+		end
+	end
+end
+
 local function GetClientState(match, myId)
 	local state = {
 		Party = {}, StunImmunity = match.Boss.StunImmunity,
@@ -45,7 +72,7 @@ local function GetClientState(match, myId)
 end
 
 local function ProcessTurn(match)
-	if not match then return end
+	if not match or match.IsProcessing or match.IsDead then return end
 	match.IsProcessing = true
 
 	local waitMultiplier = 1.2
@@ -85,6 +112,7 @@ local function ProcessTurn(match)
 	end
 
 	for _, attacker in ipairs(allCombatants) do
+		if match.IsDead then return end
 		if IsPartyDead() or match.Boss.HP < 1 then break end
 		if not attacker or attacker.HP < 1 then continue end
 
@@ -102,8 +130,13 @@ local function ProcessTurn(match)
 			attacker.Statuses.Bleed -= 1
 			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			local msg = "<font color='#FF0000'>"..attacker.Name.." bled for "..math.floor(dmg).." damage!"..svMsg.."</font>"
-			for _, p in ipairs(match.Party) do RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) end
+			for _, p in ipairs(match.Party) do 
+				if ActiveRaids[p.Player] == match then
+					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
+				end
+			end
 			task.wait(waitMultiplier)
+			if match.IsDead then return end
 		end
 		if attacker.HP < 1 then continue end
 
@@ -113,8 +146,13 @@ local function ProcessTurn(match)
 			attacker.Statuses.Poison -= 1
 			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			local msg = "<font color='#AA00AA'>"..attacker.Name.." took "..math.floor(dmg).." Poison damage!"..svMsg.."</font>"
-			for _, p in ipairs(match.Party) do RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) end
+			for _, p in ipairs(match.Party) do 
+				if ActiveRaids[p.Player] == match then
+					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
+				end
+			end
 			task.wait(waitMultiplier)
+			if match.IsDead then return end
 		end
 		if attacker.HP < 1 then continue end
 
@@ -124,8 +162,13 @@ local function ProcessTurn(match)
 			attacker.Statuses.Burn -= 1
 			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			local msg = "<font color='#FF5500'>"..attacker.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>"
-			for _, p in ipairs(match.Party) do RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) end
+			for _, p in ipairs(match.Party) do 
+				if ActiveRaids[p.Player] == match then
+					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
+				end
+			end
 			task.wait(waitMultiplier)
+			if match.IsDead then return end
 		end
 		if attacker.HP < 1 then continue end
 
@@ -135,8 +178,13 @@ local function ProcessTurn(match)
 			attacker.Statuses.Freeze -= 1
 			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 			local msg = "<font color='#00FFFF'>"..attacker.Name.." took "..math.floor(dmg).." Freeze damage and is frozen solid!"..svMsg.."</font>"
-			for _, p in ipairs(match.Party) do RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) end
+			for _, p in ipairs(match.Party) do 
+				if ActiveRaids[p.Player] == match then
+					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
+				end
+			end
 			task.wait(waitMultiplier)
+			if match.IsDead then return end
 			if attacker.HP < 1 then continue end
 			if not attacker.IsBoss then
 				attacker.Stamina = math.min(attacker.MaxStamina, attacker.Stamina + 5)
@@ -154,8 +202,14 @@ local function ProcessTurn(match)
 				attacker.SelectedSkill = nil 
 			end
 			local msg = "<font color='#AAAAAA'>"..attacker.Name.." is Stunned!</font>"
-			for _, p in ipairs(match.Party) do RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) end
-			task.wait(waitMultiplier); continue
+			for _, p in ipairs(match.Party) do 
+				if ActiveRaids[p.Player] == match then
+					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
+				end
+			end
+			task.wait(waitMultiplier)
+			if match.IsDead then return end
+			continue
 		end
 
 		local skillName = attacker.SelectedSkill
@@ -174,8 +228,13 @@ local function ProcessTurn(match)
 			if skillDataRef.Effect == "Flee" then
 				attacker.HP = 0
 				local msg = "<font color='#AAAAAA'>"..attacker.Name.." fled the raid!</font>"
-				for _, p in ipairs(match.Party) do RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) end
+				for _, p in ipairs(match.Party) do 
+					if ActiveRaids[p.Player] == match then
+						RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
+					end
+				end
 				task.wait(waitMultiplier)
+				if match.IsDead then return end
 				continue
 			end
 		end
@@ -186,8 +245,13 @@ local function ProcessTurn(match)
 			local dColor = defender.IsBoss and "#FF5555" or "#55FF55"
 
 			local msg, hit, shake = CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, attacker.Name, defender.Name, lColor, dColor)
-			for _, p in ipairs(match.Party) do RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = hit, ShakeType = shake, Deadline = match.TurnDeadline}) end
+			for _, p in ipairs(match.Party) do 
+				if ActiveRaids[p.Player] == match then
+					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = hit, ShakeType = shake, Deadline = match.TurnDeadline}) 
+				end
+			end
 			task.wait(waitMultiplier)
+			if match.IsDead then return end
 		end
 
 		if attacker.Statuses and (attacker.Statuses.Confusion or 0) > 0 then attacker.Statuses.Confusion -= 1 end
@@ -222,10 +286,13 @@ local function ProcessTurn(match)
 	end
 
 	if IsPartyDead() or match.Boss.HP < 1 then
+		match.IsDead = true
 		local isWin = match.Boss.HP < 1
 		local endMsg = isWin and "<font color='#55FF55'>RAID CLEARED!</font>" or "<font color='#FF5555'>PARTY DEFEATED!</font>"
 
 		for _, pData in ipairs(match.Party) do
+			if ActiveRaids[pData.Player] ~= match then continue end
+
 			local pDrops = {}
 			if isWin then
 				local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
@@ -290,7 +357,9 @@ local function ProcessTurn(match)
 	else
 		match.IsProcessing = false; match.TurnDeadline = os.time() + 15
 		for _, pData in ipairs(match.Party) do
-			if pData.HP > 0 then RaidUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = "", State = GetClientState(match, pData.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) end
+			if pData.HP > 0 and ActiveRaids[pData.Player] == match then 
+				RaidUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = "", State = GetClientState(match, pData.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
+			end
 		end
 	end
 end
@@ -322,9 +391,24 @@ local function StartRaidMatch(hostId)
 		Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
 	}
 
-	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, TurnDeadline = os.time() + 15 }
-	for _, pData in ipairs(party) do ActiveRaids[pData.Player] = match end
-	for _, pData in ipairs(party) do RaidUpdate:FireClient(pData.Player, "MatchStart", { State = GetClientState(match, pData.UserId), LogMsg = "The Raid Boss approaches...", Deadline = match.TurnDeadline }) end
+	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, IsDead = false, TurnDeadline = os.time() + 15 }
+
+	for _, pData in ipairs(party) do 
+		pData.Stamina = pData.MaxStamina or 100
+		pData.StandEnergy = pData.MaxStandEnergy or 100
+		pData.Cooldowns = {}
+
+		if ActiveRaids[pData.Player] then
+			ActiveRaids[pData.Player].IsDead = true 
+		end
+
+		ActiveRaids[pData.Player] = match 
+	end
+
+	for _, pData in ipairs(party) do 
+		RaidUpdate:FireClient(pData.Player, "MatchStart", { State = GetClientState(match, pData.UserId), LogMsg = "The Raid Boss approaches...", Deadline = match.TurnDeadline }) 
+	end
+
 	OpenLobbies[hostId] = nil
 end
 
@@ -332,10 +416,10 @@ task.spawn(function()
 	while task.wait(1) do
 		local checked = {}
 		for _, match in pairs(ActiveRaids) do
-			if match and not checked[match] and not match.IsProcessing and match.TurnDeadline and os.time() >= match.TurnDeadline then
+			if match and not checked[match] and not match.IsProcessing and not match.IsDead and match.TurnDeadline and os.time() >= match.TurnDeadline then
 				checked[match] = true
 				for _, p in ipairs(match.Party) do if p.HP > 0 and not p.SelectedSkill then p.SelectedSkill = "Basic Attack" end end
-				task.defer(function() ProcessTurn(match) end)
+				task.spawn(function() ProcessTurn(match) end)
 			end
 		end
 	end
@@ -346,46 +430,36 @@ RaidAction.OnServerEvent:Connect(function(player, action, data)
 		RaidUpdate:FireClient(player, "LobbiesUpdate", {RaidId = data, Lobbies = GetLobbyData(data)})
 
 	elseif action == "CreateLobby" then
-		if ActiveRaids[player] or OpenLobbies[player.UserId] then return end
+		if ActiveRaids[player] then return end
+		LeaveAllLobbies(player)
 		OpenLobbies[player.UserId] = { Host = player, RaidId = data.RaidId, Queue = {player}, FriendsOnly = data.FriendsOnly }
 		RaidUpdate:FireClient(player, "LobbyStatus", {IsHosting = true, IsLobbyOwner = true, PlayerCount = 1})
 
 		RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = data.RaidId, Lobbies = GetLobbyData(data.RaidId)})
 
 	elseif action == "CancelLobby" then
-		if OpenLobbies[player.UserId] then
-			local rId = OpenLobbies[player.UserId].RaidId
-			for _, qp in ipairs(OpenLobbies[player.UserId].Queue) do RaidUpdate:FireClient(qp, "LobbyStatus", {IsHosting = false}) end
-			OpenLobbies[player.UserId] = nil
-			RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = rId, Lobbies = GetLobbyData(rId)})
-		else
-			for hId, lobby in pairs(OpenLobbies) do
-				for i, qp in ipairs(lobby.Queue) do
-					if qp == player then
-						table.remove(lobby.Queue, i); RaidUpdate:FireClient(player, "LobbyStatus", {IsHosting = false})
-						for _, rem in ipairs(lobby.Queue) do RaidUpdate:FireClient(rem, "LobbyStatus", {IsHosting = true, IsLobbyOwner = (rem.UserId == hId), PlayerCount = #lobby.Queue}) end
-						RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = lobby.RaidId, Lobbies = GetLobbyData(lobby.RaidId)})
-						return
-					end
-				end
-			end
-		end
+		LeaveAllLobbies(player)
 
 	elseif action == "JoinLobby" then
+		if ActiveRaids[player] then return end
+		LeaveAllLobbies(player)
+
 		local lobby = OpenLobbies[data.HostId]
 		if lobby and #lobby.Queue < 4 then
-			for _, qp in ipairs(lobby.Queue) do if qp == player then return end end
 			table.insert(lobby.Queue, player)
 			for _, qp in ipairs(lobby.Queue) do RaidUpdate:FireClient(qp, "LobbyStatus", {IsHosting = true, IsLobbyOwner = (qp.UserId == data.HostId), PlayerCount = #lobby.Queue}) end
 			RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = lobby.RaidId, Lobbies = GetLobbyData(lobby.RaidId)})
 		end
 
 	elseif action == "ForceStartRaid" then
+		if StartLocks[player.UserId] then return end
+		StartLocks[player.UserId] = true
 		if OpenLobbies[player.UserId] then StartRaidMatch(player.UserId) end
+		task.delay(1, function() StartLocks[player.UserId] = nil end)
 
 	elseif action == "Attack" then
 		local m = ActiveRaids[player]
-		if m and not m.IsProcessing then
+		if m and not m.IsProcessing and not m.IsDead then
 			for _, p in ipairs(m.Party) do
 				if p.Player == player then
 					local skill = SkillData.Skills[data]
@@ -405,38 +479,27 @@ RaidAction.OnServerEvent:Connect(function(player, action, data)
 end)
 
 game.Players.PlayerRemoving:Connect(function(player)
-	if OpenLobbies[player.UserId] then 
-		local rId = OpenLobbies[player.UserId].RaidId
-		OpenLobbies[player.UserId] = nil 
-		RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = rId, Lobbies = GetLobbyData(rId)})
-	else
-		for hId, lobby in pairs(OpenLobbies) do
-			for i, qp in ipairs(lobby.Queue) do
-				if qp == player then
-					table.remove(lobby.Queue, i)
-					for _, rem in ipairs(lobby.Queue) do RaidUpdate:FireClient(rem, "LobbyStatus", {IsHosting = true, IsLobbyOwner = (rem.UserId == hId), PlayerCount = #lobby.Queue}) end
-					RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = lobby.RaidId, Lobbies = GetLobbyData(lobby.RaidId)})
-					break
-				end
-			end
-		end
-	end
+	LeaveAllLobbies(player)
 
 	local match = ActiveRaids[player]
 	if match then
 		local combatant
-		for _, p in ipairs(match.Party) do
-			if p.Player == player then combatant = p break end
-		end
-		if combatant then
-			combatant.HP = 0
-			combatant.SelectedSkill = "Flee"
-			if not match.IsProcessing then
-				local allReady = true
-				for _, p in ipairs(match.Party) do if p.HP > 0 and not p.SelectedSkill then allReady = false break end end
-				if allReady then ProcessTurn(match) end
+		for i, p in ipairs(match.Party) do
+			if p.Player == player then 
+				combatant = p 
+				table.remove(match.Party, i)
+				break 
 			end
 		end
+
+		if #match.Party == 0 then
+			match.IsDead = true
+		elseif combatant and not match.IsProcessing then
+			local allReady = true
+			for _, p in ipairs(match.Party) do if p.HP > 0 and not p.SelectedSkill then allReady = false break end end
+			if allReady then ProcessTurn(match) end
+		end
+
 		ActiveRaids[player] = nil
 	end
 end)
