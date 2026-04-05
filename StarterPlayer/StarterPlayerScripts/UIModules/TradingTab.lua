@@ -35,14 +35,14 @@ local rarityColors = {
 	Rare = Color3.fromRGB(50, 100, 255),
 	Legendary = Color3.fromRGB(255, 150, 0),
 	Mythical = Color3.fromRGB(255, 50, 50),
-	Unique = Color3.fromRGB(215, 69, 255)
+	Unique = Color3.fromRGB(215, 69, 255),
+	Special = Color3.fromRGB(239, 255, 62)
 }
 
-local rarityOrder = { Common = 1, Uncommon = 2, Rare = 3, Legendary = 4, Mythical = 5, Unique = 6 }
+local rarityOrder = { Common = 1, Uncommon = 2, Rare = 3, Legendary = 4, Mythical = 5, Unique = 6, Special = 7 }
 
 local function IsRestrictedPass(name)
 	local passes = {
-		["VIP Pass"] = true,
 		["VIP"] = true,
 		["2x Battle Speed Pass"] = true,
 		["2x Inventory Pass"] = true,
@@ -54,7 +54,6 @@ local function IsRestrictedPass(name)
 		["Style Storage Slot 3"] = true,
 		["Auto-Roll Pass"] = true,
 		["Custom Horse Name"] = true,
-		["Custom Horse Name Pass"] = true
 	}
 	return passes[name] == true
 end
