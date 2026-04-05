@@ -170,6 +170,7 @@ local function StartDungeon(player, dungeonId)
 		end
 	end
 
+	player:SetAttribute("InCombat", true)
 	local startMsg = isEndless and "<font color='#FFD700'>Descending into the Endless Dungeon...</font>" or "<font color='#FFD700'>Starting Part " .. dungeonId .. " Gauntlet!</font>"
 	local waveStr = isEndless and "Floor 1" or "Wave 1/" .. #waves
 	DungeonUpdate:FireClient(player, "Start", { Battle = ActiveDungeons[player.UserId], LogMsg = startMsg, WaveStr = waveStr })
@@ -183,10 +184,6 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 	local skillName = actionData
 	local skill = SkillData.Skills[skillName]
-
-	if dungeon.IsEndless and skill and skill.Effect == "Flee" then
-		return
-	end
 
 	if not table.find(dungeon.Player.Skills, skillName) then return end
 
@@ -250,6 +247,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				task.wait(waitMultiplier)
 				DungeonUpdate:FireClient(player, "Fled", {Battle = dungeon})
 				ActiveDungeons[player.UserId] = nil
+				player:SetAttribute("InCombat", false)
 				return
 			end
 			DispatchStrike(dungeon.Player, dungeon.Enemy, skillName)
@@ -278,6 +276,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		end
 		DungeonUpdate:FireClient(player, "Defeat", {Battle = dungeon, Drops = dropPack})
 		ActiveDungeons[player.UserId] = nil
+		player:SetAttribute("InCombat", false)
 
 	elseif dungeon.Enemy.HP < 1 then
 		local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
@@ -383,6 +382,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				local finalPack = { XP = fXP, Yen = fYen, Items = droppedItems }
 				DungeonUpdate:FireClient(player, "Victory", {Battle = dungeon, Drops = finalPack})
 				ActiveDungeons[player.UserId] = nil
+				player:SetAttribute("InCombat", false)
 			end
 		end
 	else
@@ -402,4 +402,5 @@ end)
 
 game.Players.PlayerRemoving:Connect(function(player)
 	ActiveDungeons[player.UserId] = nil
+	player:SetAttribute("InCombat", false)
 end)
