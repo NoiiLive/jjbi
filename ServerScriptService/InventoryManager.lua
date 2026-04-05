@@ -598,7 +598,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				message = "You must be at least Prestige 15 to use the New Rokakaka!"
 				itemConsumed = false
 			end
-
+		
+		-- April Fools
 		elseif itemName == "Scratch-Off Ticket" then
 			if myStand == "None" then
 				message = "You need a Stand to gamble your life away!"
@@ -627,6 +628,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			player:SetAttribute("FightingStyle", "Shrine")
 			message = "The finger's curse flows through you! Gained Shrine Style."	
 
+		-- Easter
 		elseif itemName == "Parasitic Egg" then
 			player:SetAttribute("FightingStyle", "Baoh Armed Phenomenon")
 			message = "A mysterious parasite burrows into your host body! Gained Baoh Style."
@@ -641,6 +643,20 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				end
 			end
 			message = "A mysterious egg hatched! Awakened Stand: Charmy Green!"
+
+		elseif itemName == "Lucky Egg" then
+			local roll = math.random(1, 100)
+			if roll <= 5 then
+				local easterPool = {"Kakyoin's Paintbrush", "Baoh Arm Blade", "Shoshinsha Mark", "Ikuro's Jacket", "Kakyoin's Egg", "Parasitic Egg"}
+				local reward = easterPool[math.random(1, #easterPool)]
+				local attr = reward:gsub("[^%w]", "") .. "Count"
+				player:SetAttribute(attr, (player:GetAttribute(attr) or 0) + 1)
+				message = "You cracked open the Lucky Egg and found a rare " .. reward .. "!"
+			else
+				local amount = math.random(50, 250)
+				player:SetAttribute("EasterEggCount", (player:GetAttribute("EasterEggCount") or 0) + amount)
+				message = "You cracked open the Lucky Egg and got " .. amount .. " Easter Eggs!"
+			end
 		end
 
 		if itemConsumed then
