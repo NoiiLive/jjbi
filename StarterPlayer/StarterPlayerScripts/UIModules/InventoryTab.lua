@@ -624,6 +624,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local pStatsTopControls = pStatsCard:WaitForChild("StatsTopControls")
 	local pAmtBox = pStatsTopControls:WaitForChild("AmtBox")
 	local pAllBtn = pStatsTopControls:WaitForChild("AllBtn")
+	local pAutoBtn = pStatsTopControls:WaitForChild("AutoBtn")
 	pStatsContainer = pStatsCard:WaitForChild("StatsContainer")
 
 	local styleStorageCard = playerMidRow:WaitForChild("StyleStorageCard")
@@ -645,6 +646,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local sStatsTopControls = sStatsCard:WaitForChild("StatsTopControls")
 	local sAmtBox = sStatsTopControls:WaitForChild("AmtBox")
 	local sAllBtn = sStatsTopControls:WaitForChild("AllBtn")
+	local sAutoBtn = sStatsTopControls:WaitForChild("AutoBtn")
 	sStatsContainer = sStatsCard:WaitForChild("StatsContainer")
 
 	local standStorageCard = standMidRow:WaitForChild("StandStorageCard")
@@ -669,20 +671,53 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 			if box == pAmtBox then sAmtBox.Text = box.Text else pAmtBox.Text = box.Text end
 			RefreshStatTexts()
+
+			local r = Network:FindFirstChild("ToggleAutoStat")
+			if r then r:FireServer("UpdateAmount", currentUpgradeAmount) end
 		end)
 	end
 	bindAmountBox(pAmtBox)
 	bindAmountBox(sAmtBox)
 
-	local function bindAllBtn(btn)
+	local function bindAllBtn(btn, statType)
 		btn.MouseButton1Click:Connect(function()
 			SFXManager.Play("Click")
 			local UpgradeAllEvent = Network:FindFirstChild("UpgradeAllStats")
-			if UpgradeAllEvent then UpgradeAllEvent:FireServer(currentUpgradeAmount) end
+			if UpgradeAllEvent then UpgradeAllEvent:FireServer(currentUpgradeAmount, statType) end
 		end)
 	end
-	bindAllBtn(pAllBtn)
-	bindAllBtn(sAllBtn)
+	bindAllBtn(pAllBtn, "Player")
+	bindAllBtn(sAllBtn, "Stand")
+
+	pAutoBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		local r = Network:FindFirstChild("ToggleAutoStat")
+		if r then r:FireServer("Player", currentUpgradeAmount) end
+	end)
+
+	sAutoBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		local r = Network:FindFirstChild("ToggleAutoStat")
+		if r then r:FireServer("Stand", currentUpgradeAmount) end
+	end)
+
+	local function updateAutoBtns()
+		if player:GetAttribute("AutoStatPlayer") then
+			pAutoBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+		else
+			pAutoBtn.BackgroundColor3 = Color3.fromRGB(40, 30, 50)
+		end
+
+		if player:GetAttribute("AutoStatStand") then
+			sAutoBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+		else
+			sAutoBtn.BackgroundColor3 = Color3.fromRGB(40, 30, 50)
+		end
+	end
+
+	player:GetAttributeChangedSignal("AutoStatPlayer"):Connect(updateAutoBtns)
+	player:GetAttributeChangedSignal("AutoStatStand"):Connect(updateAutoBtns)
+	updateAutoBtns()
 
 	for _, stat in ipairs(playerStatsList) do statLabels[stat] = InstantiateStatRow(stat, pStatsContainer, false) end
 	for _, stat in ipairs(standStatsList) do statLabels[stat] = InstantiateStatRow(stat, sStatsContainer, true) end
