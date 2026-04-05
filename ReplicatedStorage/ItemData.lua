@@ -93,7 +93,6 @@ ItemData.Consumables = {
 	["Golden Spin Scroll"] = { Category = "Player", Description = "The secret of infinite rotation. Evolves the Spin style into Golden Spin.", Rarity = "Mythical", Cost = 450000 },
 	["Rokakaka Fruit"] = { Category = "Player", Description = "A mysterious fruit from the Higashikata orchard. Consuming it transforms your biology into that of a Rock Human.", Rarity = "Mythical", Cost = 450000 },
 
-
 	-- Evolution Items
 	["Dio's Diary"] = { Category = "Stand", Description = "Read the path to heaven. Grants massive XP or Evolves certain Stands.", Rarity = "Legendary", Cost = 80000 },
 	["Green Baby"] = { Category = "Stand", Description = "Fuse with the Green Baby. Evolves Whitesnake or gives massive stats.", Rarity = "Legendary", Cost = 120000 },
@@ -152,8 +151,9 @@ ItemData.Consumables = {
 
 	-- Easter
 	["Easter Egg"] = { Category = "Player", Description = "A decorative egg dropped from battles. Currency for the Easter Shop.", Rarity = "Unique", Cost = 0 },
+	["Lucky Egg"] = { Category = "Player", Description = "A shiny egg, opening it provides a random amount of Easter Eggs, or even a Limited item!", Rarity = "Unique", Cost = 0 },
 	["Kakyoin's Egg"] = { Category = "Stand", Description = "A mysterious egg, presumably laid by Kakyoin. Awakens the stand, Charmy Green.", Rarity = "Unique", Cost = 500000 },
-	["Parasitic Egg"] = { Category = "Player", Description = "A mysterious egg containing a bio-engineered parasite. Grants the Baoh fighting style.", Rarity = "Unique", Cost = 500000 },
+	["Parasitic Egg"] = { Category = "Player", Description = "A mysterious egg containing a bio-engineered parasite. Grants the Baoh fighting style.", Rarity = "Unique", Cost = 500000 },	
 }
 
 return ItemData
