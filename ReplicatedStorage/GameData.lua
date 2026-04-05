@@ -122,13 +122,13 @@ function GameData.GetInventoryCount(player)
 	local ignoredKeys = {}
 
 	for itemName, data in pairs(ItemData.Consumables) do
-		if data.Category == "Stand" or data.Rarity == "Unique" then
+		if data.Category == "Stand" or data.Rarity == "Unique" or data.Rarity == "Special" then
 			ignoredKeys[itemName:gsub("[^%w]", "") .. "Count"] = true
 		end
 	end
 
 	for itemName, data in pairs(ItemData.Equipment) do
-		if data.Rarity == "Unique" then
+		if data.Rarity == "Unique" or data.Rarity == "Special" then
 			ignoredKeys[itemName:gsub("[^%w]", "") .. "Count"] = true
 		end
 	end
