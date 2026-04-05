@@ -339,8 +339,12 @@ function StoryTab.UpdateCombat(status, data)
 		combatUI.AbilitiesArea.Visible = true
 		StoryTab.RenderSkills(data.Battle)
 
-		AddLog("<font color='#55FF55'>WAVE CLEARED! +" .. (data.XP or 0) .. " XP, +¥" .. (data.Yen or 0) .. ".</font>", true)
-		if data.Items and #data.Items > 0 then AddLog("<font color='#FFFF55'>Dropped: " .. table.concat(data.Items, ", ") .. "</font>", true) end
+		local xpDrop = data.Drops and data.Drops.XP or data.XP or 0
+		local yenDrop = data.Drops and data.Drops.Yen or data.Yen or 0
+		local itemsDrop = data.Drops and data.Drops.Items or data.Items
+
+		AddLog("<font color='#55FF55'>WAVE CLEARED! +" .. xpDrop .. " XP, +¥" .. yenDrop .. ".</font>", true)
+		if itemsDrop and #itemsDrop > 0 then AddLog("<font color='#FFFF55'>Dropped: " .. table.concat(itemsDrop, ", ") .. "</font>", true) end
 		AddLog("\n" .. (data.LogMsg or ""), true)
 
 	elseif status == "Update" then
@@ -362,8 +366,12 @@ function StoryTab.UpdateCombat(status, data)
 		AddLog("<font color='" .. color .. "'>" .. status:upper() .. "!</font>", true)
 
 		if status == "Victory" then
-			AddLog("<font color='#55FF55'>+" .. (data.XP or 0) .. " XP, +¥" .. (data.Yen or 0) .. ".</font>", true)
-			if data.Items and #data.Items > 0 then AddLog("<font color='#FFFF55'>Dropped: " .. table.concat(data.Items, ", ") .. "</font>", true) end
+			local xpDrop = data.Drops and data.Drops.XP or data.XP or 0
+			local yenDrop = data.Drops and data.Drops.Yen or data.Yen or 0
+			local itemsDrop = data.Drops and data.Drops.Items or data.Items
+
+			AddLog("<font color='#55FF55'>+" .. xpDrop .. " XP, +¥" .. yenDrop .. ".</font>", true)
+			if itemsDrop and #itemsDrop > 0 then AddLog("<font color='#FFFF55'>Dropped: " .. table.concat(itemsDrop, ", ") .. "</font>", true) end
 			if data.Battle and data.Battle.Context and data.Battle.Context.IsStoryMission then AddLog("<font color='#FFD700'>MISSION COMPLETE!</font>", true) end
 		elseif status == "Fled" then
 			AddLog("<font color='#AAAAAA'>You safely escaped.</font>", true)
@@ -371,7 +379,7 @@ function StoryTab.UpdateCombat(status, data)
 		task.delay(1.5, function() buttonContainer.Visible = true end)
 	end
 
-	if data and data.Battle then
+	if data and data.Battle and status ~= "Victory" and status ~= "Defeat" and status ~= "Fled" then
 		resourceLabel.Text = "STAMINA: " .. math.floor(data.Battle.Player.Stamina) .. " | ENERGY: " .. math.floor(data.Battle.Player.StandEnergy)
 
 		SyncFighter("Player", true, "Player", data.Battle.Player.Name, player.UserId, data.Battle.Player.HP, data.Battle.Player.MaxHP, data.Battle.Player.Statuses, {Stun=data.Battle.Player.StunImmunity, Confusion=data.Battle.Player.ConfusionImmunity})
