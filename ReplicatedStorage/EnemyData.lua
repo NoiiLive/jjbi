@@ -147,7 +147,7 @@ EnemyData.WorldBosses = {
 		}
 	},
 	["Chiikawa"] = {
-		Name = "Chiikawa", IsBoss = true, Icon = "", 
+		Name = "Chiikawa", IsBoss = true, Icon = "rbxassetid://110637525741731", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
 		Skills = {"Waaah!", "Pajama Party", "Weed Whacker", "Usagi's Help", "Block"},
 		Drops = {
@@ -837,11 +837,11 @@ EnemyData.Parts = {
 }
 
 local globalDrops = {
-	["Easter Egg"] = 5
+	["Easter Egg"] = { Chance = 5, Min = 1, Max = 3 }
 }
 
 local globalBossDrops = {
-	["Easter Egg"] = 40
+	["Easter Egg"] = { Chance = 40, Min = 1, Max = 5 }
 }
 
 local function injectDrops(enemyTable)
@@ -849,8 +849,8 @@ local function injectDrops(enemyTable)
 		if enemy.Drops then
 			enemy.Drops.ItemChance = enemy.Drops.ItemChance or {}
 			local dropsToUse = enemy.IsBoss and globalBossDrops or globalDrops
-			for itemName, dropChance in pairs(dropsToUse) do
-				enemy.Drops.ItemChance[itemName] = dropChance
+			for itemName, dropData in pairs(dropsToUse) do
+				enemy.Drops.ItemChance[itemName] = dropData
 			end
 		end
 	end
