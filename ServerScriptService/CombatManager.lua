@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- noiilive/jjbi/jjbi-main/ServerScriptService/CombatManager.lua
 -- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -293,28 +294,30 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		end
 
 		if battle.Drops.ItemChance then
-			for itemName, chance in pairs(battle.Drops.ItemChance) do
-				local boostedChance = (chance + battle.Boosts.Luck) * dropMultiplier
-				if math.random(1, 100) <= boostedChance then
+			for itemName, chanceData in pairs(battle.Drops.ItemChance) do
+				local baseChance = type(chanceData) == "table" and chanceData.Chance or chanceData
+				local boostedChance = (baseChance + battle.Boosts.Luck) * dropMultiplier
 
+				if math.random(1, 100) <= boostedChance then
+					local amount = type(chanceData) == "table" and math.random(chanceData.Min, chanceData.Max) or 1
 					local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 					local itemRarity = itemData and itemData.Rarity or "Common"
-					local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand"))
+					local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand") or itemData.Rarity == "Special")
 
 					if player:GetAttribute("AutoSell_" .. itemRarity) and not isIgnored then
 						local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
-						player.leaderstats.Yen.Value += sellVal
-						table.insert(droppedItems, itemName .. " <font color='#AAAAAA'>(Auto-Sold: ¥" .. sellVal .. ")</font>")
+						player.leaderstats.Yen.Value += (sellVal * amount)
+						table.insert(droppedItems, amount .. "x " .. itemName .. " <font color='#AAAAAA'>(Auto-Sold: ¥" .. (sellVal * amount) .. ")</font>")
 					else
 						if isIgnored then
 							local attrName = itemName:gsub("[^%w]", "") .. "Count"
-							player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
-							table.insert(droppedItems, itemName)
+							player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + amount)
+							table.insert(droppedItems, amount .. "x " .. itemName)
 						elseif currentInv < maxInv then
 							local attrName = itemName:gsub("[^%w]", "") .. "Count"
-							player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
-							table.insert(droppedItems, itemName)
-							currentInv += 1 
+							player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + amount)
+							table.insert(droppedItems, amount .. "x " .. itemName)
+							currentInv += amount 
 						else
 							Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Inventory Full! " .. itemName .. " was lost.</font>")
 						end
