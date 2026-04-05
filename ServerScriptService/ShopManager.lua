@@ -20,7 +20,7 @@ if not AdminLogger then
 end
 
 local GlobalEggStore = DataStoreService:GetDataStore("GlobalEasterEvent2026")
-local GLOBAL_EGG_GOAL = 5000
+local GLOBAL_EGG_GOAL = 10000
 local pendingDonations = 0
 local currentGlobalEggs = 0
 local lastProcessedMilestone = -1
@@ -77,16 +77,16 @@ game:BindToClose(function()
 end)
 
 local EasterStockList = {
-	{ Name = "Stand Arrow", Price = 25, Rarity = "Uncommon" },
+	{ Name = "Stand Arrow", Price = 25, Rarity = "Legendary" },
 	{ Name = "Dio's Diary", Price = 100, Rarity = "Legendary" },
 	{ Name = "Green Baby", Price = 100, Rarity = "Legendary" },
 	{ Name = "Strange Arrow", Price = 100, Rarity = "Legendary" },
-	{ Name = "Rokakaka", Price = 50, Rarity = "Mythical" },
-	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Mythical" },
-	{ Name = "Requiem Arrow", Price = 1000, Rarity = "Mythical" },
-	{ Name = "New Rokakaka", Price = 1000, Rarity = "Mythical" },
-	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Unique" },
-	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Unique" },	
+	{ Name = "Rokakaka", Price = 50, Rarity = "Legendary" },
+	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Legendary" },
+	{ Name = "Requiem Arrow", Price = 2500, Rarity = "Mythical" },
+	{ Name = "New Rokakaka", Price = 2500, Rarity = "Mythical" },
+	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Special" },
+	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Special" },	
 	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
 	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
 	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
@@ -102,7 +102,7 @@ local function RollItem(forcedRarity)
 		targetRarity = forcedRarity
 	else
 		local rng = math.random(1, 100)
-		if rng <= 5 then targetRarity = "Legendary"
+		if rng <= 10 then targetRarity = "Legendary"
 		elseif rng <= 20 then targetRarity = "Rare"
 		elseif rng <= 50 then targetRarity = "Uncommon"
 		end
@@ -124,14 +124,14 @@ local function RollEasterItem()
 	local targetRarity = "Uncommon"
 	local rng = math.random(1, 100)
 
-	if rng <= 10 then 
+	if rng <= 5 then 
+		targetRarity = "Special"
+	elseif rng <= 10 then 
 		targetRarity = "Unique"
-	elseif rng <= 35 then 
+	elseif rng <= 50 then 
 		targetRarity = "Mythical"
-	elseif rng <= 70 then 
-		targetRarity = "Legendary"
 	else 
-		targetRarity = "Uncommon" 
+		targetRarity = "Legendary" 
 	end
 
 	local validItems = {}
