@@ -841,7 +841,7 @@ local globalDrops = {
 }
 
 local globalBossDrops = {
-	["Easter Egg"] = 50
+	["Easter Egg"] = 40
 }
 
 local function injectDrops(enemyTable)
