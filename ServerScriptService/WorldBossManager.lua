@@ -371,6 +371,16 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		local droppedItems = {}
 
+		if battle.Enemy.Name == "Easter Bunny" then
+			local eggsEarned = math.floor(damageDealt / 10000)
+			if eggsEarned > 0 then
+				pcall(function()
+					player:SetAttribute("EasterEggCount", (player:GetAttribute("EasterEggCount") or 0) + eggsEarned)
+				end)
+				table.insert(droppedItems, "<font color='#FF55FF'>" .. eggsEarned .. "x Easter Egg</font>")
+			end
+		end
+
 		pcall(function()
 			if not isDeath and battle.Drops and battle.Drops.ItemChance then
 				for itemName, baseChance in pairs(battle.Drops.ItemChance) do
