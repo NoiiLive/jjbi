@@ -148,8 +148,23 @@ local function StartDungeon(player, dungeonId)
 			if waveTemplate.Drops then
 				ActiveDungeons[player.UserId].MasterDrops.Yen += math.floor((waveTemplate.Drops.Yen or 0) * scaleMult)
 				ActiveDungeons[player.UserId].MasterDrops.XP += math.floor((waveTemplate.Drops.XP or 0) * scaleMult)
+
 				if waveTemplate.Drops.ItemChance then
-					for item, ch in pairs(waveTemplate.Drops.ItemChance) do ActiveDungeons[player.UserId].MasterDrops.ItemChance[item] = math.min(100, (ActiveDungeons[player.UserId].MasterDrops.ItemChance[item] or 0) + ch) end
+					for item, ch in pairs(waveTemplate.Drops.ItemChance) do 
+						local current = ActiveDungeons[player.UserId].MasterDrops.ItemChance[item]
+						local addChance = type(ch) == "table" and ch.Chance or ch
+						local currentChance = type(current) == "table" and current.Chance or (current or 0)
+
+						local newChance = math.min(100, currentChance + addChance)
+
+						if type(ch) == "table" then
+							ActiveDungeons[player.UserId].MasterDrops.ItemChance[item] = { Chance = newChance, Min = ch.Min, Max = ch.Max }
+						elseif type(current) == "table" then
+							current.Chance = newChance
+						else
+							ActiveDungeons[player.UserId].MasterDrops.ItemChance[item] = newChance
+						end
+					end
 				end
 			end
 		end
@@ -275,6 +290,19 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			player.leaderstats.Yen.Value += fYen
 
 			local droppedItems = {}
+			local dropMultiplier = player:GetAttribute("Has2xDropChance") and 2 or 1
+
+			for itemName, chanceData in pairs(dungeon.Enemy.RawDrops.ItemChance) do
+				local baseChance = type(chanceData) == "table" and chanceData.Chance or chanceData
+				local boostedChance = (baseChance + dungeon.Boosts.Luck) * dropMultiplier
+				if math.random(1, 100) <= boostedChance then
+					local amount = type(chanceData) == "table" and math.random(chanceData.Min, chanceData.Max) or 1
+					local attrName = itemName:gsub("[^%w]", "") .. "Count"
+					player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + amount)
+					table.insert(droppedItems, "<font color='#FFFF55'>" .. amount .. "x " .. itemName .. "</font>")
+				end
+			end
+
 			if dungeon.CurrentWave % 10 == 0 then
 				player:SetAttribute("RokakakaCount", (player:GetAttribute("RokakakaCount") or 0) + 1)
 				table.insert(droppedItems, "<font color='#FF55FF'>[MILESTONE REWARD] Rokakaka</font>")
@@ -314,26 +342,29 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				local maxInv = GameData.GetMaxInventory(player)
 				local droppedItems = {}
 
-				for itemName, chance in pairs(dungeon.MasterDrops.ItemChance) do
-					local boostedChance = (chance + dungeon.Boosts.Luck) * dropMultiplier
+				for itemName, chanceData in pairs(dungeon.MasterDrops.ItemChance) do
+					local baseChance = type(chanceData) == "table" and chanceData.Chance or chanceData
+					local boostedChance = (baseChance + dungeon.Boosts.Luck) * dropMultiplier
+
 					if math.random(1, 100) <= boostedChance then
+						local amount = type(chanceData) == "table" and math.random(chanceData.Min, chanceData.Max) or 1
 						local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 						local itemRarity = itemData and itemData.Rarity or "Common"
-						local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand"))
+						local isIgnored = itemData and (itemData.Rarity == "Unique" or (ItemData.Consumables[itemName] and itemData.Category == "Stand") or itemData.Rarity == "Special")
 
 						if player:GetAttribute("AutoSell_" .. itemRarity) and not isIgnored then
 							local sellVal = itemData and (itemData.SellPrice or math.floor((itemData.Cost or 50) / 2)) or 25
-							player.leaderstats.Yen.Value += sellVal
-							table.insert(droppedItems, itemName .. " <font color='#AAAAAA'>(Auto-Sold: ¥" .. sellVal .. ")</font>")
+							player.leaderstats.Yen.Value += (sellVal * amount)
+							table.insert(droppedItems, amount .. "x " .. itemName .. " <font color='#AAAAAA'>(Auto-Sold: ¥" .. (sellVal * amount) .. ")</font>")
 						else
 							if isIgnored then
 								local attrName = itemName:gsub("[^%w]", "") .. "Count"
-								player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
-								table.insert(droppedItems, itemName)
+								player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + amount)
+								table.insert(droppedItems, amount .. "x " .. itemName)
 							elseif currentInv < maxInv then
 								local attrName = itemName:gsub("[^%w]", "") .. "Count"
-								player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
-								table.insert(droppedItems, itemName)
+								player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + amount)
+								table.insert(droppedItems, amount .. "x " .. itemName)
 								currentInv += 1
 							else
 								Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Inventory Full! " .. itemName .. " was lost.</font>")
