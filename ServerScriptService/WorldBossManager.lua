@@ -372,7 +372,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		local droppedItems = {}
 
 		if battle.Enemy.Name == "Easter Bunny" then
-			local eggsEarned = math.floor(damageDealt / 10000)
+			local eggsEarned = math.min(100, math.floor(damageDealt / 10000))
 			if eggsEarned > 0 then
 				pcall(function()
 					player:SetAttribute("EasterEggCount", (player:GetAttribute("EasterEggCount") or 0) + eggsEarned)
