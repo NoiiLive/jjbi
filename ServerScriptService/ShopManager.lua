@@ -184,19 +184,37 @@ local function GenerateEasterShopStock(player)
 	player:SetAttribute("EasterShopRefreshTime", os.time() + 1800)
 end
 
+local PlayerJoinTimes = {}
+
 task.spawn(function()
 	while task.wait(1) do
 		for _, player in ipairs(game.Players:GetPlayers()) do
-			local refreshTime = player:GetAttribute("ShopRefreshTime")
-			if refreshTime and os.time() >= refreshTime then GenerateShopStock(player) end
+			local joinTime = PlayerJoinTimes[player]
+			if not joinTime then
+				PlayerJoinTimes[player] = os.time()
+				joinTime = os.time()
+			end
 
-			local easterRefreshTime = player:GetAttribute("EasterShopRefreshTime")
-			if not easterRefreshTime or os.time() >= easterRefreshTime then GenerateEasterShopStock(player) end
+			if (os.time() - joinTime) > 10 then
+				local refreshTime = player:GetAttribute("ShopRefreshTime")
+				if not refreshTime or os.time() >= refreshTime then 
+					GenerateShopStock(player) 
+				end
+
+				local easterRefreshTime = player:GetAttribute("EasterShopRefreshTime")
+				local easterStock = player:GetAttribute("EasterShopStock")
+
+				if not easterRefreshTime or os.time() >= easterRefreshTime or not easterStock or easterStock == "" then 
+					GenerateEasterShopStock(player) 
+				end
+			end
 		end
 	end
 end)
 
 game.Players.PlayerAdded:Connect(function(player)
+	PlayerJoinTimes[player] = os.time()
+
 	player:GetAttributeChangedSignal("ShopRefreshTime"):Connect(function()
 		local rt = player:GetAttribute("ShopRefreshTime")
 		if rt and rt < os.time() then GenerateShopStock(player) end
@@ -206,6 +224,10 @@ game.Players.PlayerAdded:Connect(function(player)
 		local rt = player:GetAttribute("EasterShopRefreshTime")
 		if rt and rt < os.time() then GenerateEasterShopStock(player) end
 	end)
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+	PlayerJoinTimes[player] = nil
 end)
 
 ShopAction.OnServerEvent:Connect(function(player, action, data)
