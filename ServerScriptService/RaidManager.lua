@@ -1,6 +1,4 @@
 -- @ScriptType: Script
--- noiilive/jjbi/jjbi-main/ServerScriptService/RaidManager.lua
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -357,6 +355,7 @@ local function ProcessTurn(match)
 			end
 			RaidUpdate:FireClient(pData.Player, "MatchOver", {Result = isWin and "Win" or "Loss", LogMsg = endMsg .. "\n" .. table.concat(pDrops, "\n")})
 			ActiveRaids[pData.Player] = nil
+			pData.Player:SetAttribute("InCombat", false)
 		end
 	else
 		match.IsProcessing = false; match.TurnDeadline = os.time() + 15
@@ -407,6 +406,7 @@ local function StartRaidMatch(hostId)
 		end
 
 		ActiveRaids[pData.Player] = match 
+		pData.Player:SetAttribute("InCombat", true)
 	end
 
 	for _, pData in ipairs(party) do 
@@ -506,4 +506,5 @@ game.Players.PlayerRemoving:Connect(function(player)
 
 		ActiveRaids[player] = nil
 	end
+	player:SetAttribute("InCombat", false)
 end)
