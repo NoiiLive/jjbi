@@ -51,13 +51,15 @@ local BossCooldownsMap = MemoryStoreService:GetHashMap("WorldBossCooldowns")
 local LocalServerCooldowns = {}
 
 local function IsBossActive()
-	if os.time() < AdminForcedEndTime then return true end
-	local utc = os.date("!*t")
+	local now = math.floor(workspace:GetServerTimeNow())
+	if now < AdminForcedEndTime then return true end
+	local utc = os.date("!*t", now)
 	return utc.min < BOSS_ACTIVE_MINUTES
 end
 
 local function GetAvailableBosses()
-	local utc = os.date("!*t")
+	local now = math.floor(workspace:GetServerTimeNow())
+	local utc = os.date("!*t", now)
 	local isAprilFools = (utc.month == 4 and utc.day == 1)
 	local list = {}
 
@@ -79,7 +81,8 @@ pcall(function()
 		local bossList = GetAvailableBosses()
 
 		if #bossList > 0 then
-			local sessionID = "Admin_" .. os.time()
+			local now = math.floor(workspace:GetServerTimeNow())
+			local sessionID = "Admin_" .. now
 			ReplicatedStorage:SetAttribute("CurrentBossSession", sessionID)
 
 			if specificBossName and EnemyData.WorldBosses[specificBossName] then
@@ -88,7 +91,7 @@ pcall(function()
 				CurrentActiveBoss = bossList[math.random(1, #bossList)]
 			end
 
-			AdminForcedEndTime = os.time() + (BOSS_ACTIVE_MINUTES * 60)
+			AdminForcedEndTime = now + (BOSS_ACTIVE_MINUTES * 60)
 			ReplicatedStorage:SetAttribute("WorldBossEndTime", AdminForcedEndTime)
 
 			local spawnMsg = "<font color='#FF55FF'><b>[ADMIN EVENT] " .. CurrentActiveBoss .. " has been summoned! Cooldowns have been reset!</b></font>"
@@ -124,9 +127,10 @@ RerollWorldBoss.Event:Connect(function(player)
 	if #bossList > 0 then
 		local instancedBoss = bossList[math.random(1, #bossList)]
 
-		local utc = os.date("!*t")
+		local now = math.floor(workspace:GetServerTimeNow())
+		local utc = os.date("!*t", now)
 		local secondsToNextHour = 3600 - ((utc.min * 60) + utc.sec)
-		local endTime = os.time() + secondsToNextHour
+		local endTime = now + secondsToNextHour
 
 		player:SetAttribute("InstancedWorldBoss", instancedBoss)
 		player:SetAttribute("InstancedWorldBossEndTime", endTime)
@@ -143,10 +147,11 @@ end)
 
 task.spawn(function()
 	while task.wait(1) do
-		local utc = os.date("!*t")
+		local now = math.floor(workspace:GetServerTimeNow())
+		local utc = os.date("!*t", now)
 
 		if IsBossActive() then
-			if os.time() > AdminForcedEndTime and LastSpawnHour ~= utc.hour then
+			if now > AdminForcedEndTime and LastSpawnHour ~= utc.hour then
 				LastSpawnHour = utc.hour
 
 				local sessionID = "Hourly_" .. utc.year .. "_" .. utc.yday .. "_" .. utc.hour
@@ -160,7 +165,7 @@ task.spawn(function()
 
 					CurrentActiveBoss = bossList[globalRNG:NextInteger(1, #bossList)]
 
-					local normalEndTime = os.time() + ((BOSS_ACTIVE_MINUTES - utc.min) * 60) - utc.sec
+					local normalEndTime = now + ((BOSS_ACTIVE_MINUTES - utc.min) * 60) - utc.sec
 					ReplicatedStorage:SetAttribute("WorldBossEndTime", normalEndTime)
 
 					local spawnMsg = "<font color='#FF5555'><b>[WORLD BOSS] " .. CurrentActiveBoss .. " has spawned! You have " .. BOSS_ACTIVE_MINUTES .. " minutes to engage!</b></font>"
@@ -202,11 +207,10 @@ local function StartBossBattle(player)
 	if player:GetAttribute("InCombat") or player:GetAttribute("IsEngagingBoss") then return end
 	player:SetAttribute("IsEngagingBoss", true)
 
-	local utc = os.date("!*t")
-
+	local now = math.floor(workspace:GetServerTimeNow())
 	local instancedBossName = player:GetAttribute("InstancedWorldBoss")
 	local instancedEndTime = player:GetAttribute("InstancedWorldBossEndTime") or 0
-	local hasInstanced = instancedBossName and (instancedEndTime > os.time())
+	local hasInstanced = instancedBossName and (instancedEndTime > now)
 
 	local activeBossName
 
