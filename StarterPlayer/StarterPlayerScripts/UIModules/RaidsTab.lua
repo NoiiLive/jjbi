@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local RaidsTab = {}
 
 local player = game.Players.LocalPlayer
