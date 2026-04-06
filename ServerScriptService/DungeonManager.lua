@@ -22,6 +22,20 @@ for p = 1, 6 do
 	end
 end
 
+local AllStandNames = {}
+for standName, _ in pairs(StandData.Stands) do
+	if standName ~= "Fused Stand" then
+		table.insert(AllStandNames, standName)
+	end
+end
+
+local AllTraitNames = {}
+for traitName, _ in pairs(StandData.Traits) do
+	if traitName ~= "None" then
+		table.insert(AllTraitNames, traitName)
+	end
+end
+
 local function GenerateDungeonEnemy(template, dungeonId)
 	local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
 	local scaleMult = 1 + (fixedPrestige * 0.10)
@@ -98,16 +112,20 @@ local function GenerateRandomEndlessEnemy(floor)
 	local eTrait = "None"
 	local eTrait2 = "None"
 
+	local traitChance = math.clamp((floor / 250) * 100, 0, 100)
+
 	if hasStand then
 		if isFused then
-			eStand1 = StandData.RollStand(floor/5, 0)
-			eStand2 = StandData.RollStand(floor/5, 0)
-			while eStand1 == eStand2 do eStand2 = StandData.RollStand(floor/5, 0) end
-			eTrait = StandData.RollTrait(floor/5, 0)
-			eTrait2 = StandData.RollTrait(floor/5, 0)
+			eStand1 = AllStandNames[math.random(1, #AllStandNames)]
+			eStand2 = AllStandNames[math.random(1, #AllStandNames)]
+			while eStand1 == eStand2 do eStand2 = AllStandNames[math.random(1, #AllStandNames)] end
+
+			if math.random(1, 100) <= traitChance then eTrait = AllTraitNames[math.random(1, #AllTraitNames)] end
+			if math.random(1, 100) <= traitChance then eTrait2 = AllTraitNames[math.random(1, #AllTraitNames)] end
 		else
-			eStand = StandData.RollStand(floor/10, 0)
-			eTrait = StandData.RollTrait(floor/10, 0)
+			eStand = AllStandNames[math.random(1, #AllStandNames)]
+
+			if math.random(1, 100) <= traitChance then eTrait = AllTraitNames[math.random(1, #AllTraitNames)] end
 		end
 	end
 
