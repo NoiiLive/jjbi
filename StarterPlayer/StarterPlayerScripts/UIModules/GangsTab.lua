@@ -57,7 +57,7 @@ end
 
 local function FormatTimeAgo(timestamp)
 	if not timestamp then return "<font color='#AAAAAA'>Offline: Unknown</font>" end
-	local diff = os.time() - timestamp
+	local diff = math.floor(workspace:GetServerTimeNow()) - timestamp
 	if diff < 300 then return "<font color='#55FF55'>Online</font>" end 
 	if diff < 3600 then return "<font color='#AAAAAA'>Offline: " .. math.floor(diff / 60) .. "m</font>"
 	elseif diff < 86400 then return "<font color='#AAAAAA'>Offline: " .. math.floor(diff / 3600) .. "h</font>"
@@ -357,7 +357,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	task.spawn(function()
 		while task.wait(1) do
 			if ordPage and ordPage.Visible and lastOrderResetTime > 0 then
-				local timeLeft = math.max(0, (lastOrderResetTime + 86400) - os.time())
+				local timeLeft = math.max(0, (lastOrderResetTime + 86400) - math.floor(workspace:GetServerTimeNow()))
 				if timeLeft <= 0 then
 					if ordersTimerLbl then ordersTimerLbl.Text = "Generating new orders..." end
 				else
@@ -369,7 +369,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 			end
 
 			if upgPage and upgPage.Visible and activeUpgradeFinishTime > 0 and activeUpgradeBtnRef then
-				local timeLeft = math.max(0, activeUpgradeFinishTime - os.time())
+				local timeLeft = math.max(0, activeUpgradeFinishTime - math.floor(workspace:GetServerTimeNow()))
 				if timeLeft <= 0 then
 					activeUpgradeBtnRef.Text = "Finishing..."
 				else
