@@ -651,7 +651,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 
 				GangStore:UpdateAsync(gangKey, function(newData)
 					if newData then
-						newData.Members[uidStr] = { Name = target.Name, Role = "Grunt", Prestige = prestigeVal, LastOnline = os.time() }
+						newData.Members[uidStr] = { Name = target.Name, Role = "Grunt", Prestige = prestigeVal, LastOnline = math.floor(workspace:GetServerTimeNow()) }
 						newData.MemberCount = GetDictSize(newData.Members)
 					end
 					return newData
