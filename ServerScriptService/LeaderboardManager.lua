@@ -94,7 +94,7 @@ end)
 Players.PlayerRemoving:Connect(UpdatePlayerOnLeaderboards)
 
 local function GetPlayerProfile(userId)
-	if PlayerProfileCache[userId] and os.time() - PlayerProfileCache[userId].LastUpdate < 1800 then
+	if PlayerProfileCache[userId] and math.floor(workspace:GetServerTimeNow()) - PlayerProfileCache[userId].LastUpdate < 1800 then
 		return PlayerProfileCache[userId]
 	end
 
@@ -125,14 +125,14 @@ local function GetPlayerProfile(userId)
 		end
 	end
 
-	data.LastUpdate = os.time()
+	data.LastUpdate = math.floor(workspace:GetServerTimeNow())
 	PlayerProfileCache[userId] = data
 	return data
 end
 
 local function GetGangProfile(gangName)
 	local key = string.lower(gangName)
-	if GangProfileCache[key] and os.time() - GangProfileCache[key].LastUpdate < 1800 then
+	if GangProfileCache[key] and math.floor(workspace:GetServerTimeNow()) - GangProfileCache[key].LastUpdate < 1800 then
 		return GangProfileCache[key]
 	end
 
@@ -149,7 +149,7 @@ local function GetGangProfile(gangName)
 		data = { Emblem="", Motto="No motto set.", Rep=0, Treasury=0, Prestige=0, Elo=0, RaidWins=0 }
 	end
 
-	data.LastUpdate = os.time()
+	data.LastUpdate = math.floor(workspace:GetServerTimeNow())
 	GangProfileCache[key] = data
 	return data
 end
@@ -186,7 +186,7 @@ local function RefreshCache()
 
 				local cacheTable = isGang and GangProfileCache or PlayerProfileCache
 				local cacheKey = isGang and string.lower(entry.key) or entry.key
-				if not cacheTable[cacheKey] or os.time() - cacheTable[cacheKey].LastUpdate > 1800 then
+				if not cacheTable[cacheKey] or math.floor(workspace:GetServerTimeNow()) - cacheTable[cacheKey].LastUpdate > 1800 then
 					EnqueueProfile(entry.key, isGang)
 				end
 			end
