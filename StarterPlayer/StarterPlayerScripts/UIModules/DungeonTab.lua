@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- noiilive/jjbi/jjbi-main/StarterPlayer/StarterPlayerScripts/UIModules/DungeonTab.lua
 local DungeonTab = {}
 
 local player = game.Players.LocalPlayer
