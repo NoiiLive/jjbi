@@ -159,7 +159,7 @@ local function GetProperPassAttr(inputStr)
 		["stylestorageslot2"] = "HasStyleSlot2", ["stylestorageslot3"] = "HasStyleSlot3",
 		["autoroll"] = "HasAutoRoll", ["autorollpass"] = "HasAutoRoll",
 		["horsename"] = "HasHorseNamePass", ["customhorsename"] = "HasHorseNamePass", ["customhorsenamepass"] = "HasHorseNamePass",
-		["vip"] = "IsVIP"
+		["vip"] = "IsVIP", ["autostat"] = "HasAutoStatPass"
 	}
 	return passMap[search]
 end
