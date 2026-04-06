@@ -576,7 +576,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	task.spawn(function()
 		while task.wait(1) do
 			local rt = player:GetAttribute("ShopRefreshTime") or 0
-			local remain = rt - os.time()
+			local remain = rt - math.floor(workspace:GetServerTimeNow())
 			if remain > 0 then 
 				timerLabel.Text = "Restocks in: " .. FormatTime(remain) 
 			else 
@@ -584,7 +584,7 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			end
 
 			local ert = player:GetAttribute("EasterShopRefreshTime") or 0
-			local eremain = ert - os.time()
+			local eremain = ert - math.floor(workspace:GetServerTimeNow())
 			if eremain > 0 then
 				easterTimerLabel.Text = "Restocks in: " .. FormatTime(eremain)
 			else
