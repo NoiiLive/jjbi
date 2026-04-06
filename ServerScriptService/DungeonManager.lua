@@ -6,6 +6,7 @@ local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 local CombatCore = require(game:GetService("ServerScriptService"):WaitForChild("CombatCore"))
 
 local DungeonAction = Network:WaitForChild("DungeonAction")
@@ -23,7 +24,7 @@ end
 
 local function GenerateDungeonEnemy(template, dungeonId)
 	local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
-	local scaleMult = 1 + (fixedPrestige * 0.15)
+	local scaleMult = 1 + (fixedPrestige * 0.10)
 	local minorScaleMult = 1 + ((scaleMult - 1) * 0.33) 
 
 	local eHP = template.Health * scaleMult
@@ -49,31 +50,110 @@ local function GenerateDungeonEnemy(template, dungeonId)
 end
 
 local function GenerateRandomEndlessEnemy(floor)
-	local FirstNames = {"Crazed", "Menacing", "Wandering", "Furious", "Stoic", "Bizarre", "Ruthless", "Phantom", "Savage", "Silent"}
-	local LastNames = {"Thug", "Brawler", "Stand User", "Delinquent", "Fighter", "Vampire", "Warrior", "Assassin", "Mercenary"}
-	local Styles = {"Boxing", "Hamon", "Vampirism", "Pillarman", "Cyborg", "None"}
+	local FirstNames = {
+		"Crazed", "Menacing", "Wandering", "Furious", "Stoic", "Bizarre", "Ruthless", "Phantom", "Savage", "Silent",
+
+		"Angry", "Cold", "Wild", "Calm", "Serious", "Rough", "Sharp", "Loud", "Quiet", "Fast",
+		"Slow", "Dirty", "Clean", "Bloody", "Scarred", "Tough", "Slick", "Lazy", "Focused", "Nervous",
+
+		"Shady", "Suspicious", "Unknown", "Strange", "Odd", "Weird", "Unlucky", "Lucky", "Fearless", "Reckless",
+		"Brutal", "Harsh", "Mean", "Proud", "Greedy", "Desperate", "Broken", "Lost", "Lone", "Masked",
+
+		"Street", "Backstreet", "Downtown", "Night", "Late-Night", "Early", "Noisy", "Restless"
+	}
+
+	local LastNames = {
+		"Thug", "Brawler", "Stand User", "Delinquent", "Fighter", "Vampire", "Warrior", "Assassin", "Mercenary",
+
+		"Gangster", "Punk", "Hoodlum", "Enforcer", "Hitman", "Bodyguard", "Outlaw", "Criminal", "Troublemaker",
+		"Gunman", "Street Fighter", "Boxer", "Berserker", "Bruiser",
+
+		"Stand User", "Stand Fighter", "Ability User",
+
+		"Dealer", "Smuggler", "Fixer", "Informant", "Driver", "Guard", "Lookout",
+
+		"Snitch", "Traitor", "Liar", "Cheater", "Gambler",
+	}
+
+	local Styles = {"None"}
+	for styleName, _ in pairs(GameData.StyleBonuses) do table.insert(Styles, styleName) end
 
 	local isBossFloor = (floor % 10 == 0)
 	local eName = FirstNames[math.random(#FirstNames)] .. " " .. LastNames[math.random(#LastNames)]
 	if isBossFloor then eName = "Floor " .. floor .. " Guardian" end
 
-	local hasStand = math.random(1, 100) <= 70
-	local eStand = hasStand and StandData.RollStand() or "None"
-	local eTrait = hasStand and StandData.RollTrait() or "None"
+	local hasStand = false
+	local isFused = false
+
+	if floor >= 250 then
+		hasStand = true
+		isFused = true
+	elseif floor >= 100 then
+		hasStand = math.random(1, 100) <= 80
+		local fusionChance = math.floor(((floor - 100) / 150) * 100)
+		if math.random(1, 100) <= fusionChance then
+			isFused = true
+			hasStand = true
+		end
+	elseif floor >= 50 then
+		hasStand = math.random(1, 100) <= 70
+	end
+
+	local eStand = "None"
+	local eStand1 = "None"
+	local eStand2 = "None"
+	local eTrait = "None"
+	local eTrait2 = "None"
+
+	if hasStand then
+		if isFused then
+			eStand1 = StandData.RollStand(floor/5, 0)
+			eStand2 = StandData.RollStand(floor/5, 0)
+			while eStand1 == eStand2 do eStand2 = StandData.RollStand(floor/5, 0) end
+			eTrait = StandData.RollTrait(floor/5, 0)
+			eTrait2 = StandData.RollTrait(floor/5, 0)
+		else
+			eStand = StandData.RollStand(floor/10, 0)
+			eTrait = StandData.RollTrait(floor/10, 0)
+		end
+	end
+
 	local eStyle = Styles[math.random(#Styles)]
 
-	local standardScale = (math.floor(1 + (floor/10))) * 0.5
+	local standardScale = (math.floor(1 + (floor/10))) * 0.3
 	local utilityScale = (math.floor(1 + (floor/10))) * 0.05
 
 	local bHP, bStr, bDef, bSpd, bWill = math.random(250, 2000), math.random(15, 150), math.random(10, 100), math.random(15, 150), math.random(10, 100)
 	local standPower, standSpeed, standDur, standRan, standPre = "None", "None", "None", "None", "None"
 
-	if hasStand and StandData.Stands[eStand] then
-		local sStats = StandData.Stands[eStand].Stats
-		standPower, standSpeed, standDur, standRan, standPre = sStats.Power, sStats.Speed, sStats.Durability, sStats.Range, sStats.Precision
-		bStr += GameData.StandRanks[sStats.Power] or 0
-		bSpd += GameData.StandRanks[sStats.Speed] or 0
-		bDef += GameData.StandRanks[sStats.Durability] or 0
+	if hasStand then
+		if isFused then
+			local s1Stats = StandData.Stands[eStand1] and StandData.Stands[eStand1].Stats or {Power="None", Speed="None", Durability="None", Range="None", Precision="None"}
+			local s2Stats = StandData.Stands[eStand2] and StandData.Stands[eStand2].Stats or {Power="None", Speed="None", Durability="None", Range="None", Precision="None"}
+
+			local function getRankVal(rank) return GameData.StandRanks[rank] or 0 end
+			local function getBestRank(r1, r2)
+				if getRankVal(r1) > getRankVal(r2) then return r1 else return r2 end
+			end
+
+			standPower = getBestRank(s1Stats.Power, s2Stats.Power)
+			standSpeed = getBestRank(s1Stats.Speed, s2Stats.Speed)
+			standDur = getBestRank(s1Stats.Durability, s2Stats.Durability)
+			standRan = getBestRank(s1Stats.Range, s2Stats.Range)
+			standPre = getBestRank(s1Stats.Precision, s2Stats.Precision)
+
+			bStr += math.floor((getRankVal(s1Stats.Power) + getRankVal(s2Stats.Power)) * 0.75)
+			bSpd += math.floor((getRankVal(s1Stats.Speed) + getRankVal(s2Stats.Speed)) * 0.75)
+			bDef += math.floor((getRankVal(s1Stats.Durability) + getRankVal(s2Stats.Durability)) * 0.75)
+		else
+			if StandData.Stands[eStand] then
+				local sStats = StandData.Stands[eStand].Stats
+				standPower, standSpeed, standDur, standRan, standPre = sStats.Power, sStats.Speed, sStats.Durability, sStats.Range, sStats.Precision
+				bStr += GameData.StandRanks[sStats.Power] or 0
+				bSpd += GameData.StandRanks[sStats.Speed] or 0
+				bDef += GameData.StandRanks[sStats.Durability] or 0
+			end
+		end
 	end
 
 	local bossMult = isBossFloor and 2 or 1
@@ -86,17 +166,48 @@ local function GenerateRandomEndlessEnemy(floor)
 	local dXP = math.floor((50 + (bHP * 0.4)) * (1 + standardScale)) * bossMult
 
 	local eSkills = {"Basic Attack", "Heavy Strike", "Block"}
-	for skillName, skillInfo in pairs(SkillData.Skills) do
-		local req = skillInfo.Requirement
-		if (req == "AnyStand" and hasStand) or (req == eStand and eStand ~= "None") or (req == eStyle and eStyle ~= "None") then table.insert(eSkills, skillName) end
+	local addedSkills = {["Basic Attack"]=true, ["Heavy Strike"]=true, ["Block"]=true}
+
+	local function addSkill(name)
+		if not addedSkills[name] then
+			table.insert(eSkills, name)
+			addedSkills[name] = true
+		end
 	end
 
-	local displayTrait = eTrait ~= "None" and " [" .. eTrait .. "]" or ""
+	for skillName, skillInfo in pairs(SkillData.Skills) do
+		local req = skillInfo.Requirement
+		if req == eStyle and eStyle ~= "None" then addSkill(skillName) end
+		if hasStand and req == "AnyStand" then addSkill(skillName) end
+		if hasStand and not isFused and req == eStand and eStand ~= "None" then addSkill(skillName) end
+	end
+
+	if isFused then
+		local fusedAbilities = FusionUtility.CalculateFusedAbilities(eStand1, eStand2, SkillData)
+		for _, sObj in ipairs(fusedAbilities) do
+			addSkill(sObj.Name)
+		end
+	end
+
+	local displayTrait = ""
+	if isFused and eTrait ~= "None" and eTrait2 ~= "None" then
+		displayTrait = " [" .. eTrait .. " + " .. eTrait2 .. "]"
+	elseif eTrait ~= "None" then
+		displayTrait = " [" .. eTrait .. "]"
+	end
+
 	local fullName = eName
-	if hasStand then fullName = fullName .. " (" .. eStand .. ")" .. displayTrait end
+	if hasStand then 
+		if isFused then
+			local fusedName = FusionUtility.CalculateFusedName(eStand1, eStand2)
+			fullName = fullName .. " (" .. fusedName .. ")" .. displayTrait
+		else
+			fullName = fullName .. " (" .. eStand .. ")" .. displayTrait
+		end
+	end
 
 	return {
-		IsPlayer = false, Name = fullName, Icon = "", Trait = eTrait,
+		IsPlayer = false, Name = fullName, Icon = "", Trait = eTrait, Trait2 = eTrait2,
 		IsBoss = isBossFloor,
 		HP = eHP, MaxHP = eHP, TotalStrength = eStr, TotalDefense = eDef, TotalSpeed = eSpd, TotalWillpower = finalWill,
 		TotalRange = (GameData.StandRanks[standRan] or 0), TotalPrecision = (GameData.StandRanks[standPre] or 0),
@@ -143,7 +254,7 @@ local function StartDungeon(player, dungeonId)
 
 	if not isEndless then
 		local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
-		local scaleMult = 1 + (fixedPrestige * 0.15)
+		local scaleMult = 1 + (fixedPrestige * 0.10)
 		for _, waveTemplate in ipairs(waves) do
 			if waveTemplate.Drops then
 				ActiveDungeons[player.UserId].MasterDrops.Yen += math.floor((waveTemplate.Drops.Yen or 0) * scaleMult)
