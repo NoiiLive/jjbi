@@ -497,12 +497,17 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			return
 		end
 
+		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+		if not itemData then return end
+
+		if itemData.Rarity == "Special" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell Special rarity items!</font>")
+			return
+		end
+
 		local attrName = itemName:gsub("[^%w]", "") .. "Count"
 		local count = player:GetAttribute(attrName) or 0
 		if count > 0 then
-			local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
-			if not itemData then return end
-
 			local sellPrice = math.floor((itemData.Cost or 50) * 0.5)
 			player:SetAttribute(attrName, count - 1)
 
