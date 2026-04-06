@@ -47,6 +47,9 @@ local APRIL_FOOLS_BOSSES = {
 	"Ryomen Sukuna"
 }
 
+local BossCooldownsMap = MemoryStoreService:GetHashMap("WorldBossCooldowns")
+local LocalServerCooldowns = {}
+
 local function IsBossActive()
 	if os.time() < AdminForcedEndTime then return true end
 	local utc = os.date("!*t")
@@ -73,13 +76,12 @@ end
 
 pcall(function()
 	AdminForceSpawnWB.Event:Connect(function(specificBossName)
-		for _, p in ipairs(Players:GetPlayers()) do
-			p:SetAttribute("LastWorldBossHour", -1)
-		end
-
 		local bossList = GetAvailableBosses()
 
 		if #bossList > 0 then
+			local sessionID = "Admin_" .. os.time()
+			ReplicatedStorage:SetAttribute("CurrentBossSession", sessionID)
+
 			if specificBossName and EnemyData.WorldBosses[specificBossName] then
 				CurrentActiveBoss = specificBossName
 			else
@@ -121,13 +123,17 @@ RerollWorldBoss.Event:Connect(function(player)
 
 	if #bossList > 0 then
 		local instancedBoss = bossList[math.random(1, #bossList)]
-		local endTime = os.time() + (BOSS_ACTIVE_MINUTES * 60)
+
+		local utc = os.date("!*t")
+		local secondsToNextHour = 3600 - ((utc.min * 60) + utc.sec)
+		local endTime = os.time() + secondsToNextHour
 
 		player:SetAttribute("InstancedWorldBoss", instancedBoss)
 		player:SetAttribute("InstancedWorldBossEndTime", endTime)
-		player:SetAttribute("LastWorldBossHour", -1)
+		player:SetAttribute("LastBossSessionFought", "")
 
-		local spawnMsg = "<font color='#55FF55'><b>[SYSTEM] You spawned a private " .. instancedBoss .. "! You have " .. BOSS_ACTIVE_MINUTES .. " minutes to engage!</b></font>"
+		local minsRemaining = math.floor(secondsToNextHour / 60)
+		local spawnMsg = "<font color='#55FF55'><b>[SYSTEM] You spawned a private " .. instancedBoss .. "! It will despawn at the next hour reset (" .. minsRemaining .. " minutes)!</b></font>"
 		Network.CombatUpdate:FireClient(player, "SystemMessage", spawnMsg)
 		NotificationEvent:FireClient(player, "<font color='#55FF55'><b>Private " .. instancedBoss .. " spawned!</b></font>")
 
@@ -142,6 +148,9 @@ task.spawn(function()
 		if IsBossActive() then
 			if os.time() > AdminForcedEndTime and LastSpawnHour ~= utc.hour then
 				LastSpawnHour = utc.hour
+
+				local sessionID = "Hourly_" .. utc.year .. "_" .. utc.yday .. "_" .. utc.hour
+				ReplicatedStorage:SetAttribute("CurrentBossSession", sessionID)
 
 				local bossList = GetAvailableBosses()
 
@@ -190,6 +199,9 @@ task.spawn(function()
 end)
 
 local function StartBossBattle(player)
+	if player:GetAttribute("InCombat") or player:GetAttribute("IsEngagingBoss") then return end
+	player:SetAttribute("IsEngagingBoss", true)
+
 	local utc = os.date("!*t")
 
 	local instancedBossName = player:GetAttribute("InstancedWorldBoss")
@@ -204,18 +216,39 @@ local function StartBossBattle(player)
 		activeBossName = CurrentActiveBoss
 		if not activeBossName or not IsBossActive() then
 			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>The World Boss is not currently active!</font>")
+			player:SetAttribute("IsEngagingBoss", false)
 			return
 		end
 
 		local isStudio = game:GetService("RunService"):IsStudio()
-		if player:GetAttribute("LastWorldBossHour") == utc.hour and not isStudio then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this hour!</font>")
-			return
+		local currentSession = ReplicatedStorage:GetAttribute("CurrentBossSession") or ""
+
+		if currentSession ~= "" and not isStudio then
+			if player:GetAttribute("LastBossSessionFought") == currentSession or LocalServerCooldowns[player.UserId] == currentSession then
+				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this session!</font>")
+				player:SetAttribute("IsEngagingBoss", false)
+				return
+			end
+
+			local hasGlobalCooldown = false
+			pcall(function()
+				hasGlobalCooldown = BossCooldownsMap:GetAsync(tostring(player.UserId) .. "_" .. currentSession)
+			end)
+
+			if hasGlobalCooldown then
+				player:SetAttribute("LastBossSessionFought", currentSession)
+				LocalServerCooldowns[player.UserId] = currentSession
+
+				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this session!</font>")
+				player:SetAttribute("IsEngagingBoss", false)
+				return
+			end
 		end
 	end
 
 	local bossTemplate = EnemyData.WorldBosses[activeBossName]
 	if not bossTemplate then 
+		player:SetAttribute("IsEngagingBoss", false)
 		return 
 	end
 
@@ -242,11 +275,20 @@ local function StartBossBattle(player)
 		IsInstanced = hasInstanced
 	}
 
-	player:SetAttribute("InCombat", true)
-	WorldBossUpdate:FireClient(player, "Start", { Battle = ActiveBossBattles[player.UserId], LogMsg = "<font color='#FF5555'>The sky darkens... " .. activeBossName .. " has arrived!</font>" })
 	if not hasInstanced then
-		player:SetAttribute("LastWorldBossHour", utc.hour)
+		local sessionStr = ReplicatedStorage:GetAttribute("CurrentBossSession") or ""
+		player:SetAttribute("LastBossSessionFought", sessionStr)
+		LocalServerCooldowns[player.UserId] = sessionStr
+		task.spawn(function()
+			pcall(function()
+				BossCooldownsMap:SetAsync(tostring(player.UserId) .. "_" .. sessionStr, true, 3600)
+			end)
+		end)
 	end
+
+	player:SetAttribute("InCombat", true)
+	player:SetAttribute("IsEngagingBoss", false)
+	WorldBossUpdate:FireClient(player, "Start", { Battle = ActiveBossBattles[player.UserId], LogMsg = "<font color='#FF5555'>The sky darkens... " .. activeBossName .. " has arrived!</font>" })
 end
 
 WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
@@ -458,4 +500,5 @@ game.Players.PlayerRemoving:Connect(function(player)
 	player:SetAttribute("InstancedWorldBoss", nil)
 	player:SetAttribute("InstancedWorldBossEndTime", 0)
 	player:SetAttribute("InCombat", false)
+	player:SetAttribute("IsEngagingBoss", false)
 end)
