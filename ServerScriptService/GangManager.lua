@@ -219,7 +219,7 @@ local function LoadGangData(gangName)
 
 		if not data.Buildings then data.Buildings = { Vault = 0, Dojo = 0, Armory = 0, Shrine = 0, Market = 0 } end
 		if not data.Orders then data.Orders = GenerateRandomOrders() end
-		if not data.LastOrderReset then data.LastOrderReset = os.time() end
+		if not data.LastOrderReset then data.LastOrderReset = math.floor(workspace:GetServerTimeNow()) end
 		if not data.PrestigeReq then data.PrestigeReq = 0 end
 		if not data.ActiveUpgrade then data.ActiveUpgrade = nil end
 		if not data.Requests then data.Requests = {} end
@@ -262,7 +262,7 @@ local function SaveGangData(gangName, optionalCallback)
 				end
 			end
 
-			if dataToSave.ActiveUpgrade and os.time() >= dataToSave.ActiveUpgrade.FinishTime then
+			if dataToSave.ActiveUpgrade and math.floor(workspace:GetServerTimeNow()) >= dataToSave.ActiveUpgrade.FinishTime then
 				local bId = dataToSave.ActiveUpgrade.Id
 				dataToSave.Buildings[bId] = (dataToSave.Buildings[bId] or 0) + 1
 				dataToSave.ActiveUpgrade = nil
@@ -351,9 +351,9 @@ task.spawn(function()
 			SaveGangData(gangKey, function(gangData)
 				local totalPrestige = 0; local totalElo = 0; local totalRaids = 0
 
-				if not gangData.LastOrderReset or os.time() - gangData.LastOrderReset >= 86400 then
+				if not gangData.LastOrderReset or math.floor(workspace:GetServerTimeNow()) - gangData.LastOrderReset >= 86400 then
 					gangData.Orders = GenerateRandomOrders()
-					gangData.LastOrderReset = os.time()
+					gangData.LastOrderReset = math.floor(workspace:GetServerTimeNow())
 				end
 
 				for uIdStr, memData in pairs(gangData.Members) do
@@ -366,7 +366,7 @@ task.spawn(function()
 						end
 						memData.RaidWins = livePlayer:GetAttribute("RaidWins") or memData.RaidWins or 0
 						memData.PlayTime = livePlayer:GetAttribute("PlayTime") or memData.PlayTime or 0
-						memData.LastOnline = os.time() 
+						memData.LastOnline = math.floor(workspace:GetServerTimeNow()) 
 					end
 
 					memData.Contribution = memData.Contribution or 0
@@ -499,7 +499,7 @@ Players.PlayerRemoving:Connect(function(player)
 	if pGangName and pGangName ~= "None" then
 		SaveGangData(pGangName, function(gangData)
 			if gangData.Members[tostring(player.UserId)] then
-				gangData.Members[tostring(player.UserId)].LastOnline = os.time()
+				gangData.Members[tostring(player.UserId)].LastOnline = math.floor(workspace:GetServerTimeNow())
 				gangData.Members[tostring(player.UserId)].PlayTime = player:GetAttribute("PlayTime") or gangData.Members[tostring(player.UserId)].PlayTime or 0
 			end
 			return gangData
@@ -547,12 +547,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			JoinMode = "Open",
 			PrestigeReq = 0,
 			OwnerId = player.UserId, OwnerName = player.Name,
-			Members = { [pIdStr] = {Name = player.Name, Role = "Boss", Prestige = player.leaderstats.Prestige.Value, LastOnline = os.time(), Contribution = 0, PlayTime = player:GetAttribute("PlayTime") or 0, UserId = player.UserId} },
+			Members = { [pIdStr] = {Name = player.Name, Role = "Boss", Prestige = player.leaderstats.Prestige.Value, LastOnline = math.floor(workspace:GetServerTimeNow()), Contribution = 0, PlayTime = player:GetAttribute("PlayTime") or 0, UserId = player.UserId} },
 			Requests = {}, MemberCount = 1,
 			CustomRoles = { Boss = "Boss", Consigliere = "Consigliere", Caporegime = "Caporegime", Grunt = "Grunt" },
 			Rep = 0, Treasury = 0, TotalPrestige = player.leaderstats.Prestige.Value, TotalElo = player.leaderstats.Elo.Value, RaidWins = 0,
 			Buildings = { Vault = 0, Dojo = 0, Armory = 0, Shrine = 0, Market = 0 },
-			Orders = GenerateRandomOrders(), LastOrderReset = os.time(),
+			Orders = GenerateRandomOrders(), LastOrderReset = math.floor(workspace:GetServerTimeNow()),
 			ActiveUpgrade = nil
 		}
 
@@ -681,7 +681,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 
 		SaveGangData(pGangName, function(gangData)
 			if gangData.ActiveUpgrade then
-				if os.time() < gangData.ActiveUpgrade.FinishTime then
+				if math.floor(workspace:GetServerTimeNow()) < gangData.ActiveUpgrade.FinishTime then
 					errReason = "An upgrade is already in progress!"
 					return gangData
 				else
@@ -699,7 +699,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			local cost = 100000000 
 			if (gangData.Treasury or 0) >= cost then
 				gangData.Treasury -= cost
-				gangData.ActiveUpgrade = { Id = bId, FinishTime = os.time() + 1800 }
+				gangData.ActiveUpgrade = { Id = bId, FinishTime = math.floor(workspace:GetServerTimeNow()) + 1800 }
 				started = true
 			else
 				errReason = "Not enough Treasury funds (Requires ¥100M)!"
@@ -839,7 +839,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			SaveGangData(targetGangKey, function(gangData)
 				actuallyJoined = false
 				if GetDictSize(gangData.Members) < 30 and not gangData.Members[pIdStr] then
-					gangData.Members[pIdStr] = {Name = player.Name, Role = "Grunt", Prestige = player.leaderstats.Prestige.Value, LastOnline = os.time(), Contribution = 0, PlayTime = player:GetAttribute("PlayTime") or 0, UserId = player.UserId}
+					gangData.Members[pIdStr] = {Name = player.Name, Role = "Grunt", Prestige = player.leaderstats.Prestige.Value, LastOnline = math.floor(workspace:GetServerTimeNow()), Contribution = 0, PlayTime = player:GetAttribute("PlayTime") or 0, UserId = player.UserId}
 					actuallyJoined = true
 				end
 				return gangData
@@ -876,7 +876,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 				if action == "AcceptRequest" then
 					if GetDictSize(gangData.Members) < 30 then
 						if targetPlayer and targetPlayer:GetAttribute("Gang") == "None" then
-							gangData.Members[targetIdStr] = {Name = targetPlayer.Name, Role = "Grunt", Prestige = targetPlayer.leaderstats.Prestige.Value, LastOnline = os.time(), Contribution = 0, PlayTime = targetPlayer:GetAttribute("PlayTime") or 0, UserId = targetPlayer.UserId}
+							gangData.Members[targetIdStr] = {Name = targetPlayer.Name, Role = "Grunt", Prestige = targetPlayer.leaderstats.Prestige.Value, LastOnline = math.floor(workspace:GetServerTimeNow()), Contribution = 0, PlayTime = targetPlayer:GetAttribute("PlayTime") or 0, UserId = targetPlayer.UserId}
 							accepted = true
 						end
 					end
@@ -1047,12 +1047,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 				SaveGangData(pGangName, function(gangData)
 					if not gangData.Buildings then gangData.Buildings = { Vault = 0, Dojo = 0, Armory = 0, Shrine = 0, Market = 0 } end
 					if not gangData.Orders then gangData.Orders = GenerateRandomOrders() end
-					if not gangData.LastOrderReset then gangData.LastOrderReset = os.time() end
+					if not gangData.LastOrderReset then gangData.LastOrderReset = math.floor(workspace:GetServerTimeNow()) end
 					if not gangData.PrestigeReq then gangData.PrestigeReq = 0 end
 
 					if not gangData.Requests then gangData.Requests = {} end
 
-					if gangData.ActiveUpgrade and os.time() >= gangData.ActiveUpgrade.FinishTime then
+					if gangData.ActiveUpgrade and math.floor(workspace:GetServerTimeNow()) >= gangData.ActiveUpgrade.FinishTime then
 						local bId = gangData.ActiveUpgrade.Id
 						gangData.Buildings[bId] = (gangData.Buildings[bId] or 0) + 1
 						gangData.ActiveUpgrade = nil
@@ -1065,7 +1065,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 							if pObj and pObj:FindFirstChild("Prestige") then
 								memData.Prestige = pObj.Prestige.Value
 							end
-							memData.LastOnline = os.time()
+							memData.LastOnline = math.floor(workspace:GetServerTimeNow())
 							memData.PlayTime = livePlayer:GetAttribute("PlayTime") or memData.PlayTime or 0
 						end
 
