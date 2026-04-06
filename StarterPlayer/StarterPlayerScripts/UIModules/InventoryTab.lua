@@ -469,12 +469,20 @@ local function RefreshInventoryList()
 		useBtn.Text = ItemData.Equipment[itemName] and "Equip" or "Use"
 
 		local lockedItems = player:GetAttribute("LockedItems") or ""
-		if table.find(string.split(lockedItems, ","), itemName) ~= nil then
+		local isLocked = table.find(string.split(lockedItems, ","), itemName) ~= nil
+
+		if isLocked then
 			lockBtn.Text = "🔒"; lockBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-			sellBtn.Text = "Locked"; sellBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 		else
 			lockBtn.Text = "🔓"; lockBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-			sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
+		end
+
+		if isLocked or rarity == "Special" then
+			sellBtn.Visible = false
+		else
+			sellBtn.Visible = true
+			sellBtn.Text = "Sell"
+			sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
 		end
 
 		lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("ToggleLock"):FireServer("Item", itemName) end)
@@ -483,25 +491,32 @@ local function RefreshInventoryList()
 		local isConfirmingUse, isConfirmingSell = false, false
 
 		if isEquipped then
+			useBtn.Visible = true
 			useBtn.Text = "Unequip"; useBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
 			useBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UnequipItem"):FireServer(ItemData.Equipment[itemName].Slot) end)
 		else
-			useBtn.MouseButton1Click:Connect(function()
-				if useBtn.Text == "Equip" then
-					SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
-				else
-					if ItemData.Consumables[itemName] and not isConfirmingUse then
-						isConfirmingUse = true; useBtn.Text = "Confirm?"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-						task.delay(3, function() if isConfirmingUse and useBtn.Parent then isConfirmingUse = false; useBtn.Text = "Use"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0) end end)
-						return
+			if isLocked then
+				useBtn.Visible = false
+			else
+				useBtn.Visible = true
+				useBtn.MouseButton1Click:Connect(function()
+					if table.find(string.split(player:GetAttribute("LockedItems") or "", ","), itemName) then return end
+					if useBtn.Text == "Equip" then
+						SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
+					else
+						if ItemData.Consumables[itemName] and not isConfirmingUse then
+							isConfirmingUse = true; useBtn.Text = "Confirm?"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+							task.delay(3, function() if isConfirmingUse and useBtn.Parent then isConfirmingUse = false; useBtn.Text = "Use"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0) end end)
+							return
+						end
+						isConfirmingUse = false; SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
 					end
-					isConfirmingUse = false; SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
-				end
-			end)
+				end)
+			end
 		end
 
 		sellBtn.MouseButton1Click:Connect(function()
-			if table.find(string.split(player:GetAttribute("LockedItems") or "", ","), itemName) then return end
+			if isLocked or rarity == "Special" then return end
 			if not isConfirmingSell then
 				isConfirmingSell = true; sellBtn.Text = "Sure?"; sellBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
 				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
