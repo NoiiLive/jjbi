@@ -93,6 +93,7 @@ local function UpdateTabSizes()
 			visibleTabs += 1
 		end
 	end
+	if visibleTabs <= 0 then visibleTabs = 1 end
 	local sizeScale = (1 / visibleTabs) - 0.02
 	for _, btn in ipairs(tabContainer:GetChildren()) do
 		if btn:IsA("TextButton") then
@@ -347,9 +348,28 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		if mainContainer.Visible then
 			local gName = player:GetAttribute("Gang") or "None"
 			if gName == "None" then
+				if noGangContainer then noGangContainer.Visible = true end
+				if hasGangContainer then hasGangContainer.Visible = false end
 				Network.GangAction:FireServer("BrowseGangs")
 			else
-				Network.GangAction:FireServer("RequestData")
+				if noGangContainer then noGangContainer.Visible = false end
+				if hasGangContainer then hasGangContainer.Visible = true end
+				Network.GangAction:FireServer("RequestSync")
+			end
+		end
+	end)
+
+	task.spawn(function()
+		if mainContainer.Visible then
+			local gName = player:GetAttribute("Gang") or "None"
+			if gName == "None" then
+				if noGangContainer then noGangContainer.Visible = true end
+				if hasGangContainer then hasGangContainer.Visible = false end
+				Network.GangAction:FireServer("BrowseGangs")
+			else
+				if noGangContainer then noGangContainer.Visible = false end
+				if hasGangContainer then hasGangContainer.Visible = true end
+				Network.GangAction:FireServer("RequestSync")
 			end
 		end
 	end)
