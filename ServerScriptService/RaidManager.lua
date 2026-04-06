@@ -358,7 +358,7 @@ local function ProcessTurn(match)
 			pData.Player:SetAttribute("InCombat", false)
 		end
 	else
-		match.IsProcessing = false; match.TurnDeadline = os.time() + 15
+		match.IsProcessing = false; match.TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15
 		for _, pData in ipairs(match.Party) do
 			if pData.HP > 0 and ActiveRaids[pData.Player] == match then 
 				RaidUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = "", State = GetClientState(match, pData.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
@@ -394,7 +394,7 @@ local function StartRaidMatch(hostId)
 		Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
 	}
 
-	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, IsDead = false, TurnDeadline = os.time() + 15 }
+	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, IsDead = false, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 
 	for _, pData in ipairs(party) do 
 		pData.Stamina = pData.MaxStamina or 100
@@ -420,7 +420,7 @@ task.spawn(function()
 	while task.wait(1) do
 		local checked = {}
 		for _, match in pairs(ActiveRaids) do
-			if match and not checked[match] and not match.IsProcessing and not match.IsDead and match.TurnDeadline and os.time() >= match.TurnDeadline then
+			if match and not checked[match] and not match.IsProcessing and not match.IsDead and match.TurnDeadline and math.floor(workspace:GetServerTimeNow()) >= match.TurnDeadline then
 				checked[match] = true
 				for _, p in ipairs(match.Party) do if p.HP > 0 and not p.SelectedSkill then p.SelectedSkill = "Basic Attack" end end
 				task.spawn(function() ProcessTurn(match) end)
