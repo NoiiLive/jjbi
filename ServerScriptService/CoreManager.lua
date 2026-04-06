@@ -101,6 +101,8 @@ local DefaultData = {
 	DungeonClear_Part1 = false, DungeonClear_Part2 = false, DungeonClear_Part3 = false,
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
 
+	DailyEndlessFloor = 0, DailyEndlessDate = "",
+
 	AutoSell_Common = false, AutoSell_Uncommon = false, AutoSell_Rare = false, AutoSell_Legendary = false, AutoSell_Mythical = false,
 
 	AutoStatPlayer = false, AutoStatStand = false, AutoStatAmount = 1, HasAutoStatPass = false,
@@ -229,6 +231,9 @@ local function SavePlayerData(player)
 		DungeonClear_Part4 = player:GetAttribute("DungeonClear_Part4") or false,
 		DungeonClear_Part5 = player:GetAttribute("DungeonClear_Part5") or false,
 		DungeonClear_Part6 = player:GetAttribute("DungeonClear_Part6") or false,
+
+		DailyEndlessFloor = player:GetAttribute("DailyEndlessFloor") or 0,
+		DailyEndlessDate = player:GetAttribute("DailyEndlessDate") or "",
 
 		AutoSell_Common = player:GetAttribute("AutoSell_Common") or false,
 		AutoSell_Uncommon = player:GetAttribute("AutoSell_Uncommon") or false,
