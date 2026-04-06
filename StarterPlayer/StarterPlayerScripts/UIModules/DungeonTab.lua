@@ -161,11 +161,7 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 				for id, data in pairs(dungeonUIElements) do
 					data.Title.Text = data.Info.Name
 
-					if data.Info.Id == "Endless" then
-						local hs = player:GetAttribute("EndlessHighScore") or 0
-						data.Status.Text = "<font color='#AAAAAA'>High Score:</font> <font color='#55FF55'>Floor " .. hs .. "</font>"
-						data.Reward.Text = "<font color='#AAAAAA'>Milestone Reward:</font> <font color='#FF55FF'>Rokakaka</font> every 10 floors."
-					else
+					if data.Info.Id ~= "Endless" then
 						local cleared = player:GetAttribute("DungeonClear_Part" .. data.Info.Id)
 						if cleared then
 							data.Status.Text = "<font color='#AAAAAA'>Status:</font> <font color='#55FF55'>Cleared</font>"
@@ -184,11 +180,14 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 						data.Btn.AutoButtonColor = true
 					else
 						data.Btn.BackgroundColor3 = Color3.fromRGB(35, 25, 40)
-						data.Btn.Text = "??"
+						data.Btn.Text = "🔒"
 						data.Btn.TextColor3 = Color3.fromRGB(150, 150, 150)
 						data.Btn.Active = false
 						data.Btn.AutoButtonColor = false
-						data.Status.Text = "<font color='#AAAAAA'>Status:</font> <font color='#FF5555'>Requires Prestige " .. data.Info.Req .. "</font>"
+
+						if data.Info.Id ~= "Endless" then
+							data.Status.Text = "<font color='#AAAAAA'>Status:</font> <font color='#FF5555'>Requires Prestige " .. data.Info.Req .. "</font>"
+						end
 					end
 				end
 			end
@@ -199,6 +198,36 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 			player:GetAttributeChangedSignal("EndlessHighScore"):Connect(updateLocks)
 			for i = 1, 6 do player:GetAttributeChangedSignal("DungeonClear_Part" .. i):Connect(updateLocks) end
 			updateLocks()
+		end
+	end)
+
+	task.spawn(function()
+		while task.wait(1) do
+			local endlessData = dungeonUIElements["Endless"]
+			if endlessData then
+				local now = math.floor(workspace:GetServerTimeNow())
+				local utc = os.date("!*t", now)
+
+				local secondsLeft = 86400 - ((utc.hour * 3600) + (utc.min * 60) + utc.sec)
+				local h = math.floor(secondsLeft / 3600)
+				local m = math.floor((secondsLeft % 3600) / 60)
+				local s = secondsLeft % 60
+				local timeStr = string.format("%02d:%02d:%02d", h, m, s)
+
+				local pObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+				local pVal = pObj and pObj.Value or 0
+
+				local hs = player:GetAttribute("EndlessHighScore") or 0
+				local dFloor = player:GetAttribute("DailyEndlessFloor") or 0
+
+				if pVal >= endlessData.Info.Req then
+					endlessData.Status.Text = "<font color='#AAAAAA'>All-Time Best:</font> <font color='#55FF55'>Floor " .. hs .. "</font> | <font color='#AAAAAA'>Daily Best:</font> <font color='#55FFFF'>Floor " .. dFloor .. "</font>"
+				else
+					endlessData.Status.Text = "<font color='#AAAAAA'>Status:</font> <font color='#FF5555'>Requires Prestige " .. endlessData.Info.Req .. "</font>"
+				end
+
+				endlessData.Reward.Text = "<font color='#AAAAAA'>Rewards:</font> 10x XP/Yen, Arrows, Rokakakas, & Corpse Parts\n<font color='#FFD700'>Daily Giftbox Milestones Reset In: " .. timeStr .. "</font>"
+			end
 		end
 	end)
 
@@ -234,7 +263,6 @@ function DungeonTab.RenderSkills(battleData)
 	for n, s in pairs(SkillData.Skills) do
 		local isStandReq = (s.Requirement == myStand and myStand ~= "Fused Stand")
 		if s.Requirement == "None" or isStandReq or s.Requirement == myStyle or (s.Requirement == "AnyStand" and myStand ~= "None") then 
-			-- Protection block to ensure button pooling/iteration doesn't accidentally duplicate generic abilities
 			local alreadyAdded = false
 			for _, existing in ipairs(valid) do
 				if existing.Name == n then
