@@ -292,7 +292,7 @@ local function ProcessTurn(match)
 		ArenaUpdate:FireAllClients("ActiveMatchesUpdate", GetActiveMatchesData())
 	else
 		match.IsProcessing = false
-		match.TurnDeadline = os.time() + match.TurnTime
+		match.TurnDeadline = math.floor(workspace:GetServerTimeNow()) + match.TurnTime
 
 		for _, pData in ipairs(allCombatants) do
 			ArenaUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = logStr, State = GetClientState(match, pData.Player, false), DidHit = didHit, ShakeType = shakeType, Deadline = match.TurnDeadline})
@@ -315,7 +315,7 @@ task.spawn(function()
 		for _, match in pairs(MatchRegistry) do
 			if not checked[match] then
 				checked[match] = true
-				if not match.IsProcessing and match.TurnDeadline and os.time() >= match.TurnDeadline then
+				if not match.IsProcessing and match.TurnDeadline and math.floor(workspace:GetServerTimeNow()) >= match.TurnDeadline then
 					local allCombatants = {}
 					for _, p in ipairs(match.Team1) do table.insert(allCombatants, p) end
 					for _, p in ipairs(match.Team2) do table.insert(allCombatants, p) end
@@ -390,7 +390,7 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 			local matchId = HttpService:GenerateGUID(false)
 			local match = { 
 				Id = matchId, HostName = lobby.Host.Name, Capacity = lobby.Capacity, Team1 = t1, Team2 = t2, Spectators = {}, Bets = {}, Pool1 = 0, Pool2 = 0,
-				IsProcessing = false, TurnDeadline = os.time() + turnTime, IsCasual = lobby.Casual, TurnTime = turnTime 
+				IsProcessing = false, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + turnTime, IsCasual = lobby.Casual, TurnTime = turnTime 
 			}
 			MatchRegistry[matchId] = match
 
