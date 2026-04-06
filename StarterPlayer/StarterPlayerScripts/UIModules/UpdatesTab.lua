@@ -2,6 +2,22 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.4 - Endless Overhaul (April 6th)</font></b>
+
+<font color='#D745FF'>[+]</font> <b>Endless Overhaul:</b> Endless Dungeons now feature all fighting styles, an increased name pool, and dangerous fused stands!
+<font color='#D745FF'>[+]</font> <b>Scaling Loot:</b> Endless Floor rewards now scale every 100 floors (e.g., 100+ grants +2 Rokakaka/Arrows) and include Corpse Parts.
+<font color='#D745FF'>[+]</font> <b>Massive Gains:</b> Dungeon XP and Yen gain has been massively boosted across the board!
+<font color='#D745FF'>[+]</font> <b>Daily Milestones:</b> Claim powerful rewards once every 24 hours (Resets Midnight UTC):
+    • Floor 50: Legendary Giftbox
+    • Floor 100: Mythical Giftbox
+    • Floor 1000: Unique Giftbox
+<font color='#EFFF3E'>[+]</font> <b>New Rarity [Special]:</b> Gamepasses, Giftboxes, and Easter Eggs now fall under this rarity and cannot be sold.
+<font color='#55FF55'>[*]</font> <b>Security & QoL:</b> Locked items hide use buttons to prevent accidents, and items no longer need to be unlocked to trade.
+<font color='#55FFFF'>[*]</font> <b>Technical:</b> More robust Gang data storage, synchronized global timers, and fixed offline boss cooldown resets.
+<font color='#55FF55'>[+]</font> <b>Balance:</b> Nerfed Global Donation goal to 10k and increased Easter Egg drop rates.
+
+Use codes <b><font color='#FF55FF'>8KFAVS</font></b> and <b><font color='#FF55FF'>RESTARTAHOLIC</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.3 - Easter Event Update (April 4th)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>Easter Event:</b> Obtain Easter Eggs by defeating enemies (5% drop from normal mobs, 40% from bosses)!
