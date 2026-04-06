@@ -155,12 +155,17 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 		while task.wait(1) do
 			if inBattle then continue end
 
+			local now = math.floor(workspace:GetServerTimeNow())
+			local utc = os.date("!*t", now)
+			local mins = utc.min
+			local secs = utc.sec
+
 			local instancedBoss = player:GetAttribute("InstancedWorldBoss")
 			local instancedEndTime = player:GetAttribute("InstancedWorldBossEndTime") or 0
-			local hasInstanced = instancedBoss and instancedEndTime > os.time()
+			local hasInstanced = instancedBoss and instancedEndTime > now
 
 			if hasInstanced then
-				local timeRemaining = instancedEndTime - os.time()
+				local timeRemaining = instancedEndTime - now
 				timerLabel.Text = "PRIVATE BOSS DESPAWNS IN: " .. FormatTime(math.floor(timeRemaining))
 				timerLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
 				engageBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
@@ -170,16 +175,12 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 					bossNameLabel.Text = string.upper(instancedBoss) .. " (PRIVATE)"
 				end
 			else
-				local utc = os.date("!*t")
-				local mins = utc.min
-				local secs = utc.sec
 				local isStudio = RunService:IsStudio()
-
 				local currentSession = ReplicatedStorage:GetAttribute("CurrentBossSession") or ""
 				local lastFought = player:GetAttribute("LastBossSessionFought") or ""
 
 				local endTime = ReplicatedStorage:GetAttribute("WorldBossEndTime") or 0
-				local timeRemaining = endTime - os.time()
+				local timeRemaining = endTime - now
 
 				if timeRemaining > 0 then
 					if lastFought == currentSession and currentSession ~= "" and not isStudio then
@@ -287,9 +288,10 @@ end
 
 function WorldBossTab.UpdateWorldBoss(status, data)
 	if status == "SyncBoss" then
+		local now = math.floor(workspace:GetServerTimeNow())
 		local instancedBoss = player:GetAttribute("InstancedWorldBoss")
 		local instancedEndTime = player:GetAttribute("InstancedWorldBossEndTime") or 0
-		if instancedBoss and instancedEndTime > os.time() then
+		if instancedBoss and instancedEndTime > now then
 			if bossNameLabel then bossNameLabel.Text = string.upper(instancedBoss) .. " (PRIVATE)" end
 		else
 			if bossNameLabel then bossNameLabel.Text = data and string.upper(data) or "UNKNOWN THREAT" end
