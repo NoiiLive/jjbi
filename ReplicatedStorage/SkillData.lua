@@ -66,8 +66,8 @@ SkillData.Skills = {
 	-- Easter
 	["Reskiniharden Saber"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.8, StaminaCost = 10, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 6, Order = 6, Description = "Hardens skin into wrist blades, violently slashing and causing Bleed." },
 	["Meltedin Palm"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.4, StaminaCost = 8, EnergyCost = 0, Effect = "Poison", Duration = 2, Cooldown = 6, Order = 7, Description = "Secretes corrosive enzymes from your palms, poisoning the enemy." },
-	["Shooting-Bees Stinger"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 0, StaminaCost = 15, EnergyCost = 0, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 8, Description = "Shoots out hardened hair, instantly combusting upon contact, burning the enemy." },
-	["Break Dark Thunder"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 0, StaminaCost = 12, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 9, Description = "Discharges high-voltage bio-electricity, stunning the enemy." },
+	["Shooting-Bees Stinger"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 8, Description = "Shoots out hardened hair, instantly combusting upon contact, burning the enemy." },
+	["Break Dark Thunder"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.7, StaminaCost = 12, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 9, Description = "Discharges high-voltage bio-electricity, stunning the enemy." },
 
 	-- Stand Skills
 	["Stand Barrage"] = { Requirement = "AnyStand", Type = "Stand", Mult = 0.4, Hits = 3, StaminaCost = 0, EnergyCost = 10, Cooldown = 3, Order = 10, Description = "A rapid flurry of 3 Stand punches." },
