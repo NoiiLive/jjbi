@@ -43,6 +43,8 @@ local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local GangStore = DataStoreService:GetDataStore("Jojo_Gangs_V3")
 
 local GROUP_ID = 11280027
+local GLOBAL_TOPIC = "AdminGlobalCommands"
+local GANG_TOPIC = "JJBI_Gang_Sync_V1"
 
 local ADMIN_RANKS = {
 	[255] = true,
@@ -60,8 +62,6 @@ local MOD_RANKS = {
 local ANNOUNCER_RANKS = {
 	[6] = true
 }
-
-local GLOBAL_TOPIC = "AdminGlobalCommands"
 
 local function GetDictSize(d)
 	local c = 0
@@ -104,7 +104,6 @@ local function GetProperStandName(inputStr)
 	local search = CleanStr(inputStr)
 
 	for key, _ in pairs(StandData.Stands) do if CleanStr(key) == search then return key end end
-
 	for key, _ in pairs(StandData.Stands) do if string.find(CleanStr(key), search, 1, true) then return key end end
 	return nil
 end
@@ -647,11 +646,12 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 						end
 						return oldData
 					end)
+					pcall(function() MessagingService:PublishAsync(GANG_TOPIC, { Action = "Refresh", GangKey = oldGangKey }) end)
 				end
 
 				GangStore:UpdateAsync(gangKey, function(newData)
 					if newData then
-						newData.Members[uidStr] = { Name = target.Name, Role = "Grunt", Prestige = prestigeVal, LastOnline = math.floor(workspace:GetServerTimeNow()) }
+						newData.Members[uidStr] = { Name = target.Name, Role = "Grunt", Prestige = prestigeVal, LastOnline = math.floor(workspace:GetServerTimeNow()), Contribution = 0, PlayTime = target:GetAttribute("PlayTime") or 0, UserId = target.UserId }
 						newData.MemberCount = GetDictSize(newData.Members)
 					end
 					return newData
@@ -661,6 +661,9 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 				target:SetAttribute("GangRole", "Grunt")
 				SendAdminNotice(target, "<font color='#FFD700'>System force-joined you to " .. gangData.Name .. "!</font>")
 			end
+
+			pcall(function() MessagingService:PublishAsync(GANG_TOPIC, { Action = "Refresh", GangKey = gangKey }) end)
+
 			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Force-joined " .. displayTarget .. " to " .. gangData.Name .. ".</font>") end
 		else
 			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Gang '" .. rawGangName .. "' not found in DataStore.</font>") end
@@ -683,6 +686,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 					if oldData then oldData.Rep = (oldData.Rep or 0) + amount end
 					return oldData
 				end)
+				MessagingService:PublishAsync(GANG_TOPIC, { Action = "Refresh", GangKey = gangKey })
 			end)
 			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Added " .. amount .. " Rep to " .. d.Name .. "!</font>") end
 		else
@@ -719,10 +723,13 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 							end
 						end
 						gangData.Members[uidStr].Role = newRole
-						pcall(function() GangStore:UpdateAsync(gangKey, function(oldData) 
+						pcall(function() 
+							GangStore:UpdateAsync(gangKey, function(oldData) 
 								if oldData then oldData.Members = gangData.Members end
 								return oldData 
-							end) end)
+							end) 
+							MessagingService:PublishAsync(GANG_TOPIC, { Action = "Refresh", GangKey = gangKey })
+						end)
 
 						target:SetAttribute("GangRole", newRole)
 						SendAdminNotice(target, "<font color='#FFD700'>System set your Gang Rank to " .. newRole .. "!</font>")
@@ -744,6 +751,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 						end
 						return oldData
 					end) 
+					MessagingService:PublishAsync(GANG_TOPIC, { Action = "Refresh", GangKey = gangKey })
 				end)
 				target:SetAttribute("Gang", "None")
 				target:SetAttribute("GangRole", "None")
