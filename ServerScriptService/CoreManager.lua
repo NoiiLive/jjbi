@@ -275,6 +275,7 @@ local function SavePlayerData(player)
 
 		HasStyleSlot2 = player:GetAttribute("HasStyleSlot2") or false,
 		HasStyleSlot3 = player:GetAttribute("HasStyleSlot3") or false,
+		HasAutoStatPass = player:GetAttribute("HasAutoStatPass") or false,
 
 		PaidRandomItemsRestricted = player:GetAttribute("PaidRandomItemsRestricted") or false,
 		PaidItemTradingAllowed = player:GetAttribute("PaidItemTradingAllowed") or true,
