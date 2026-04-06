@@ -169,7 +169,7 @@ local function GenerateShopStock(player)
 
 	player:SetAttribute("ShopPity", shopPity)
 	player:SetAttribute("ShopStock", table.concat(newStock, ","))
-	player:SetAttribute("ShopRefreshTime", os.time() + 900) 
+	player:SetAttribute("ShopRefreshTime", math.floor(workspace:GetServerTimeNow()) + 900) 
 	ShopUpdate:FireClient(player, "Refresh", newStock)
 end
 
@@ -181,7 +181,7 @@ local function GenerateEasterShopStock(player)
 	end
 
 	player:SetAttribute("EasterShopStock", table.concat(newStock, ","))
-	player:SetAttribute("EasterShopRefreshTime", os.time() + 1800)
+	player:SetAttribute("EasterShopRefreshTime", math.floor(workspace:GetServerTimeNow()) + 1800)
 end
 
 local PlayerJoinTimes = {}
@@ -191,20 +191,20 @@ task.spawn(function()
 		for _, player in ipairs(game.Players:GetPlayers()) do
 			local joinTime = PlayerJoinTimes[player]
 			if not joinTime then
-				PlayerJoinTimes[player] = os.time()
-				joinTime = os.time()
+				PlayerJoinTimes[player] = math.floor(workspace:GetServerTimeNow())
+				joinTime = math.floor(workspace:GetServerTimeNow())
 			end
 
-			if (os.time() - joinTime) > 10 then
+			if (math.floor(workspace:GetServerTimeNow()) - joinTime) > 10 then
 				local refreshTime = player:GetAttribute("ShopRefreshTime")
-				if not refreshTime or os.time() >= refreshTime then 
+				if not refreshTime or math.floor(workspace:GetServerTimeNow()) >= refreshTime then 
 					GenerateShopStock(player) 
 				end
 
 				local easterRefreshTime = player:GetAttribute("EasterShopRefreshTime")
 				local easterStock = player:GetAttribute("EasterShopStock")
 
-				if not easterRefreshTime or os.time() >= easterRefreshTime or not easterStock or easterStock == "" then 
+				if not easterRefreshTime or math.floor(workspace:GetServerTimeNow()) >= easterRefreshTime or not easterStock or easterStock == "" then 
 					GenerateEasterShopStock(player) 
 				end
 			end
@@ -213,16 +213,16 @@ task.spawn(function()
 end)
 
 game.Players.PlayerAdded:Connect(function(player)
-	PlayerJoinTimes[player] = os.time()
+	PlayerJoinTimes[player] = math.floor(workspace:GetServerTimeNow())
 
 	player:GetAttributeChangedSignal("ShopRefreshTime"):Connect(function()
 		local rt = player:GetAttribute("ShopRefreshTime")
-		if rt and rt < os.time() then GenerateShopStock(player) end
+		if rt and rt < math.floor(workspace:GetServerTimeNow()) then GenerateShopStock(player) end
 	end)
 
 	player:GetAttributeChangedSignal("EasterShopRefreshTime"):Connect(function()
 		local rt = player:GetAttribute("EasterShopRefreshTime")
-		if rt and rt < os.time() then GenerateEasterShopStock(player) end
+		if rt and rt < math.floor(workspace:GetServerTimeNow()) then GenerateEasterShopStock(player) end
 	end)
 end)
 
