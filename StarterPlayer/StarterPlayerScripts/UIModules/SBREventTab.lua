@@ -225,7 +225,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 		endValLbl.Text = "Endurance: " .. endur .. "/100"
 
 		local upgEnd = player:GetAttribute("HorseUpgradeEnd") or 0
-		local isUpgrading = upgEnd > os.time()
+		local isUpgrading = upgEnd > math.floor(workspace:GetServerTimeNow())
 
 		if spd >= 100 or isUpgrading then upgSpeedBtn.Visible = false else upgSpeedBtn.Visible = true end
 		if endur >= 100 or isUpgrading then upgEndBtn.Visible = false else upgEndBtn.Visible = true end
@@ -305,8 +305,8 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	end
 
 	local function RequestPath(typeStr)
-		if os.time() - lastPathTime < 1 then return end
-		lastPathTime = os.time()
+		if math.floor(workspace:GetServerTimeNow()) - lastPathTime < 1 then return end
+		lastPathTime = math.floor(workspace:GetServerTimeNow())
 
 		SFXManager.Play("Click")
 		Network.SBRAction:FireServer("TakePath", typeStr)
@@ -334,7 +334,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 			local upgEnd = player:GetAttribute("HorseUpgradeEnd") or 0
 			if upgEnd > 0 then
-				local left = upgEnd - os.time()
+				local left = upgEnd - math.floor(workspace:GetServerTimeNow())
 				if left > 0 then
 					upgTimerLbl.Text = "Upgrading... " .. FormatTime(left)
 					upgTimerLbl.Visible = true
@@ -376,7 +376,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	task.spawn(function()
 		while task.wait(0.2) do
 			if currentDeadline > 0 and turnTimerLabel.Visible then
-				local remain = math.max(0, currentDeadline - os.time())
+				local remain = math.max(0, currentDeadline - math.floor(workspace:GetServerTimeNow()))
 				turnTimerLabel.Text = "Time Remaining: " .. remain .. "s"
 				if remain <= 5 then turnTimerLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
 				else turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0) end
