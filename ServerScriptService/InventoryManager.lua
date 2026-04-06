@@ -273,6 +273,13 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 	local itemCount = player:GetAttribute(attrName) or 0
 
 	if itemCount > 0 then
+		local lockedItems = player:GetAttribute("LockedItems") or ""
+		local itemsList = string.split(lockedItems, ",")
+		if table.find(itemsList, itemName) then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot use a locked item!</font>")
+			return
+		end
+
 		local message = ""
 		local prestige = player.leaderstats.Prestige.Value
 		local statCap = GameData.GetStatCap(prestige)
