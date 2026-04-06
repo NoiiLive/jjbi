@@ -262,7 +262,7 @@ function ArenaTab.Init(parentFrame, tooltipMgr, focusFunc)
 	task.spawn(function()
 		while task.wait(0.2) do
 			if combatContainer.Visible and currentDeadline > 0 then
-				local remain = math.max(0, currentDeadline - os.time())
+				local remain = math.max(0, currentDeadline - math.floor(workspace:GetServerTimeNow()))
 				turnTimerLabel.Text = "Time Remaining: " .. remain .. "s"
 				if remain <= 5 then turnTimerLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
 				else turnTimerLabel.TextColor3 = Color3.fromRGB(255, 215, 0) end
