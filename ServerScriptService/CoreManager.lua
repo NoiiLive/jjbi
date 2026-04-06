@@ -112,7 +112,7 @@ local DefaultData = {
 	StarterPackExpired = false,
 	ProPackExpired = false,
 
-	Gang = "None", GangRole = "None", LastOnline = os.time(),
+	Gang = "None", GangRole = "None", LastOnline = math.floor(workspace:GetServerTimeNow()),
 
 	LastBossSessionFought = "",
 
@@ -188,7 +188,7 @@ local function SetupLeaderstats(player, savedData)
 	player:SetAttribute("EasterShopStock", savedData.EasterShopStock or DefaultData.EasterShopStock)
 	player:SetAttribute("EasterShopRefreshTime", savedData.EasterShopRefreshTime or DefaultData.EasterShopRefreshTime)
 	player:SetAttribute("RedeemedCodes", savedData.RedeemedCodes or DefaultData.RedeemedCodes)
-	player:SetAttribute("LastOnline", savedData.LastOnline or os.time())
+	player:SetAttribute("LastOnline", savedData.LastOnline or math.floor(workspace:GetServerTimeNow()))
 
 	for key, val in pairs(savedData) do
 		if type(val) ~= "table" and key ~= "Prestige" and key ~= "Yen" and key ~= "Elo" and key ~= "ShopStock" and key ~= "ShopRefreshTime" and key ~= "EasterShopStock" and key ~= "EasterShopRefreshTime" and key ~= "RedeemedCodes" and key ~= "LastOnline" then
@@ -480,7 +480,7 @@ RemotesFolder:WaitForChild("TutorialAction").OnServerEvent:Connect(function(play
 end)
 
 Players.PlayerRemoving:Connect(function(player)
-	player:SetAttribute("LastOnline", os.time())
+	player:SetAttribute("LastOnline", math.floor(workspace:GetServerTimeNow()))
 	SavePlayerData(player)
 end)
 
