@@ -52,26 +52,19 @@ end
 local function GenerateRandomEndlessEnemy(floor)
 	local FirstNames = {
 		"Crazed", "Menacing", "Wandering", "Furious", "Stoic", "Bizarre", "Ruthless", "Phantom", "Savage", "Silent",
-
 		"Angry", "Cold", "Wild", "Calm", "Serious", "Rough", "Sharp", "Loud", "Quiet", "Fast",
 		"Slow", "Dirty", "Clean", "Bloody", "Scarred", "Tough", "Slick", "Lazy", "Focused", "Nervous",
-
 		"Shady", "Suspicious", "Unknown", "Strange", "Odd", "Weird", "Unlucky", "Lucky", "Fearless", "Reckless",
 		"Brutal", "Harsh", "Mean", "Proud", "Greedy", "Desperate", "Broken", "Lost", "Lone", "Masked",
-
 		"Street", "Backstreet", "Downtown", "Night", "Late-Night", "Early", "Noisy", "Restless"
 	}
 
 	local LastNames = {
 		"Thug", "Brawler", "Stand User", "Delinquent", "Fighter", "Vampire", "Warrior", "Assassin", "Mercenary",
-
 		"Gangster", "Punk", "Hoodlum", "Enforcer", "Hitman", "Bodyguard", "Outlaw", "Criminal", "Troublemaker",
 		"Gunman", "Street Fighter", "Boxer", "Berserker", "Bruiser",
-
 		"Stand User", "Stand Fighter", "Ability User",
-
 		"Dealer", "Smuggler", "Fixer", "Informant", "Driver", "Guard", "Lookout",
-
 		"Snitch", "Traitor", "Liar", "Cheater", "Gambler",
 	}
 
@@ -162,8 +155,9 @@ local function GenerateRandomEndlessEnemy(floor)
 	local eDef = math.floor(bDef + (bDef * standardScale)) * bossMult
 	local eSpd = math.floor(bSpd + (bSpd * utilityScale)) * bossMult
 	local finalWill = math.floor(bWill + (bWill * utilityScale)) * bossMult
-	local dYen = math.floor((15 + (bHP * 0.1)) * (1 + standardScale)) * bossMult
-	local dXP = math.floor((50 + (bHP * 0.4)) * (1 + standardScale)) * bossMult
+
+	local dYen = math.floor((15 + (bHP * 0.1)) * (1 + standardScale)) * bossMult * 10
+	local dXP = math.floor((50 + (bHP * 0.4)) * (1 + standardScale)) * bossMult * 10
 
 	local eSkills = {"Basic Attack", "Heavy Strike", "Block"}
 	local addedSkills = {["Basic Attack"]=true, ["Heavy Strike"]=true, ["Block"]=true}
@@ -400,7 +394,9 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			player.leaderstats.Yen.Value += fYen
 
 			local droppedItems = {}
-			local dropMultiplier = player:GetAttribute("Has2xDropChance") and 2 or 1
+			local baseDropMult = player:GetAttribute("Has2xDropChance") and 2 or 1
+			local depthDropMult = 1 + (math.floor(dungeon.CurrentWave / 20) * 0.25)
+			local dropMultiplier = baseDropMult * depthDropMult
 
 			for itemName, chanceData in pairs(dungeon.Enemy.RawDrops.ItemChance) do
 				local baseChance = type(chanceData) == "table" and chanceData.Chance or chanceData
@@ -413,17 +409,63 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				end
 			end
 
-			if dungeon.CurrentWave % 10 == 0 then
-				player:SetAttribute("RokakakaCount", (player:GetAttribute("RokakakaCount") or 0) + 1)
-				table.insert(droppedItems, "<font color='#FF55FF'>[MILESTONE REWARD] Rokakaka</font>")
-				player:SetAttribute("StandArrowCount", (player:GetAttribute("StandArrowCount") or 0) + 1)
-				table.insert(droppedItems, "<font color='#55FFFF'>1x Stand Arrow</font>")
+			local now = math.floor(workspace:GetServerTimeNow())
+			local utc = os.date("!*t", now)
+			local currentDate = utc.year .. "_" .. utc.yday
+			local savedDate = player:GetAttribute("DailyEndlessDate")
+
+			if savedDate ~= currentDate then
+				player:SetAttribute("DailyEndlessDate", currentDate)
+				player:SetAttribute("DailyEndlessFloor", 0)
+			end
+
+			local floor = dungeon.CurrentWave
+			local highestToday = player:GetAttribute("DailyEndlessFloor") or 0
+
+			if floor > highestToday then
+				player:SetAttribute("DailyEndlessFloor", floor)
+			end
+
+			if floor % 10 == 0 then
+				local baseAmt = 1 + math.floor(floor / 100)
+				local corpseAmt = math.floor(floor / 100)
+
+				player:SetAttribute("RokakakaCount", (player:GetAttribute("RokakakaCount") or 0) + baseAmt)
+				player:SetAttribute("StandArrowCount", (player:GetAttribute("StandArrowCount") or 0) + baseAmt)
+				table.insert(droppedItems, "<font color='#55FFFF'>[MILESTONE] " .. baseAmt .. "x Rokakaka, " .. baseAmt .. "x Stand Arrow</font>")
+
+				if corpseAmt > 0 then
+					local attr = "SaintsCorpsePartCount"
+					player:SetAttribute(attr, (player:GetAttribute(attr) or 0) + corpseAmt)
+					table.insert(droppedItems, "<font color='#FF55FF'>[MILESTONE] " .. corpseAmt .. "x Saint's Corpse Part</font>")
+				end
+
+				if floor > highestToday then
+					if floor % 50 == 0 and floor % 100 ~= 0 then
+						player:SetAttribute("LegendaryGiftboxCount", (player:GetAttribute("LegendaryGiftboxCount") or 0) + 1)
+						table.insert(droppedItems, "<font color='#FFD700'>[FLOOR " .. floor .. " DAILY BONUS] 1x Legendary Giftbox</font>")
+					end
+
+					if floor % 100 == 0 then
+						player:SetAttribute("MythicalGiftboxCount", (player:GetAttribute("MythicalGiftboxCount") or 0) + 1)
+						table.insert(droppedItems, "<font color='#FF5555'>[CENTURY DAILY BONUS] 1x Mythical Giftbox</font>")
+					end
+
+					if floor % 1000 == 0 then
+						player:SetAttribute("UniqueGiftboxCount", (player:GetAttribute("UniqueGiftboxCount") or 0) + 1)
+						table.insert(droppedItems, "<font color='#D745FF'>[MILLENNIUM DAILY BONUS] 1x Unique Giftbox</font>")
+					end
+				else
+					if floor % 50 == 0 then
+						table.insert(droppedItems, "<font color='#AAAAAA'>[DAILY BONUS ALREADY CLAIMED FOR FLOOR " .. floor .. "]</font>")
+					end
+				end
 			end
 
 			local hs = player:GetAttribute("EndlessHighScore") or 0
-			if dungeon.CurrentWave > hs then player:SetAttribute("EndlessHighScore", dungeon.CurrentWave) end
+			if floor > hs then player:SetAttribute("EndlessHighScore", floor) end
 			local maxMilestone = player:GetAttribute("EndlessMaxMilestone") or 0
-			if dungeon.CurrentWave > maxMilestone then player:SetAttribute("EndlessMaxMilestone", dungeon.CurrentWave) end
+			if floor > maxMilestone then player:SetAttribute("EndlessMaxMilestone", floor) end
 
 			dungeon.CurrentWave += 1
 			dungeon.Enemy = GenerateRandomEndlessEnemy(dungeon.CurrentWave)
