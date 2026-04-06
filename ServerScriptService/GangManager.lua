@@ -2,6 +2,7 @@
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MessagingService = game:GetService("MessagingService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 
@@ -20,8 +21,12 @@ local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instanc
 NotificationEvent.Name = "NotificationEvent"
 
 local ActiveGangs = {}
+local PendingGangSaves = {}
+local PendingGangUpdates = {} 
 local CachedBrowserList = {} 
 local RolePower = { ["Grunt"] = 1, ["Caporegime"] = 2, ["Consigliere"] = 3, ["Boss"] = 4 }
+
+local GANG_TOPIC = "JJBI_Gang_Sync_V1"
 
 local AdminWipeEvent = ReplicatedStorage:FindFirstChild("AdminForceWipeGang")
 if not AdminWipeEvent then
@@ -121,12 +126,42 @@ end
 
 local function GetClientGangData(player)
 	local gangName = player:GetAttribute("Gang")
-	if not gangName or gangName == "None" or not ActiveGangs[gangName] then
+	if not gangName or gangName == "None" then
 		return { HasGang = false }
 	end
 
-	local gData = ActiveGangs[gangName]
+	local gKey = string.lower(gangName)
+	if not ActiveGangs[gKey] then
+		return { HasGang = false }
+	end
+
+	local gData = ActiveGangs[gKey]
 	local myRole = player:GetAttribute("GangRole") or "Grunt"
+
+	local pending = PendingGangUpdates[gKey]
+
+	local visualOrders = {}
+	for i, ord in ipairs(gData.Orders or {}) do
+		local vOrd = {
+			Type = ord.Type, Desc = ord.Desc, Target = ord.Target,
+			Progress = ord.Progress, RewardT = ord.RewardT, RewardR = ord.RewardR,
+			Completed = ord.Completed
+		}
+		if pending and pending.Orders and pending.Orders[ord.Type] and not vOrd.Completed then
+			vOrd.Progress = math.min(vOrd.Target, vOrd.Progress + pending.Orders[ord.Type])
+			if vOrd.Progress >= vOrd.Target then
+				vOrd.Completed = true 
+			end
+		end
+		table.insert(visualOrders, vOrd)
+	end
+
+	local visualTreasury = gData.Treasury or 0
+	local visualRep = gData.Rep or 0
+	if pending then
+		visualTreasury += (pending.Treasury or 0)
+		visualRep += (pending.Rep or 0)
+	end
 
 	local membersList = {}
 	for uIdStr, m in pairs(gData.Members) do
@@ -149,17 +184,17 @@ local function GetClientGangData(player)
 		HasGang = true,
 		MyRole = myRole,
 		GangData = {
-			Name = gangName,
-			Level = GetGangLevel(gData.Rep or 0),
-			Rep = gData.Rep,
-			MaxRep = GetGangLevel(gData.Rep or 0) * 1000, 
-			Treasury = gData.Treasury,
+			Name = gData.Name,
+			Level = GetGangLevel(visualRep),
+			Rep = visualRep,
+			MaxRep = GetGangLevel(visualRep) * 1000, 
+			Treasury = visualTreasury,
 			Motto = gData.Motto,
 			Emblem = gData.Emblem,
 			PrestigeReq = gData.PrestigeReq,
 			JoinMode = gData.JoinMode,
 			Buildings = gData.Buildings,
-			Orders = gData.Orders,
+			Orders = visualOrders,
 			LastOrderReset = gData.LastOrderReset,
 			ActiveUpgrade = gData.ActiveUpgrade,
 			RoleNames = gData.CustomRoles,
@@ -176,6 +211,143 @@ local function SyncPlayer(player)
 	end
 end
 
+local function SyncGangToMembers(gangName)
+	local key = string.lower(gangName)
+	local gang = ActiveGangs[key]
+	if not gang then return end
+	for userIdStr, _ in pairs(gang.Members) do
+		local p = Players:GetPlayerByUserId(tonumber(userIdStr))
+		if p then SyncPlayer(p) end
+	end
+end
+
+local function LoadGangData(gangName, forceRefresh)
+	if not gangName or gangName == "None" then return nil end
+	local key = string.lower(gangName)
+	if not forceRefresh and ActiveGangs[key] then return ActiveGangs[key] end
+
+	local success, data = pcall(function() return GangStore:GetAsync(key) end)
+	if success and data then
+		if data.RenamedTo then return LoadGangData(data.RenamedTo, forceRefresh) end
+
+		if not data.Buildings then data.Buildings = { Vault = 0, Dojo = 0, Armory = 0, Shrine = 0, Market = 0 } end
+		if not data.Orders then data.Orders = GenerateRandomOrders() end
+		if not data.LastOrderReset then data.LastOrderReset = math.floor(workspace:GetServerTimeNow()) end
+		if not data.PrestigeReq then data.PrestigeReq = 0 end
+		if not data.ActiveUpgrade then data.ActiveUpgrade = nil end
+		if not data.Requests then data.Requests = {} end
+		if not data.CustomRoles then data.CustomRoles = { Boss = "Boss", Consigliere = "Consigliere", Caporegime = "Caporegime", Grunt = "Grunt" } end
+
+		for uIdStr, memData in pairs(data.Members) do
+			if not memData.UserId then memData.UserId = tonumber(uIdStr) end
+		end
+
+		ActiveGangs[key] = data
+		return data
+	end
+	return nil
+end
+
+local function MutateGangData(gangName, mutatorFunc, skipBroadcast)
+	if not gangName or gangName == "None" then return false end
+	local key = string.lower(gangName)
+	local finalData = nil
+
+	local success, err = pcall(function()
+		GangStore:UpdateAsync(key, function(oldData)
+			if oldData and oldData.RenamedTo then return oldData end
+			local dataToSave = oldData or ActiveGangs[key]
+			if not dataToSave then return nil end
+
+			dataToSave = mutatorFunc(dataToSave)
+			if not dataToSave then return nil end 
+
+			dataToSave.MemberCount = GetDictSize(dataToSave.Members)
+			finalData = dataToSave
+			return dataToSave
+		end)
+	end)
+
+	if success and finalData and not finalData.RenamedTo then
+		ActiveGangs[key] = finalData
+		if not skipBroadcast then
+			pcall(function()
+				MessagingService:PublishAsync(GANG_TOPIC, { Action = "Refresh", GangKey = key })
+			end)
+		end
+		return true, finalData
+	end
+
+	if err then warn("[GangManager] Mutate Error for", key, ":", err) end
+	return false, err
+end
+
+local function UpdateODS(gangData)
+	pcall(function()
+		ODS_GangRep:SetAsync(gangData.Name, gangData.Rep or 0)
+		ODS_GangTreasury:SetAsync(gangData.Name, gangData.Treasury or 0)
+		ODS_GangPrestige:SetAsync(gangData.Name, gangData.TotalPrestige or 0)
+		ODS_GangElo:SetAsync(gangData.Name, gangData.TotalElo or 0)
+		ODS_GangRaids:SetAsync(gangData.Name, gangData.RaidWins or 0)
+	end)
+end
+
+local function AddPendingUpdate(gangKey, updateType, amount, extraStr)
+	if not gangKey or gangKey == "None" then return end
+	local key = string.lower(gangKey)
+	if not PendingGangUpdates[key] then
+		PendingGangUpdates[key] = { Rep = 0, Treasury = 0, Orders = {} }
+	end
+
+	if updateType == "Rep" then
+		PendingGangUpdates[key].Rep += amount
+	elseif updateType == "Treasury" then
+		PendingGangUpdates[key].Treasury += amount
+	elseif updateType == "Order" then
+		PendingGangUpdates[key].Orders[extraStr] = (PendingGangUpdates[key].Orders[extraStr] or 0) + amount
+	end
+end
+
+pcall(function()
+	MessagingService:SubscribeAsync(GANG_TOPIC, function(message)
+		local data = message.Data
+		if data.Action == "Refresh" then
+			if ActiveGangs[data.GangKey] then
+				task.delay(math.random() * 2, function()
+					LoadGangData(data.GangKey, true)
+					SyncGangToMembers(data.GangKey)
+				end)
+			end
+		elseif data.Action == "Wipe" then
+			ActiveGangs[data.GangKey] = nil
+			PendingGangSaves[data.GangKey] = nil
+			PendingGangUpdates[data.GangKey] = nil
+			for _, p in ipairs(Players:GetPlayers()) do
+				if p:GetAttribute("Gang") == data.GangKey then
+					p:SetAttribute("Gang", "None")
+					p:SetAttribute("GangRole", "None")
+					ApplyGangBuffs(p, nil)
+					NotificationEvent:FireClient(p, "<font color='#FF5555'>Your gang was completely erased.</font>")
+					SyncPlayer(p)
+				end
+			end
+		elseif data.Action == "Rename" then
+			if ActiveGangs[data.OldKey] then
+				local g = ActiveGangs[data.OldKey]
+				g.Name = data.NewName
+				ActiveGangs[data.NewKey] = g
+				ActiveGangs[data.OldKey] = nil
+			end
+			for _, p in ipairs(Players:GetPlayers()) do
+				if p:GetAttribute("Gang") == data.OldKey then
+					p:SetAttribute("Gang", data.NewKey)
+					SyncPlayer(p)
+				end
+			end
+		end
+	end)
+end)
+
 AdminWipeEvent.Event:Connect(function(gangKey)
 	local displayToWipe = gangKey
 	local gangData = ActiveGangs[gangKey]
@@ -187,18 +359,6 @@ AdminWipeEvent.Event:Connect(function(gangKey)
 		displayToWipe = gangData.Name
 	end
 
-	ActiveGangs[gangKey] = nil 
-
-	for _, p in ipairs(Players:GetPlayers()) do
-		if p:GetAttribute("Gang") == gangKey then
-			p:SetAttribute("Gang", "None")
-			p:SetAttribute("GangRole", "None")
-			ApplyGangBuffs(p, nil)
-			NotificationEvent:FireClient(p, "<font color='#FF5555'>Your gang was completely erased by an Admin.</font>")
-			SyncPlayer(p)
-		end
-	end
-
 	pcall(function()
 		GangStore:RemoveAsync(gangKey)
 		ODS_GangRep:RemoveAsync(displayToWipe)
@@ -206,110 +366,9 @@ AdminWipeEvent.Event:Connect(function(gangKey)
 		ODS_GangPrestige:RemoveAsync(displayToWipe)
 		ODS_GangElo:RemoveAsync(displayToWipe)
 		ODS_GangRaids:RemoveAsync(displayToWipe)
+		MessagingService:PublishAsync(GANG_TOPIC, { Action = "Wipe", GangKey = gangKey })
 	end)
 end)
-
-local function LoadGangData(gangName)
-	if not gangName or gangName == "None" then return nil end
-	local key = string.lower(gangName)
-	if ActiveGangs[key] then return ActiveGangs[key] end
-	local success, data = pcall(function() return GangStore:GetAsync(key) end)
-	if success and data then
-		if data.RenamedTo then return LoadGangData(data.RenamedTo) end
-
-		if not data.Buildings then data.Buildings = { Vault = 0, Dojo = 0, Armory = 0, Shrine = 0, Market = 0 } end
-		if not data.Orders then data.Orders = GenerateRandomOrders() end
-		if not data.LastOrderReset then data.LastOrderReset = math.floor(workspace:GetServerTimeNow()) end
-		if not data.PrestigeReq then data.PrestigeReq = 0 end
-		if not data.ActiveUpgrade then data.ActiveUpgrade = nil end
-		if not data.Requests then data.Requests = {} end
-		if not data.CustomRoles then data.CustomRoles = { Boss = "Boss", Consigliere = "Consigliere", Caporegime = "Caporegime", Grunt = "Grunt" } end
-
-		for uIdStr, memData in pairs(data.Members) do
-			if not memData.UserId then
-				memData.UserId = tonumber(uIdStr)
-			end
-		end
-
-		ActiveGangs[key] = data
-		return data
-	end
-	return nil
-end
-
-local function SaveGangData(gangName, optionalCallback)
-	if not gangName or gangName == "None" then return end
-	local key = string.lower(gangName)
-	local finalDataToSave = nil
-
-	local success, err = pcall(function()
-		GangStore:UpdateAsync(key, function(oldData)
-			if oldData and oldData.RenamedTo then
-				finalDataToSave = oldData
-				return oldData
-			end
-
-			local dataToSave = oldData or ActiveGangs[key]
-			if not dataToSave then return nil end
-
-			if optionalCallback then
-				dataToSave = optionalCallback(dataToSave)
-			else
-				if ActiveGangs[key] then
-					dataToSave.TotalPrestige = ActiveGangs[key].TotalPrestige
-					dataToSave.TotalElo = ActiveGangs[key].TotalElo
-					dataToSave.RaidWins = ActiveGangs[key].RaidWins
-				end
-			end
-
-			if dataToSave.ActiveUpgrade and math.floor(workspace:GetServerTimeNow()) >= dataToSave.ActiveUpgrade.FinishTime then
-				local bId = dataToSave.ActiveUpgrade.Id
-				dataToSave.Buildings[bId] = (dataToSave.Buildings[bId] or 0) + 1
-				dataToSave.ActiveUpgrade = nil
-			end
-
-			dataToSave.MemberCount = GetDictSize(dataToSave.Members)
-
-			finalDataToSave = dataToSave
-			return dataToSave
-		end)
-	end)
-
-	if success and finalDataToSave then
-		if finalDataToSave.RenamedTo then
-			local newKey = finalDataToSave.RenamedTo
-			ActiveGangs[key] = nil
-			for _, p in ipairs(Players:GetPlayers()) do
-				if p:GetAttribute("Gang") == key then p:SetAttribute("Gang", newKey) end
-			end
-			return
-		end
-
-		ActiveGangs[key] = finalDataToSave
-
-		task.spawn(function()
-			pcall(function()
-				ODS_GangRep:SetAsync(finalDataToSave.Name, finalDataToSave.Rep or 0)
-				ODS_GangTreasury:SetAsync(finalDataToSave.Name, finalDataToSave.Treasury or 0)
-				ODS_GangPrestige:SetAsync(finalDataToSave.Name, finalDataToSave.TotalPrestige or 0)
-				ODS_GangElo:SetAsync(finalDataToSave.Name, finalDataToSave.TotalElo or 0)
-				ODS_GangRaids:SetAsync(finalDataToSave.Name, finalDataToSave.RaidWins or 0)
-			end)
-		end)
-	else
-		if err then warn("Failed to UpdateAsync Gang Data: ", err) end
-	end
-end
-
-local function SyncGangToMembers(gangName)
-	local key = string.lower(gangName)
-	local gang = ActiveGangs[key]
-	if not gang then return end
-	for userIdStr, _ in pairs(gang.Members) do
-		local p = Players:GetPlayerByUserId(tonumber(userIdStr))
-		if p then SyncPlayer(p) end
-	end
-end
 
 local function ElectNewBoss(gangData)
 	local bestId = nil; local bestPwr = -1; local bestPrest = -1
@@ -346,17 +405,57 @@ task.spawn(function()
 end)
 
 task.spawn(function()
+	while task.wait(30) do 
+		for gangKey, updates in pairs(PendingGangUpdates) do
+			local hasChanges = (updates.Rep > 0 or updates.Treasury > 0 or GetDictSize(updates.Orders) > 0)
+			if hasChanges then
+				local completedAny = false
+				local repToAdd = updates.Rep
+				local treasToAdd = updates.Treasury
+				local ordToProcess = table.clone(updates.Orders)
+
+				PendingGangUpdates[gangKey] = { Rep = 0, Treasury = 0, Orders = {} }
+
+				MutateGangData(gangKey, function(gangData)
+					gangData.Rep = (gangData.Rep or 0) + repToAdd
+					gangData.Treasury = (gangData.Treasury or 0) + treasToAdd
+
+					for oType, oAmt in pairs(ordToProcess) do
+						for _, ord in ipairs(gangData.Orders) do
+							if ord.Type == oType and not ord.Completed then
+								ord.Progress = math.min(ord.Target, ord.Progress + oAmt)
+								if ord.Progress >= ord.Target then
+									ord.Completed = true
+									gangData.Treasury = (gangData.Treasury or 0) + ord.RewardT
+									gangData.Rep = (gangData.Rep or 0) + ord.RewardR
+									completedAny = true
+									task.defer(function() DistributeOrderLoot(gangData, "Legendary") end)
+								end
+							end
+						end
+					end
+					return gangData
+				end, true)
+
+				if completedAny then SyncGangToMembers(gangKey) end
+			end
+			task.wait(1) 
+		end
+	end
+end)
+
+task.spawn(function()
 	while task.wait(300) do 
 		for gangKey, _ in pairs(ActiveGangs) do
-			SaveGangData(gangKey, function(gangData)
-				local totalPrestige = 0; local totalElo = 0; local totalRaids = 0
+			MutateGangData(gangKey, function(gData)
+				local totalPrestige, totalElo, totalRaids = 0, 0, 0
 
-				if not gangData.LastOrderReset or math.floor(workspace:GetServerTimeNow()) - gangData.LastOrderReset >= 86400 then
-					gangData.Orders = GenerateRandomOrders()
-					gangData.LastOrderReset = math.floor(workspace:GetServerTimeNow())
+				if not gData.LastOrderReset or math.floor(workspace:GetServerTimeNow()) - gData.LastOrderReset >= 86400 then
+					gData.Orders = GenerateRandomOrders()
+					gData.LastOrderReset = math.floor(workspace:GetServerTimeNow())
 				end
 
-				for uIdStr, memData in pairs(gangData.Members) do
+				for uIdStr, memData in pairs(gData.Members) do
 					local livePlayer = Players:GetPlayerByUserId(tonumber(uIdStr))
 					if livePlayer then
 						local pObj = livePlayer:FindFirstChild("leaderstats")
@@ -377,39 +476,61 @@ task.spawn(function()
 					totalRaids += (memData.RaidWins or 0)
 				end
 
-				gangData.TotalPrestige = totalPrestige
-				gangData.TotalElo = totalElo
-				gangData.RaidWins = totalRaids
+				gData.TotalPrestige = totalPrestige
+				gData.TotalElo = totalElo
+				gData.RaidWins = totalRaids
 
-				return gangData
-			end)
+				return gData
+			end, true)
+
+			if ActiveGangs[gangKey] then UpdateODS(ActiveGangs[gangKey]) end
+			PendingGangSaves[gangKey] = nil
+			task.wait(1) 
 		end
 	end
 end)
 
-ProgressOrderEvent.Event:Connect(function(gangKey, orderType, amount)
-	if not gangKey or gangKey == "None" then return end
-	local key = string.lower(gangKey)
-	local gang = ActiveGangs[key]
-	if not gang then return end
+game:BindToClose(function()
+	for gangKey, updates in pairs(PendingGangUpdates) do
+		local hasChanges = (updates.Rep > 0 or updates.Treasury > 0 or GetDictSize(updates.Orders) > 0)
+		if hasChanges then
+			MutateGangData(gangKey, function(gangData)
+				gangData.Rep = (gangData.Rep or 0) + updates.Rep
+				gangData.Treasury = (gangData.Treasury or 0) + updates.Treasury
+				for oType, oAmt in pairs(updates.Orders) do
+					for _, ord in ipairs(gangData.Orders) do
+						if ord.Type == oType and not ord.Completed then
+							ord.Progress = math.min(ord.Target, ord.Progress + oAmt)
+							if ord.Progress >= ord.Target then
+								ord.Completed = true
+								gangData.Treasury = (gangData.Treasury or 0) + ord.RewardT
+								gangData.Rep = (gangData.Rep or 0) + ord.RewardR
+							end
+						end
+					end
+				end
+				return gangData
+			end, true)
+		end
+	end
 
-	local completedAny = false
-	SaveGangData(key, function(gangData)
-		for _, ord in ipairs(gangData.Orders) do
-			if ord.Type == orderType and not ord.Completed then
-				ord.Progress = math.min(ord.Target, ord.Progress + amount)
-				if ord.Progress >= ord.Target then
-					ord.Completed = true
-					gangData.Treasury = (gangData.Treasury or 0) + ord.RewardT
-					gangData.Rep = (gangData.Rep or 0) + ord.RewardR
-					completedAny = true
-					DistributeOrderLoot(gangData, "Legendary") 
+	for key, _ in pairs(PendingGangSaves) do
+		MutateGangData(key, function(gData)
+			for uIdStr, memData in pairs(gData.Members) do
+				local liveP = Players:GetPlayerByUserId(tonumber(uIdStr))
+				if liveP then
+					memData.LastOnline = math.floor(workspace:GetServerTimeNow())
+					memData.PlayTime = liveP:GetAttribute("PlayTime") or memData.PlayTime or 0
 				end
 			end
-		end
-		return gangData
-	end)
-	if completedAny then SyncGangToMembers(key) end
+			return gData
+		end, true)
+	end
+end)
+
+ProgressOrderEvent.Event:Connect(function(gangKey, orderType, amount)
+	AddPendingUpdate(gangKey, "Order", amount, orderType)
+	SyncGangToMembers(gangKey)
 end)
 
 GangRepEvent.Event:Connect(function(userId, amount)
@@ -419,13 +540,8 @@ GangRepEvent.Event:Connect(function(userId, amount)
 	local pGangName = player:GetAttribute("Gang")
 	if not pGangName or pGangName == "None" then return end
 
-	SaveGangData(pGangName, function(gangData)
-		gangData.Rep = (gangData.Rep or 0) + amount
-		return gangData
-	end)
-
+	AddPendingUpdate(pGangName, "Rep", amount)
 	SyncGangToMembers(pGangName)
-	ApplyGangBuffs(player, ActiveGangs[string.lower(pGangName)])
 end)
 
 Players.PlayerAdded:Connect(function(player)
@@ -497,13 +613,13 @@ end)
 Players.PlayerRemoving:Connect(function(player)
 	local pGangName = player:GetAttribute("Gang")
 	if pGangName and pGangName ~= "None" then
-		SaveGangData(pGangName, function(gangData)
-			if gangData.Members[tostring(player.UserId)] then
-				gangData.Members[tostring(player.UserId)].LastOnline = math.floor(workspace:GetServerTimeNow())
-				gangData.Members[tostring(player.UserId)].PlayTime = player:GetAttribute("PlayTime") or gangData.Members[tostring(player.UserId)].PlayTime or 0
-			end
-			return gangData
-		end)
+		local key = string.lower(pGangName)
+		local gang = ActiveGangs[key]
+		if gang and gang.Members[tostring(player.UserId)] then
+			gang.Members[tostring(player.UserId)].LastOnline = math.floor(workspace:GetServerTimeNow())
+			gang.Members[tostring(player.UserId)].PlayTime = player:GetAttribute("PlayTime") or gang.Members[tostring(player.UserId)].PlayTime or 0
+			PendingGangSaves[key] = true
+		end
 	end
 end)
 
@@ -556,11 +672,20 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			ActiveUpgrade = nil
 		}
 
-		ActiveGangs[gangKey] = newGang
-		SaveGangData(gangKey)
-		player:SetAttribute("Gang", gangKey)
-		player:SetAttribute("GangRole", "Boss")
-		SyncGangToMembers(gangKey)
+		local success, err = pcall(function()
+			GangStore:SetAsync(gangKey, newGang)
+		end)
+
+		if success then
+			ActiveGangs[gangKey] = newGang
+			player:SetAttribute("Gang", gangKey)
+			player:SetAttribute("GangRole", "Boss")
+			SyncGangToMembers(gangKey)
+			pcall(function() MessagingService:PublishAsync(GANG_TOPIC, { Action = "Refresh", GangKey = gangKey }) end)
+		else
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Failed to create gang. Try again later.</font>")
+			yen.Value += 500000 
+		end
 
 	elseif action == "Rename" then
 		if pRole ~= "Boss" then return end
@@ -603,6 +728,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		if success then
 			ActiveGangs[newKey] = oldData
 			ActiveGangs[oldKey] = nil
+			PendingGangSaves[oldKey] = nil
 
 			for uIdStr, _ in pairs(oldData.Members) do
 				local mem = Players:GetPlayerByUserId(tonumber(uIdStr))
@@ -610,8 +736,8 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			end
 
 			NotificationEvent:FireClient(player, "<font color='#55FF55'>Successfully renamed Gang to " .. displayGangName .. "!</font>")
-			SaveGangData(newKey) 
 			SyncGangToMembers(newKey)
+			pcall(function() MessagingService:PublishAsync(GANG_TOPIC, { Action = "Rename", OldKey = oldKey, NewKey = newKey, NewName = displayGangName }) end)
 		else
 			oldData.Name = oldDisplayName
 			oldData.Treasury = (oldData.Treasury or 0) + 10000000
@@ -626,7 +752,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			return
 		end
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			gangData.Motto = newMotto
 			return gangData
 		end)
@@ -644,7 +770,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		end
 
 		local newEmblem = "rbxthumb://type=Asset&id=" .. digits .. "&w=150&h=150"
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			gangData.Emblem = newEmblem
 			return gangData
 		end)
@@ -656,7 +782,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local newReq = tonumber(value)
 		if not newReq or newReq < 0 then return end
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			gangData.PrestigeReq = newReq
 			return gangData
 		end)
@@ -679,7 +805,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local started = false
 		local errReason = ""
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			if gangData.ActiveUpgrade then
 				if math.floor(workspace:GetServerTimeNow()) < gangData.ActiveUpgrade.FinishTime then
 					errReason = "An upgrade is already in progress!"
@@ -722,7 +848,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		if not orderIndex then return end
 
 		local rerolled = false
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			if not gangData.Orders or not gangData.Orders[orderIndex] then return gangData end
 			if gangData.Orders[orderIndex].Completed then return gangData end
 
@@ -752,7 +878,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			return 
 		end
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			if not gangData.CustomRoles then gangData.CustomRoles = {} end
 			gangData.CustomRoles[targetRole] = newRoleName
 			return gangData
@@ -808,7 +934,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 
 	elseif action == "ToggleJoinMode" then
 		if pRole ~= "Boss" then return end
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			gangData.JoinMode = (gangData.JoinMode == "Open") and "Request" or "Open"
 			return gangData
 		end)
@@ -836,7 +962,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		if gangCache.JoinMode == "Open" then
 			local actuallyJoined = false
 
-			SaveGangData(targetGangKey, function(gangData)
+			MutateGangData(targetGangKey, function(gangData)
 				actuallyJoined = false
 				if GetDictSize(gangData.Members) < 30 and not gangData.Members[pIdStr] then
 					gangData.Members[pIdStr] = {Name = player.Name, Role = "Grunt", Prestige = player.leaderstats.Prestige.Value, LastOnline = math.floor(workspace:GetServerTimeNow()), Contribution = 0, PlayTime = player:GetAttribute("PlayTime") or 0, UserId = player.UserId}
@@ -855,7 +981,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 				NotificationEvent:FireClient(player, "<font color='#FF5555'>Gang is full (30/30)!</font>")
 			end
 		else
-			SaveGangData(targetGangKey, function(gangData)
+			MutateGangData(targetGangKey, function(gangData)
 				if not gangData.Requests then gangData.Requests = {} end
 				gangData.Requests[pIdStr] = player.Name
 				return gangData
@@ -870,7 +996,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local targetPlayer = Players:GetPlayerByUserId(tonumber(targetIdStr))
 		local accepted = false
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			accepted = false
 			if gangData.Requests and gangData.Requests[targetIdStr] then
 				if action == "AcceptRequest" then
@@ -900,7 +1026,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		if RolePower[pRole] < RolePower["Consigliere"] then return end
 		local targetIdStr = tostring(value)
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			local targetMember = gangData.Members[targetIdStr]
 			if targetMember and targetIdStr ~= pIdStr and RolePower[pRole] > (RolePower[targetMember.Role] or 1) then
 				gangData.Members[targetIdStr] = nil
@@ -922,7 +1048,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		if RolePower[pRole] < RolePower["Consigliere"] then return end
 		local targetIdStr = tostring(value)
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			local targetMember = gangData.Members[targetIdStr]
 			if targetMember and targetIdStr ~= pIdStr and RolePower[pRole] > (RolePower[targetMember.Role] or 1) then
 				local curRole = targetMember.Role
@@ -978,19 +1104,9 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local yen = player.leaderstats.Yen
 		if yen.Value >= amount then
 			yen.Value -= amount
-			SaveGangData(pGangName, function(gangData)
-				gangData.Treasury = (gangData.Treasury or 0) + amount
-				gangData.Rep = (gangData.Rep or 0) + math.floor(amount / 1000)
-
-				if gangData.Members[pIdStr] then
-					gangData.Members[pIdStr].Contribution = (gangData.Members[pIdStr].Contribution or 0) + amount
-				end
-
-				return gangData
-			end)
-
+			AddPendingUpdate(pGangName, "Treasury", amount)
 			ProgressOrderEvent:Fire(pGangName, "Yen", amount)
-			ApplyGangBuffs(player, ActiveGangs[pGangName])
+			ApplyGangBuffs(player, ActiveGangs[string.lower(pGangName)])
 			NotificationEvent:FireClient(player, "<font color='#55FF55'>Donated ¥" .. amount .. " to the Gang!</font>")
 			SyncGangToMembers(pGangName)
 		end
@@ -998,7 +1114,7 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 	elseif action == "Leave" then
 		if pGangName == "None" or pRole == "Boss" then return end
 
-		SaveGangData(pGangName, function(gangData)
+		MutateGangData(pGangName, function(gangData)
 			if gangData.Members[pIdStr] then
 				gangData.Members[pIdStr] = nil
 			end
@@ -1014,23 +1130,11 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 
 	elseif action == "Disband" then
 		if pGangName == "None" or pRole ~= "Boss" then return end
-		local gang = ActiveGangs[pGangName]
+		local gang = ActiveGangs[string.lower(pGangName)]
 		if not gang then return end
 
 		local displayToWipe = gang.Name
 
-		for uIdStr, _ in pairs(gang.Members) do
-			local mem = Players:GetPlayerByUserId(tonumber(uIdStr))
-			if mem then
-				mem:SetAttribute("Gang", "None")
-				mem:SetAttribute("GangRole", "None")
-				ApplyGangBuffs(mem, nil)
-				NotificationEvent:FireClient(mem, "<font color='#FF5555'>Your gang was disbanded.</font>")
-				SyncPlayer(mem)
-			end
-		end
-
-		ActiveGangs[pGangName] = nil
 		pcall(function()
 			GangStore:RemoveAsync(pGangName)
 			ODS_GangRep:RemoveAsync(displayToWipe)
@@ -1038,56 +1142,45 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			ODS_GangPrestige:RemoveAsync(displayToWipe)
 			ODS_GangElo:RemoveAsync(displayToWipe)
 			ODS_GangRaids:RemoveAsync(displayToWipe)
+			MessagingService:PublishAsync(GANG_TOPIC, { Action = "Wipe", GangKey = pGangName })
 		end)
 
 	elseif action == "RequestSync" then
 		if pGangName ~= "None" then
-			local data = LoadGangData(pGangName)
-			if data then 
-				SaveGangData(pGangName, function(gangData)
-					if not gangData.Buildings then gangData.Buildings = { Vault = 0, Dojo = 0, Armory = 0, Shrine = 0, Market = 0 } end
-					if not gangData.Orders then gangData.Orders = GenerateRandomOrders() end
-					if not gangData.LastOrderReset then gangData.LastOrderReset = math.floor(workspace:GetServerTimeNow()) end
-					if not gangData.PrestigeReq then gangData.PrestigeReq = 0 end
-
-					if not gangData.Requests then gangData.Requests = {} end
-
-					if gangData.ActiveUpgrade and math.floor(workspace:GetServerTimeNow()) >= gangData.ActiveUpgrade.FinishTime then
-						local bId = gangData.ActiveUpgrade.Id
-						gangData.Buildings[bId] = (gangData.Buildings[bId] or 0) + 1
-						gangData.ActiveUpgrade = nil
-					end
-
-					for uIdStr, memData in pairs(gangData.Members) do
-						local livePlayer = Players:GetPlayerByUserId(tonumber(uIdStr))
-						if livePlayer then
-							local pObj = livePlayer:FindFirstChild("leaderstats")
-							if pObj and pObj:FindFirstChild("Prestige") then
-								memData.Prestige = pObj.Prestige.Value
-							end
-							memData.LastOnline = math.floor(workspace:GetServerTimeNow())
-							memData.PlayTime = livePlayer:GetAttribute("PlayTime") or memData.PlayTime or 0
+			local gData = LoadGangData(pGangName)
+			if gData then
+				if gData.ActiveUpgrade and math.floor(workspace:GetServerTimeNow()) >= gData.ActiveUpgrade.FinishTime then
+					MutateGangData(pGangName, function(mutateData)
+						if mutateData.ActiveUpgrade and math.floor(workspace:GetServerTimeNow()) >= mutateData.ActiveUpgrade.FinishTime then
+							local bId = mutateData.ActiveUpgrade.Id
+							mutateData.Buildings[bId] = (mutateData.Buildings[bId] or 0) + 1
+							mutateData.ActiveUpgrade = nil
 						end
-
-						memData.Contribution = memData.Contribution or 0
-						memData.PlayTime = memData.PlayTime or 0
+						return mutateData
+					end)
+				else
+					if gData.Members[pIdStr] then
+						local memData = gData.Members[pIdStr]
+						memData.PlayTime = player:GetAttribute("PlayTime") or memData.PlayTime or 0
+						memData.LastOnline = math.floor(workspace:GetServerTimeNow())
 					end
-
 					local hasBoss = false
-					for _, m in pairs(gangData.Members) do
-						if m.Role == "Boss" then hasBoss = true; break end
+					for _, m in pairs(gData.Members) do if m.Role == "Boss" then hasBoss = true break end end
+					if not hasBoss then
+						MutateGangData(pGangName, function(mutateData)
+							ElectNewBoss(mutateData)
+							return mutateData
+						end)
 					end
-
-					if not hasBoss then ElectNewBoss(gangData) end
-					return gangData
-				end)
-
+				end
 				SyncPlayer(player) 
 			else
 				player:SetAttribute("Gang", "None")
 				player:SetAttribute("GangRole", "None")
 				SyncPlayer(player)
 			end
+		else
+			SyncPlayer(player) 
 		end
 	end
 end)
