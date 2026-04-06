@@ -173,26 +173,29 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 				local utc = os.date("!*t")
 				local mins = utc.min
 				local secs = utc.sec
-				local currentHour = utc.hour
-				local lastFought = player:GetAttribute("LastWorldBossHour")
 				local isStudio = RunService:IsStudio()
+
+				local currentSession = ReplicatedStorage:GetAttribute("CurrentBossSession") or ""
+				local lastFought = player:GetAttribute("LastBossSessionFought") or ""
 
 				local endTime = ReplicatedStorage:GetAttribute("WorldBossEndTime") or 0
 				local timeRemaining = endTime - os.time()
 
-				if lastFought == currentHour and not isStudio then
-					local secondsLeft = (60 * 60) - ((mins * 60) + secs)
-					timerLabel.Text = "NEXT IN: " .. FormatTime(secondsLeft)
-					timerLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-					engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-					engageBtn.Text = "ALREADY FOUGHT"
-					engageBtn.AutoButtonColor = false
-				elseif timeRemaining > 0 then
-					timerLabel.Text = "DESPAWNS IN: " .. FormatTime(math.floor(timeRemaining))
-					timerLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-					engageBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
-					engageBtn.Text = "ENGAGE BOSS"
-					engageBtn.AutoButtonColor = true
+				if timeRemaining > 0 then
+					if lastFought == currentSession and currentSession ~= "" and not isStudio then
+						local secondsLeft = (60 * 60) - ((mins * 60) + secs)
+						timerLabel.Text = "NEXT IN: " .. FormatTime(secondsLeft)
+						timerLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+						engageBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+						engageBtn.Text = "ALREADY FOUGHT"
+						engageBtn.AutoButtonColor = false
+					else
+						timerLabel.Text = "DESPAWNS IN: " .. FormatTime(math.floor(timeRemaining))
+						timerLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+						engageBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
+						engageBtn.Text = "ENGAGE BOSS"
+						engageBtn.AutoButtonColor = true
+					end
 				else
 					local secondsLeft = (60 * 60) - ((mins * 60) + secs)
 					timerLabel.Text = "SPAWNS IN: " .. FormatTime(secondsLeft)
@@ -412,6 +415,8 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 	end
 end
 
-function WorldBossTab.SystemMessage(msg) AddLog("" .. msg .. "", true) end
+function WorldBossTab.SystemMessage(msg)
+	AddLog(msg, true)
+end
 
 return WorldBossTab
