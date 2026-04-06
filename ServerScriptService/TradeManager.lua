@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PolicyService = game:GetService("PolicyService")
@@ -42,12 +43,14 @@ for _, p in ipairs(Players:GetPlayers()) do
 end
 
 local function IsKeyItem(name)
-	if name == "Stand Arrow" or name == "Rokakaka" or name == "Heavenly Stand Disc" or name == "Saint's Corpse Part" then
+	local itemInfo = ItemData.Equipment[name] or ItemData.Consumables[name]
+	if not itemInfo then return false end
+
+	if itemInfo.Rarity == "Unique" or itemInfo.Rarity == "Special" then
 		return true
 	end
 
-	local itemInfo = ItemData.Equipment[name] or ItemData.Consumables[name]
-	if itemInfo and (itemInfo.Rarity == "Unique" or itemInfo.Rarity == "Special") then
+	if ItemData.Consumables[name] and itemInfo.Category == "Stand" then
 		return true
 	end
 
@@ -65,6 +68,7 @@ local function IsRestrictedPass(name)
 		["Style Storage Slot 2"] = true,
 		["Style Storage Slot 3"] = true,
 		["Auto-Roll Pass"] = true,
+		["Auto-Stat Invest"] = true,
 		["Custom Horse Name"] = true,
 		["VIP"] = true
 	}
@@ -669,11 +673,6 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if myOffer.Locked or myOffer.Confirmed then return end
 			if myOffer.Stand then return end 
 
-			if player:GetAttribute("StandLocked") and data == "Active" then
-				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade a locked Stand!</font>")
-				return
-			end
-
 			local slot = data
 			local sName, sTrait = "None", "None"
 
@@ -748,11 +747,6 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if myOffer.Locked or myOffer.Confirmed then return end
 			if myOffer.Style then return end 
 
-			if player:GetAttribute("StyleLocked") and data == "Active" then
-				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade a locked Style!</font>")
-				return
-			end
-
 			local slot = data
 			local sName = "None"
 
@@ -779,12 +773,6 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 		elseif action == "AddItem" then
 			if myOffer.Locked or myOffer.Confirmed then return end
 			local itemName = tostring(data)
-
-			local lockedItems = player:GetAttribute("LockedItems") or ""
-			if table.find(string.split(lockedItems, ","), itemName) then
-				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade a locked item!</font>")
-				return
-			end
 
 			local opp = (session.P1 == player) and session.P2 or session.P1
 			if IsRestrictedPass(itemName) then
