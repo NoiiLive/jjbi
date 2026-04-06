@@ -114,7 +114,7 @@ local DefaultData = {
 
 	Gang = "None", GangRole = "None", LastOnline = os.time(),
 
-	LastWorldBossHour = -1,
+	LastBossSessionFought = "",
 
 	IsVIP = false,
 
@@ -255,7 +255,7 @@ local function SavePlayerData(player)
 		GangRole = player:GetAttribute("GangRole") or "None",
 		LastOnline = player:GetAttribute("LastOnline"), 
 
-		LastWorldBossHour = player:GetAttribute("LastWorldBossHour") or -1,
+		LastBossSessionFought = player:GetAttribute("LastBossSessionFought") or "",
 
 		IsVIP = player:GetAttribute("IsVIP") or false,
 
