@@ -61,8 +61,9 @@ ItemData.Equipment = {
 	["Rock Insect"] = { Slot = "Accessory", Bonus = { Stand_Durability = 150, Defense = 100, Strength = 80 }, Rarity = "Mythical", Cost = 1750000 },
 
 	-- Special 
-	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Special", Cost = 1 },
-	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 99 }, Rarity = "Special", Cost = 1 },
+	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Special", Cost = 0 },
+	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 99 }, Rarity = "Special", Cost = 0 },
+	["Obliterator"] = { Slot = "Weapon", Bonus = { Strength = 99999, Stand_Power = 99999, Speed = 99999 }, Rarity = "Special", Cost = 0 },
 
 	-- April Fools Equipment
 	["Pink Sasumata"] = { Slot = "Weapon", Bonus = { Strength = 120, Speed = 120, Defense = 80 }, Rarity = "Unique", Cost = 2000000 },
