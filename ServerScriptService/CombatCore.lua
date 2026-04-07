@@ -84,6 +84,12 @@ function CombatCore.GetPlayerBoosts(player)
 	if CombatCore.HasModifier(uniModStr, "Lucky Star") then boosts.Luck += 1 end
 	if CombatCore.HasModifier(uniModStr, "Unlucky Aura") then boosts.Luck -= 1 end
 
+	local indexBoosts = GameData.GetIndexBoosts(player)
+	boosts.XP += (indexBoosts.XP - 1.0)
+	boosts.Yen += (indexBoosts.Yen - 1.0)
+	boosts.Luck += indexBoosts.Luck
+	boosts.Damage *= indexBoosts.GlobalDamage
+
 	return boosts
 end
 
