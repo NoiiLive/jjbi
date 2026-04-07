@@ -464,7 +464,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 						table.insert(droppedItems, "<font color='#FFD700'>[FLOOR " .. floor .. " DAILY BONUS] 1x Legendary Giftbox</font>")
 					end
 
-					if floor % 100 == 0 then
+					if floor % 100 == 0 and floor % 1000 ~= 0 then
 						player:SetAttribute("MythicalGiftboxCount", (player:GetAttribute("MythicalGiftboxCount") or 0) + 1)
 						table.insert(droppedItems, "<font color='#FF5555'>[CENTURY DAILY BONUS] 1x Mythical Giftbox</font>")
 					end
