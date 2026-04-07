@@ -176,7 +176,7 @@ StandData.Stands = {
 	["Awaking III Leaves"] = { Rarity = "Legendary", Pool = "Corpse", Part = "Part 8", Icon = "", Stats = {Power="C", Speed="B", Range="C", Durability="A", Precision="E", Potential="C"} },
 	["Soft & Wet: Go Beyond"] = { Rarity = "Evolution", Part = "Part 8", Icon = "", Stats = {Power="A", Speed="B", Range="C", Durability="B", Precision="A", Potential="A"} },
 
-	["Wonder of U"] = { Rarity = "Mythical", Part = "Part 8", Icon = "rbxassetid://71731455259515", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	["Wonder of U"] = { Rarity = "Mythical", Part = "Part 8", Icon = "", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 
 	["Chiikawa"] = { Rarity = "Unique", Part = "Event", Icon = "", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Charmy Green"] = { Rarity = "Unique", Part = "Event", Icon = "", Stats = {Power="A", Speed="A", Range="C", Durability="B", Precision="A", Potential="B"} },
