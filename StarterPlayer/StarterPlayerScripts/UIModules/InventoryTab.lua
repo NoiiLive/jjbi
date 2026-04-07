@@ -652,9 +652,10 @@ local function RefreshIndexList()
 	local layout = indexTabContent:FindFirstChildOfClass("UIListLayout")
 	if not layout then
 		layout = Instance.new("UIListLayout", indexTabContent)
-		layout.Padding = UDim.new(0, 10)
 		layout.SortOrder = Enum.SortOrder.LayoutOrder
 	end
+	layout.Padding = UDim.new(0, 10)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 	local padding = indexTabContent:FindFirstChildOfClass("UIPadding")
 	if not padding then
