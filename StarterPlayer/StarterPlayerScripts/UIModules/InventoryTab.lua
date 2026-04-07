@@ -15,6 +15,7 @@ local NotificationManager = require(UIModules:WaitForChild("NotificationManager"
 
 local pStatsContainer, sStatsContainer, equipContainer, playerConsContainer, standConsContainer
 local standStorageContainer, styleStorageContainer, autoSellContainer
+local titlesTabContent, indexTabContent
 local capacityLabel, playerConsCapacityLabel
 local statLabels = {}
 
@@ -51,6 +52,18 @@ for itemName, _ in pairs(ItemData.Consumables) do table.insert(KnownItems, itemN
 for eqName, _ in pairs(ItemData.Equipment) do table.insert(KnownItems, eqName) end
 
 local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+
+local function GetIndexMultiplier(statName)
+	local claimed = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
+	local mult = 1
+	for _, part in ipairs(claimed) do
+		local bonusData = GameData.IndexCompletionBonuses[part]
+		if bonusData and bonusData.Stat == statName then
+			mult += bonusData.Value
+		end
+	end
+	return mult
+end
 
 local function GetCombinedBonus(statName)
 	local wpn = player:GetAttribute("EquippedWeapon") or "None"
@@ -100,6 +113,8 @@ local function UpdateStatTooltip()
 	elseif statName == "Stand_Precision_Val" then total = base + GetCombinedBonus("Stand_Precision")
 	elseif statName == "Stand_Potential_Val" then total = base + GetCombinedBonus("Stand_Potential")
 	end
+
+	total = math.floor(total * GetIndexMultiplier(cleanName))
 
 	local impactStr = "\n\n<b><font color='#55FF55'>COMBAT EFFECTS (Total Stat: "..total.."):</font></b>\n"
 	local trait = player:GetAttribute("StandTrait") or "None"
@@ -543,6 +558,282 @@ local function RefreshInventoryList()
 	standConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#standConsItems * 34) + 10)
 end
 
+local function RefreshTitlesList()
+	if not titlesTabContent then return end
+	for _, child in pairs(titlesTabContent:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
+
+	local unlockedTitles = string.split(player:GetAttribute("UnlockedTitles") or "", ",")
+	local equippedTitle = player:GetAttribute("EquippedTitle") or "None"
+
+	local layout = titlesTabContent:FindFirstChildOfClass("UIListLayout")
+	if not layout then
+		layout = Instance.new("UIListLayout", titlesTabContent)
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	end
+	layout.Padding = UDim.new(0, 10)
+
+	local padding = titlesTabContent:FindFirstChildOfClass("UIPadding")
+	if not padding then
+		padding = Instance.new("UIPadding", titlesTabContent)
+	end
+	padding.PaddingTop = UDim.new(0, 4)
+	padding.PaddingBottom = UDim.new(0, 4)
+	padding.PaddingLeft = UDim.new(0, 4)
+	padding.PaddingRight = UDim.new(0, 4)
+
+	local titlesArray = {}
+	for titleName, data in pairs(GameData.Titles) do
+		table.insert(titlesArray, {Name = titleName, Data = data})
+	end
+
+	table.sort(titlesArray, function(a, b)
+		return (a.Data.Order or 999) < (b.Data.Order or 999)
+	end)
+
+	for _, titleInfo in ipairs(titlesArray) do
+		local titleName = titleInfo.Name
+		local data = titleInfo.Data
+
+		local isUnlocked = table.find(unlockedTitles, titleName) ~= nil
+		local isEquipped = (equippedTitle == titleName)
+
+		local row = Templates:WaitForChild("TitleRowTemplate"):Clone()
+		row.LayoutOrder = isUnlocked and data.Order or (data.Order + 100)
+		row.Parent = titlesTabContent
+
+		local txtCont = row:WaitForChild("TextContainer")
+		local nameLbl = txtCont:WaitForChild("NameLabel")
+		local descLbl = txtCont:WaitForChild("DescLabel")
+		local reqLbl = txtCont:WaitForChild("ReqLabel")
+
+		local tColor = data.Color or "#FFFFFF"
+		nameLbl.RichText = true
+		nameLbl.Text = "<font color='"..tColor.."'>"..titleName.."</font>"
+		descLbl.Text = data.Desc
+		reqLbl.Text = isUnlocked and "<font color='#55FF55'>Unlocked!</font>" or ("Requires: " .. data.Requirement)
+
+		local btn = row.ActionBtn
+		local btnStroke = btn:FindFirstChild("UIStroke")
+
+		if isUnlocked then
+			btn.AutoButtonColor = true
+			if isEquipped then
+				btn.Text = "Unequip"
+				btn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+				if btnStroke then btnStroke.Color = Color3.fromRGB(255, 120, 120) end
+			else
+				btn.Text = "Equip"
+				btn.BackgroundColor3 = Color3.fromRGB(50, 180, 50)
+				if btnStroke then btnStroke.Color = Color3.fromRGB(120, 255, 120) end
+			end
+			btn.MouseButton1Click:Connect(function()
+				SFXManager.Play("Click")
+				Network:WaitForChild("CollectionAction"):FireServer("ToggleTitle", titleName)
+			end)
+		else
+			btn.Visible = true
+			btn.Text = "Locked"
+			btn.BackgroundColor3 = Color3.fromRGB(30, 25, 35)
+			btn.TextColor3 = Color3.fromRGB(100, 100, 100)
+			btn.AutoButtonColor = false
+			if btnStroke then btnStroke.Color = Color3.fromRGB(50, 40, 60) end
+
+			btn.MouseButton1Click:Connect(function() end)
+			row.BackgroundColor3 = Color3.fromRGB(20, 15, 25)
+		end
+	end
+
+	titlesTabContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	titlesTabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+	local spacer = Instance.new("Frame")
+	spacer.Name = "MobileSpacer"
+	spacer.BackgroundTransparency = 1
+	spacer.Size = UDim2.new(1, 0, 0, 150)
+	spacer.LayoutOrder = 99999
+	spacer.Parent = titlesTabContent
+end
+
+local function RefreshIndexList()
+	if not indexTabContent then return end
+	for _, child in pairs(indexTabContent:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
+
+	local layout = indexTabContent:FindFirstChildOfClass("UIListLayout")
+	if not layout then
+		layout = Instance.new("UIListLayout", indexTabContent)
+		layout.Padding = UDim.new(0, 10)
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+	end
+
+	local padding = indexTabContent:FindFirstChildOfClass("UIPadding")
+	if not padding then
+		padding = Instance.new("UIPadding", indexTabContent)
+	end
+	padding.PaddingTop = UDim.new(0, 4)
+	padding.PaddingBottom = UDim.new(0, 4)
+	padding.PaddingLeft = UDim.new(0, 4)
+	padding.PaddingRight = UDim.new(0, 4)
+
+	local unlockedIndex = string.split(player:GetAttribute("UnlockedIndex") or "", ",")
+	local claimedBonuses = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
+	local parts = {"Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6", "Part 7", "Part 8", "Event"}
+
+	local PartNames = {
+		["Part 1"] = "Phantom Blood",
+		["Part 2"] = "Battle Tendency",
+		["Part 3"] = "Stardust Crusaders",
+		["Part 4"] = "Diamond is Unbreakable",
+		["Part 5"] = "Golden Wind",
+		["Part 6"] = "Stone Ocean",
+		["Part 7"] = "Steel Ball Run",
+		["Part 8"] = "JoJolion",
+		["Event"] = "Event"
+	}
+
+	local yOffset = 0
+
+	for i, partName in ipairs(parts) do
+		local abilities = {}
+		for sName, sData in pairs(StandData.Stands) do
+			if sData.Part == partName then table.insert(abilities, {Name = sName, Type = "Stand", Rarity = sData.Rarity, Icon = sData.Icon}) end
+		end
+		for stName, stPart in pairs(GameData.StyleParts) do
+			if stPart == partName then 
+				local sIcon = GameData.StyleIcons and GameData.StyleIcons[stName] or ""
+				table.insert(abilities, {Name = stName, Type = "Style", Rarity = "None", Icon = sIcon}) 
+			end
+		end
+
+		table.sort(abilities, function(a, b) return a.Name < b.Name end)
+
+		if #abilities > 0 then
+			local unlockedCount = 0
+			for _, ab in ipairs(abilities) do
+				if table.find(unlockedIndex, ab.Name) then unlockedCount += 1 end
+			end
+
+			local category = Templates:WaitForChild("IndexCategoryTemplate"):Clone()
+			category.LayoutOrder = i * 100
+			category.Parent = indexTabContent
+
+			local displayTitle = PartNames[partName] or partName
+			category.Header.TitleLabel.Text = displayTitle .. " Collection (" .. unlockedCount .. "/" .. #abilities .. ")"
+
+			local bonusData = GameData.IndexCompletionBonuses[partName]
+			category.Header.BonusLabel.Text = bonusData and (partName .. " Bonus: " .. bonusData.Description) or ""
+
+			local claimBtn = category.Header.ClaimBtn
+			local isClaimed = table.find(claimedBonuses, partName) ~= nil
+
+			if unlockedCount >= #abilities then
+				if isClaimed then
+					claimBtn.Text = "Claimed"
+					claimBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+					claimBtn.Active = false
+				else
+					claimBtn.Text = "Claim Bonus"
+					claimBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
+					claimBtn.MouseButton1Click:Connect(function()
+						SFXManager.Play("Click")
+						Network:WaitForChild("CollectionAction"):FireServer("ClaimIndex", partName)
+					end)
+				end
+			else
+				claimBtn.Visible = false
+			end
+
+			local screenWidth = indexTabContent.AbsoluteSize.X
+			if screenWidth <= 0 then screenWidth = 900 end 
+			local safeWidth = screenWidth - 40 
+
+			local minCellSize = 75  
+			local maxCellSize = 110 
+			local cellPad = 10
+
+			local cols = math.floor((safeWidth + cellPad) / (maxCellSize + cellPad))
+			if safeWidth < 500 then
+				cols = math.max(3, cols) 
+			end
+
+			local calculatedSize = math.floor((safeWidth - (cellPad * (cols - 1))) / cols)
+			calculatedSize = math.clamp(calculatedSize, minCellSize, maxCellSize)
+
+			local finalCols = math.floor((safeWidth + cellPad) / (calculatedSize + cellPad))
+			if finalCols < 1 then finalCols = 1 end
+			local rows = math.ceil(#abilities / finalCols)
+
+			local container = category.ItemsContainer
+			local grid = Instance.new("UIGridLayout", container)
+			grid.CellSize = UDim2.new(0, calculatedSize, 0, calculatedSize)
+			grid.CellPadding = UDim2.new(0, cellPad, 0, cellPad)
+			grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+			for _, ab in ipairs(abilities) do
+				local isUnlocked = table.find(unlockedIndex, ab.Name) ~= nil
+				local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
+				item.Parent = container
+
+				local iconLabel = item:FindFirstChild("Icon")
+				if not iconLabel then
+					iconLabel = Instance.new("ImageLabel", item)
+					iconLabel.Name = "Icon"
+					iconLabel.Size = UDim2.new(1, -10, 1, -35)
+					iconLabel.Position = UDim2.new(0, 5, 0, 5)
+					iconLabel.BackgroundTransparency = 1
+					iconLabel.ZIndex = 40
+					iconLabel.ScaleType = Enum.ScaleType.Fit
+				end
+
+				local qMark = iconLabel:FindFirstChild("QuestionMark")
+				if not qMark then
+					qMark = Instance.new("TextLabel", iconLabel)
+					qMark.Name = "QuestionMark"
+					qMark.Size = UDim2.new(1, 0, 1, 0)
+					qMark.BackgroundTransparency = 1
+					qMark.Text = "?"
+					qMark.Font = Enum.Font.GothamBold
+					qMark.TextScaled = true
+					qMark.ZIndex = 41
+				end
+
+				if isUnlocked then
+					item.NameLabel.Text = ab.Name
+					item.NameLabel.TextColor3 = (ab.Type == "Stand") and (rarityColors[ab.Rarity] or Color3.new(1,1,1)) or Color3.fromRGB(255, 140, 0)
+					item.BackgroundColor3 = Color3.fromRGB(40, 30, 50)
+
+					if ab.Icon and ab.Icon ~= "" then
+						iconLabel.Image = ab.Icon
+						qMark.Visible = false
+					else
+						iconLabel.Image = ""
+						qMark.Visible = true 
+						qMark.TextColor3 = Color3.fromRGB(150, 150, 150)
+					end
+				else
+					item.NameLabel.Text = "???"
+					item.NameLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
+					item.BackgroundColor3 = Color3.fromRGB(20, 15, 25)
+
+					iconLabel.Image = ""
+					qMark.Visible = true 
+					qMark.TextColor3 = Color3.fromRGB(60, 60, 60) 
+				end
+			end
+
+			local catHeight = 75 + (rows * (calculatedSize + cellPad))
+			category.Size = UDim2.new(1, -24, 0, catHeight)
+			yOffset += catHeight + 10
+		end
+	end
+
+	indexTabContent.CanvasSize = UDim2.new(0, 0, 0, yOffset + 150)
+end
+
 local function UpdateTopDisplays()
 	local sName = player:GetAttribute("Stand") or "None"
 	local sTrait = player:GetAttribute("StandTrait") or "None"
@@ -598,6 +889,7 @@ end
 
 function InventoryTab.Init(parentFrame, tooltipMgr)
 	cachedTooltipMgr = tooltipMgr
+	local currentActiveTab = "INV"
 
 	local mainPanel = parentFrame:WaitForChild("MainPanel")
 	local innerContent = mainPanel:WaitForChild("InnerContent")
@@ -606,11 +898,15 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local invTabBtn = subNavFrame:WaitForChild("INVButton")
 	local playerTabBtn = subNavFrame:WaitForChild("PLAYERButton")
 	local standTabBtn = subNavFrame:WaitForChild("STANDButton")
+	local titlesTabBtn = subNavFrame:WaitForChild("TITLEButton")
+	local indexTabBtn = subNavFrame:WaitForChild("INDEXButton")
 
 	local tabContainer = innerContent:WaitForChild("TabContainer")
 	local invTabContent = tabContainer:WaitForChild("InventoryTabContent")
 	local playerTabContent = tabContainer:WaitForChild("PlayerTabContent")
 	local standTabContent = tabContainer:WaitForChild("StandTabContent")
+	titlesTabContent = tabContainer:WaitForChild("TitlesTabContent")
+	indexTabContent = tabContainer:WaitForChild("IndexTabContent")
 
 	local invInfoCard = invTabContent:WaitForChild("InvInfoCard")
 	weaponBox = invInfoCard:WaitForChild("WepRow")
@@ -749,9 +1045,15 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		local minHeight = 600
 
 		if panelAbsHeight < minHeight then
-			innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
-			innerContent.ScrollBarImageTransparency = 0
-			innerContent.ScrollingEnabled = true
+			if currentActiveTab == "TITLE" or currentActiveTab == "INDEX" then
+				innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
+				innerContent.ScrollBarImageTransparency = 1
+				innerContent.ScrollingEnabled = false
+			else
+				innerContent.CanvasSize = UDim2.new(0, 0, 0, minHeight)
+				innerContent.ScrollBarImageTransparency = 0.5
+				innerContent.ScrollingEnabled = true
+			end
 		else
 			innerContent.CanvasSize = UDim2.new(0, 0, 1, 0)
 			innerContent.ScrollBarImageTransparency = 1
@@ -764,9 +1066,13 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 	local function SetActiveTab(target)
 		SFXManager.Play("Click")
+		currentActiveTab = target
+
 		invTabContent.Visible = (target == "INV")
 		playerTabContent.Visible = (target == "PLAYER")
 		standTabContent.Visible = (target == "STAND")
+		titlesTabContent.Visible = (target == "TITLE")
+		indexTabContent.Visible = (target == "INDEX")
 
 		local function ToggleNav(btn, str, isActive)
 			btn.BackgroundColor3 = isActive and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)
@@ -778,11 +1084,20 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		ToggleNav(invTabBtn, invTabBtn.UIStroke, target == "INV")
 		ToggleNav(playerTabBtn, playerTabBtn.UIStroke, target == "PLAYER")
 		ToggleNav(standTabBtn, standTabBtn.UIStroke, target == "STAND")
+		ToggleNav(titlesTabBtn, titlesTabBtn.UIStroke, target == "TITLE")
+		ToggleNav(indexTabBtn, indexTabBtn.UIStroke, target == "INDEX")
+
+		UpdateLayoutForScreen()
+
+		if target == "TITLE" then RefreshTitlesList()
+		elseif target == "INDEX" then RefreshIndexList() end
 	end
 
 	invTabBtn.MouseButton1Click:Connect(function() SetActiveTab("INV") end)
 	playerTabBtn.MouseButton1Click:Connect(function() SetActiveTab("PLAYER") end)
 	standTabBtn.MouseButton1Click:Connect(function() SetActiveTab("STAND") end)
+	titlesTabBtn.MouseButton1Click:Connect(function() SetActiveTab("TITLE") end)
+	indexTabBtn.MouseButton1Click:Connect(function() SetActiveTab("INDEX") end)
 	SetActiveTab("INV")
 
 	BuildDropdownList(sDrop, sDrop:WaitForChild("List"), StandData.Stands, true)
@@ -833,11 +1148,11 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 			local ft2 = player:GetAttribute("Active_FusedTrait2") or "None"
 
 			local display = FusionUtility.CalculateFusedName(fs1, fs2)
-			local tData1 = StandData.Traits[ft1]
+			local tData = StandData.Traits[ft1]
 			local tData2 = StandData.Traits[ft2]
-			local desc1 = tData1 and tData1.Desc or ""
+			local desc1 = tData and tData.Desc or ""
 			local desc2 = tData2 and tData2.Desc or ""
-			local color1 = tData1 and tData1.Color or "#FFFFFF"
+			local color1 = tData and tData.Color or "#FFFFFF"
 			local color2 = tData2 and tData2.Color or "#FFFFFF"
 
 			local combinedDesc = "<font color='#AAAAAA'>" .. fs1 .. " + " .. fs2 .. "</font>\n\n"
@@ -882,6 +1197,10 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("EquippedAccessory"):Connect(function() UpdateTopDisplays(); RefreshInventoryList() end)
 	player:GetAttributeChangedSignal("Stand"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
 	player:GetAttributeChangedSignal("StandTrait"):Connect(function() UpdateTopDisplays(); RefreshStorageList() end)
+	player:GetAttributeChangedSignal("UnlockedTitles"):Connect(RefreshTitlesList)
+	player:GetAttributeChangedSignal("EquippedTitle"):Connect(RefreshTitlesList)
+	player:GetAttributeChangedSignal("UnlockedIndex"):Connect(RefreshIndexList)
+	player:GetAttributeChangedSignal("ClaimedIndexBonuses"):Connect(function() RefreshIndexList(); RefreshStatTexts() end)
 
 	player:GetAttributeChangedSignal("Active_FusedStand1"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
 	player:GetAttributeChangedSignal("Active_FusedStand2"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
@@ -914,6 +1233,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	for _, stat in ipairs(allStatsToUpgrade) do player:GetAttributeChangedSignal(stat):Connect(RefreshStatTexts) end
 	for _, item in ipairs(KnownItems) do player:GetAttributeChangedSignal(item:gsub("[^%w]", "").."Count"):Connect(RefreshInventoryList) end
 
+	indexTabContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(RefreshIndexList)
+
 	task.spawn(function()
 		local pObj = player:WaitForChild("leaderstats", 5)
 		if pObj then 
@@ -929,6 +1250,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 			RefreshStatTexts()
 			RefreshInventoryList()
 			RefreshStorageList()
+			RefreshTitlesList()
+			RefreshIndexList()
 		end
 	end)
 end
