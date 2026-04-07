@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PolicyService = game:GetService("PolicyService")
