@@ -80,18 +80,30 @@ function CollectionManager.CheckAutomaticTitles(player)
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige") and player.leaderstats.Prestige.Value or 0
 	if prestige >= 1 then CollectionManager.UnlockTitle(player, "Apprentice") end
 	if prestige >= 15 then CollectionManager.UnlockTitle(player, "Master") end
+	if prestige >= 30 then CollectionManager.UnlockTitle(player, "Grandmaster") end
 
 	if player:GetAttribute("Stand") and player:GetAttribute("Stand") ~= "None" then
 		CollectionManager.UnlockTitle(player, "Novice")
 	end
 
-	if (player:GetAttribute("RaidWins") or 0) >= 10 then
-		CollectionManager.UnlockTitle(player, "Raid Boss")
-	end
+	local gang = player:GetAttribute("Gang") or "None"
+	if gang ~= "None" then CollectionManager.UnlockTitle(player, "Mobster") end
 
-	if (player:GetAttribute("EndlessMaxMilestone") or 0) >= 25 then
-		CollectionManager.UnlockTitle(player, "Survivor")
-	end
+	local endless = player:GetAttribute("EndlessMaxMilestone") or 0
+	if endless >= 10 then CollectionManager.UnlockTitle(player, "Endurance") end
+	if endless >= 100 then CollectionManager.UnlockTitle(player, "Unyielding") end
+	if endless >= 1000 then CollectionManager.UnlockTitle(player, "Immortal") end
+
+	local raids = player:GetAttribute("RaidWins") or 0
+	if raids >= 1 then CollectionManager.UnlockTitle(player, "Raider") end
+	if raids >= 25 then CollectionManager.UnlockTitle(player, "Raid Veteran") end
+	if raids >= 50 then CollectionManager.UnlockTitle(player, "Raid Expert") end
+	if raids >= 100 then CollectionManager.UnlockTitle(player, "Raid God") end
+
+	if (player:GetAttribute("WorldBossParticipations") or 0) >= 1 then CollectionManager.UnlockTitle(player, "Challenger") end
+	if (player:GetAttribute("WorldBossKills") or 0) >= 1 then CollectionManager.UnlockTitle(player, "Slayer") end
+	if (player:GetAttribute("ArenaWins") or 0) >= 1 then CollectionManager.UnlockTitle(player, "Gladiator") end
+	if (player:GetAttribute("SBRWins") or 0) >= 1 then CollectionManager.UnlockTitle(player, "Champion") end
 
 	if prestige >= 30 and player:GetAttribute("HasStandSlot2") and player:GetAttribute("HasStandSlot3") then
 		CollectionManager.UnlockTitle(player, "Hoarder")
@@ -113,8 +125,14 @@ Players.PlayerAdded:Connect(function(player)
 		CollectionManager.CheckAutomaticTitles(player) 
 	end)
 	player:GetAttributeChangedSignal("FightingStyle"):Connect(function() CollectionManager.CheckRetroactiveIndex(player) end)
+
+	player:GetAttributeChangedSignal("Gang"):Connect(function() CollectionManager.CheckAutomaticTitles(player) end)
 	player:GetAttributeChangedSignal("RaidWins"):Connect(function() CollectionManager.CheckAutomaticTitles(player) end)
 	player:GetAttributeChangedSignal("EndlessMaxMilestone"):Connect(function() CollectionManager.CheckAutomaticTitles(player) end)
+	player:GetAttributeChangedSignal("WorldBossParticipations"):Connect(function() CollectionManager.CheckAutomaticTitles(player) end)
+	player:GetAttributeChangedSignal("WorldBossKills"):Connect(function() CollectionManager.CheckAutomaticTitles(player) end)
+	player:GetAttributeChangedSignal("ArenaWins"):Connect(function() CollectionManager.CheckAutomaticTitles(player) end)
+	player:GetAttributeChangedSignal("SBRWins"):Connect(function() CollectionManager.CheckAutomaticTitles(player) end)
 
 	task.spawn(function()
 		local ls = player:WaitForChild("leaderstats", 10)
@@ -138,6 +156,8 @@ collectionRemote.OnServerEvent:Connect(function(player, action, target)
 			end
 		end
 	elseif action == "ClaimIndex" then
+		if target == "Event" then return end
+		
 		local unlockedIndex = string.split(player:GetAttribute("UnlockedIndex") or "", ",")
 		local claimed = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
 
