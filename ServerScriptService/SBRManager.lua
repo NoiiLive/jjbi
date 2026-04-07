@@ -164,6 +164,10 @@ local function CheckWinCondition(racer)
 		table.insert(EventState.Winners, racer.Player.Name)
 		local rank = #EventState.Winners
 
+		if rank == 1 then
+			racer.Player:SetAttribute("SBRWins", (racer.Player:GetAttribute("SBRWins") or 0) + 1)
+		end
+
 		local hName = racer.Player:GetAttribute("HorseName") or "Unknown Steed"
 		Network.CombatUpdate:FireAllClients("SystemMessage", "<font color='#55FFFF'><b>" .. racer.Player.Name .. " and " .. hName .. " have finished the SBR race in " .. rank .. " Place!</b></font>")
 
