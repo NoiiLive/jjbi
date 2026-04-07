@@ -296,7 +296,7 @@ local function AddPendingUpdate(gangKey, updateType, amount, extraStr)
 	if not gangKey or gangKey == "None" then return end
 	local key = string.lower(gangKey)
 	if not PendingGangUpdates[key] then
-		PendingGangUpdates[key] = { Rep = 0, Treasury = 0, Orders = {} }
+		PendingGangUpdates[key] = { Rep = 0, Treasury = 0, Orders = {}, Contributions = {} }
 	end
 
 	if updateType == "Rep" then
@@ -305,6 +305,8 @@ local function AddPendingUpdate(gangKey, updateType, amount, extraStr)
 		PendingGangUpdates[key].Treasury += amount
 	elseif updateType == "Order" then
 		PendingGangUpdates[key].Orders[extraStr] = (PendingGangUpdates[key].Orders[extraStr] or 0) + amount
+	elseif updateType == "Contribution" then
+		PendingGangUpdates[key].Contributions[extraStr] = (PendingGangUpdates[key].Contributions[extraStr] or 0) + amount
 	end
 end
 
@@ -407,18 +409,25 @@ end)
 task.spawn(function()
 	while task.wait(30) do 
 		for gangKey, updates in pairs(PendingGangUpdates) do
-			local hasChanges = (updates.Rep > 0 or updates.Treasury > 0 or GetDictSize(updates.Orders) > 0)
+			local hasChanges = (updates.Rep > 0 or updates.Treasury > 0 or GetDictSize(updates.Orders) > 0 or (updates.Contributions and GetDictSize(updates.Contributions) > 0))
 			if hasChanges then
 				local completedAny = false
 				local repToAdd = updates.Rep
 				local treasToAdd = updates.Treasury
 				local ordToProcess = table.clone(updates.Orders)
+				local contToProcess = updates.Contributions and table.clone(updates.Contributions) or {}
 
-				PendingGangUpdates[gangKey] = { Rep = 0, Treasury = 0, Orders = {} }
+				PendingGangUpdates[gangKey] = { Rep = 0, Treasury = 0, Orders = {}, Contributions = {} }
 
 				MutateGangData(gangKey, function(gangData)
 					gangData.Rep = (gangData.Rep or 0) + repToAdd
 					gangData.Treasury = (gangData.Treasury or 0) + treasToAdd
+
+					for uIdStr, cAmt in pairs(contToProcess) do
+						if gangData.Members[uIdStr] then
+							gangData.Members[uIdStr].Contribution = (gangData.Members[uIdStr].Contribution or 0) + cAmt
+						end
+					end
 
 					for oType, oAmt in pairs(ordToProcess) do
 						for _, ord in ipairs(gangData.Orders) do
@@ -492,11 +501,20 @@ end)
 
 game:BindToClose(function()
 	for gangKey, updates in pairs(PendingGangUpdates) do
-		local hasChanges = (updates.Rep > 0 or updates.Treasury > 0 or GetDictSize(updates.Orders) > 0)
+		local hasChanges = (updates.Rep > 0 or updates.Treasury > 0 or GetDictSize(updates.Orders) > 0 or (updates.Contributions and GetDictSize(updates.Contributions) > 0))
 		if hasChanges then
 			MutateGangData(gangKey, function(gangData)
 				gangData.Rep = (gangData.Rep or 0) + updates.Rep
 				gangData.Treasury = (gangData.Treasury or 0) + updates.Treasury
+
+				if updates.Contributions then
+					for uIdStr, cAmt in pairs(updates.Contributions) do
+						if gangData.Members[uIdStr] then
+							gangData.Members[uIdStr].Contribution = (gangData.Members[uIdStr].Contribution or 0) + cAmt
+						end
+					end
+				end
+
 				for oType, oAmt in pairs(updates.Orders) do
 					for _, ord in ipairs(gangData.Orders) do
 						if ord.Type == oType and not ord.Completed then
@@ -1105,8 +1123,16 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		if yen.Value >= amount then
 			yen.Value -= amount
 			AddPendingUpdate(pGangName, "Treasury", amount)
+			AddPendingUpdate(pGangName, "Contribution", amount, pIdStr) 
+
 			ProgressOrderEvent:Fire(pGangName, "Yen", amount)
-			ApplyGangBuffs(player, ActiveGangs[string.lower(pGangName)])
+
+			local lowerKey = string.lower(pGangName)
+			if ActiveGangs[lowerKey] and ActiveGangs[lowerKey].Members[pIdStr] then
+				ActiveGangs[lowerKey].Members[pIdStr].Contribution = (ActiveGangs[lowerKey].Members[pIdStr].Contribution or 0) + amount
+			end
+
+			ApplyGangBuffs(player, ActiveGangs[lowerKey])
 			NotificationEvent:FireClient(player, "<font color='#55FF55'>Donated ¥" .. amount .. " to the Gang!</font>")
 			SyncGangToMembers(pGangName)
 		end
