@@ -55,7 +55,8 @@ local requiredRemotes = {
 	"SBRUpdate",
 	"ExecuteFusion",
 	"PackAction",
-	"ToggleAutoStat"
+	"ToggleAutoStat",
+	"AdminLogsUI"
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
@@ -108,6 +109,8 @@ local DefaultData = {
 	AutoStatPlayer = false, AutoStatStand = false, AutoStatAmount = 1, HasAutoStatPass = false,
 
 	UniverseModifier = "None", StandPity = 0, TraitPity = 0, ShopPity = 0, ClaimedSupporterReward = false,
+
+	EquippedTitle = "None", UnlockedTitles = "", UnlockedIndex = "", ClaimedIndexBonuses = "",
 
 	BoughtStarterPack = false, 
 	BoughtProPack = false,
@@ -250,6 +253,11 @@ local function SavePlayerData(player)
 		TraitPity = player:GetAttribute("TraitPity") or 0,
 		ShopPity = player:GetAttribute("ShopPity") or 0,
 		ClaimedSupporterReward = player:GetAttribute("ClaimedSupporterReward") or false,
+
+		EquippedTitle = player:GetAttribute("EquippedTitle") or "None",
+		UnlockedTitles = player:GetAttribute("UnlockedTitles") or "",
+		UnlockedIndex = player:GetAttribute("UnlockedIndex") or "",
+		ClaimedIndexBonuses = player:GetAttribute("ClaimedIndexBonuses") or "",
 
 		BoughtStarterPack = player:GetAttribute("BoughtStarterPack") or false,
 		BoughtProPack = player:GetAttribute("BoughtProPack") or false,
