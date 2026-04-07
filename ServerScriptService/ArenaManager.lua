@@ -253,6 +253,8 @@ local function ProcessTurn(match)
 			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
 			if gangEvent then gangEvent:Fire(pData.Player:GetAttribute("Gang"), "Arena", 1) end
 
+			pData.Player:SetAttribute("ArenaWins", (pData.Player:GetAttribute("ArenaWins") or 0) + 1)
+
 			ArenaUpdate:FireClient(pData.Player, "MatchOver", {Result = "Win", EloChange = wGain, LogMsg = logStr .. "\n\n<font color='#55FF55'>"..wMsg.."</font>"})
 			ActiveMatches[pData.Player] = nil
 			pData.Player:SetAttribute("InCombat", false)
