@@ -28,6 +28,75 @@ GameData.StyleBonuses = {
 	["Baoh Armed Phenomenon"] = { Defense = 75, Strength = 75, Speed = 25 },
 }
 
+GameData.StyleIcons = {
+	["Boxing"] = "",
+	["Vampirism"] = "",
+	["Hamon"] = "",
+	["Cyborg"] = "",
+	["Pillarman"] = "",
+	["Ultimate Lifeform"] = "",
+	["Spin"] = "",
+	["Golden Spin"] = "",
+	["Rock Human"] = "",
+	["Limitless"] = "",
+	["Shrine"] = "",
+	["Baoh Armed Phenomenon"] = "",
+	["Man of Steel"] = ""
+}
+
+GameData.Titles = {
+	-- Progression
+	["Novice"] = { Desc = "Equip your very first Stand.", Requirement = "Obtain your first Stand.", Color = "#FFFFFF", Order = 1 },
+	["Apprentice"] = { Desc = "Begin your combat journey.", Requirement = "Reach Prestige 1.", Color = "#AAAAAA", Order = 2 },
+	["Master"] = { Desc = "Reach the upper echelons of power.", Requirement = "Reach Prestige 15.", Color = "#00FFFF", Order = 3 },
+
+	-- Achievements
+	["Hoarder"] = { Desc = "Expand your collection.", Requirement = "Unlock all 5 Standard Stand Slots.", Color = "#8A2BE2", Order = 4 },
+	["Survivor"] = { Desc = "Endure the endless onslaught.", Requirement = "Reach Floor 25 in Endless Mode.", Color = "#FF0055", Order = 5 },
+	["Raid Boss"] = { Desc = "Prove your worth in raids.", Requirement = "Win 10 Raids.", Color = "#FF0000", Order = 6 },
+
+	-- VIP
+	["VIP"] = { Desc = "Thank you for supporting the game!", Requirement = "Purchase the VIP gamepass.", Color = "#FFD700", Order = 7 },
+
+	-- Parts
+	["Phantom Blood"] = { Desc = "Conquer the beginning of the bloodline.", Requirement = "Complete the Part 1 Index.", Color = "#5260f1", Order = 11 },
+	["Battle Tendency"] = { Desc = "Awaken the ancient warriors.", Requirement = "Complete the Part 2 Index.", Color = "#e0ff87", Order = 12 },
+	["Stardust Crusader"] = { Desc = "Journey to Egypt to save a life.", Requirement = "Complete the Part 3 Index.", Color = "#b69af7", Order = 13 },
+	["Diamond is Unbreakable"] = { Desc = "Protect the crazy, noisy, bizarre town.", Requirement = "Complete the Part 4 Index.", Color = "#fcaeb5", Order = 14 },
+	["Golden Wind"] = { Desc = "Rise to the top of the mafia.", Requirement = "Complete the Part 5 Index.", Color = "#ffd145", Order = 15 },
+	["Stone Ocean"] = { Desc = "Break free from the stone ocean.", Requirement = "Complete the Part 6 Index.", Color = "#4ed5d2", Order = 16 },
+	["Steel Ball Run"] = { Desc = "Cross the American continent.", Requirement = "Complete the Part 7 Index.", Color = "#86ed36", Order = 17 },
+	["JoJolion"] = { Desc = "Break the curse.", Requirement = "Complete the Part 8 Index.", Color = "#c4d1f3", Order = 18 },
+}
+
+GameData.IndexCompletionBonuses = {
+	["Part 1"] = { Description = "+5% Max Health", Stat = "Health", Value = 0.05 },
+	["Part 2"] = { Description = "+5% Physical Strength", Stat = "Strength", Value = 0.05 },
+	["Part 3"] = { Description = "+5% Stand Damage", Stat = "Stand_Power", Value = 0.05 },
+	["Part 4"] = { Description = "+5% Defense", Stat = "Defense", Value = 0.05 },
+	["Part 5"] = { Description = "+5% Speed", Stat = "Speed", Value = 0.05 },
+	["Part 6"] = { Description = "+5% Stamina", Stat = "Stamina", Value = 0.05 },
+	["Part 7"] = { Description = "+5% Willpower", Stat = "Willpower", Value = 0.05 },
+	["Part 8"] = { Description = "+5% Energy", Stat = "Stand_Potential", Value = 0.05 },
+	["Event"] = { Description = "+5% Luck", Stat = "Luck", Value = 0.05 }
+}
+
+GameData.StyleParts = {
+	["Boxing"] = "Part 1",
+	["Vampirism"] = "Part 1",
+	["Hamon"] = "Part 1",
+	["Cyborg"] = "Part 2",
+	["Pillarman"] = "Part 2",
+	["Ultimate Lifeform"] = "Part 2",
+	["Spin"] = "Part 7",
+	["Golden Spin"] = "Part 7",
+	["Rock Human"] = "Part 8",
+	["Limitless"] = "Event",
+	["Shrine"] = "Event",
+	["Baoh Armed Phenomenon"] = "Event",
+	["Man of Steel"] = ""
+}
+
 GameData.StatDescriptions = {
 	Health = "Increases your Maximum HP. Essential for surviving heavy hits.",
 	Strength = "Increases the base damage of your physical and style-based attacks.",
