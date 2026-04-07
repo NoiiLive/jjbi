@@ -4,5 +4,4 @@ local PlayerScripts = Player:WaitForChild("PlayerScripts")
 local PlayerModule = require(PlayerScripts:WaitForChild("PlayerModule"))
 local Controls = PlayerModule:GetControls()
 
--- This disables the touch controls without permission errors
 Controls:Disable()
