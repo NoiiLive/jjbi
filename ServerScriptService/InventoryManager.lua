@@ -77,11 +77,18 @@ end)
 
 local function GetPlayerBoosts(player)
 	local boosts = { Luck = 0 }
+
 	if player:GetAttribute("IsSupporter") then boosts.Luck += 1 end
+
 	local elo = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Elo") and player.leaderstats.Elo.Value or 1000
 	if elo >= 3000 then boosts.Luck += 1 end
+
 	local gLuck = player:GetAttribute("GangLuckBoost") or 1.0
 	if gLuck > 1.0 then boosts.Luck += 1 end 
+
+	local indexBoosts = GameData.GetIndexBoosts(player)
+	boosts.Luck += indexBoosts.Luck
+
 	return boosts
 end
 
