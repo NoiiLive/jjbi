@@ -103,6 +103,8 @@ local DefaultData = {
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
 
 	DailyEndlessFloor = 0, DailyEndlessDate = "",
+	
+	ArenaWins = 0, SBRWins = 0, WorldBossParticipations = 0, WorldBossKills = 0,
 
 	AutoSell_Common = false, AutoSell_Uncommon = false, AutoSell_Rare = false, AutoSell_Legendary = false, AutoSell_Mythical = false,
 
@@ -237,6 +239,11 @@ local function SavePlayerData(player)
 
 		DailyEndlessFloor = player:GetAttribute("DailyEndlessFloor") or 0,
 		DailyEndlessDate = player:GetAttribute("DailyEndlessDate") or "",
+		
+		ArenaWins = player:GetAttribute("ArenaWins") or 0,
+		SBRWins = player:GetAttribute("SBRWins") or 0,
+		WorldBossParticipations = player:GetAttribute("WorldBossParticipations") or 0,
+		WorldBossKills = player:GetAttribute("WorldBossKills") or 0,
 
 		AutoSell_Common = player:GetAttribute("AutoSell_Common") or false,
 		AutoSell_Uncommon = player:GetAttribute("AutoSell_Uncommon") or false,
