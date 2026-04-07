@@ -8,7 +8,6 @@ local SFXManager = require(script.Parent:WaitForChild("SFXManager"))
 
 local standClaimModal, styleClaimModal
 
--- [ADDED VIP BUTTON VARIABLES HERE]
 local btnScActive, btnScSlot1, btnScSlot2, btnScSlot3, btnScSlot4, btnScSlot5, btnScSlotVIP, btnScDeny
 local btnStyleActive, btnStyleSlot1, btnStyleSlot2, btnStyleSlot3, btnStyleSlotVIP, btnStyleDeny
 
