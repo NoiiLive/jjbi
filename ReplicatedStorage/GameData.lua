@@ -49,36 +49,52 @@ GameData.Titles = {
 	["Novice"] = { Desc = "Equip your very first Stand.", Requirement = "Obtain your first Stand.", Color = "#FFFFFF", Order = 1 },
 	["Apprentice"] = { Desc = "Begin your combat journey.", Requirement = "Reach Prestige 1.", Color = "#AAAAAA", Order = 2 },
 	["Master"] = { Desc = "Reach the upper echelons of power.", Requirement = "Reach Prestige 15.", Color = "#00FFFF", Order = 3 },
+	["Grandmaster"] = { Desc = "Reach the absolute pinnacle of power.", Requirement = "Reach Prestige 30.", Color = "#FF00FF", Order = 4 },
+	["Hoarder"] = { Desc = "Expand your collection.", Requirement = "Unlock all 5 Standard Stand Slots.", Color = "#8A2BE2", Order = 5 },
+	["Mobster"] = { Desc = "Join a syndicate.", Requirement = "Join a Gang.", Color = "#FFFF55", Order = 6 },
 
-	-- Achievements
-	["Hoarder"] = { Desc = "Expand your collection.", Requirement = "Unlock all 5 Standard Stand Slots.", Color = "#8A2BE2", Order = 4 },
-	["Survivor"] = { Desc = "Endure the endless onslaught.", Requirement = "Reach Floor 25 in Endless Mode.", Color = "#FF0055", Order = 5 },
-	["Raid Boss"] = { Desc = "Prove your worth in raids.", Requirement = "Win 10 Raids.", Color = "#FF0000", Order = 6 },
+	-- Endless Mode
+	["Endurance"] = { Desc = "Survive the initial onslaught.", Requirement = "Reach Floor 10 in Endless Mode.", Color = "#FF5555", Order = 7 },
+	["Unyielding"] = { Desc = "Conquer a hundred challenges.", Requirement = "Reach Floor 100 in Endless Mode.", Color = "#FF0055", Order = 8 },
+	["Immortal"] = { Desc = "Become a legend of survival.", Requirement = "Reach Floor 1000 in Endless Mode.", Color = "#8B0000", Order = 9 },
 
-	-- VIP
-	["VIP"] = { Desc = "Thank you for supporting the game!", Requirement = "Purchase the VIP gamepass.", Color = "#FFD700", Order = 7 },
+	-- Raids
+	["Raider"] = { Desc = "Complete your first raid.", Requirement = "Win 1 Raid.", Color = "#FFAA00", Order = 10 },
+	["Raid Veteran"] = { Desc = "Become a seasoned raider.", Requirement = "Win 25 Raids.", Color = "#FF5500", Order = 11 },
+	["Raid Expert"] = { Desc = "Dominate the raid bosses.", Requirement = "Win 50 Raids.", Color = "#FF0000", Order = 12 },
+	["Raid God"] = { Desc = "An unstoppable force in raids.", Requirement = "Win 100 Raids.", Color = "#AA0000", Order = 13 },
 
+	-- World Bosses
+	["Challenger"] = { Desc = "Face a massive threat.", Requirement = "Participate in a World Boss fight.", Color = "#55FFFF", Order = 14 },
+	["Slayer"] = { Desc = "Deal a fatal blow to a massive threat.", Requirement = "Deal 1,000,000+ Damage to a World Boss.", Color = "#0055FF", Order = 15 },
+
+	-- PvP / Competitive
+	["Gladiator"] = { Desc = "Prove your strength against others.", Requirement = "Win an Arena match.", Color = "#FF8800", Order = 16 },
+	["Champion"] = { Desc = "Cross the finish line first.", Requirement = "Place 1st in the Steel Ball Run.", Color = "#FFD700", Order = 17 },
+
+	-- Special
+	["VIP"] = { Desc = "Thank you for supporting the game!", Requirement = "Purchase the VIP gamepass.", Color = "#FFD700", Order = 18 },
+	
 	-- Parts
-	["Phantom Blood"] = { Desc = "Conquer the beginning of the bloodline.", Requirement = "Complete the Part 1 Index.", Color = "#5260f1", Order = 11 },
-	["Battle Tendency"] = { Desc = "Awaken the ancient warriors.", Requirement = "Complete the Part 2 Index.", Color = "#e0ff87", Order = 12 },
-	["Stardust Crusader"] = { Desc = "Journey to Egypt to save a life.", Requirement = "Complete the Part 3 Index.", Color = "#b69af7", Order = 13 },
-	["Diamond is Unbreakable"] = { Desc = "Protect the crazy, noisy, bizarre town.", Requirement = "Complete the Part 4 Index.", Color = "#fcaeb5", Order = 14 },
-	["Golden Wind"] = { Desc = "Rise to the top of the mafia.", Requirement = "Complete the Part 5 Index.", Color = "#ffd145", Order = 15 },
-	["Stone Ocean"] = { Desc = "Break free from the stone ocean.", Requirement = "Complete the Part 6 Index.", Color = "#4ed5d2", Order = 16 },
-	["Steel Ball Run"] = { Desc = "Cross the American continent.", Requirement = "Complete the Part 7 Index.", Color = "#86ed36", Order = 17 },
-	["JoJolion"] = { Desc = "Break the curse.", Requirement = "Complete the Part 8 Index.", Color = "#c4d1f3", Order = 18 },
+	["Phantom Blood"] = { Desc = "Conquer the beginning of the bloodline.", Requirement = "Complete the Part 1 Index.", Color = "#5260F1", Order = 19 },
+	["Battle Tendency"] = { Desc = "Awaken the ancient warriors.", Requirement = "Complete the Part 2 Index.", Color = "#E0FF87", Order = 20 },
+	["Stardust Crusader"] = { Desc = "Journey to Egypt to save a life.", Requirement = "Complete the Part 3 Index.", Color = "#B69AF7", Order = 21 },
+	["Diamond is Unbreakable"] = { Desc = "Protect the crazy, noisy, bizarre town.", Requirement = "Complete the Part 4 Index.", Color = "#FCAEB5", Order = 22 },
+	["Golden Wind"] = { Desc = "Rise to the top of the mafia.", Requirement = "Complete the Part 5 Index.", Color = "#FFD145", Order = 23 },
+	["Stone Ocean"] = { Desc = "Break free from the stone ocean.", Requirement = "Complete the Part 6 Index.", Color = "#4ED5D2", Order = 24 },
+	["Steel Ball Run"] = { Desc = "Cross the American continent.", Requirement = "Complete the Part 7 Index.", Color = "#86ED36", Order = 25 },
+	["JoJolion"] = { Desc = "Break the curse.", Requirement = "Complete the Part 8 Index.", Color = "#C4D1F3", Order = 26 },
 }
 
 GameData.IndexCompletionBonuses = {
-	["Part 1"] = { Description = "+5% Max Health", Stat = "Health", Value = 0.05 },
-	["Part 2"] = { Description = "+5% Physical Strength", Stat = "Strength", Value = 0.05 },
-	["Part 3"] = { Description = "+5% Stand Damage", Stat = "Stand_Power", Value = 0.05 },
-	["Part 4"] = { Description = "+5% Defense", Stat = "Defense", Value = 0.05 },
-	["Part 5"] = { Description = "+5% Speed", Stat = "Speed", Value = 0.05 },
-	["Part 6"] = { Description = "+5% Stamina", Stat = "Stamina", Value = 0.05 },
-	["Part 7"] = { Description = "+5% Willpower", Stat = "Willpower", Value = 0.05 },
-	["Part 8"] = { Description = "+5% Energy", Stat = "Stand_Potential", Value = 0.05 },
-	["Event"] = { Description = "+5% Luck", Stat = "Luck", Value = 0.05 }
+	["Part 1"] = { Description = "+10% Yen Gain", Stat = "Yen", Value = 0.10 },
+	["Part 2"] = { Description = "+10% XP Gain", Stat = "XP", Value = 0.10 },
+	["Part 3"] = { Description = "+5 Inventory Capacity", Stat = "Inventory", Value = 5 },
+	["Part 4"] = { Description = "+1% Luck", Stat = "Luck", Value = 1 },
+	["Part 5"] = { Description = "+5% Global Damage", Stat = "GlobalDamage", Value = 0.05 },
+	["Part 6"] = { Description = "+5 Inventory Capacity", Stat = "Inventory", Value = 5 },
+	["Part 7"] = { Description = "+1% Luck", Stat = "Luck", Value = 1 },
+	["Part 8"] = { Description = "+5% Global Damage", Stat = "GlobalDamage", Value = 0.05 }
 }
 
 GameData.StyleParts = {
@@ -170,10 +186,15 @@ function GameData.GetMaxInventory(player)
 
 	local ls = player:FindFirstChild("leaderstats")
 	local elo = ls and ls:FindFirstChild("Elo") and ls.Elo.Value or 1000
-
 	local eloBoost = elo >= 4000 and 5 or 0
 
-	local totalCapacity = baseMax + gangBoost + eloBoost
+	local indexBoost = 0
+	local claimed = player:GetAttribute("ClaimedIndexBonuses") or ""
+	local claimedList = string.split(claimed, ",")
+	if table.find(claimedList, "Part 3") then indexBoost += 5 end
+	if table.find(claimedList, "Part 6") then indexBoost += 5 end
+
+	local totalCapacity = baseMax + gangBoost + eloBoost + indexBoost
 
 	if player:GetAttribute("Has2xInventory") then
 		totalCapacity = totalCapacity * 2
@@ -211,6 +232,26 @@ function GameData.GetInventoryCount(player)
 		end
 	end
 	return count
+end
+
+function GameData.GetIndexBoosts(player)
+	local boosts = { Yen = 1.0, XP = 1.0, Luck = 0, GlobalDamage = 1.0 }
+	if not player then return boosts end
+
+	local claimed = player:GetAttribute("ClaimedIndexBonuses") or ""
+	local claimedList = string.split(claimed, ",")
+
+	for _, part in ipairs(claimedList) do
+		local bonusData = GameData.IndexCompletionBonuses[part]
+		if bonusData then
+			if bonusData.Stat == "Yen" then boosts.Yen += bonusData.Value end
+			if bonusData.Stat == "XP" then boosts.XP += bonusData.Value end
+			if bonusData.Stat == "Luck" then boosts.Luck += bonusData.Value end
+			if bonusData.Stat == "GlobalDamage" then boosts.GlobalDamage += bonusData.Value end
+		end
+	end
+
+	return boosts
 end
 
 return GameData
