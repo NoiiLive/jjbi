@@ -53,18 +53,6 @@ for eqName, _ in pairs(ItemData.Equipment) do table.insert(KnownItems, eqName) e
 
 local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 
-local function GetIndexMultiplier(statName)
-	local claimed = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
-	local mult = 1
-	for _, part in ipairs(claimed) do
-		local bonusData = GameData.IndexCompletionBonuses[part]
-		if bonusData and bonusData.Stat == statName then
-			mult += bonusData.Value
-		end
-	end
-	return mult
-end
-
 local function GetCombinedBonus(statName)
 	local wpn = player:GetAttribute("EquippedWeapon") or "None"
 	local acc = player:GetAttribute("EquippedAccessory") or "None"
@@ -113,8 +101,6 @@ local function UpdateStatTooltip()
 	elseif statName == "Stand_Precision_Val" then total = base + GetCombinedBonus("Stand_Precision")
 	elseif statName == "Stand_Potential_Val" then total = base + GetCombinedBonus("Stand_Potential")
 	end
-
-	total = math.floor(total * GetIndexMultiplier(cleanName))
 
 	local impactStr = "\n\n<b><font color='#55FF55'>COMBAT EFFECTS (Total Stat: "..total.."):</font></b>\n"
 	local trait = player:GetAttribute("StandTrait") or "None"
@@ -724,26 +710,35 @@ local function RefreshIndexList()
 			local displayTitle = PartNames[partName] or partName
 			category.Header.TitleLabel.Text = displayTitle .. " Collection (" .. unlockedCount .. "/" .. #abilities .. ")"
 
-			local bonusData = GameData.IndexCompletionBonuses[partName]
-			category.Header.BonusLabel.Text = bonusData and (partName .. " Bonus: " .. bonusData.Description) or ""
 
-			local claimBtn = category.Header.ClaimBtn
 			local isClaimed = table.find(claimedBonuses, partName) ~= nil
 
-			if unlockedCount >= #abilities then
-				if isClaimed then
-					claimBtn.Text = "Claimed"
-					claimBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-					claimBtn.Active = false
+			local bonusData = GameData.IndexCompletionBonuses[partName]
+			local claimBtn = category.Header.ClaimBtn
+
+			if bonusData then
+				category.Header.BonusLabel.Text = partName .. " Bonus: " .. bonusData.Description
+				local isClaimed = table.find(claimedBonuses, partName) ~= nil
+
+				if unlockedCount >= #abilities then
+					if isClaimed then
+						claimBtn.Text = "Claimed"
+						claimBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+						claimBtn.Active = false
+					else
+						claimBtn.Text = "Claim Bonus"
+						claimBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
+						claimBtn.MouseButton1Click:Connect(function()
+							SFXManager.Play("Click")
+							Network:WaitForChild("CollectionAction"):FireServer("ClaimIndex", partName)
+						end)
+					end
 				else
-					claimBtn.Text = "Claim Bonus"
-					claimBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
-					claimBtn.MouseButton1Click:Connect(function()
-						SFXManager.Play("Click")
-						Network:WaitForChild("CollectionAction"):FireServer("ClaimIndex", partName)
-					end)
+					claimBtn.Visible = false
 				end
 			else
+				category.Header.BonusLabel.Text = "Limited-Time Event Abilities"
+				category.Header.BonusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 				claimBtn.Visible = false
 			end
 
