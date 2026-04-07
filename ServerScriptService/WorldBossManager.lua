@@ -396,6 +396,13 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		local dmgBonusDropPercent = math.floor(damageDealt / 100000)
 
 		pcall(function()
+			player:SetAttribute("WorldBossParticipations", (player:GetAttribute("WorldBossParticipations") or 0) + 1)
+			if damageDealt >= 1000000 then
+				player:SetAttribute("WorldBossKills", (player:GetAttribute("WorldBossKills") or 0) + 1)
+			end
+		end)
+
+		pcall(function()
 			if battle.Enemy.HP < 1 then
 				local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
 				if gangEvent and gangEvent:IsA("BindableEvent") then gangEvent:Fire(player:GetAttribute("Gang"), "Raids", 1) end
