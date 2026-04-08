@@ -101,7 +101,7 @@ StandData.Stands = {
 	["Gold Experience"] = { Rarity = "Legendary", Part = "Part 5", Stats = {Power="C", Speed="A", Range="C", Durability="D", Precision="C", Potential="A"} },
 	["Whitesnake"] = { Rarity = "Legendary", Part = "Part 6", Stats = {Power="B", Speed="D", Range="C", Durability="A", Precision="None", Potential="None"} },
 
-	["Star Platinum: The World"] = { Rarity = "Evolution", Part = "Part 6", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="C"} },
+	["Star Platinum: The World"] = { Rarity = "Evolution", Part = "Part 3", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="C"} },
 	["Killer Queen BTD"] = { Rarity = "Evolution", Part = "Part 4", Stats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"} },
 	["C-Moon"] = { Rarity = "Evolution", Part = "Part 6", Stats = {Power="None", Speed="B", Range="B", Durability="None", Precision="C", Potential="None"} },
 	["Made in Heaven"] = { Rarity = "Evolution", Part = "Part 6", Stats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"} },
@@ -110,8 +110,8 @@ StandData.Stands = {
 	["Gold Experience Requiem"] = { Rarity = "Evolution", Part = "Part 5", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 	["Chariot Requiem"] = { Rarity = "Evolution", Part = "Part 5", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 	["The World: High Voltage"] = { Rarity = "Evolution", Part = "Part 7", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"} },
-	["Star Platinum: Over Heaven"] = { Rarity = "Evolution", Part = "Event", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
-	["The World: Over Heaven"] = { Rarity = "Evolution", Part = "Event", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	["Star Platinum: Over Heaven"] = { Rarity = "Evolution", Part = "Part 3", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	["The World: Over Heaven"] = { Rarity = "Evolution", Part = "Part 3", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 	["King Crimson Requiem"] = { Rarity = "Evolution", Part = "Part 5", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 
 	["Star Platinum"] = { Rarity = "Mythical", Part = "Part 3", Stats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"} },
