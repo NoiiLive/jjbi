@@ -39,6 +39,7 @@ local rarityColors = {
 	Mythical = Color3.fromRGB(255, 50, 50),
 	Unique = Color3.fromRGB(215, 69, 255),
 	Special = Color3.fromRGB(239, 255, 62),
+	Evolution = Color3.fromRGB(239, 255, 62),
 }
 
 local raritySortTiers = { Special = 500, Unique = 1000, Mythical = 2000, Legendary = 3000, Rare = 4000, Uncommon = 5000, Common = 6000 }
