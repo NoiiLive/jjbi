@@ -766,7 +766,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 
 		local wipeEvent = ReplicatedStorage:FindFirstChild("AdminForceWipeGang")
 		if wipeEvent then
-			wipeEvent:Fire(gangKey)
+			wipeEvent:Fire(gangKey, rawGangName)
 		end
 
 		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Obliterated gang '" .. rawGangName .. "' from all servers and leaderboards.</font>") end
