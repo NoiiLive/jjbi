@@ -256,7 +256,8 @@ function LeaderboardTab.Init(parentFrame, tooltipMgr)
 					desc ..= "<font color='#AAAAAA'>Playtime:</font> " .. FormatValue("PlayTime", entry.Profile.PlayTime)
 				else
 					local cleanMotto = entry.Profile.Motto or "No motto set."
-					desc = string.format("<b><font color='#A020F0'>%s</font></b>\n<i>%s</i>\n____________________\n\n", entry.Name, cleanMotto)
+					local bossName = entry.Profile.Boss or "Unknown"
+					desc = string.format("<b><font color='#A020F0'>%s</font></b>\n<i>%s</i>\n<font color='#FFD700'>Boss: %s</font>\n____________________\n\n", entry.Name, cleanMotto, bossName)
 					desc ..= "<font color='#A020F0'>Reputation:</font> " .. FormatNumber(entry.Profile.Rep) .. "\n"
 					desc ..= "<font color='#55FF55'>Treasury:</font> ¥" .. FormatNumber(entry.Profile.Treasury) .. "\n"
 					desc ..= "<font color='#FFD700'>Total Prestige:</font> " .. FormatNumber(entry.Profile.Prestige) .. "\n"
