@@ -96,4 +96,56 @@ function TooltipManager.GetSkillTooltip(skillName)
 	return "Unknown skill."
 end
 
+function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
+	local rarityDisplay = (rarity and rarity ~= "None") and rarity or abilityType
+	local text = "<b><font color='#FFD700'>" .. abilityName .. "</font></b>\n<i>" .. abilityType .. "</i> | <font color='#AAAAAA'>" .. rarityDisplay .. "</font>\n____________________\n\n"
+
+	local skills = {}
+	for sName, sData in pairs(SkillData.Skills) do
+		if sData.Requirement == abilityName then
+			table.insert(skills, {Name = sName, Data = sData})
+		end
+	end
+
+	table.sort(skills, function(a, b) return (a.Data.Order or 999) < (b.Data.Order or 999) end)
+
+	if #skills == 0 then
+		text = text .. "<font color='#AAAAAA'>No known abilities.</font>"
+	else
+		for i, skillInfo in ipairs(skills) do
+			local sData = skillInfo.Data
+
+			text = text .. "<b><font color='#55FF55'>[" .. skillInfo.Name .. "]</font></b>\n"
+
+			local details = {}
+			if sData.Mult and sData.Mult > 0 then 
+				table.insert(details, "DMG: <font color='#FFFFFF'>" .. sData.Mult .. "x</font>") 
+			end
+			if sData.Cooldown and sData.Cooldown > 0 then 
+				table.insert(details, "CD: <font color='#FFFFFF'>" .. sData.Cooldown .. " turns</font>") 
+			end
+
+			if #details > 0 then
+				text = text .. "<font color='#AAAAAA'>  • " .. table.concat(details, " | ") .. "</font>\n"
+			end
+
+			if sData.Effect then
+				local cleanEffectName = sData.Effect:gsub("_", " ")
+				local effectText = cleanEffectName
+
+				if sData.Duration and sData.Duration > 0 then
+					effectText = effectText .. " (" .. sData.Duration .. " turns)"
+				end
+				text = text .. "<font color='#FFAA55'>  • Effect: " .. effectText .. "</font>\n"
+			end
+
+			if i < #skills then
+				text = text .. "\n"
+			end
+		end
+	end
+
+	return text
+end
+
 return TooltipManager
