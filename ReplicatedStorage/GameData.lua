@@ -50,7 +50,7 @@ GameData.Titles = {
 	["Apprentice"] = { Desc = "Begin your combat journey.", Requirement = "Reach Prestige 1.", Color = "#AAAAAA", Order = 2 },
 	["Master"] = { Desc = "Reach the upper echelons of power.", Requirement = "Reach Prestige 15.", Color = "#00FFFF", Order = 3 },
 	["Grandmaster"] = { Desc = "Reach the absolute pinnacle of power.", Requirement = "Reach Prestige 30.", Color = "#FF00FF", Order = 4 },
-	["Hoarder"] = { Desc = "Expand your collection.", Requirement = "Unlock all 5 Standard Stand Slots.", Color = "#8A2BE2", Order = 5 },
+	["Hoarder"] = { Desc = "Expand your collection.", Requirement = "Fill all your free Stand Slots.", Color = "#8A2BE2", Order = 5 },
 	["Mobster"] = { Desc = "Join a syndicate.", Requirement = "Join a Gang.", Color = "#FFFF55", Order = 6 },
 
 	-- Endless Mode
