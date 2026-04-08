@@ -43,6 +43,7 @@ local rarityColors = {
 }
 
 local raritySortTiers = { Special = 500, Unique = 1000, Mythical = 2000, Legendary = 3000, Rare = 4000, Uncommon = 5000, Common = 6000 }
+local indexRaritySortTiers = { Common = 1, Uncommon = 2, Rare = 3, Legendary = 4, Mythical = 5, Evolution = 6, Unique = 7, Special = 8, None = 9 }
 
 local playerStatsList = {"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}
 local standStatsList = {"Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", "Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"}
@@ -697,7 +698,16 @@ local function RefreshIndexList()
 			end
 		end
 
-		table.sort(abilities, function(a, b) return a.Name < b.Name end)
+		table.sort(abilities, function(a, b)
+			local tierA = indexRaritySortTiers[a.Rarity] or 99
+			local tierB = indexRaritySortTiers[b.Rarity] or 99
+
+			if a.Type == "Style" then tierA = 100 end
+			if b.Type == "Style" then tierB = 100 end
+
+			if tierA == tierB then return a.Name < b.Name end
+			return tierA < tierB
+		end)
 
 		if #abilities > 0 then
 			local unlockedCount = 0
@@ -811,6 +821,13 @@ local function RefreshIndexList()
 						qMark.Visible = true 
 						qMark.TextColor3 = Color3.fromRGB(150, 150, 150)
 					end
+
+					item.MouseEnter:Connect(function()
+						cachedTooltipMgr.Show(cachedTooltipMgr.GetIndexTooltip(ab.Name, ab.Type, ab.Rarity))
+					end)
+					item.MouseLeave:Connect(function()
+						cachedTooltipMgr.Hide()
+					end)
 				else
 					item.NameLabel.Text = "???"
 					item.NameLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
@@ -1197,7 +1214,12 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("UnlockedTitles"):Connect(RefreshTitlesList)
 	player:GetAttributeChangedSignal("EquippedTitle"):Connect(RefreshTitlesList)
 	player:GetAttributeChangedSignal("UnlockedIndex"):Connect(RefreshIndexList)
-	player:GetAttributeChangedSignal("ClaimedIndexBonuses"):Connect(function() RefreshIndexList(); RefreshStatTexts() end)
+
+	player:GetAttributeChangedSignal("ClaimedIndexBonuses"):Connect(function() 
+		RefreshIndexList() 
+		RefreshStatTexts()
+		RefreshInventoryList() 
+	end)
 
 	player:GetAttributeChangedSignal("Active_FusedStand1"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
 	player:GetAttributeChangedSignal("Active_FusedStand2"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
