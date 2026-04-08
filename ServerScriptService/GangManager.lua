@@ -1125,6 +1125,11 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			AddPendingUpdate(pGangName, "Treasury", amount)
 			AddPendingUpdate(pGangName, "Contribution", amount, pIdStr) 
 
+			local repGained = math.floor(amount / 1000)
+			if repGained > 0 then
+				AddPendingUpdate(pGangName, "Rep", repGained)
+			end
+
 			ProgressOrderEvent:Fire(pGangName, "Yen", amount)
 
 			local lowerKey = string.lower(pGangName)
@@ -1133,7 +1138,13 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			end
 
 			ApplyGangBuffs(player, ActiveGangs[lowerKey])
-			NotificationEvent:FireClient(player, "<font color='#55FF55'>Donated ¥" .. amount .. " to the Gang!</font>")
+
+			if repGained > 0 then
+				NotificationEvent:FireClient(player, "<font color='#55FF55'>Donated ¥" .. amount .. " to the Gang! (+" .. repGained .. " Rep)</font>")
+			else
+				NotificationEvent:FireClient(player, "<font color='#55FF55'>Donated ¥" .. amount .. " to the Gang!</font>")
+			end
+
 			SyncGangToMembers(pGangName)
 		end
 
