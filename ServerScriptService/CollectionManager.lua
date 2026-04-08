@@ -105,7 +105,12 @@ function CollectionManager.CheckAutomaticTitles(player)
 	if (player:GetAttribute("ArenaWins") or 0) >= 1 then CollectionManager.UnlockTitle(player, "Gladiator") end
 	if (player:GetAttribute("SBRWins") or 0) >= 1 then CollectionManager.UnlockTitle(player, "Champion") end
 
-	if prestige >= 30 and player:GetAttribute("HasStandSlot2") and player:GetAttribute("HasStandSlot3") then
+	local s0 = player:GetAttribute("Stand")
+	local s1 = player:GetAttribute("StoredStand1")
+	local s2 = player:GetAttribute("StoredStand2")
+	local s3 = player:GetAttribute("StoredStand3")
+
+	if s0 and s0 ~= "None" and s1 and s1 ~= "None" and s2 and s2 ~= "None" and s3 and s3 ~= "None" then
 		CollectionManager.UnlockTitle(player, "Hoarder")
 	end
 end
@@ -157,7 +162,7 @@ collectionRemote.OnServerEvent:Connect(function(player, action, target)
 		end
 	elseif action == "ClaimIndex" then
 		if target == "Event" then return end
-		
+
 		local unlockedIndex = string.split(player:GetAttribute("UnlockedIndex") or "", ",")
 		local claimed = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
 
