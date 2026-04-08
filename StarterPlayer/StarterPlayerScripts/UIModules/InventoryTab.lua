@@ -491,6 +491,7 @@ local function RefreshInventoryList()
 		lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("ToggleLock"):FireServer("Item", itemName) end)
 
 		local isEquipped = ItemData.Equipment[itemName] and player:GetAttribute("Equipped" .. ItemData.Equipment[itemName].Slot) == itemName
+		local isEquipment = ItemData.Equipment[itemName] ~= nil
 		local isConfirmingUse, isConfirmingSell = false, false
 
 		if isEquipped then
@@ -498,12 +499,12 @@ local function RefreshInventoryList()
 			useBtn.Text = "Unequip"; useBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
 			useBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UnequipItem"):FireServer(ItemData.Equipment[itemName].Slot) end)
 		else
-			if isLocked then
+			if isLocked and not isEquipment then
 				useBtn.Visible = false
 			else
 				useBtn.Visible = true
 				useBtn.MouseButton1Click:Connect(function()
-					if table.find(string.split(player:GetAttribute("LockedItems") or "", ","), itemName) then return end
+					if isLocked and not isEquipment then return end
 					if useBtn.Text == "Equip" then
 						SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
 					else
@@ -586,6 +587,9 @@ local function RefreshTitlesList()
 		local data = titleInfo.Data
 
 		local isUnlocked = table.find(unlockedTitles, titleName) ~= nil
+
+		if data.Secret and not isUnlocked then continue end
+
 		local isEquipped = (equippedTitle == titleName)
 
 		local row = Templates:WaitForChild("TitleRowTemplate"):Clone()
@@ -670,6 +674,18 @@ local function RefreshIndexList()
 
 	local unlockedIndex = string.split(player:GetAttribute("UnlockedIndex") or "", ",")
 	local claimedBonuses = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
+	local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+	local unlockedFusionsList = string.split(unlockedFusionsStr, ",")
+
+	local totalValidFusions = 0
+	local validStands = {}
+	for sName, sData in pairs(StandData.Stands) do
+		if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
+			validStands[sName] = true
+			totalValidFusions += 1
+		end
+	end
+
 	local parts = {"Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6", "Part 7", "Part 8", "Event"}
 
 	local PartNames = {
@@ -809,7 +825,28 @@ local function RefreshIndexList()
 				end
 
 				if isUnlocked then
-					item.NameLabel.Text = ab.Name
+					local displayName = ab.Name
+					if ab.Type == "Stand" and totalValidFusions > 0 then
+						local collectedFusions = 0
+						local seenFusions = {}
+						for _, fStr in ipairs(unlockedFusionsList) do
+							if fStr ~= "" then
+								local parts = string.split(fStr, "|")
+								if parts[1] == ab.Name and validStands[parts[2]] then
+									if not seenFusions[parts[2]] then
+										seenFusions[parts[2]] = true
+										collectedFusions += 1
+									end
+								end
+							end
+						end
+						if collectedFusions >= totalValidFusions then
+							displayName = displayName .. " ⭐"
+							item:FindFirstChild("UIStroke").Color = Color3.fromRGB(255, 215, 0)
+						end
+					end
+
+					item.NameLabel.Text = displayName
 					item.NameLabel.TextColor3 = (ab.Type == "Stand") and (rarityColors[ab.Rarity] or Color3.new(1,1,1)) or Color3.fromRGB(255, 140, 0)
 					item.BackgroundColor3 = Color3.fromRGB(40, 30, 50)
 
@@ -1214,6 +1251,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("UnlockedTitles"):Connect(RefreshTitlesList)
 	player:GetAttributeChangedSignal("EquippedTitle"):Connect(RefreshTitlesList)
 	player:GetAttributeChangedSignal("UnlockedIndex"):Connect(RefreshIndexList)
+	player:GetAttributeChangedSignal("UnlockedFusions"):Connect(RefreshIndexList)
 
 	player:GetAttributeChangedSignal("ClaimedIndexBonuses"):Connect(function() 
 		RefreshIndexList() 
