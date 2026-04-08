@@ -6,6 +6,7 @@ local mouse = player:GetMouse()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
+local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 
 local tooltip, tooltipText, sizeConstraint
 
@@ -115,8 +116,10 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 		for i, skillInfo in ipairs(skills) do
 			local sData = skillInfo.Data
 
+			-- Skill Name
 			text = text .. "<b><font color='#55FF55'>[" .. skillInfo.Name .. "]</font></b>\n"
 
+			-- Stats Line (Multiplier & Cooldown)
 			local details = {}
 			if sData.Mult and sData.Mult > 0 then 
 				table.insert(details, "DMG: <font color='#FFFFFF'>" .. sData.Mult .. "x</font>") 
@@ -129,6 +132,7 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 				text = text .. "<font color='#AAAAAA'>  • " .. table.concat(details, " | ") .. "</font>\n"
 			end
 
+			-- Effect Line
 			if sData.Effect then
 				local cleanEffectName = sData.Effect:gsub("_", " ")
 				local effectText = cleanEffectName
@@ -139,9 +143,44 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 				text = text .. "<font color='#FFAA55'>  • Effect: " .. effectText .. "</font>\n"
 			end
 
+			-- Add spacing between skills unless it's the last one
 			if i < #skills then
 				text = text .. "\n"
 			end
+		end
+	end
+
+	-- Add Fusion Tracking if it's a Stand
+	if abilityType == "Stand" then
+		local totalValidFusions = 0
+		local validStands = {}
+
+		for sName, sData in pairs(StandData.Stands) do
+			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
+				validStands[sName] = true
+				totalValidFusions = totalValidFusions + 1
+			end
+		end
+
+		local collectedFusions = 0
+		local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+		local seenFusions = {}
+
+		if unlockedFusionsStr ~= "" then
+			for _, fStr in ipairs(string.split(unlockedFusionsStr, ",")) do
+				local parts = string.split(fStr, "|")
+				-- parts[1] is Stand1, parts[2] is Stand2
+				if parts[1] == abilityName and validStands[parts[2]] then
+					if not seenFusions[parts[2]] then
+						seenFusions[parts[2]] = true
+						collectedFusions = collectedFusions + 1
+					end
+				end
+			end
+		end
+
+		if totalValidFusions > 0 then
+			text = text .. "\n\n<font color='#AAAAAA'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. "</font>"
 		end
 	end
 
