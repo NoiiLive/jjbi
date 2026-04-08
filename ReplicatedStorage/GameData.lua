@@ -74,7 +74,7 @@ GameData.Titles = {
 
 	-- Special
 	["VIP"] = { Desc = "Thank you for supporting the game!", Requirement = "Purchase the VIP gamepass.", Color = "#FFD700", Order = 18 },
-	
+
 	-- Parts
 	["Phantom Blood"] = { Desc = "Conquer the beginning of the bloodline.", Requirement = "Complete the Part 1 Index.", Color = "#5260F1", Order = 19 },
 	["Battle Tendency"] = { Desc = "Awaken the ancient warriors.", Requirement = "Complete the Part 2 Index.", Color = "#E0FF87", Order = 20 },
@@ -84,6 +84,13 @@ GameData.Titles = {
 	["Stone Ocean"] = { Desc = "Break free from the stone ocean.", Requirement = "Complete the Part 6 Index.", Color = "#4ED5D2", Order = 24 },
 	["Steel Ball Run"] = { Desc = "Cross the American continent.", Requirement = "Complete the Part 7 Index.", Color = "#86ED36", Order = 25 },
 	["JoJolion"] = { Desc = "Break the curse.", Requirement = "Complete the Part 8 Index.", Color = "#C4D1F3", Order = 26 },
+
+	-- Staff
+	["Owner"] = { Desc = "Creator and Lead Developer.", Requirement = "Be an Owner.", Color = "#FF0000", Order = 100, Secret = true },
+	["Admin"] = { Desc = "Game Administrator.", Requirement = "Be an Admin.", Color = "#FF5500", Order = 101, Secret = true },
+	["Sr. Mod"] = { Desc = "Senior Moderator.", Requirement = "Be a Sr. Mod.", Color = "#FFAA00", Order = 102, Secret = true },
+	["Moderator"] = { Desc = "Game Moderator.", Requirement = "Be a Moderator.", Color = "#FFFF00", Order = 103, Secret = true },
+	["Helper"] = { Desc = "Community Helper.", Requirement = "Be a Helper.", Color = "#55FF55", Order = 104, Secret = true },
 }
 
 GameData.IndexCompletionBonuses = {
