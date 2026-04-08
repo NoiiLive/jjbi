@@ -140,13 +140,23 @@ local function GetGangProfile(gangName)
 	local data
 
 	if s and d then
+		local currentBoss = d.OwnerName or "Unknown"
+		if d.Members then
+			for _, mem in pairs(d.Members) do
+				if mem.Role == "Boss" then
+					currentBoss = mem.Name
+					break
+				end
+			end
+		end
+
 		data = {
 			Emblem = d.Emblem or "", Motto = d.Motto or "No motto set.",
 			Rep = d.Rep or 0, Treasury = d.Treasury or 0, Prestige = d.TotalPrestige or 0,
-			Elo = d.TotalElo or 0, RaidWins = d.RaidWins or 0
+			Elo = d.TotalElo or 0, RaidWins = d.RaidWins or 0, Boss = currentBoss
 		}
 	else
-		data = { Emblem="", Motto="No motto set.", Rep=0, Treasury=0, Prestige=0, Elo=0, RaidWins=0 }
+		data = { Emblem="", Motto="No motto set.", Rep=0, Treasury=0, Prestige=0, Elo=0, RaidWins=0, Boss="Unknown" }
 	end
 
 	data.LastUpdate = math.floor(workspace:GetServerTimeNow())
@@ -229,7 +239,7 @@ LeaderboardAction.OnServerEvent:Connect(function(player, category)
 				enriched.Profile = profile
 			else
 				if isGang then
-					enriched.Profile = { Emblem="", Motto="Loading...", Rep=0, Treasury=0, Prestige=0, Elo=0, RaidWins=0 }
+					enriched.Profile = { Emblem="", Motto="Loading...", Rep=0, Treasury=0, Prestige=0, Elo=0, RaidWins=0, Boss="Loading..." }
 				else
 					enriched.Profile = { Icon="rbxthumb://type=AvatarHeadShot&id="..entry.Id.."&w=150&h=150", Prestige=0, Endless=0, PlayTime=0, Elo=1000, Power=0, RaidWins=0 }
 				end
