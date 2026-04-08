@@ -513,9 +513,15 @@ function GangsTab.HandleUpdate(action, data)
 			local pa = RolePower[a and a.Role or "Grunt"] or 1
 			local pb = RolePower[b and b.Role or "Grunt"] or 1
 			if pa == pb then 
-				local nA = (a and a.Name) and tostring(a.Name) or ""
-				local nB = (b and b.Name) and tostring(b.Name) or ""
-				return nA < nB 
+				local prestA = (a and a.Prestige) or 0
+				local prestB = (b and b.Prestige) or 0
+				if prestA == prestB then
+					local nA = (a and a.Name) and tostring(a.Name) or ""
+					local nB = (b and b.Name) and tostring(b.Name) or ""
+					return nA < nB 
+				else
+					return prestA > prestB
+				end
 			else 
 				return pa > pb 
 			end
