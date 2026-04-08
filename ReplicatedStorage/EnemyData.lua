@@ -15,13 +15,13 @@ EnemyData.Allies = {
 
 EnemyData.RaidBosses = {
 	["Raid_Part1"] = { 
-		IsBoss = true, Name = "Vampire King", Req = 1, Icon = "",
+		IsBoss = true, Name = "Vampire King", Req = 1, Icon = "rbxassetid://86531285156337",
 		Health = 5000, Strength = 60, Defense = 50, Speed = 45, Willpower = 60, StandStats = emptyStands, 
 		Skills = {"Heavy Strike", "Space Ripper Stingy Eyes", "Blood Drain", "Block"}, 
 		Drops = { Yen = 1000, XP = 2500, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Luck and Pluck"] = 1, ["Dio's Head Jar"] = 1, ["Vampire Mask"] = 25, ["Dio's Throwing Knives"] = 25 } } 
 	},
 	["Raid_Part2"] = { 
-		IsBoss = true, Name = "Ultimate Lifeform", Req = 1, Icon = "",
+		IsBoss = true, Name = "Ultimate Lifeform", Req = 1, Icon = "rbxassetid://132306871638759",
 		Health = 10000, Strength = 80, Defense = 65, Speed = 60, Willpower = 70, StandStats = emptyStands, 
 		Skills = {"Light Slip Blades", "Melting Overdrive", "Apex Adaptation", "Heavy Strike", "Block"}, 
 		Drops = { Yen = 2500, XP = 5000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 6, ["Perfect Aja Mask"] = 1, ["Kars' Arm Blade"] = 1, ["Kars' Horn"] = 1, ["Red Stone of Aja"] = 15, ["Ancient Mask"] = 15, ["Aja Stone Amulet"] = 25 } } 
@@ -177,7 +177,7 @@ EnemyData.WorldBosses = {
 
 EnemyData.Parts = {
 	[1] = {
-		Boss = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "", Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain"}, Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=15} } },
+		Boss = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337", Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain"}, Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=15} } },
 		RandomFlavor = {"You wander the streets of London, and encounter a %s!", "A %s steps out from the shadows!", "You are ambushed by a %s!"},
 		Mobs = {
 			{ Name = "Zombie Thug", Icon = "", 
@@ -218,7 +218,7 @@ EnemyData.Parts = {
 				Health = 25, Strength = 4, Defense = 1, Speed = 2, Willpower = 1, StandStats = emptyStands, 
 				Skills = {"Basic Attack"}, 
 				Drops = { Yen = 5, XP = 15 } },
-			["Fresh Vampire Dio"] = { Name = "Dio (Fresh Vampire)", Icon = "",
+			["Fresh Vampire Dio"] = { Name = "Dio (Fresh Vampire)", Icon = "rbxassetid://102982650003498",
 				Health = 80, Strength = 8, Defense = 4, Speed = 6, Willpower = 8, StandStats = emptyStands, 
 				Skills = {"Blood Drain", "Heavy Strike", "Block"}, 
 				Drops = { Yen = 30, XP = 60, ItemChance={["Vampire Mask"]=5} } },
@@ -238,11 +238,11 @@ EnemyData.Parts = {
 				Health = 80, Strength = 8, Defense = 4, Speed = 8, Willpower = 5, StandStats = emptyStands, 
 				Skills = {"Blood Drain", "Block"}, 
 				Drops = { Yen = 30, XP = 60 } },
-			["Head Dio"] = { IsBoss = true, Name = "Dio Brando (Head)", Icon = "",
+			["Head Dio"] = { IsBoss = true, Name = "Dio Brando (Head)", Icon = "rbxassetid://82000644585448",
 				Health = 120, Strength = 12, Defense = 5, Speed = 10, Willpower = 10, StandStats = emptyStands, 
 				Skills = {"Space Ripper Stingy Eyes", "Blood Drain"}, 
 				Drops = { Yen = 60, XP = 100, ItemChance={["Vampire Mask"]=10} } },
-			["Vampire Dio"] = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "",
+			["Vampire Dio"] = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337",
 				Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain"}, 
 				Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=20} } }
@@ -310,7 +310,7 @@ EnemyData.Parts = {
 				Health = 260, Strength = 26, Defense = 15, Speed = 20, Willpower = 24, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
 				Drops = { Yen = 75, XP = 180 } },
-			["Kars Base"] = { Name = "Kars", Icon = "",
+			["Kars Base"] = { Name = "Kars", Icon = "rbxassetid://119492217139174",
 				Health = 280, Strength = 28, Defense = 18, Speed = 25, Willpower = 26, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
 				Drops = { Yen = 90, XP = 200 } },
@@ -318,7 +318,7 @@ EnemyData.Parts = {
 				Health = 300, Strength = 30, Defense = 20, Speed = 22, Willpower = 28, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
 				Drops = { Yen = 110, XP = 250 } },
-			["Ultimate Kars"] = { IsBoss = true, Name = "Kars (Ultimate)", Icon = "",
+			["Ultimate Kars"] = { IsBoss = true, Name = "Kars (Ultimate)", Icon = "rbxassetid://132306871638759",
 				Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, 
 				Skills = {"Melting Overdrive", "Light Slip Blades", "Apex Adaptation", "Heavy Attack", "Block"}, 
 				Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } }
@@ -417,7 +417,7 @@ EnemyData.Parts = {
 	},
 
 	[4] = {
-		Boss = { IsBoss = true, Name = "Kira Bites the Dust)", Icon = "", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15 } } },
+		Boss = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15 } } },
 		RandomFlavor = {"You run into a %s in Morioh!"},
 		Mobs = { { Name = "Morioh Delinquent", Icon = "",
 			Health = 350, Strength = 40, Defense = 25, Speed = 35, Willpower = 25, StandStats = {Power="B", Speed="C", Range="D", Durability="C", Precision="C", Potential="C"}, 
