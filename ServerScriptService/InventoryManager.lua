@@ -283,8 +283,10 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		local lockedItems = player:GetAttribute("LockedItems") or ""
 		local itemsList = string.split(lockedItems, ",")
 		if table.find(itemsList, itemName) then
-			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot use a locked item!</font>")
-			return
+			if not ItemData.Equipment[itemName] then
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot use a locked item!</font>")
+				return
+			end
 		end
 
 		local message = ""
