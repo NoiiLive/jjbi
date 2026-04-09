@@ -103,7 +103,7 @@ local DefaultData = {
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
 
 	DailyEndlessFloor = 0, DailyEndlessDate = "",
-	
+
 	ArenaWins = 0, SBRWins = 0, WorldBossParticipations = 0, WorldBossKills = 0,
 
 	AutoSell_Common = false, AutoSell_Uncommon = false, AutoSell_Rare = false, AutoSell_Legendary = false, AutoSell_Mythical = false,
@@ -112,7 +112,7 @@ local DefaultData = {
 
 	UniverseModifier = "None", StandPity = 0, TraitPity = 0, ShopPity = 0, ClaimedSupporterReward = false,
 
-	EquippedTitle = "None", UnlockedTitles = "", UnlockedIndex = "", ClaimedIndexBonuses = "",
+	EquippedTitle = "None", UnlockedTitles = "", UnlockedIndex = "", ClaimedIndexBonuses = "", UnlockedFusions = "",
 
 	BoughtStarterPack = false, 
 	BoughtProPack = false,
@@ -239,7 +239,7 @@ local function SavePlayerData(player)
 
 		DailyEndlessFloor = player:GetAttribute("DailyEndlessFloor") or 0,
 		DailyEndlessDate = player:GetAttribute("DailyEndlessDate") or "",
-		
+
 		ArenaWins = player:GetAttribute("ArenaWins") or 0,
 		SBRWins = player:GetAttribute("SBRWins") or 0,
 		WorldBossParticipations = player:GetAttribute("WorldBossParticipations") or 0,
@@ -265,6 +265,7 @@ local function SavePlayerData(player)
 		UnlockedTitles = player:GetAttribute("UnlockedTitles") or "",
 		UnlockedIndex = player:GetAttribute("UnlockedIndex") or "",
 		ClaimedIndexBonuses = player:GetAttribute("ClaimedIndexBonuses") or "",
+		UnlockedFusions = player:GetAttribute("UnlockedFusions") or "",
 
 		BoughtStarterPack = player:GetAttribute("BoughtStarterPack") or false,
 		BoughtProPack = player:GetAttribute("BoughtProPack") or false,
