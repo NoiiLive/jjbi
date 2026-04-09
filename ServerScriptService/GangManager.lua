@@ -350,8 +350,8 @@ pcall(function()
 	end)
 end)
 
-AdminWipeEvent.Event:Connect(function(gangKey)
-	local displayToWipe = gangKey
+AdminWipeEvent.Event:Connect(function(gangKey, rawGangName)
+	local displayToWipe = rawGangName or gangKey
 	local gangData = ActiveGangs[gangKey]
 
 	if not gangData then
