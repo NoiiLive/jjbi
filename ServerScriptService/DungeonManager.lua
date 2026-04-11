@@ -428,12 +428,11 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			end
 
 			local now = math.floor(workspace:GetServerTimeNow())
-			local utc = os.date("!*t", now)
-			local currentDate = utc.year .. "_" .. utc.yday
+			local currentDay = tostring(math.floor(now / 86400))
 			local savedDate = player:GetAttribute("DailyEndlessDate")
 
-			if savedDate ~= currentDate then
-				player:SetAttribute("DailyEndlessDate", currentDate)
+			if savedDate ~= currentDay then
+				player:SetAttribute("DailyEndlessDate", currentDay)
 				player:SetAttribute("DailyEndlessFloor", 0)
 			end
 
