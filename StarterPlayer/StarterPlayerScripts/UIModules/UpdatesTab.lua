@@ -2,15 +2,31 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.5 - Collection Update (April 10th)</font></b>
+
+<font color='#D745FF'>[+]</font> <b>Ability Index:</b> Located in the Inventory Tab, you can now track every Stand and Style you've ever obtained! Abilities are permanently recorded once obtained, even if traded or lost. Organized by Parts, with a separate section for limited abilities.
+<font color='#D745FF'>[+]</font> <b>Part Completion Bonuses:</b> Collecting every ability in a specific Part will permanently unlock global stat boosts (e.g., +Inventory Space, +XP Gain, +Global Damage).
+<font color='#D745FF'>[+]</font> <b>Fusion Tracking:</b> The Index now tracks all Fused Stands you've created! Completing all possible fusions for a Stand grants it a permanent +0.5x Damage Multiplier.
+<font color='#D745FF'>[+]</font> <b>Titles System:</b> Show off your achievements! Earn titles by completing the Index, surviving Endless Mode, winning raids, or progressing through the game. Titles are displayed next to your name in chat, and can be equipped/changed in the inventory.
+<font color='#55FFFF'>[*]</font> <b>Sell All:</b> Added a Sell All option for equipment, consumables, and stands!
+<font color='#55FFFF'>[*]</font> <b>Auto Rolling:</b> While auto-rolling for traits/stands, Legendary or higher rolls are now automatically saved to an unused storage slot instead of being overwritten
+<font color='#55FFFF'>[*]</font> <b>Raids:</b> Closing/disbanding your party during a raid will no longer break the UI or prevent starting another raid 
+<font color='#55FFFF'>[*]</font> <b>Sell All:</b> Event queue issues have been fixed - players will now correctly join/leave queues and rejoin without desync
+<font color='#55FFFF'>[*]</font> <b>Gang QoL:</b> Gang members are now sorted by Prestige and Power, Gang leaderboards now display the Boss of each gang when hovered, Gang donations now properly contribute to personal rep/contribution
+<font color='#55FF55'>[*]</font> <b>Fixes:</b> Fixed the "Gambling Addict" trait self-killing when confused
+<font color='#55FF55'>[*]</font> <b>Fixes:</b> Re-enabled the Equip button for locked items
+
+Use code <b><font color='#FF55FF'>GOTTACOLLECTEMALL</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.4 - Endless Overhaul (April 6th)</font></b>
 
 <font color='#D745FF'>[+]</font> <b>Endless Overhaul:</b> Endless Dungeons now feature all fighting styles, an increased name pool, and dangerous fused stands!
 <font color='#D745FF'>[+]</font> <b>Scaling Loot:</b> Endless Floor rewards now scale every 100 floors (e.g., 100+ grants +2 Rokakaka/Arrows) and include Corpse Parts.
 <font color='#D745FF'>[+]</font> <b>Massive Gains:</b> Dungeon XP and Yen gain has been massively boosted across the board!
 <font color='#D745FF'>[+]</font> <b>Daily Milestones:</b> Claim powerful rewards once every 24 hours (Resets Midnight UTC):
-    • Floor 50: Legendary Giftbox
-    • Floor 100: Mythical Giftbox
-    • Floor 1000: Unique Giftbox
+    • Floor 50: Legendary Giftbox
+    • Floor 100: Mythical Giftbox
+    • Floor 1000: Unique Giftbox
 <font color='#EFFF3E'>[+]</font> <b>New Rarity [Special]:</b> Gamepasses, Giftboxes, and Easter Eggs now fall under this rarity and cannot be sold.
 <font color='#55FF55'>[*]</font> <b>Security & QoL:</b> Locked items hide use buttons to prevent accidents, and items no longer need to be unlocked to trade.
 <font color='#55FFFF'>[*]</font> <b>Technical:</b> More robust Gang data storage, synchronized global timers, and fixed offline boss cooldown resets.
