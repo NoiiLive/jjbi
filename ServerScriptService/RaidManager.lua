@@ -35,10 +35,14 @@ local function GetLobbyData(raidId)
 end
 
 local function LeaveAllLobbies(player)
+	RaidUpdate:FireClient(player, "LobbyStatus", {IsHosting = false})
+
 	if OpenLobbies[player.UserId] then
 		local rId = OpenLobbies[player.UserId].RaidId
 		for _, qp in ipairs(OpenLobbies[player.UserId].Queue) do 
-			if qp ~= player then RaidUpdate:FireClient(qp, "LobbyStatus", {IsHosting = false}) end
+			if qp ~= player then 
+				RaidUpdate:FireClient(qp, "LobbyStatus", {IsHosting = false}) 
+			end
 		end
 		OpenLobbies[player.UserId] = nil
 		RaidUpdate:FireAllClients("LobbiesUpdate", {RaidId = rId, Lobbies = GetLobbyData(rId)})
@@ -48,7 +52,6 @@ local function LeaveAllLobbies(player)
 		for i, qp in ipairs(lobby.Queue) do
 			if qp == player then
 				table.remove(lobby.Queue, i)
-				RaidUpdate:FireClient(player, "LobbyStatus", {IsHosting = false})
 				for _, rem in ipairs(lobby.Queue) do 
 					RaidUpdate:FireClient(rem, "LobbyStatus", {IsHosting = true, IsLobbyOwner = (rem.UserId == hId), PlayerCount = #lobby.Queue}) 
 				end
