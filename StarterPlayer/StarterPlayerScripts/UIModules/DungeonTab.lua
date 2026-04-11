@@ -206,9 +206,8 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 			local endlessData = dungeonUIElements["Endless"]
 			if endlessData then
 				local now = math.floor(workspace:GetServerTimeNow())
-				local utc = os.date("!*t", now)
 
-				local secondsLeft = 86400 - ((utc.hour * 3600) + (utc.min * 60) + utc.sec)
+				local secondsLeft = 86400 - (now % 86400)
 				local h = math.floor(secondsLeft / 3600)
 				local m = math.floor((secondsLeft % 3600) / 60)
 				local s = secondsLeft % 60
@@ -219,6 +218,12 @@ function DungeonTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 				local hs = player:GetAttribute("EndlessHighScore") or 0
 				local dFloor = player:GetAttribute("DailyEndlessFloor") or 0
+
+				local currentDay = tostring(math.floor(now / 86400))
+				local savedDate = player:GetAttribute("DailyEndlessDate")
+				if savedDate ~= currentDay then
+					dFloor = 0
+				end
 
 				if pVal >= endlessData.Info.Req then
 					endlessData.Status.Text = "<font color='#AAAAAA'>All-Time Best:</font> <font color='#55FF55'>Floor " .. hs .. "</font> | <font color='#AAAAAA'>Daily Best:</font> <font color='#55FFFF'>Floor " .. dFloor .. "</font>"
