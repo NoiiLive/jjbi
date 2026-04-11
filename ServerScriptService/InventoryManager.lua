@@ -195,10 +195,43 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		if StandData.Stands[newStand] and StandData.Stands[newStand].Rarity == "Legendary" then sPity = 0 else sPity += 1 end
 		if StandData.Traits[newTrait] and (StandData.Traits[newTrait].Rarity == "Mythical" or StandData.Traits[newTrait].Rarity == "Legendary") then tPity = 0 else tPity += 1 end
 
-		if rollType == "Stand" and newStand == targetStand then 
+		local isTarget = (rollType == "Stand" and newStand == targetStand) or (rollType == "Trait" and newTrait == targetTrait)
+
+		if isTarget then 
 			hit = true; break 
-		elseif rollType == "Trait" and newTrait == targetTrait then 
-			hit = true; break 
+		else
+			local sRarity = StandData.Stands[newStand] and StandData.Stands[newStand].Rarity or "Common"
+			local tRarity = StandData.Traits[newTrait] and StandData.Traits[newTrait].Rarity or "Common"
+
+			if sRarity == "Legendary" or sRarity == "Mythical" or tRarity == "Legendary" or tRarity == "Mythical" then
+				local pLeaderstats = player:FindFirstChild("leaderstats")
+				local prestige = pLeaderstats and pLeaderstats:FindFirstChild("Prestige") and pLeaderstats.Prestige.Value or 0
+
+				local emptySlot = nil
+				for i = 1, 5 do
+					if i == 2 and not player:GetAttribute("HasStandSlot2") then continue end
+					if i == 3 and not player:GetAttribute("HasStandSlot3") then continue end
+					if i == 4 and prestige < 15 then continue end
+					if i == 5 and prestige < 30 then continue end
+					if (player:GetAttribute("StoredStand"..i) or "None") == "None" then
+						emptySlot = "StoredStand"..i
+						break
+					end
+				end
+				if not emptySlot and player:GetAttribute("IsVIP") and (player:GetAttribute("StoredStandVIP") or "None") == "None" then
+					emptySlot = "StoredStandVIP"
+				end
+
+				if emptySlot then
+					player:SetAttribute(emptySlot, newStand)
+					player:SetAttribute(emptySlot .. "_Trait", newTrait)
+
+					local rarityLevel = (tRarity == "Mythical" or sRarity == "Mythical") and "Mythical" or "Legendary"
+					local itemNameText = (tRarity == "Legendary" or tRarity == "Mythical") and "Trait ["..newTrait.."]" or "Stand ["..newStand.."]"
+
+					NotificationEvent:FireClient(player, "<b><font color='#FFD700'>Auto-Roll rolled over a " .. rarityLevel .. " " .. itemNameText .. "! Automatically caught and Stashed to an empty Stand Storage slot!</font></b>")
+				end
+			end
 		end
 
 		if rollsDone % 100 == 0 then task.wait() end
