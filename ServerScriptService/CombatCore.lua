@@ -5,7 +5,11 @@ local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
+local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+
+local TotalValidFusions = nil
+local ValidStandsForFusion = nil
 
 function CombatCore.HasModifier(modStr, modName)
 	if not modStr or modStr == "None" or modStr == "" then return false end
@@ -94,6 +98,17 @@ function CombatCore.GetPlayerBoosts(player)
 end
 
 function CombatCore.BuildPlayerStruct(player, isRawStats)
+	if not TotalValidFusions then
+		TotalValidFusions = 0
+		ValidStandsForFusion = {}
+		for sName, sData in pairs(StandData.Stands) do
+			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
+				ValidStandsForFusion[sName] = true
+				TotalValidFusions += 1
+			end
+		end
+	end
+
 	local playerTrait = player:GetAttribute("StandTrait") or "None"
 	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
 
@@ -161,11 +176,40 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	local activeBoosts = CombatCore.GetPlayerBoosts(player)
 	local validSkills = {}
 
+	local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+	local fusionBonusMult = 0
+
+	local function getFusionBonus(standName)
+		if standName == "None" or standName == "Unknown" or not StandData.Stands[standName] then return 0 end
+		if TotalValidFusions == 0 then return 0 end
+
+		local collectedFusions = 0
+		local seenFusions = {}
+		for _, fStr in ipairs(string.split(unlockedFusionsStr, ",")) do
+			if fStr ~= "" then
+				local parts = string.split(fStr, "|")
+				if parts[1] == standName and ValidStandsForFusion[parts[2]] then
+					if not seenFusions[parts[2]] then
+						seenFusions[parts[2]] = true
+						collectedFusions += 1
+					end
+				end
+			end
+		end
+		if collectedFusions >= TotalValidFusions then
+			return 0.5
+		end
+		return 0
+	end
+
 	if sName == "Fused Stand" then
 		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
 		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		fusionBonusMult = getFusionBonus(fs1) + getFusionBonus(fs2)
 		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
 		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
+	else
+		fusionBonusMult = getFusionBonus(sName)
 	end
 
 	for n, s in pairs(SkillData.Skills) do
@@ -178,7 +222,7 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	return {
 		Player = player, UserId = player.UserId, Name = player.Name, IsPlayer = true, PlayerObj = player,
 		Trait = playerTrait, Traits = activeTraits, GlobalDmgBoost = activeBoosts.Damage, Boosts = activeBoosts,
-		Stand = sName, Style = fStyle,
+		Stand = sName, Style = fStyle, FusionDamageBonus = fusionBonusMult,
 		HP = pHP * 20, MaxHP = pHP * 20, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
 
 		StyleStrength = pStyleStr, StandStrength = pStandStr, 
@@ -538,6 +582,10 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local reqCount = CombatCore.CountTrait(attacker, "Requiem")
 		if reqCount > 0 then mult *= (1.50 ^ reqCount) end
 
+		if attacker.FusionDamageBonus and attacker.FusionDamageBonus > 0 then
+			mult += attacker.FusionDamageBonus
+		end
+
 		local gachaMsg = ""
 		local gachaCount = CombatCore.CountTrait(attacker, "Gambling Addict")
 		if gachaCount > 0 then
@@ -546,7 +594,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 				mult = 99999
 				gachaMsg = " <font color='#FFD700'>...JACKPOT!</font>"
 			elseif roulette == 100 then
-				attacker.HP = 0
+				b.HP = 0
 				mult = 0
 				gachaMsg = " <font color='#FF0000'>...BANKRUPT! (Instantly died!)</font>"
 			end
