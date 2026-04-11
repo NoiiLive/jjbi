@@ -33,13 +33,13 @@ EnemyData.RaidBosses = {
 		Drops = { Yen = 5000, XP = 10000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 7, ["DIO's Road Sign"] = 1, ["DIO's Headband"] = 1, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 25, ["Anubis Sword"] = 25 } } 
 	},
 	["Raid_Part4"] = { 
-		IsBoss = true, Name = "Serial Killer", Req = 1, Icon = "", 
+		IsBoss = true, Name = "Serial Killer", Req = 1, Icon = "rbxassetid://78559266675698", 
 		Health = 20000, Strength = 150, Defense = 125, Speed = 125, Willpower = 110, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
 		Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block"}, 
 		Drops = { Yen = 8000, XP = 15000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 8, ["Stray Cat"] = 1, ["Kira's Wristwatch"] = 1, ["Strange Arrow"] = 10, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 25 } } 
 	},
 	["Raid_Part5"] = { 
-		IsBoss = true, Name = "Mafia Boss", Req = 1, Icon = "",
+		IsBoss = true, Name = "Mafia Boss", Req = 1, Icon = "rbxassetid://86941295205734",
 		Health = 25000, Strength = 200, Defense = 140, Speed = 150, Willpower = 155, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, 
 		Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block"}, 
 		Drops = { Yen = 12000, XP = 22000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 9, ["Doppio's Phone"] = 1, ["Passione Badge"] = 1, ["Strange Arrow"] = 15, ["Giorno's Ladybug Brooch"] = 25, ["Mista's Pistol"] = 25 } } 
@@ -417,7 +417,7 @@ EnemyData.Parts = {
 	},
 
 	[4] = {
-		Boss = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15 } } },
+		Boss = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "rbxassetid://78559266675698", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15 } } },
 		RandomFlavor = {"You run into a %s in Morioh!"},
 		Mobs = { { Name = "Morioh Delinquent", Icon = "",
 			Health = 350, Strength = 40, Defense = 25, Speed = 35, Willpower = 25, StandStats = {Power="B", Speed="C", Range="D", Durability="C", Precision="C", Potential="C"}, 
@@ -441,7 +441,7 @@ EnemyData.Parts = {
 				Health = 550, Strength = 55, Defense = 40, Speed = 45, Willpower = 40, StandStats = {Power="E", Speed="B", Range="A", Durability="A", Precision="E", Potential="C"}, 
 				Skills = {"Swarm Attack", "Coin Toss"}, 
 				Drops = { Yen = 160, XP = 450 } },
-			["Kira Base"] = { Name = "Yoshikage Kira", Icon = "",
+			["Kira Base"] = { Name = "Yoshikage Kira", Icon = "rbxassetid://112623512172737",
 				Health = 650, Strength = 70, Defense = 45, Speed = 50, Willpower = 42, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
 				Skills = {"Primary Bomb", "Stand Barrage", "Block"}, 
 				Drops = { Yen = 180, XP = 500 } },
@@ -461,7 +461,7 @@ EnemyData.Parts = {
 				Health = 850, Strength = 75, Defense = 50, Speed = 60, Willpower = 50, StandStats = {Power="B", Speed="E", Range="None", Durability="A", Precision="E", Potential="C"}, 
 				Skills = {"Stand Barrage"}, 
 				Drops = { Yen = 300, XP = 800 } },
-			["Kira BTD"] = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "",
+			["Kira BTD"] = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "rbxassetid://78559266675698",
 				Health = 1100, Strength = 90, Defense = 55, Speed = 75, Willpower = 60, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
 				Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Air Bomb", "Block"}, 
 				Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25 } } }
@@ -488,7 +488,7 @@ EnemyData.Parts = {
 	},
 
 	[5] = {
-		Boss = { IsBoss = true, Name = "Diavolo", Icon = "", Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block"}, Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } },
+		Boss = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734", Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block"}, Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } },
 		RandomFlavor = {"A %s steps out of a dark alley in Italy!"},
 		Mobs = { { Name = "Passione Grunt", Icon = "",
 			Health = 500, Strength = 55, Defense = 40, Speed = 45, Willpower = 35, StandStats = {Power="B", Speed="B", Range="C", Durability="C", Precision="B", Potential="C"}, 
@@ -532,7 +532,7 @@ EnemyData.Parts = {
 				Health = 1250, Strength = 105, Defense = 65, Speed = 75, Willpower = 75, StandStats = {Power="A", Speed="C", Range="A", Durability="A", Precision="E", Potential="A"}, 
 				Skills = {"Mold Spread", "Downward Dismemberment"}, 
 				Drops = { Yen = 450, XP = 1300 } },
-			["Diavolo"] = { IsBoss = true, Name = "Diavolo", Icon = "",
+			["Diavolo"] = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734",
 				Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, 
 				Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block"}, 
 				Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } }
