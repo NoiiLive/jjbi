@@ -14,7 +14,7 @@ local ActiveCodes = {
 	["8KFAVS"] = {Items = {["Stand Arrow"] = 80, ["Rokakaka"] = 80, ["Saint's Corpse Part"] = 40}},
 	["1MVISITS"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 111, ["Rokakaka"] = 111, ["Saint's Corpse Part"] = 111}},
 	["EASTER"] = {Items = {["Mythical Giftbox"] = 1, ["Lucky Egg"] = 1}},
-	["RESTARTAHOLIC"] = {Items = {["Mythical Giftbox"] = 1, ["Lucky Egg"] = 5}},
+	["GOTTACOLLECTEMALL"] = {Items = {["Mythical Giftbox"] = 1, ["Stand Arrow"] = 50, ["Saint's Corpse Part"] = 25}},
 }
 
 RedeemCode.OnServerEvent:Connect(function(player, codeStr)
