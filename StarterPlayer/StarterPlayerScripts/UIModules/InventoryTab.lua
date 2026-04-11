@@ -467,6 +467,7 @@ local function RefreshInventoryList()
 		local btnWrapper = itemFrame:WaitForChild("BtnWrapper")
 		local useBtn = btnWrapper:WaitForChild("UseBtn")
 		local sellBtn = btnWrapper:WaitForChild("SellBtn")
+		local sellAllBtn = btnWrapper:WaitForChild("SellAllBtn")
 		local lockBtn = btnWrapper:WaitForChild("LockBtn")
 
 		useBtn.Text = ItemData.Equipment[itemName] and "Equip" or "Use"
@@ -482,17 +483,26 @@ local function RefreshInventoryList()
 
 		if isLocked or rarity == "Special" then
 			sellBtn.Visible = false
+			sellAllBtn.Visible = false
 		else
 			sellBtn.Visible = true
-			sellBtn.Text = "Sell"
+			sellBtn.Text = "Sell 1"
 			sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
+
+			if count > 1 then
+				sellAllBtn.Visible = true
+				sellAllBtn.Text = "Sell All"
+				sellAllBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+			else
+				sellAllBtn.Visible = false
+			end
 		end
 
 		lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("ToggleLock"):FireServer("Item", itemName) end)
 
 		local isEquipped = ItemData.Equipment[itemName] and player:GetAttribute("Equipped" .. ItemData.Equipment[itemName].Slot) == itemName
 		local isEquipment = ItemData.Equipment[itemName] ~= nil
-		local isConfirmingUse, isConfirmingSell = false, false
+		local isConfirmingUse, isConfirmingSell, isConfirmingSellAll = false, false, false
 
 		if isEquipped then
 			useBtn.Visible = true
@@ -523,7 +533,7 @@ local function RefreshInventoryList()
 			if isLocked or rarity == "Special" then return end
 			if not isConfirmingSell then
 				isConfirmingSell = true; sellBtn.Text = "Sure?"; sellBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
+				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell 1"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
 				return
 			end
 			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
@@ -532,6 +542,18 @@ local function RefreshInventoryList()
 			local iData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 			local sellVal = iData and (iData.SellPrice or math.floor((iData.Cost or 50) / 2)) or 25
 			NotificationManager.Show("<font color='#55FF55'>Sold " .. itemName .. " for ¥" .. sellVal .. "!</font>")
+		end)
+
+		sellAllBtn.MouseButton1Click:Connect(function()
+			if isLocked or rarity == "Special" or count <= 1 then return end
+			if not isConfirmingSellAll then
+				isConfirmingSellAll = true; sellAllBtn.Text = "Sure?"; sellAllBtn.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+				task.delay(3, function() if isConfirmingSellAll and sellAllBtn.Parent then isConfirmingSellAll = false; sellAllBtn.Text = "Sell All"; sellAllBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40) end end)
+				return
+			end
+			isConfirmingSellAll = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
+
+			Network:WaitForChild("ShopAction"):FireServer("SellAll", itemName)
 		end)
 
 		itemFrame.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(itemName)) end)
