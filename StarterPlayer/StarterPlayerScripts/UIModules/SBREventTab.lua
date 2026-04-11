@@ -198,16 +198,25 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 	end)
 
 	local inQueue = false
+	local isTogglingQueue = false
+
 	queueBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click"); 
+		if isTogglingQueue then return end
+		isTogglingQueue = true 
+
+		SFXManager.Play("Click")
 		if queueBtn.Text == "Force Join (Studio)" then
 			Network.SBRAction:FireServer("ToggleQueue")
+			task.delay(1.5, function() isTogglingQueue = false end)
 			return
 		end
-		inQueue = not inQueue; 
+
+		inQueue = not inQueue
 		queueBtn.Text = inQueue and "Leave Queue" or "Join Event Queue"
 		queueBtn.BackgroundColor3 = inQueue and Color3.fromRGB(140, 40, 40) or Color3.fromRGB(50, 150, 50)
 		Network.SBRAction:FireServer("ToggleQueue")
+
+		task.delay(1.5, function() isTogglingQueue = false end) 
 	end)
 
 	upgSpeedBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network.SBRAction:FireServer("UpgradeHorse", "Speed") end)
@@ -538,6 +547,7 @@ function SBREventTab.Init(parentFrame, tooltipMgr, focusFunc)
 			queueCountLbl.Text = "Players in Queue: " .. data
 		elseif action == "RaceStarted" then
 			if forceTabFocus then forceTabFocus() end
+			inQueue = false
 			lobbyContainer.Visible = false; raceContainer.Visible = true
 			currentDeadline = 0
 			combatUI.ChatText.Text = ""
