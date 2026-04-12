@@ -21,9 +21,21 @@ local isPromptShowing = false
 local processQueue
 local playerBtnTpl
 
+local activeRemote = "ShopAction"
+local activeStandAction = "ClaimShopStand"
+local activeStyleAction = "ClaimShopStyle"
+
 local function FormatSlotLabel(title, occupantName)
 	local safeName = (occupantName == "None" or not occupantName or occupantName == "") and "Empty" or occupantName
 	return title .. "\n[" .. safeName .. "]"
+end
+
+local function FormatFusedStand(baseStr, name, fs1, fs2)
+	if name == "Fused Stand" then
+		return baseStr .. "\n(" .. tostring(fs1) .. " + " .. tostring(fs2) .. ")"
+	end
+	local safeName = (name == "None" or not name or name == "") and "Empty" or name
+	return baseStr .. "\n[" .. tostring(safeName) .. "]"
 end
 
 function GiftManager.Init(parentGui)
@@ -47,7 +59,10 @@ function GiftManager.Init(parentGui)
 
 	local function SendClaimStand(slot)
 		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("ClaimShopStand", slot)
+		local remote = Network:FindFirstChild(activeRemote)
+		if remote then
+			remote:FireServer(activeStandAction, slot)
+		end
 		standClaimModal.Visible = false
 		isPromptShowing = false
 		processQueue()
@@ -77,7 +92,10 @@ function GiftManager.Init(parentGui)
 
 	local function SendClaimStyle(slot)
 		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("ClaimShopStyle", slot)
+		local remote = Network:FindFirstChild(activeRemote)
+		if remote then
+			remote:FireServer(activeStyleAction, slot)
+		end
 		styleClaimModal.Visible = false
 		isPromptShowing = false
 		processQueue()
@@ -110,19 +128,28 @@ function GiftManager.Init(parentGui)
 	Network:WaitForChild("ShopAction").OnClientEvent:Connect(CatchPrompt)
 end
 
-local function FormatFusedStand(baseStr, name, fs1, fs2)
-	if name == "Fused Stand" then
-		return baseStr .. "\n(" .. tostring(fs1) .. " + " .. tostring(fs2) .. ")"
-	end
-	return baseStr .. "\n[" .. tostring(name) .. "]"
-end
-
 processQueue = function()
 	if isPromptShowing or #promptQueue == 0 then return end
 	local nextData = table.remove(promptQueue, 1)
 	isPromptShowing = true
 	local ls = player:FindFirstChild("leaderstats")
 	local prestige = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
+
+	activeRemote = nextData.RemoteName or "ShopAction"
+	activeStandAction = nextData.StandAction or "ClaimShopStand"
+	activeStyleAction = nextData.StyleAction or "ClaimShopStyle"
+
+	if nextData.DenyText then
+		btnScDeny.Text = nextData.DenyText
+	else
+		btnScDeny.Text = "Decline Gift"
+	end
+
+	if nextData.StyleDenyText then
+		btnStyleDeny.Text = nextData.StyleDenyText
+	else
+		btnStyleDeny.Text = "Decline Gift"
+	end
 
 	if nextData.StandName then
 		local sNameFormatted = nextData.StandName
@@ -131,7 +158,12 @@ processQueue = function()
 			local tS2 = player:GetAttribute("PendingStand_FusedS2") or "None"
 			sNameFormatted = "Fused Stand\n(" .. tS1 .. " + " .. tS2 .. ")"
 		end
-		scTitle.Text = "GIFT: " .. sNameFormatted
+
+		if activeStandAction == "ClaimUnfuse" then
+			scTitle.Text = "SELECT SLOT FOR: " .. sNameFormatted
+		else
+			scTitle.Text = "GIFT: " .. sNameFormatted
+		end
 
 		btnScActive.Text = FormatFusedStand("Active", nextData.Active, player:GetAttribute("Active_FusedStand1"), player:GetAttribute("Active_FusedStand2"))
 		btnScSlot1.Text = FormatFusedStand("Slot 1", nextData.Slot1, player:GetAttribute("StoredStand1_FusedStand1"), player:GetAttribute("StoredStand1_FusedStand2"))
@@ -149,7 +181,10 @@ processQueue = function()
 		btnScSlotVIP.Visible = player:GetAttribute("IsVIP") == true 
 
 		standClaimModal.Visible = true
-		SFXManager.Play("BuyPass")
+
+		if activeStandAction ~= "ClaimUnfuse" then
+			SFXManager.Play("BuyPass")
+		end
 
 		task.delay(0.05, function() 
 			standScroll.CanvasSize = UDim2.new(0, 0, 0, standLL.AbsoluteContentSize.Y + 20) 
@@ -160,18 +195,17 @@ processQueue = function()
 		btnStyleSlot1.Text = FormatSlotLabel("Slot 1", nextData.Slot1)
 		btnStyleSlot2.Text = FormatSlotLabel("Slot 2", nextData.Slot2)
 		btnStyleSlot3.Text = FormatSlotLabel("Slot 3", nextData.Slot3)
-
-		-- [ADDED VIP STYLE TEXT]
 		btnStyleSlotVIP.Text = FormatSlotLabel("VIP Slot", nextData.SlotVIP) 
 
 		btnStyleSlot2.Visible = player:GetAttribute("HasStyleSlot2") == true
 		btnStyleSlot3.Visible = player:GetAttribute("HasStyleSlot3") == true
-
-		-- [ADDED VIP STYLE VISIBILITY LOGIC]
 		btnStyleSlotVIP.Visible = player:GetAttribute("IsVIP") == true 
 
 		styleClaimModal.Visible = true
-		SFXManager.Play("BuyPass")
+
+		if activeStyleAction ~= "ClaimUnfuse" then
+			SFXManager.Play("BuyPass")
+		end
 
 		task.delay(0.05, function() 
 			styleScroll.CanvasSize = UDim2.new(0, 0, 0, styleLL.AbsoluteContentSize.Y + 20) 
