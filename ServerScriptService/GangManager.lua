@@ -1,8 +1,10 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MessagingService = game:GetService("MessagingService")
+local TextService = game:GetService("TextService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 
@@ -47,6 +49,27 @@ if not GangRepEvent then
 	GangRepEvent = Instance.new("BindableEvent")
 	GangRepEvent.Name = "AwardGangReputation"
 	GangRepEvent.Parent = ReplicatedStorage
+end
+
+-- Checks if text passes Roblox filtering without being altered
+local function CheckTextFilter(text, userId)
+	local success, filterResult = pcall(function()
+		return TextService:FilterStringAsync(text, userId)
+	end)
+
+	if success and filterResult then
+		local success2, filteredText = pcall(function()
+			return filterResult:GetNonChatStringForBroadcastAsync()
+		end)
+		if success2 and filteredText then
+			if filteredText == text then
+				return true, nil
+			else
+				return false, "Input contains inappropriate language!"
+			end
+		end
+	end
+	return false, "Text filter service is down. Try again later."
 end
 
 local function GetDictSize(d)
@@ -667,6 +690,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			return
 		end
 
+		local isClean, errMsg = CheckTextFilter(displayGangName, player.UserId)
+		if not isClean then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. errMsg .. "</font>")
+			return
+		end
+
 		if LoadGangData(gangKey) then 
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>That gang name is taken!</font>")
 			return 
@@ -723,6 +752,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			return
 		end
 
+		local isClean, errMsg = CheckTextFilter(displayGangName, player.UserId)
+		if not isClean then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. errMsg .. "</font>")
+			return
+		end
+
 		if LoadGangData(newKey) then 
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>That gang name is already taken!</font>")
 			return 
@@ -767,6 +802,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		local newMotto = tostring(value)
 		if string.len(newMotto) > 60 then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Motto must be 60 characters or less.</font>")
+			return
+		end
+
+		local isClean, errMsg = CheckTextFilter(newMotto, player.UserId)
+		if not isClean then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. errMsg .. "</font>")
 			return
 		end
 
@@ -894,6 +935,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 		if string.len(newRoleName) < 3 or string.len(newRoleName) > 15 or not string.match(newRoleName, "^[a-zA-Z ]+$") then 
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Role names must be 3-15 letters only!</font>")
 			return 
+		end
+
+		local isClean, errMsg = CheckTextFilter(newRoleName, player.UserId)
+		if not isClean then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>" .. errMsg .. "</font>")
+			return
 		end
 
 		MutateGangData(pGangName, function(gangData)
