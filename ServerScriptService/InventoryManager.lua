@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -27,6 +28,9 @@ NotificationEvent.Name = "NotificationEvent"
 
 local OpenFusionUIRemote = Network:FindFirstChild("OpenFusionUI") or Instance.new("RemoteEvent", Network)
 OpenFusionUIRemote.Name = "OpenFusionUI"
+
+local InventoryAction = Network:FindFirstChild("InventoryAction") or Instance.new("RemoteEvent", Network)
+InventoryAction.Name = "InventoryAction"
 
 local ToggleAutoStatRemote = Network:FindFirstChild("ToggleAutoStat") or Instance.new("RemoteEvent", Network)
 ToggleAutoStatRemote.Name = "ToggleAutoStat"
@@ -79,6 +83,125 @@ ToggleLockRemote.OnServerEvent:Connect(function(player, lockType, extraData)
 		local cleanList = {}
 		for _, v in ipairs(itemsList) do if v ~= "" then table.insert(cleanList, v) end end
 		player:SetAttribute("LockedItems", table.concat(cleanList, ","))
+	end
+end)
+
+InventoryAction.OnServerEvent:Connect(function(player, action, data)
+	if action == "ClaimUnfuse" then
+		local pName = player:GetAttribute("PendingUnfuse_Stand1")
+		local pTrait = player:GetAttribute("PendingUnfuse_Trait1")
+
+		if not pName or pName == "None" then return end
+
+		player:SetAttribute("PendingUnfuse_Stand1", "None")
+		player:SetAttribute("PendingUnfuse_Trait1", "None")
+
+		local slot = data
+		local pendingFormatted = pName .. ((pTrait ~= "None") and (" ["..pTrait.."]") or "")
+
+		if slot == "Deny" or slot == "Trash" then
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name, Context = "Discard Unfuse", OldItem = pendingFormatted, NewItem = "None", Slot = "Trash"
+			})
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You discarded " .. pName .. ".</font>")
+		else
+			local oldStand = "None"
+			if slot == "Active" then
+				oldStand = player:GetAttribute("Stand") or "None"
+				if oldStand == "Fused Stand" then
+					local f1 = player:GetAttribute("Active_FusedStand1") or "None"
+					local f2 = player:GetAttribute("Active_FusedStand2") or "None"
+					local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
+					local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
+					local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+					local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+					oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+				elseif oldStand ~= "None" then
+					local tr = player:GetAttribute("StandTrait") or "None"
+					oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
+				end
+			else
+				local num = slot:gsub("Slot", "")
+				oldStand = player:GetAttribute("StoredStand"..num) or "None"
+				if oldStand == "Fused Stand" then
+					local f1 = player:GetAttribute("StoredStand"..num.."_FusedStand1") or "None"
+					local f2 = player:GetAttribute("StoredStand"..num.."_FusedStand2") or "None"
+					local t1 = player:GetAttribute("StoredStand"..num.."_FusedTrait1") or "None"
+					local t2 = player:GetAttribute("StoredStand"..num.."_FusedTrait2") or "None"
+					local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+					local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+					oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+				elseif oldStand ~= "None" then
+					local tr = player:GetAttribute("StoredStand"..num.."_Trait") or "None"
+					oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
+				end
+			end
+
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name, Context = "Unfuse Stand", OldItem = oldStand, NewItem = pendingFormatted, Slot = slot
+			})
+
+			local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
+			local stats = StandData.Stands[pName] and StandData.Stands[pName].Stats
+
+			if slot == "Active" then
+				player:SetAttribute("Stand", pName)
+				player:SetAttribute("StandTrait", pTrait)
+				player:SetAttribute("Active_FusedStand1", "None")
+				player:SetAttribute("Active_FusedStand2", "None")
+				player:SetAttribute("Active_FusedTrait1", "None")
+				player:SetAttribute("Active_FusedTrait2", "None")
+				if stats then
+					for sName, sRank in pairs(stats) do
+						local rankVal = GameData.StandRanks[sRank] or 0
+						player:SetAttribute("Stand_" .. sName .. "_Val", rankVal + (prestige * 5))
+					end
+				end
+			else
+				local num = slot:gsub("Slot", "")
+				player:SetAttribute("StoredStand"..num, pName)
+				player:SetAttribute("StoredStand"..num.."_Trait", pTrait)
+				player:SetAttribute("StoredStand"..num.."_FusedStand1", "None")
+				player:SetAttribute("StoredStand"..num.."_FusedStand2", "None")
+				player:SetAttribute("StoredStand"..num.."_FusedTrait1", "None")
+				player:SetAttribute("StoredStand"..num.."_FusedTrait2", "None")
+			end
+		end
+
+		local pName2 = player:GetAttribute("PendingUnfuse_Stand2")
+		local pTrait2 = player:GetAttribute("PendingUnfuse_Trait2")
+
+		if pName2 and pName2 ~= "None" then
+			player:SetAttribute("PendingUnfuse_Stand2", "None")
+			player:SetAttribute("PendingUnfuse_Trait2", "None")
+
+			player:SetAttribute("PendingUnfuse_Stand1", pName2)
+			player:SetAttribute("PendingUnfuse_Trait1", pTrait2)
+
+			task.delay(0.5, function()
+				local ShopUpdate = Network:FindFirstChild("ShopUpdate")
+				if ShopUpdate then
+					ShopUpdate:FireClient(player, "ShowStandClaim", {
+						RemoteName = "InventoryAction",
+						StandAction = "ClaimUnfuse",
+						DenyText = "Trash Stand\n[Discard Permanently]",
+						StandName = pName2,
+						Active = player:GetAttribute("Stand") or "None",
+						Slot1 = player:GetAttribute("StoredStand1") or "None",
+						Slot2 = player:GetAttribute("StoredStand2") or "None",
+						Slot3 = player:GetAttribute("StoredStand3") or "None",
+						Slot4 = player:GetAttribute("StoredStand4") or "None",
+						Slot5 = player:GetAttribute("StoredStand5") or "None",
+						SlotVIP = player:GetAttribute("StoredStandVIP") or "None"
+					})
+					NotificationEvent:FireClient(player, "<font color='#A020F0'>Now choose a slot for your second Stand!</font>")
+				end
+			end)
+		else
+			if slot ~= "Deny" and slot ~= "Trash" then
+				NotificationEvent:FireClient(player, "<font color='#A020F0'>Stand safely stored!</font>")
+			end
+		end
 	end
 end)
 
@@ -477,7 +600,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" 
 				or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" 
 				or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "Chiikawa Mascot" or itemName == "Kakyoin's Egg"
-				or itemName == "Scratch-Off Ticket"
+				or itemName == "Scratch-Off Ticket" or itemName == "Inversion Medicine"
 				or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
 
 		local isStyleItem = 
@@ -618,6 +741,56 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 
 				local stashed, msg = HandleRollResult(player, myStand, newTrait, "Trait", itemName, oldStandFormatted, oldStandRarity)
 				message = msg
+			end
+
+		elseif itemName == "Inversion Medicine" then
+			if myStand ~= "Fused Stand" then
+				message = "You can only use this on a Fused Stand!"
+				itemConsumed = false
+			else
+				local fs1 = player:GetAttribute("Active_FusedStand1")
+				local fs2 = player:GetAttribute("Active_FusedStand2")
+				local ft1 = player:GetAttribute("Active_FusedTrait1")
+				local ft2 = player:GetAttribute("Active_FusedTrait2")
+
+				if not fs1 or fs1 == "None" or not fs2 or fs2 == "None" then
+					message = "Failed to identify fusion components!"
+					itemConsumed = false
+				else
+					player:SetAttribute("Stand", "None")
+					player:SetAttribute("StandTrait", "None")
+					player:SetAttribute("Active_FusedStand1", "None")
+					player:SetAttribute("Active_FusedStand2", "None")
+					player:SetAttribute("Active_FusedTrait1", "None")
+					player:SetAttribute("Active_FusedTrait2", "None")
+					for _, s in ipairs({"Power", "Speed", "Range", "Durability", "Precision", "Potential"}) do
+						player:SetAttribute("Stand_" .. s, "None")
+					end
+
+					player:SetAttribute("PendingUnfuse_Stand1", fs1)
+					player:SetAttribute("PendingUnfuse_Trait1", ft1)
+					player:SetAttribute("PendingUnfuse_Stand2", fs2)
+					player:SetAttribute("PendingUnfuse_Trait2", ft2)
+
+					local ShopUpdate = Network:FindFirstChild("ShopUpdate")
+					if ShopUpdate then
+						ShopUpdate:FireClient(player, "ShowStandClaim", {
+							RemoteName = "InventoryAction",
+							StandAction = "ClaimUnfuse",
+							DenyText = "Trash Stand\n[Discard Permanently]",
+							StandName = fs1,
+							Active = "None",
+							Slot1 = player:GetAttribute("StoredStand1") or "None",
+							Slot2 = player:GetAttribute("StoredStand2") or "None",
+							Slot3 = player:GetAttribute("StoredStand3") or "None",
+							Slot4 = player:GetAttribute("StoredStand4") or "None",
+							Slot5 = player:GetAttribute("StoredStand5") or "None",
+							SlotVIP = player:GetAttribute("StoredStandVIP") or "None"
+						})
+					end
+
+					message = "The medicine violently forces your Stand to split apart! Choose a slot for your first Stand."
+				end
 			end
 
 		elseif itemName == "Memory Disc" then
