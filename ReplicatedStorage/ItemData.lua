@@ -116,7 +116,8 @@ ItemData.Consumables = {
 	["Memory Disc"] = { Category = "Player", Description = "Wipes your memory. Removes your current Fighting Style.", Rarity = "Uncommon", Cost = 5000 },
 	["Requiem Arrow"] = { Category = "Stand", Description = "An arrow with a bizzare beetle design. Pushes your stand beyond anything ever seen.", Rarity = "Mythical", Cost = 500000},
 	["New Rokakaka"] = { Category = "Stand", Description = "The ultimate fruit of equivalent exchange. Fuses two of your Stands into a powerful hybrid.", Rarity = "Mythical", Cost = 500000},
-	
+	["Inversion Medicine"] = { Category = "Stand", Description = "The ultimate medicine. Reverts your Fused Stand back to its original forms.", Rarity = "Mythical", Cost = 500000},
+
 	-- Stand Discs
 	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Weather Report.", Rarity = "Unique", Cost = 300000},
 	["Heaven's Door Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Heaven's Door.", Rarity = "Unique", Cost = 300000},
