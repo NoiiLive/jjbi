@@ -16,6 +16,36 @@ end
 local ADMIN_WEBHOOK_URL = "https://discord.com/api/webhooks/1488980762165379213/yLjM6XIzDo0sSGiMOpFJQ8gYGs5hiDS-8bJoFzyrrh5Jw5e7EuNI2QdlzQimIZRnrpFW"
 local BOSS_WEBHOOK_URL = "https://discord.com/api/webhooks/1488994023652724736/szzJf00-CBHsvW0AIWqzy4N1P3QZaDr0SULPXcduiCLEwJ67Pju1DF7bcsxwhUhwvQwW"
 
+local logQueue = {}
+local isProcessingQueue = false
+
+local function ProcessQueue()
+	if isProcessingQueue then return end
+	isProcessingQueue = true
+
+	while #logQueue > 0 do
+		local currentLog = logQueue[1]
+		local webhookUrl = currentLog.Url
+		local payload = currentLog.Payload
+
+		local jsonData = HttpService:JSONEncode(payload)
+
+		local success, err = pcall(function()
+			HttpService:PostAsync(webhookUrl, jsonData, Enum.HttpContentType.ApplicationJson)
+		end)
+
+		if success then
+			table.remove(logQueue, 1)
+			task.wait(1)
+		else
+			warn("Failed to send log to Discord: " .. tostring(err) .. ". Retrying in 5 seconds...")
+			task.wait(5)
+		end
+	end
+
+	isProcessingQueue = false
+end
+
 local function SendToDiscord(webhookUrl, embedData, contentText)
 	if RunService:IsStudio() then
 		print("[Studio Intercept] Discord log prevented from sending: " .. (embedData and embedData.title or "Unknown Log"))
@@ -35,16 +65,8 @@ local function SendToDiscord(webhookUrl, embedData, contentText)
 		payload["content"] = contentText
 	end
 
-	local jsonData = HttpService:JSONEncode(payload)
-
-	task.spawn(function()
-		local success, err = pcall(function()
-			HttpService:PostAsync(webhookUrl, jsonData, Enum.HttpContentType.ApplicationJson)
-		end)
-		if not success then
-			warn("Failed to send log to Discord: " .. tostring(err))
-		end
-	end)
+	table.insert(logQueue, {Url = webhookUrl, Payload = payload})
+	task.spawn(ProcessQueue)
 end
 
 AdminLogger.Event:Connect(function(logType, logData)
