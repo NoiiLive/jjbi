@@ -46,27 +46,37 @@ ExecuteFusion.OnServerEvent:Connect(function(player, slot1, slot2, targetSlot)
 	local stand1, trait1 = GetStandDataFromSlot(slot1)
 	local stand2, trait2 = GetStandDataFromSlot(slot2)
 
-	local oldTargetStandName = GetStandDataFromSlot(targetSlot)
+	local oldTargetStandName, oldTargetTraitName = GetStandDataFromSlot(targetSlot)
 	if oldTargetStandName == "Fused Stand" then
 		local fs1, fs2 = "None", "None"
+		local ft1, ft2 = "None", "None"
 		if targetSlot == "Active" then
 			fs1 = player:GetAttribute("Active_FusedStand1") or "None"
 			fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+			ft1 = player:GetAttribute("Active_FusedTrait1") or "None"
+			ft2 = player:GetAttribute("Active_FusedTrait2") or "None"
 		else
 			local num = targetSlot:gsub("Slot", "")
 			fs1 = player:GetAttribute("StoredStand"..num.."_FusedStand1") or "None"
 			fs2 = player:GetAttribute("StoredStand"..num.."_FusedStand2") or "None"
+			ft1 = player:GetAttribute("StoredStand"..num.."_FusedTrait1") or "None"
+			ft2 = player:GetAttribute("StoredStand"..num.."_FusedTrait2") or "None"
 		end
-		oldTargetStandName = "Fused Stand (" .. tostring(fs1) .. " + " .. tostring(fs2) .. ")"
+		local t1Str = (ft1 ~= "None") and (" ["..ft1.."]") or ""
+		local t2Str = (ft2 ~= "None") and (" ["..ft2.."]") or ""
+		oldTargetStandName = "Fused Stand (" .. tostring(fs1) .. t1Str .. " + " .. tostring(fs2) .. t2Str .. ")"
+	elseif oldTargetStandName ~= "None" then
+		local tStr = (oldTargetTraitName ~= "None") and (" ["..oldTargetTraitName.."]") or ""
+		oldTargetStandName = oldTargetStandName .. tStr
 	end
 
-	local newStandFormatted = "Fused Stand (" .. tostring(stand1) .. " + " .. tostring(stand2) .. ")"
+	local tr1Str = (trait1 ~= "None") and (" ["..trait1.."]") or ""
+	local tr2Str = (trait2 ~= "None") and (" ["..trait2.."]") or ""
+	local newStandFormatted = "Fused Stand (" .. tostring(stand1) .. tr1Str .. " + " .. tostring(stand2) .. tr2Str .. ")"
 
-	if oldTargetStandName ~= "None" then
-		AdminLogger:Fire("Replacement", {
-			Player = player.Name, Context = "Fusion", OldItem = oldTargetStandName, NewItem = newStandFormatted, Slot = targetSlot
-		})
-	end
+	AdminLogger:Fire("Replacement", {
+		Player = player.Name, Context = "Fusion", OldItem = oldTargetStandName, NewItem = newStandFormatted, Slot = targetSlot
+	})
 
 	if stand1 == "None" or stand2 == "None" then
 		NotificationEvent:FireClient(player, "<font color='#FF5555'>Both slots must contain a valid Stand!</font>")
