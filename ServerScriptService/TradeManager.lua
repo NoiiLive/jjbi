@@ -385,9 +385,12 @@ local function ExecuteTrade(session)
 		for k, v in pairs(offer.Items) do details = details .. v .. "x " .. k .. ", " end
 		if offer.Stand then
 			if offer.Stand.Name == "Fused Stand" then
-				details = details .. "Stand: Fused Stand (" .. tostring(offer.Stand.FusedS1) .. " + " .. tostring(offer.Stand.FusedS2) .. "), "
+				local t1 = (offer.Stand.FusedT1 and offer.Stand.FusedT1 ~= "None") and (" ["..offer.Stand.FusedT1.."]") or ""
+				local t2 = (offer.Stand.FusedT2 and offer.Stand.FusedT2 ~= "None") and (" ["..offer.Stand.FusedT2.."]") or ""
+				details = details .. "Stand: Fused Stand (" .. tostring(offer.Stand.FusedS1) .. t1 .. " + " .. tostring(offer.Stand.FusedS2) .. t2 .. "), "
 			else
-				details = details .. "Stand: " .. offer.Stand.Name .. ", "
+				local tr = (offer.Stand.Trait and offer.Stand.Trait ~= "None") and (" ["..offer.Stand.Trait.."]") or ""
+				details = details .. "Stand: " .. offer.Stand.Name .. tr .. ", "
 			end
 		end
 		if offer.Style then details = details .. "Style: " .. offer.Style.Name .. ", " end
@@ -454,26 +457,51 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if slot == "Active" then 
 				oldStand = player:GetAttribute("Stand") or "None"
 				if oldStand == "Fused Stand" then
-					oldStand = "Fused Stand (" .. tostring(player:GetAttribute("Active_FusedStand1")) .. " + " .. tostring(player:GetAttribute("Active_FusedStand2")) .. ")"
+					local f1 = player:GetAttribute("Active_FusedStand1") or "None"
+					local f2 = player:GetAttribute("Active_FusedStand2") or "None"
+					local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
+					local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
+					local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+					local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+					oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+				elseif oldStand ~= "None" then
+					local tr = player:GetAttribute("StandTrait") or "None"
+					oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
 				end
 			else
 				local num = slot:gsub("Slot", "")
 				oldStand = player:GetAttribute("StoredStand"..num) or "None"
 				if oldStand == "Fused Stand" then
-					oldStand = "Fused Stand (" .. tostring(player:GetAttribute("StoredStand"..num.."_FusedStand1")) .. " + " .. tostring(player:GetAttribute("StoredStand"..num.."_FusedStand2")) .. ")"
+					local f1 = player:GetAttribute("StoredStand"..num.."_FusedStand1") or "None"
+					local f2 = player:GetAttribute("StoredStand"..num.."_FusedStand2") or "None"
+					local t1 = player:GetAttribute("StoredStand"..num.."_FusedTrait1") or "None"
+					local t2 = player:GetAttribute("StoredStand"..num.."_FusedTrait2") or "None"
+					local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+					local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+					oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+				elseif oldStand ~= "None" then
+					local tr = player:GetAttribute("StoredStand"..num.."_Trait") or "None"
+					oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
 				end
 			end
 
 			local pNameFormatted = pName
 			if pName == "Fused Stand" then
-				pNameFormatted = "Fused Stand (" .. tostring(player:GetAttribute("PendingStand_FusedS1")) .. " + " .. tostring(player:GetAttribute("PendingStand_FusedS2")) .. ")"
+				local f1 = player:GetAttribute("PendingStand_FusedS1") or "None"
+				local f2 = player:GetAttribute("PendingStand_FusedS2") or "None"
+				local t1 = player:GetAttribute("PendingStand_FusedT1") or "None"
+				local t2 = player:GetAttribute("PendingStand_FusedT2") or "None"
+				local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+				local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+				pNameFormatted = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+			elseif pName ~= "None" then
+				local tStr = (pTrait ~= "None") and (" ["..pTrait.."]") or ""
+				pNameFormatted = pNameFormatted .. tStr
 			end
 
-			if oldStand ~= "None" then
-				AdminLogger:Fire("Replacement", {
-					Player = player.Name, Context = "Trade", OldItem = oldStand, NewItem = pNameFormatted, Slot = slot
-				})
-			end
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name, Context = "Trade", OldItem = oldStand, NewItem = pNameFormatted, Slot = slot
+			})
 
 			local function applyStandToSlot(prefix, traitSuffix, numSuffix)
 				player:SetAttribute(prefix, pName)
@@ -519,7 +547,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 						for _, stat in ipairs(statsList) do
 							local v1 = rankToNum[s1Data.Stats[stat]] or 0
 							local v2 = rankToNum[s2Data.Stats[stat]] or 0
-							local avg = math.ceil((v1 + v2) / 2)
+							local avg = math.ceil((val1 + val2) / 2)
 							player:SetAttribute("Stand_" .. stat, numToRank[avg] or "C")
 						end
 					else
@@ -559,11 +587,9 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			elseif slot == "Slot3" then oldStyle = player:GetAttribute("StoredStyle3") or "None"
 			elseif slot == "SlotVIP" then oldStyle = player:GetAttribute("StoredStyleVIP") or "None" end
 
-			if oldStyle ~= "None" then
-				AdminLogger:Fire("Replacement", {
-					Player = player.Name, Context = "Trade", OldItem = oldStyle, NewItem = pName, Slot = slot
-				})
-			end
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name, Context = "Trade", OldItem = oldStyle, NewItem = pName, Slot = slot
+			})
 
 			if slot == "Active" then
 				player:SetAttribute("FightingStyle", pName)
