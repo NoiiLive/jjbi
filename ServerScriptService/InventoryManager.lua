@@ -6,6 +6,13 @@ local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
 local MarketplaceService = game:GetService("MarketplaceService")
 
+local AdminLogger = Network:FindFirstChild("AdminLogger")
+if not AdminLogger then
+	AdminLogger = Instance.new("BindableEvent")
+	AdminLogger.Name = "AdminLogger"
+	AdminLogger.Parent = Network
+end
+
 local UseItemRemote = Network:FindFirstChild("UseItem") or Instance.new("RemoteEvent", Network)
 UseItemRemote.Name = "UseItem"
 
@@ -200,36 +207,62 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 		if isTarget then 
 			hit = true; break 
 		else
-			local sRarity = StandData.Stands[newStand] and StandData.Stands[newStand].Rarity or "Common"
-			local tRarity = StandData.Traits[newTrait] and StandData.Traits[newTrait].Rarity or "Common"
+			local stashStand = false
 
-			if sRarity == "Legendary" or sRarity == "Mythical" or tRarity == "Legendary" or tRarity == "Mythical" then
+			if rollType == "Stand" then
+				local sR = StandData.Stands[newStand] and StandData.Stands[newStand].Rarity or "Common"
+				if sR == "Legendary" or sR == "Mythical" or sR == "Evolution" or sR == "Unique" then stashStand = true end
+			end
+
+			if stashStand then
 				local pLeaderstats = player:FindFirstChild("leaderstats")
 				local prestige = pLeaderstats and pLeaderstats:FindFirstChild("Prestige") and pLeaderstats.Prestige.Value or 0
 
 				local emptySlot = nil
-				for i = 1, 5 do
-					if i == 2 and not player:GetAttribute("HasStandSlot2") then continue end
-					if i == 3 and not player:GetAttribute("HasStandSlot3") then continue end
-					if i == 4 and prestige < 15 then continue end
-					if i == 5 and prestige < 30 then continue end
-					if (player:GetAttribute("StoredStand"..i) or "None") == "None" then
-						emptySlot = "StoredStand"..i
-						break
+				local slotsToCheck = {"1", "2", "3", "4", "5", "VIP"}
+
+				for _, slotID in ipairs(slotsToCheck) do
+					local canUse = true
+					if slotID == "2" and not player:GetAttribute("HasStandSlot2") then canUse = false end
+					if slotID == "3" and not player:GetAttribute("HasStandSlot3") then canUse = false end
+					if slotID == "4" and prestige < 15 then canUse = false end
+					if slotID == "5" and prestige < 30 then canUse = false end
+					if slotID == "VIP" and not player:GetAttribute("IsVIP") then canUse = false end
+
+					if canUse then
+						local currentInSlot = player:GetAttribute("StoredStand"..slotID) or "None"
+						if currentInSlot == "None" then
+							emptySlot = "StoredStand"..slotID
+							break
+						end
 					end
-				end
-				if not emptySlot and player:GetAttribute("IsVIP") and (player:GetAttribute("StoredStandVIP") or "None") == "None" then
-					emptySlot = "StoredStandVIP"
 				end
 
 				if emptySlot then
 					player:SetAttribute(emptySlot, newStand)
 					player:SetAttribute(emptySlot .. "_Trait", newTrait)
 
-					local rarityLevel = (tRarity == "Mythical" or sRarity == "Mythical") and "Mythical" or "Legendary"
-					local itemNameText = (tRarity == "Legendary" or tRarity == "Mythical") and "Trait ["..newTrait.."]" or "Stand ["..newStand.."]"
+					player:SetAttribute(emptySlot .. "_FusedStand1", "None")
+					player:SetAttribute(emptySlot .. "_FusedStand2", "None")
+					player:SetAttribute(emptySlot .. "_FusedTrait1", "None")
+					player:SetAttribute(emptySlot .. "_FusedTrait2", "None")
 
-					NotificationEvent:FireClient(player, "<b><font color='#FFD700'>Auto-Roll rolled over a " .. rarityLevel .. " " .. itemNameText .. "! Automatically caught and Stashed to an empty Stand Storage slot!</font></b>")
+					local sRarity = StandData.Stands[newStand] and StandData.Stands[newStand].Rarity or "Common"
+					if sRarity == "Mythical" or sRarity == "Evolution" or sRarity == "Unique" then
+						local trStr = (newTrait and newTrait ~= "None") and (" ["..newTrait.."]") or ""
+						AdminLogger:Fire("Replacement", {
+							Player = player.Name,
+							Context = "Auto-Roll Stash",
+							OldItem = "None",
+							NewItem = newStand .. trStr,
+							Slot = emptySlot
+						})
+					end
+
+					local rarityLevel = "Legendary"
+					if sRarity == "Mythical" or sRarity == "Unique" or sRarity == "Evolution" then rarityLevel = sRarity end
+
+					NotificationEvent:FireClient(player, "<b><font color='#FFD700'>Auto-Roll caught a " .. rarityLevel .. " Stand ["..newStand.."]! Automatically Stashed to an empty Stand Storage slot!</font></b>")
 				end
 			end
 		end
@@ -308,6 +341,102 @@ local function HandleGiftboxDrop(player, targetRarity)
 	return "The box was empty..."
 end
 
+local function HandleRollResult(player, newStand, newTrait, rollType, itemReq, oldStandFormatted)
+	local sRarity = StandData.Stands[newStand] and StandData.Stands[newStand].Rarity or "Common"
+
+	local stashStand = false
+
+	if rollType == "Stand" then
+		if sRarity == "Legendary" or sRarity == "Mythical" or sRarity == "Evolution" or sRarity == "Unique" then stashStand = true end
+	end
+
+	local stashedSlot = nil
+	if stashStand then
+		local pLeaderstats = player:FindFirstChild("leaderstats")
+		local prestige = pLeaderstats and pLeaderstats:FindFirstChild("Prestige") and pLeaderstats.Prestige.Value or 0
+
+		local slotsToCheck = {"1", "2", "3", "4", "5", "VIP"}
+		for _, slotID in ipairs(slotsToCheck) do
+			local canUse = true
+			if slotID == "2" and not player:GetAttribute("HasStandSlot2") then canUse = false end
+			if slotID == "3" and not player:GetAttribute("HasStandSlot3") then canUse = false end
+			if slotID == "4" and prestige < 15 then canUse = false end
+			if slotID == "5" and prestige < 30 then canUse = false end
+			if slotID == "VIP" and not player:GetAttribute("IsVIP") then canUse = false end
+
+			if canUse then
+				local currentInSlot = player:GetAttribute("StoredStand"..slotID) or "None"
+				if currentInSlot == "None" then
+					stashedSlot = "StoredStand"..slotID
+					break
+				end
+			end
+		end
+	end
+
+	if stashedSlot then
+		player:SetAttribute(stashedSlot, newStand)
+		player:SetAttribute(stashedSlot .. "_Trait", newTrait)
+
+		player:SetAttribute(stashedSlot .. "_FusedStand1", "None")
+		player:SetAttribute(stashedSlot .. "_FusedStand2", "None")
+		player:SetAttribute(stashedSlot .. "_FusedTrait1", "None")
+		player:SetAttribute(stashedSlot .. "_FusedTrait2", "None")
+
+		if rollType == "Stand" and (sRarity == "Mythical" or sRarity == "Evolution" or sRarity == "Unique") then
+			local trStr = (newTrait and newTrait ~= "None") and (" ["..newTrait.."]") or ""
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name,
+				Context = "Manual Roll Stash",
+				OldItem = "None",
+				NewItem = newStand .. trStr,
+				Slot = stashedSlot
+			})
+		end
+
+		local rarityLevel = "Legendary"
+		if sRarity == "Mythical" or sRarity == "Unique" or sRarity == "Evolution" then rarityLevel = sRarity end
+
+		return true, "<b><font color='#FFD700'>You manually rolled a " .. rarityLevel .. " Stand [" .. newStand .. "]! Automatically Stashed to an empty Stand Storage slot!</font></b>"
+	else
+		if rollType == "Stand" and (sRarity == "Mythical" or sRarity == "Evolution" or sRarity == "Unique") then
+			local traitStr = (newTrait and newTrait ~= "None") and (" [" .. newTrait .. "]") or ""
+			local logContext = (itemReq == "Saint's Corpse Part") and "Corpse Part Roll" or "Stand Arrow Roll"
+			AdminLogger:Fire("Replacement", {
+				Player = player.Name,
+				Context = logContext,
+				OldItem = oldStandFormatted,
+				NewItem = newStand .. traitStr,
+				Slot = "Active"
+			})
+		end
+
+		player:SetAttribute("StandTrait", newTrait)
+		if rollType == "Stand" then
+			player:SetAttribute("Stand", newStand)
+			local stats = StandData.Stands[newStand] and StandData.Stands[newStand].Stats
+			if stats then
+				for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
+			end
+		end
+
+		local traitTag = newTrait ~= "None" and (" ("..newTrait..")") or ""
+		local msg = ""
+		if rollType == "Stand" then
+			if itemReq == "Saint's Corpse Part" then
+				msg = "The corpse part fuses with you! Awakened Stand: " .. newStand .. traitTag .. "!"
+			else
+				msg = "You were pierced by the arrow! Awakened Stand: " .. newStand .. traitTag .. "!"
+			end
+		else
+			local traitColor = StandData.Traits[newTrait] and StandData.Traits[newTrait].Color or "#FFFFFF"
+			local traitDisplay = newTrait ~= "None" and "<font color='"..traitColor.."'>["..newTrait.."]</font>" or "None"
+			msg = "You consumed the Rokakaka! Your Stand's trait is now: " .. traitDisplay .. "!"
+		end
+		return false, msg
+	end
+end
+
 UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targetTrait)
 	local attrName = itemName:gsub("[^%w]", "") .. "Count"
 	local itemCount = player:GetAttribute(attrName) or 0
@@ -375,6 +504,19 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			end
 		end
 
+		local oldStandFormatted = myStand
+		if oldStandFormatted == "Fused Stand" then
+			local f1 = player:GetAttribute("Active_FusedStand1") or "None"
+			local f2 = player:GetAttribute("Active_FusedStand2") or "None"
+			local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
+			local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
+			local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+			local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+			oldStandFormatted = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+		elseif oldStandFormatted ~= "None" then
+			oldStandFormatted = oldStandFormatted .. ((myTrait ~= "None") and (" ["..myTrait.."]") or "")
+		end
+
 		local function EvolveStand(newStand)
 			player:SetAttribute("Stand", newStand)
 			local stats = StandData.Stands[newStand].Stats
@@ -429,53 +571,44 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			if player:GetAttribute("HasAutoStatPass") then message = "You already own this pass!"; itemConsumed = false
 			else player:SetAttribute("HasAutoStatPass", true); message = "Unlocked Auto-Stat Invest!" end
 
-		elseif itemName == "Stand Arrow" then
+		elseif itemName == "Stand Arrow" or itemName == "Saint's Corpse Part" then
 			local pBoosts = GetPlayerBoosts(player)
 			local currentStandPity = player:GetAttribute("StandPity") or 0
 			local currentTraitPity = player:GetAttribute("TraitPity") or 0
+			local poolType = (itemName == "Saint's Corpse Part") and "Corpse" or "Arrow"
 
-			local newStand = StandData.RollStand(pBoosts.Luck, currentStandPity)
+			local newStand = StandData.RollStand(pBoosts.Luck, currentStandPity, poolType)
 			local newTrait = StandData.RollTrait(pBoosts.Luck, currentTraitPity)
 
-			if StandData.Stands[newStand].Rarity == "Legendary" then player:SetAttribute("StandPity", 0)
-			else player:SetAttribute("StandPity", currentStandPity + 1) end
+			local standInfo = StandData.Stands[newStand]
+			if standInfo then
+				if standInfo.Rarity == "Legendary" then player:SetAttribute("StandPity", 0)
+				else player:SetAttribute("StandPity", currentStandPity + 1) end
+			end
 
 			local traitData = StandData.Traits[newTrait]
-			if traitData and traitData.Rarity == "Mythical" then player:SetAttribute("TraitPity", 0)
+			if traitData and (traitData.Rarity == "Mythical" or traitData.Rarity == "Legendary") then player:SetAttribute("TraitPity", 0)
 			else player:SetAttribute("TraitPity", currentTraitPity + 1) end
 
-			player:SetAttribute("Stand", newStand)
-			player:SetAttribute("StandTrait", newTrait)
+			local stashed, msg = HandleRollResult(player, newStand, newTrait, "Stand", itemName, oldStandFormatted)
+			message = msg
 
-			local stats = StandData.Stands[newStand].Stats
-			for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
+		elseif itemName == "Rokakaka" then
+			if myStand == "None" then
+				message = "You don't have a Stand to reroll!"; itemConsumed = false
+			elseif myStand == "Fused Stand" then
+				message = "You cannot use a Rokakaka on a Fused Stand!"; itemConsumed = false
+			else
+				local pBoosts = GetPlayerBoosts(player)
+				local currentTraitPity = player:GetAttribute("TraitPity") or 0
+				local newTrait = StandData.RollTrait(pBoosts.Luck, currentTraitPity)
 
-			local traitTag = newTrait ~= "None" and " ("..newTrait..")" or ""
-			message = "You were pierced by the arrow! Awakened Stand: " .. newStand .. traitTag .. "!"
+				local traitData = StandData.Traits[newTrait]
+				if traitData and (traitData.Rarity == "Mythical" or traitData.Rarity == "Legendary") then player:SetAttribute("TraitPity", 0) else player:SetAttribute("TraitPity", currentTraitPity + 1) end
 
-		elseif itemName == "Saint's Corpse Part" then
-			local pBoosts = GetPlayerBoosts(player)
-			local currentStandPity = player:GetAttribute("StandPity") or 0
-			local currentTraitPity = player:GetAttribute("TraitPity") or 0
-
-			local newStand = StandData.RollStand(pBoosts.Luck, currentStandPity, "Corpse")
-			local newTrait = StandData.RollTrait(pBoosts.Luck, currentTraitPity)
-
-			if StandData.Stands[newStand].Rarity == "Legendary" then player:SetAttribute("StandPity", 0)
-			else player:SetAttribute("StandPity", currentStandPity + 1) end
-
-			local traitData = StandData.Traits[newTrait]
-			if traitData and traitData.Rarity == "Mythical" then player:SetAttribute("TraitPity", 0)
-			else player:SetAttribute("TraitPity", currentTraitPity + 1) end
-
-			player:SetAttribute("Stand", newStand)
-			player:SetAttribute("StandTrait", newTrait)
-
-			local stats = StandData.Stands[newStand].Stats
-			for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
-
-			local traitTag = newTrait ~= "None" and " ("..newTrait..")" or ""
-			message = "The corpse part fuses with you! Awakened Stand: " .. newStand .. traitTag .. "!"	
+				local stashed, msg = HandleRollResult(player, myStand, newTrait, "Trait", itemName, oldStandFormatted)
+				message = msg
+			end
 
 		elseif itemName == "Memory Disc" then
 			if player:GetAttribute("FightingStyle") == "None" then
@@ -631,26 +764,6 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				player:SetAttribute("Speed", math.min(statCap, (player:GetAttribute("Speed") or 5) + 25))
 				player:SetAttribute("Defense", math.min(statCap, (player:GetAttribute("Defense") or 5) + 25))
 				message = "You fused with the Green Baby. Massive Speed/Defense boost!"
-			end
-
-		elseif itemName == "Rokakaka" then
-			if myStand == "None" then
-				message = "You don't have a Stand to reroll!"; itemConsumed = false
-			elseif myStand == "Fused Stand" then
-				message = "You cannot use a Rokakaka on a Fused Stand!"; itemConsumed = false
-			else
-				local pBoosts = GetPlayerBoosts(player)
-				local currentTraitPity = player:GetAttribute("TraitPity") or 0
-				local newTrait = StandData.RollTrait(pBoosts.Luck, currentTraitPity)
-
-				player:SetAttribute("StandTrait", newTrait)
-
-				local traitData = StandData.Traits[newTrait]
-				if traitData and (traitData.Rarity == "Mythical" or traitData.Rarity == "Legendary") then player:SetAttribute("TraitPity", 0) else player:SetAttribute("TraitPity", currentTraitPity + 1) end
-
-				local traitColor = StandData.Traits[newTrait] and StandData.Traits[newTrait].Color or "#FFFFFF"
-				local traitDisplay = newTrait ~= "None" and "<font color='"..traitColor.."'>["..newTrait.."]</font>" or "None"
-				message = "You consumed the Rokakaka! Your Stand's trait is now: " .. traitDisplay .. "!"
 			end
 
 		elseif itemName == "New Rokakaka" then
