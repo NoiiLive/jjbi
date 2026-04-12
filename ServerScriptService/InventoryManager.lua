@@ -341,7 +341,7 @@ local function HandleGiftboxDrop(player, targetRarity)
 	return "The box was empty..."
 end
 
-local function HandleRollResult(player, newStand, newTrait, rollType, itemReq, oldStandFormatted)
+local function HandleRollResult(player, newStand, newTrait, rollType, itemReq, oldStandFormatted, oldStandRarity)
 	local sRarity = StandData.Stands[newStand] and StandData.Stands[newStand].Rarity or "Common"
 
 	local stashStand = false
@@ -399,7 +399,13 @@ local function HandleRollResult(player, newStand, newTrait, rollType, itemReq, o
 
 		return true, "<b><font color='#FFD700'>You manually rolled a " .. rarityLevel .. " Stand [" .. newStand .. "]! Automatically Stashed to an empty Stand Storage slot!</font></b>"
 	else
-		if rollType == "Stand" and (sRarity == "Mythical" or sRarity == "Evolution" or sRarity == "Unique") then
+		local logReplacement = false
+		if rollType == "Stand" then
+			if (sRarity == "Mythical" or sRarity == "Evolution" or sRarity == "Unique") then logReplacement = true end
+			if (oldStandRarity == "Mythical" or oldStandRarity == "Evolution" or oldStandRarity == "Unique") then logReplacement = true end
+		end
+
+		if logReplacement then
 			local traitStr = (newTrait and newTrait ~= "None") and (" [" .. newTrait .. "]") or ""
 			local logContext = (itemReq == "Saint's Corpse Part") and "Corpse Part Roll" or "Stand Arrow Roll"
 			AdminLogger:Fire("Replacement", {
@@ -505,6 +511,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		end
 
 		local oldStandFormatted = myStand
+		local oldStandRarity = "None"
+
 		if oldStandFormatted == "Fused Stand" then
 			local f1 = player:GetAttribute("Active_FusedStand1") or "None"
 			local f2 = player:GetAttribute("Active_FusedStand2") or "None"
@@ -513,8 +521,10 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
 			local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
 			oldStandFormatted = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+			oldStandRarity = "Unique"
 		elseif oldStandFormatted ~= "None" then
 			oldStandFormatted = oldStandFormatted .. ((myTrait ~= "None") and (" ["..myTrait.."]") or "")
+			oldStandRarity = StandData.Stands[myStand] and StandData.Stands[myStand].Rarity or "Common"
 		end
 
 		local function EvolveStand(newStand)
@@ -590,7 +600,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			if traitData and (traitData.Rarity == "Mythical" or traitData.Rarity == "Legendary") then player:SetAttribute("TraitPity", 0)
 			else player:SetAttribute("TraitPity", currentTraitPity + 1) end
 
-			local stashed, msg = HandleRollResult(player, newStand, newTrait, "Stand", itemName, oldStandFormatted)
+			local stashed, msg = HandleRollResult(player, newStand, newTrait, "Stand", itemName, oldStandFormatted, oldStandRarity)
 			message = msg
 
 		elseif itemName == "Rokakaka" then
@@ -606,7 +616,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				local traitData = StandData.Traits[newTrait]
 				if traitData and (traitData.Rarity == "Mythical" or traitData.Rarity == "Legendary") then player:SetAttribute("TraitPity", 0) else player:SetAttribute("TraitPity", currentTraitPity + 1) end
 
-				local stashed, msg = HandleRollResult(player, myStand, newTrait, "Trait", itemName, oldStandFormatted)
+				local stashed, msg = HandleRollResult(player, myStand, newTrait, "Trait", itemName, oldStandFormatted, oldStandRarity)
 				message = msg
 			end
 
