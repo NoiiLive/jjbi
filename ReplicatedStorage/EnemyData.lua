@@ -134,7 +134,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Flow of Calamity", "Illusory Presence", "Raining Debris", "Stand Barrage", "Cane Strike", "Block"},
 		Drops = { 
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1, ["Inversion Medicine"] = 1 } 
 		}
 	},
 	["Easter Bunny"] = {
