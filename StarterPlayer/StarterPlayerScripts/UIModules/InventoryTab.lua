@@ -1056,8 +1056,10 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 			if box == pAmtBox then sAmtBox.Text = box.Text else pAmtBox.Text = box.Text end
 			RefreshStatTexts()
 
-			local r = Network:FindFirstChild("ToggleAutoStat")
-			if r then r:FireServer("UpdateAmount", currentUpgradeAmount) end
+			if player:GetAttribute("AutoStatPlayer") or player:GetAttribute("AutoStatStand") then
+				local r = Network:FindFirstChild("ToggleAutoStat")
+				if r then r:FireServer("UpdateAmount", currentUpgradeAmount) end
+			end
 		end)
 	end
 	bindAmountBox(pAmtBox)
