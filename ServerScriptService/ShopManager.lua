@@ -292,21 +292,39 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		if data == "Active" then
 			oldStand = player:GetAttribute("Stand") or "None"
 			if oldStand == "Fused Stand" then
-				oldStand = "Fused Stand (" .. tostring(player:GetAttribute("Active_FusedStand1")) .. " + " .. tostring(player:GetAttribute("Active_FusedStand2")) .. ")"
+				local f1 = player:GetAttribute("Active_FusedStand1") or "None"
+				local f2 = player:GetAttribute("Active_FusedStand2") or "None"
+				local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
+				local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
+				local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+				local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+				oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+			elseif oldStand ~= "None" then
+				local tr = player:GetAttribute("StandTrait") or "None"
+				oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
 			end
 		else
 			local num = data:gsub("Slot", "")
 			oldStand = player:GetAttribute("StoredStand"..num) or "None"
 			if oldStand == "Fused Stand" then
-				oldStand = "Fused Stand (" .. tostring(player:GetAttribute("StoredStand"..num.."_FusedStand1")) .. " + " .. tostring(player:GetAttribute("StoredStand"..num.."_FusedStand2")) .. ")"
+				local f1 = player:GetAttribute("StoredStand"..num.."_FusedStand1") or "None"
+				local f2 = player:GetAttribute("StoredStand"..num.."_FusedStand2") or "None"
+				local t1 = player:GetAttribute("StoredStand"..num.."_FusedTrait1") or "None"
+				local t2 = player:GetAttribute("StoredStand"..num.."_FusedTrait2") or "None"
+				local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+				local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+				oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+			elseif oldStand ~= "None" then
+				local tr = player:GetAttribute("StoredStand"..num.."_Trait") or "None"
+				oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
 			end
 		end
 
-		if oldStand ~= "None" then
-			AdminLogger:Fire("Replacement", {
-				Player = player.Name, Context = "Shop/Gift", OldItem = oldStand, NewItem = pendingStand, Slot = data
-			})
-		end
+		local pendingFormatted = pendingStand .. ((pendingTrait ~= "None") and (" ["..pendingTrait.."]") or "")
+
+		AdminLogger:Fire("Replacement", {
+			Player = player.Name, Context = "Shop/Gift", OldItem = oldStand, NewItem = pendingFormatted, Slot = data
+		})
 
 		local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
 		local stats = StandData.Stands[pendingStand] and StandData.Stands[pendingStand].Stats
@@ -363,11 +381,9 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		elseif data == "Slot3" then oldStyle = player:GetAttribute("StoredStyle3") or "None"
 		elseif data == "SlotVIP" then oldStyle = player:GetAttribute("StoredStyleVIP") or "None" end
 
-		if oldStyle ~= "None" then
-			AdminLogger:Fire("Replacement", {
-				Player = player.Name, Context = "Shop/Gift", OldItem = oldStyle, NewItem = pendingStyle, Slot = data
-			})
-		end
+		AdminLogger:Fire("Replacement", {
+			Player = player.Name, Context = "Shop/Gift", OldItem = oldStyle, NewItem = pendingStyle, Slot = data
+		})
 
 		if data == "Active" then
 			player:SetAttribute("FightingStyle", pendingStyle)
