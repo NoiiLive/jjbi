@@ -25,6 +25,35 @@ local IncomingRequests = {}
 local ActiveTrades = {} 
 local PlayerSettings = {} 
 
+local function checkPendingClaims(player)
+	task.wait(2)
+	local pStand = player:GetAttribute("PendingStand_Name")
+	if pStand and pStand ~= "None" and pStand ~= "" then
+		TradeUpdate:FireClient(player, "ShowClaimPrompt", {
+			Name = pStand,
+			Active = player:GetAttribute("Stand") or "None",
+			Slot1 = player:GetAttribute("StoredStand1") or "None",
+			Slot2 = player:GetAttribute("StoredStand2") or "None",
+			Slot3 = player:GetAttribute("StoredStand3") or "None",
+			Slot4 = player:GetAttribute("StoredStand4") or "None",
+			Slot5 = player:GetAttribute("StoredStand5") or "None",
+			SlotVIP = player:GetAttribute("StoredStandVIP") or "None"
+		})
+	end
+
+	local pStyle = player:GetAttribute("PendingStyle_Name")
+	if pStyle and pStyle ~= "None" and pStyle ~= "" then
+		TradeUpdate:FireClient(player, "ShowStyleClaimPrompt", {
+			Name = pStyle,
+			Active = player:GetAttribute("FightingStyle") or "None",
+			Slot1 = player:GetAttribute("StoredStyle1") or "None",
+			Slot2 = player:GetAttribute("StoredStyle2") or "None",
+			Slot3 = player:GetAttribute("StoredStyle3") or "None",
+			SlotVIP = player:GetAttribute("StoredStyleVIP") or "None"
+		})
+	end
+end
+
 local function checkPlayerPolicy(player)
 	local success, result = pcall(function()
 		return PolicyService:GetPolicyInfoForPlayerAsync(player)
@@ -34,6 +63,8 @@ local function checkPlayerPolicy(player)
 	else
 		player:SetAttribute("PaidItemTradingAllowed", false) 
 	end
+
+	task.spawn(checkPendingClaims, player)
 end
 
 Players.PlayerAdded:Connect(checkPlayerPolicy)
@@ -322,7 +353,7 @@ local function ExecuteTrade(session)
 
 	if o1.Stand then WipeStand(p1, o1.Stand.Slot) end
 	if o2.Stand then WipeStand(p2, o2.Stand.Slot) end
-	if o1.Style then WipeStand(p1, o1.Style.Slot) end
+	if o1.Style then WipeStyle(p1, o1.Style.Slot) end
 	if o2.Style then WipeStyle(p2, o2.Style.Slot) end
 
 	local function DispatchStandClaim(recipient, senderOffer)
@@ -550,7 +581,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 						for _, stat in ipairs(statsList) do
 							local v1 = rankToNum[s1Data.Stats[stat]] or 0
 							local v2 = rankToNum[s2Data.Stats[stat]] or 0
-							local avg = math.ceil((val1 + val2) / 2)
+							local avg = math.ceil((v1 + v2) / 2)
 							player:SetAttribute("Stand_" .. stat, numToRank[avg] or "C")
 						end
 					else
@@ -802,6 +833,9 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if myOffer.Locked or myOffer.Confirmed then return end
 			local itemName = tostring(data)
 
+			local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+			if not itemData then return end
+
 			local opp = (session.P1 == player) and session.P2 or session.P1
 			if IsRestrictedPass(itemName) then
 				if player:GetAttribute("PaidItemTradingAllowed") == false or opp:GetAttribute("PaidItemTradingAllowed") == false then
@@ -814,8 +848,7 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			local countInOffer = myOffer.Items[itemName] or 0
 
 			local isEquipped = false
-			local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
-			if itemData and itemData.Slot then
+			if itemData.Slot then
 				if player:GetAttribute("Equipped" .. itemData.Slot) == itemName then
 					isEquipped = true
 				end
