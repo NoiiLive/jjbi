@@ -281,9 +281,10 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		local pendingTrait = player:GetAttribute("PendingShopTrait") or "None"
 		if not pendingStand or pendingStand == "" then return end
 
+		player:SetAttribute("PendingShopStand", nil)
+		player:SetAttribute("PendingShopTrait", nil)
+
 		if data == "Deny" then
-			player:SetAttribute("PendingShopStand", nil)
-			player:SetAttribute("PendingShopTrait", nil)
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>You declined the gifted Stand.</font>")
 			return
 		end
@@ -358,8 +359,6 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute("StoredStandVIP_Trait", pendingTrait)
 		end
 
-		player:SetAttribute("PendingShopStand", nil)
-		player:SetAttribute("PendingShopTrait", nil)
 		NotificationEvent:FireClient(player, "<font color='#55FF55'>Successfully claimed " .. pendingStand .. " to " .. data .. "!</font>")
 		return
 	end
@@ -368,8 +367,9 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		local pendingStyle = player:GetAttribute("PendingShopStyle")
 		if not pendingStyle or pendingStyle == "" then return end
 
+		player:SetAttribute("PendingShopStyle", nil)
+
 		if data == "Deny" then
-			player:SetAttribute("PendingShopStyle", nil)
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>You declined the gifted Style.</font>")
 			return
 		end
@@ -397,7 +397,6 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			player:SetAttribute("StoredStyleVIP", pendingStyle)
 		end
 
-		player:SetAttribute("PendingShopStyle", nil)
 		NotificationEvent:FireClient(player, "<font color='#FF8C00'>Successfully claimed " .. pendingStyle .. " to " .. data .. "!</font>")
 		return
 	end
@@ -533,6 +532,47 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 				end
 			end
 			yen.Value += sellPrice
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Sold 1x " .. itemName .. " for ¥" .. sellPrice .. "!</font>")
+		end
+
+	elseif action == "SellAll" then
+		local itemName = data
+
+		local lockedItems = player:GetAttribute("LockedItems") or ""
+		local isLocked = table.find(string.split(lockedItems, ","), itemName) ~= nil
+		if isLocked then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell a locked item!</font>")
+			return
+		end
+
+		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+		if not itemData then return end
+
+		if itemData.Rarity == "Special" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell Special rarity items!</font>")
+			return
+		end
+
+		local attrName = itemName:gsub("[^%w]", "") .. "Count"
+		local count = player:GetAttribute(attrName) or 0
+
+		if count > 0 then
+			local sellPrice = math.floor((itemData.Cost or 50) * 0.5)
+			local amountToSell = count
+
+			if itemData.Slot and player:GetAttribute("Equipped" .. itemData.Slot) == itemName then
+				amountToSell = count - 1
+			end
+
+			if amountToSell <= 0 then
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell equipped item!</font>")
+				return 
+			end
+
+			player:SetAttribute(attrName, count - amountToSell)
+			local totalYen = sellPrice * amountToSell
+			yen.Value += totalYen
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Sold " .. amountToSell .. "x " .. itemName .. " for ¥" .. totalYen .. "!</font>")
 		end
 	end
 end)
