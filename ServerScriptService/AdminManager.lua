@@ -481,6 +481,109 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Item '" .. rawName .. "' does not exist.</font>") end
 		end
 
+	elseif cmd == "!addindex" then
+		local rawName = table.concat(parts, " ", 3)
+		local isAll = (string.lower(rawName) == "@all")
+		local properName = not isAll and GetProperStandName(rawName) or nil
+
+		if isAll or properName then
+			for _, target in ipairs(targets) do
+				local current = target:GetAttribute("UnlockedIndex") or ""
+				local tbl = string.split(current, ",")
+				local tblMap = {}
+				for _, v in ipairs(tbl) do if v ~= "" then tblMap[v] = true end end
+				local addedCount = 0
+
+				if isAll then
+					for sName, _ in pairs(StandData.Stands) do
+						if sName ~= "Fused Stand" and sName ~= "None" and sName ~= "Unknown" and not tblMap[sName] then
+							tblMap[sName] = true
+							addedCount += 1
+						end
+					end
+				else
+					if not tblMap[properName] then
+						tblMap[properName] = true
+						addedCount += 1
+					end
+				end
+
+				if addedCount > 0 then
+					local newTbl = {}
+					for k, _ in pairs(tblMap) do table.insert(newTbl, k) end
+					target:SetAttribute("UnlockedIndex", table.concat(newTbl, ","))
+				end
+				if isMassEvent and target ~= adminPlayer then
+					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Stand Index was updated!</font>")
+				end
+			end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Updated Stand Index for " .. displayTarget .. ".</font>") end
+		else
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Stand '" .. rawName .. "' does not exist.</font>") end
+		end
+
+	elseif cmd == "!addfusionindex" then
+		local rawContent = table.concat(parts, " ", 3)
+		local isAllTotal = (string.lower(string.gsub(rawContent, "^%s*(.-)%s*$", "%1")) == "@all")
+
+		local standParts = string.split(rawContent, "/")
+		local s1Raw, s2Raw
+
+		if isAllTotal then
+			s1Raw, s2Raw = "@all", "@all"
+		else
+			s1Raw = standParts[1] and string.gsub(standParts[1], "^%s*(.-)%s*$", "%1")
+			s2Raw = standParts[2] and string.gsub(standParts[2], "^%s*(.-)%s*$", "%1")
+
+			if not s2Raw and s1Raw and string.match(string.lower(s1Raw), " @all$") then
+				s1Raw = string.gsub(s1Raw, "%s*@all$", "")
+				s2Raw = "@all"
+			end
+		end
+
+		local isAllS1 = (string.lower(s1Raw or "") == "@all")
+		local isAllS2 = (string.lower(s2Raw or "") == "@all")
+
+		local s1Proper = not isAllS1 and GetProperStandName(s1Raw) or nil
+		local s2Proper = not isAllS2 and GetProperStandName(s2Raw) or nil
+
+		if (isAllS1 or s1Proper) and (isAllS2 or s2Proper) then
+			for _, target in ipairs(targets) do
+				local current = target:GetAttribute("UnlockedFusions") or ""
+				local tbl = string.split(current, ",")
+				local tblMap = {}
+				for _, v in ipairs(tbl) do if v ~= "" then tblMap[v] = true end end
+				local addedCount = 0
+
+				local list1 = isAllS1 and StandData.Stands or { [s1Proper] = true }
+				local list2 = isAllS2 and StandData.Stands or { [s2Proper] = true }
+
+				for st1, _ in pairs(list1) do
+					if st1 == "Fused Stand" or st1 == "None" or st1 == "Unknown" then continue end
+					for st2, _ in pairs(list2) do
+						if st2 == "Fused Stand" or st2 == "None" or st2 == "Unknown" then continue end
+						local fusionStr = st1 .. "|" .. st2
+						if not tblMap[fusionStr] then
+							tblMap[fusionStr] = true
+							addedCount += 1
+						end
+					end
+				end
+
+				if addedCount > 0 then
+					local newTbl = {}
+					for k, _ in pairs(tblMap) do table.insert(newTbl, k) end
+					target:SetAttribute("UnlockedFusions", table.concat(newTbl, ","))
+				end
+				if isMassEvent and target ~= adminPlayer then
+					SendAdminNotice(target, "<font color='#FFD700'><b>" .. eventTag .. ":</b> Your Fusion Index was updated!</font>")
+				end
+			end
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Updated Fusion Index for " .. displayTarget .. ".</font>") end
+		else
+			if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#FF5555'>System Error: Usage: !addfusionindex [target] Stand1 / Stand2 (or '@all' or 'Stand1 @all')</font>") end
+		end
+
 	elseif cmd == "!addpass" then
 		local rawName = table.concat(parts, " ", 3)
 		local properAttr = GetProperPassAttr(rawName)
@@ -834,14 +937,16 @@ local validCmds = {
 	["!joingang"] = true, ["!promote"] = true, ["!deletegang"] = true, ["!spawnwb"] = true,
 	["!kickgang"] = true, ["!settrait"] = true, ["!announcement"] = true,
 	["!addpass"] = true, ["!addrep"] = true, ["!setfusedstand"] = true, ["!setfusedtrait"] = true,
-	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true, ["!edit"] = true
+	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true, ["!edit"] = true,
+	["!addindex"] = true, ["!addfusionindex"] = true
 }
 
 local modAllowedCmds = {
 	["!additem"] = true, ["!setstand"] = true, ["!setstyle"] = true, ["!settrait"] = true,
 	["!setfusedstand"] = true, ["!setfusedtrait"] = true, ["!goto"] = true, ["!bring"] = true,
 	["!teleport"] = true, ["!addstat"] = true, ["!addpass"] = true, 
-	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true, ["!edit"] = true
+	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true, ["!edit"] = true,
+	["!addindex"] = true, ["!addfusionindex"] = true
 }
 
 local function OnPlayerAdded(player)
