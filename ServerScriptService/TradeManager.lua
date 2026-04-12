@@ -322,7 +322,7 @@ local function ExecuteTrade(session)
 
 	if o1.Stand then WipeStand(p1, o1.Stand.Slot) end
 	if o2.Stand then WipeStand(p2, o2.Stand.Slot) end
-	if o1.Style then WipeStyle(p1, o1.Style.Slot) end
+	if o1.Style then WipeStand(p1, o1.Style.Slot) end
 	if o2.Style then WipeStyle(p2, o2.Style.Slot) end
 
 	local function DispatchStandClaim(recipient, senderOffer)
@@ -451,6 +451,9 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			local pTrait = player:GetAttribute("PendingStand_Trait")
 			if not pName or pName == "" or pName == "None" then return end
 
+			player:SetAttribute("PendingStand_Name", "None")
+			player:SetAttribute("PendingStand_Trait", "None")
+
 			local slot = data
 
 			local oldStand = "None"
@@ -564,7 +567,6 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			elseif slot == "Slot5" then applyStandToSlot("StoredStand5", "StoredStand5_Trait", "5") 
 			elseif slot == "SlotVIP" then applyStandToSlot("StoredStandVIP", "StoredStandVIP_Trait", "VIP") end
 
-			player:SetAttribute("PendingStand_Name", "None"); player:SetAttribute("PendingStand_Trait", "None")
 			player:SetAttribute("PendingStand_FusedS1", "None"); player:SetAttribute("PendingStand_FusedS2", "None")
 			player:SetAttribute("PendingStand_FusedT1", "None"); player:SetAttribute("PendingStand_FusedT2", "None")
 
@@ -577,6 +579,8 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 		elseif action == "ClaimStyle" then
 			local pName = player:GetAttribute("PendingStyle_Name")
 			if not pName or pName == "" or pName == "None" then return end
+
+			player:SetAttribute("PendingStyle_Name", "None")
 
 			local slot = data
 
@@ -603,7 +607,6 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 				player:SetAttribute("StoredStyleVIP", pName)
 			end
 
-			player:SetAttribute("PendingStyle_Name", "None")
 			TradeUpdate:FireClient(player, "HideStyleClaimPrompt")
 			NotificationEvent:FireClient(player, "<font color='#FF8C00'>Style safely stored!</font>")
 
