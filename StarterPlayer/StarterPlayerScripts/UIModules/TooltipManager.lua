@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local TooltipManager = {}
 
 local player = game.Players.LocalPlayer
@@ -175,7 +176,7 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 
 		if totalValidFusions > 0 then
 			if collectedFusions >= totalValidFusions then
-				text = text .. "\n\n<font color='#55FF55'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (+0.5x DMG)</font>"
+				text = text .. "\n\n<font color='#55FF55'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (+0.01x Global DMG)</font>"
 			else
 				text = text .. "\n\n<font color='#AAAAAA'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. "</font>"
 			end
