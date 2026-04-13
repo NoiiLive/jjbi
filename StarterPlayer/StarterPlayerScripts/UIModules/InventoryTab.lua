@@ -46,6 +46,25 @@ local rarityColors = {
 local raritySortTiers = { Special = 500, Unique = 1000, Mythical = 2000, Legendary = 3000, Rare = 4000, Uncommon = 5000, Common = 6000 }
 local indexRaritySortTiers = { Common = 1, Uncommon = 2, Rare = 3, Legendary = 4, Mythical = 5, Evolution = 6, Unique = 7, Special = 8, None = 9 }
 
+local PartSortOrder = {
+	["Part 1"] = 1, ["Part 2"] = 2, ["Part 3"] = 3, ["Part 4"] = 4, 
+	["Part 5"] = 5, ["Part 6"] = 6, ["Part 7"] = 7, ["Part 8"] = 8, 
+	["Non-Canon"] = 9, ["Event"] = 10
+}
+
+local PartColors = {
+	["Part 1"] = { StrokeStart = Color3.fromRGB(80, 87, 158), StrokeEnd = Color3.fromRGB(46, 51, 116), BGStart = Color3.fromRGB(80, 87, 158), BGEnd = Color3.fromRGB(46, 51, 116) },
+	["Part 2"] = { StrokeStart = Color3.fromRGB(255, 215, 101), StrokeEnd = Color3.fromRGB(91, 154, 84), BGStart = Color3.fromRGB(255, 215, 101), BGEnd = Color3.fromRGB(91, 154, 84) },
+	["Part 3"] = { StrokeStart = Color3.fromRGB(167, 160, 215), StrokeEnd = Color3.fromRGB(67, 60, 104), BGStart = Color3.fromRGB(167, 160, 215), BGEnd = Color3.fromRGB(67, 60, 104) },
+	["Part 4"] = { StrokeStart = Color3.fromRGB(199, 235, 241), StrokeEnd = Color3.fromRGB(148, 90, 99), BGStart = Color3.fromRGB(199, 235, 241), BGEnd = Color3.fromRGB(148, 90, 99) },
+	["Part 5"] = { StrokeStart = Color3.fromRGB(255, 220, 113), StrokeEnd = Color3.fromRGB(151, 100, 236), BGStart = Color3.fromRGB(255, 220, 113), BGEnd = Color3.fromRGB(151, 100, 236) },
+	["Part 6"] = { StrokeStart = Color3.fromRGB(150, 223, 231), StrokeEnd = Color3.fromRGB(58, 125, 61), BGStart = Color3.fromRGB(150, 223, 231), BGEnd = Color3.fromRGB(58, 125, 61) },
+	["Part 7"] = { StrokeStart = Color3.fromRGB(218, 255, 79), StrokeEnd = Color3.fromRGB(55, 132, 14), BGStart = Color3.fromRGB(218, 255, 79), BGEnd = Color3.fromRGB(55, 132, 14) },
+	["Part 8"] = { StrokeStart = Color3.fromRGB(221, 247, 252), StrokeEnd = Color3.fromRGB(164, 158, 239), BGStart = Color3.fromRGB(221, 247, 252), BGEnd = Color3.fromRGB(164, 158, 239) },
+	["Non-Canon"] = { StrokeStart = Color3.fromRGB(232, 240, 83), StrokeEnd = Color3.fromRGB(200, 130, 84), BGStart = Color3.fromRGB(232, 240, 83), BGEnd = Color3.fromRGB(200, 130, 84) },
+	["Event"] = { StrokeStart = Color3.fromRGB(218, 61, 63), StrokeEnd = Color3.fromRGB(126, 25, 49), BGStart = Color3.fromRGB(218, 61, 63), BGEnd = Color3.fromRGB(126, 25, 49) }
+}
+
 local playerStatsList = {"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}
 local standStatsList = {"Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", "Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"}
 local allStatsToUpgrade = {"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower", "Stand_Power_Val", "Stand_Speed_Val", "Stand_Range_Val", "Stand_Durability_Val", "Stand_Precision_Val", "Stand_Potential_Val"}
@@ -55,6 +74,9 @@ for itemName, _ in pairs(ItemData.Consumables) do table.insert(KnownItems, itemN
 for eqName, _ in pairs(ItemData.Equipment) do table.insert(KnownItems, eqName) end
 
 local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+
+local activeInvThread = nil
+local activeIndexThread = nil
 
 local function GetCombinedBonus(statName)
 	local wpn = player:GetAttribute("EquippedWeapon") or "None"
@@ -408,166 +430,181 @@ local function sortItemsFunc(a, b)
 end
 
 local function RefreshInventoryList()
-	for _, child in pairs(equipContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
-	for _, child in pairs(playerConsContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
-	for _, child in pairs(standConsContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
+	if activeInvThread then
+		task.cancel(activeInvThread)
+		activeInvThread = nil
+	end
 
-	local equipItems, playerConsItems, standConsItems = {}, {}, {}
-	local currentInvCount = 0
+	activeInvThread = task.spawn(function()
+		for _, child in pairs(equipContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
+		for _, child in pairs(playerConsContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
+		for _, child in pairs(standConsContainer:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
 
-	for _, itemName in ipairs(KnownItems) do
-		local count = player:GetAttribute(itemName:gsub("[^%w]", "") .. "Count") or 0
-		if count > 0 then
-			if ItemData.Equipment[itemName] then 
-				table.insert(equipItems, {Name = itemName, Count = count})
-				if ItemData.Equipment[itemName].Rarity ~= "Unique" and ItemData.Equipment[itemName].Rarity ~= "Special" then
-					currentInvCount += count
-				end
-			elseif ItemData.Consumables[itemName] then
-				if ItemData.Consumables[itemName].Category == "Stand" then 
-					table.insert(standConsItems, {Name = itemName, Count = count})
-				else 
-					table.insert(playerConsItems, {Name = itemName, Count = count}) 
-					if ItemData.Consumables[itemName].Rarity ~= "Unique" and ItemData.Consumables[itemName].Rarity ~= "Special" then
+		local equipItems, playerConsItems, standConsItems = {}, {}, {}
+		local currentInvCount = 0
+
+		for _, itemName in ipairs(KnownItems) do
+			local count = player:GetAttribute(itemName:gsub("[^%w]", "") .. "Count") or 0
+			if count > 0 then
+				if ItemData.Equipment[itemName] then 
+					table.insert(equipItems, {Name = itemName, Count = count})
+					if ItemData.Equipment[itemName].Rarity ~= "Unique" and ItemData.Equipment[itemName].Rarity ~= "Special" then
 						currentInvCount += count
 					end
+				elseif ItemData.Consumables[itemName] then
+					if ItemData.Consumables[itemName].Category == "Stand" then 
+						table.insert(standConsItems, {Name = itemName, Count = count})
+					else 
+						table.insert(playerConsItems, {Name = itemName, Count = count}) 
+						if ItemData.Consumables[itemName].Rarity ~= "Unique" and ItemData.Consumables[itemName].Rarity ~= "Special" then
+							currentInvCount += count
+						end
+					end
 				end
 			end
 		end
-	end
 
-	table.sort(equipItems, sortItemsFunc)
-	table.sort(playerConsItems, sortItemsFunc)
-	table.sort(standConsItems, sortItemsFunc)
+		table.sort(equipItems, sortItemsFunc)
+		table.sort(playerConsItems, sortItemsFunc)
+		table.sort(standConsItems, sortItemsFunc)
 
-	if capacityLabel then
-		local maxInv = GameData.GetMaxInventory(player)
-		capacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
-	end
-
-	if playerConsCapacityLabel then
-		local maxInv = GameData.GetMaxInventory(player)
-		playerConsCapacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
-	end
-
-	local function RenderItem(itemName, count, container, orderIdx)
-		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
-		local rarity = itemData and itemData.Rarity or "Common"
-
-		local itemFrame = Templates:WaitForChild("InventoryItemTemplate"):Clone()
-		itemFrame.LayoutOrder = orderIdx
-		itemFrame.Parent = container
-
-		local str = itemFrame:WaitForChild("UIStroke")
-		str.Color = rarityColors[rarity] or rarityColors.Common
-
-		local nameLabel = itemFrame:WaitForChild("NameLabel")
-		nameLabel.TextColor3 = rarityColors[rarity] or rarityColors.Common
-		nameLabel.Text = itemName .. " (x" .. count .. ")"
-
-		local btnWrapper = itemFrame:WaitForChild("BtnWrapper")
-		local useBtn = btnWrapper:WaitForChild("UseBtn")
-		local sellBtn = btnWrapper:WaitForChild("SellBtn")
-		local sellAllBtn = btnWrapper:WaitForChild("SellAllBtn")
-		local lockBtn = btnWrapper:WaitForChild("LockBtn")
-
-		useBtn.Text = ItemData.Equipment[itemName] and "Equip" or "Use"
-
-		local lockedItems = player:GetAttribute("LockedItems") or ""
-		local isLocked = table.find(string.split(lockedItems, ","), itemName) ~= nil
-
-		if isLocked then
-			lockBtn.Text = "🔒"; lockBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-		else
-			lockBtn.Text = "🔓"; lockBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		if capacityLabel then
+			local maxInv = GameData.GetMaxInventory(player)
+			capacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
 		end
 
-		if isLocked or rarity == "Special" then
-			sellBtn.Visible = false
-			sellAllBtn.Visible = false
-		else
-			sellBtn.Visible = true
-			sellBtn.Text = "Sell 1"
-			sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
+		if playerConsCapacityLabel then
+			local maxInv = GameData.GetMaxInventory(player)
+			playerConsCapacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
+		end
 
-			if count > 1 then
-				sellAllBtn.Visible = true
-				sellAllBtn.Text = "Sell All"
-				sellAllBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+		local function RenderItem(itemName, count, container, orderIdx)
+			local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+			local rarity = itemData and itemData.Rarity or "Common"
+
+			local itemFrame = Templates:WaitForChild("InventoryItemTemplate"):Clone()
+			itemFrame.LayoutOrder = orderIdx
+			itemFrame.Parent = container
+
+			local str = itemFrame:WaitForChild("UIStroke")
+			str.Color = rarityColors[rarity] or rarityColors.Common
+
+			local nameLabel = itemFrame:WaitForChild("NameLabel")
+			nameLabel.TextColor3 = rarityColors[rarity] or rarityColors.Common
+			nameLabel.Text = itemName .. " (x" .. count .. ")"
+
+			local btnWrapper = itemFrame:WaitForChild("BtnWrapper")
+			local useBtn = btnWrapper:WaitForChild("UseBtn")
+			local sellBtn = btnWrapper:WaitForChild("SellBtn")
+			local sellAllBtn = btnWrapper:WaitForChild("SellAllBtn")
+			local lockBtn = btnWrapper:WaitForChild("LockBtn")
+
+			useBtn.Text = ItemData.Equipment[itemName] and "Equip" or "Use"
+
+			local lockedItems = player:GetAttribute("LockedItems") or ""
+			local isLocked = table.find(string.split(lockedItems, ","), itemName) ~= nil
+
+			if isLocked then
+				lockBtn.Text = "🔒"; lockBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
 			else
+				lockBtn.Text = "🔓"; lockBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+			end
+
+			if isLocked or rarity == "Special" then
+				sellBtn.Visible = false
 				sellAllBtn.Visible = false
-			end
-		end
-
-		lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("ToggleLock"):FireServer("Item", itemName) end)
-
-		local isEquipped = ItemData.Equipment[itemName] and player:GetAttribute("Equipped" .. ItemData.Equipment[itemName].Slot) == itemName
-		local isEquipment = ItemData.Equipment[itemName] ~= nil
-		local isConfirmingUse, isConfirmingSell, isConfirmingSellAll = false, false, false
-
-		if isEquipped then
-			useBtn.Visible = true
-			useBtn.Text = "Unequip"; useBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
-			useBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UnequipItem"):FireServer(ItemData.Equipment[itemName].Slot) end)
-		else
-			if isLocked and not isEquipment then
-				useBtn.Visible = false
 			else
-				useBtn.Visible = true
-				useBtn.MouseButton1Click:Connect(function()
-					if isLocked and not isEquipment then return end
-					if useBtn.Text == "Equip" then
-						SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
-					else
-						if ItemData.Consumables[itemName] and not isConfirmingUse then
-							isConfirmingUse = true; useBtn.Text = "Confirm?"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-							task.delay(3, function() if isConfirmingUse and useBtn.Parent then isConfirmingUse = false; useBtn.Text = "Use"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0) end end)
-							return
-						end
-						isConfirmingUse = false; SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
-					end
-				end)
+				sellBtn.Visible = true
+				sellBtn.Text = "Sell 1"
+				sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40)
+
+				if count > 1 then
+					sellAllBtn.Visible = true
+					sellAllBtn.Text = "Sell All"
+					sellAllBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+				else
+					sellAllBtn.Visible = false
+				end
 			end
+
+			lockBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("ToggleLock"):FireServer("Item", itemName) end)
+
+			local isEquipped = ItemData.Equipment[itemName] and player:GetAttribute("Equipped" .. ItemData.Equipment[itemName].Slot) == itemName
+			local isEquipment = ItemData.Equipment[itemName] ~= nil
+			local isConfirmingUse, isConfirmingSell, isConfirmingSellAll = false, false, false
+
+			if isEquipped then
+				useBtn.Visible = true
+				useBtn.Text = "Unequip"; useBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 60)
+				useBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); Network:WaitForChild("UnequipItem"):FireServer(ItemData.Equipment[itemName].Slot) end)
+			else
+				if isLocked and not isEquipment then
+					useBtn.Visible = false
+				else
+					useBtn.Visible = true
+					useBtn.MouseButton1Click:Connect(function()
+						if isLocked and not isEquipment then return end
+						if useBtn.Text == "Equip" then
+							SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
+						else
+							if ItemData.Consumables[itemName] and not isConfirmingUse then
+								isConfirmingUse = true; useBtn.Text = "Confirm?"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+								task.delay(3, function() if isConfirmingUse and useBtn.Parent then isConfirmingUse = false; useBtn.Text = "Use"; useBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0) end end)
+								return
+							end
+							isConfirmingUse = false; SFXManager.Play("Click"); Network:WaitForChild("UseItem"):FireServer(itemName, targetAutoStand, targetAutoTrait)
+						end
+					end)
+				end
+			end
+
+			sellBtn.MouseButton1Click:Connect(function()
+				if isLocked or rarity == "Special" then return end
+				if not isConfirmingSell then
+					isConfirmingSell = true; sellBtn.Text = "Sure?"; sellBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+					task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell 1"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
+					return
+				end
+				isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
+
+				Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
+				local iData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+				local sellVal = iData and (iData.SellPrice or math.floor((iData.Cost or 50) / 2)) or 25
+				NotificationManager.Show("<font color='#55FF55'>Sold " .. itemName .. " for ¥" .. sellVal .. "!</font>")
+			end)
+
+			sellAllBtn.MouseButton1Click:Connect(function()
+				if isLocked or rarity == "Special" or count <= 1 then return end
+				if not isConfirmingSellAll then
+					isConfirmingSellAll = true; sellAllBtn.Text = "Sure?"; sellAllBtn.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+					task.delay(3, function() if isConfirmingSellAll and sellAllBtn.Parent then isConfirmingSellAll = false; sellAllBtn.Text = "Sell All"; sellAllBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40) end end)
+					return
+				end
+				isConfirmingSellAll = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
+
+				Network:WaitForChild("ShopAction"):FireServer("SellAll", itemName)
+			end)
+
+			itemFrame.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(itemName)) end)
+			itemFrame.MouseLeave:Connect(cachedTooltipMgr.Hide)
 		end
 
-		sellBtn.MouseButton1Click:Connect(function()
-			if isLocked or rarity == "Special" then return end
-			if not isConfirmingSell then
-				isConfirmingSell = true; sellBtn.Text = "Sure?"; sellBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-				task.delay(3, function() if isConfirmingSell and sellBtn.Parent then isConfirmingSell = false; sellBtn.Text = "Sell 1"; sellBtn.BackgroundColor3 = Color3.fromRGB(140, 40, 40) end end)
-				return
-			end
-			isConfirmingSell = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
+		local renderCount = 0
+		local function checkYield()
+			renderCount += 1
+			if renderCount % 15 == 0 then task.wait() end
+		end
 
-			Network:WaitForChild("ShopAction"):FireServer("Sell", itemName)
-			local iData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
-			local sellVal = iData and (iData.SellPrice or math.floor((iData.Cost or 50) / 2)) or 25
-			NotificationManager.Show("<font color='#55FF55'>Sold " .. itemName .. " for ¥" .. sellVal .. "!</font>")
-		end)
+		for i, item in ipairs(equipItems) do RenderItem(item.Name, item.Count, equipContainer, i); checkYield() end
+		for i, item in ipairs(playerConsItems) do RenderItem(item.Name, item.Count, playerConsContainer, i); checkYield() end
+		for i, item in ipairs(standConsItems) do RenderItem(item.Name, item.Count, standConsContainer, i); checkYield() end
 
-		sellAllBtn.MouseButton1Click:Connect(function()
-			if isLocked or rarity == "Special" or count <= 1 then return end
-			if not isConfirmingSellAll then
-				isConfirmingSellAll = true; sellAllBtn.Text = "Sure?"; sellAllBtn.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
-				task.delay(3, function() if isConfirmingSellAll and sellAllBtn.Parent then isConfirmingSellAll = false; sellAllBtn.Text = "Sell All"; sellAllBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40) end end)
-				return
-			end
-			isConfirmingSellAll = false; SFXManager.Play("Click"); cachedTooltipMgr.Hide()
+		equipContainer.CanvasSize = UDim2.new(0, 0, 0, (#equipItems * 34) + 10)
+		playerConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#playerConsItems * 34) + 10)
+		standConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#standConsItems * 34) + 10)
 
-			Network:WaitForChild("ShopAction"):FireServer("SellAll", itemName)
-		end)
-
-		itemFrame.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(itemName)) end)
-		itemFrame.MouseLeave:Connect(cachedTooltipMgr.Hide)
-	end
-
-	for i, item in ipairs(equipItems) do RenderItem(item.Name, item.Count, equipContainer, i) end
-	for i, item in ipairs(playerConsItems) do RenderItem(item.Name, item.Count, playerConsContainer, i) end
-	for i, item in ipairs(standConsItems) do RenderItem(item.Name, item.Count, standConsContainer, i) end
-
-	equipContainer.CanvasSize = UDim2.new(0, 0, 0, (#equipItems * 34) + 10)
-	playerConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#playerConsItems * 34) + 10)
-	standConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#standConsItems * 34) + 10)
+		activeInvThread = nil
+	end)
 end
 
 local function RefreshTitlesList()
@@ -672,304 +709,14 @@ local function RefreshTitlesList()
 	spacer.Parent = titlesTabContent
 end
 
-local ShowFusionsList -- Forward Declaration for mutually recursive calls
+local ShowFusionsList 
 
-local function RefreshIndexList()
+local function UpdateIndexLayout()
 	if not indexTabContent then return end
-	for _, child in pairs(indexTabContent:GetChildren()) do
-		if child:IsA("Frame") then child:Destroy() end
-	end
-
-	local layout = indexTabContent:FindFirstChildOfClass("UIListLayout")
-	if not layout then
-		layout = Instance.new("UIListLayout", indexTabContent)
-		layout.SortOrder = Enum.SortOrder.LayoutOrder
-	end
-	layout.Padding = UDim.new(0, 10)
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-	local padding = indexTabContent:FindFirstChildOfClass("UIPadding")
-	if not padding then
-		padding = Instance.new("UIPadding", indexTabContent)
-	end
-	padding.PaddingTop = UDim.new(0, 4)
-	padding.PaddingBottom = UDim.new(0, 4)
-	padding.PaddingLeft = UDim.new(0, 4)
-	padding.PaddingRight = UDim.new(0, 4)
-
-	local unlockedIndex = string.split(player:GetAttribute("UnlockedIndex") or "", ",")
-	local claimedBonuses = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
-	local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
-	local unlockedFusionsList = string.split(unlockedFusionsStr, ",")
-
-	local totalValidFusions = 0
-	local validStands = {}
-	for sName, sData in pairs(StandData.Stands) do
-		if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
-			validStands[sName] = true
-			totalValidFusions += 1
-		end
-	end
-
-	local parts = {"Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6", "Part 7", "Part 8", "Non-Canon", "Event"}
-
-	local PartNames = {
-		["Part 1"] = "Phantom Blood",
-		["Part 2"] = "Battle Tendency",
-		["Part 3"] = "Stardust Crusaders",
-		["Part 4"] = "Diamond is Unbreakable",
-		["Part 5"] = "Golden Wind",
-		["Part 6"] = "Stone Ocean",
-		["Part 7"] = "Steel Ball Run",
-		["Part 8"] = "JoJolion",
-		["Non-Canon"] = "Non-Canon",
-		["Event"] = "Event"
-	}
-
-	local yOffset = 0
-
-	for i, partName in ipairs(parts) do
-		local abilities = {}
-		for sName, sData in pairs(StandData.Stands) do
-			if sData.Part == partName then table.insert(abilities, {Name = sName, Type = "Stand", Rarity = sData.Rarity, Icon = sData.Icon}) end
-		end
-		for stName, stPart in pairs(GameData.StyleParts) do
-			if stPart == partName then 
-				local sIcon = GameData.StyleIcons and GameData.StyleIcons[stName] or ""
-				table.insert(abilities, {Name = stName, Type = "Style", Rarity = "None", Icon = sIcon}) 
-			end
-		end
-
-		table.sort(abilities, function(a, b)
-			local tierA = indexRaritySortTiers[a.Rarity] or 99
-			local tierB = indexRaritySortTiers[b.Rarity] or 99
-
-			if a.Type == "Style" then tierA = 100 end
-			if b.Type == "Style" then tierB = 100 end
-
-			if tierA == tierB then return a.Name < b.Name end
-			return tierA < tierB
-		end)
-
-		if #abilities > 0 then
-			local unlockedCount = 0
-			for _, ab in ipairs(abilities) do
-				if table.find(unlockedIndex, ab.Name) then unlockedCount += 1 end
-			end
-
-			local category = Templates:WaitForChild("IndexCategoryTemplate"):Clone()
-			category.LayoutOrder = i * 100
-			category.Parent = indexTabContent
-
-			local displayTitle = PartNames[partName] or partName
-			category.Header.TitleLabel.Text = displayTitle .. " Collection (" .. unlockedCount .. "/" .. #abilities .. ")"
-
-
-			local isClaimed = table.find(claimedBonuses, partName) ~= nil
-
-			local bonusData = GameData.IndexCompletionBonuses[partName]
-			local claimBtn = category.Header.ClaimBtn
-
-			if bonusData then
-				category.Header.BonusLabel.Text = partName .. " Bonus: " .. bonusData.Description
-				local isClaimed = table.find(claimedBonuses, partName) ~= nil
-
-				if unlockedCount >= #abilities then
-					if isClaimed then
-						claimBtn.Text = "Claimed"
-						claimBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-						claimBtn.Active = false
-					else
-						claimBtn.Text = "Claim Bonus"
-						claimBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
-						claimBtn.MouseButton1Click:Connect(function()
-							SFXManager.Play("Click")
-							Network:WaitForChild("CollectionAction"):FireServer("ClaimIndex", partName)
-						end)
-					end
-				else
-					claimBtn.Visible = false
-				end
-			else
-				category.Header.BonusLabel.Text = "Limited-Time Event Abilities"
-				category.Header.BonusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-				claimBtn.Visible = false
-			end
-
-			local screenWidth = indexTabContent.AbsoluteSize.X
-			if screenWidth <= 0 then screenWidth = 900 end 
-			local safeWidth = screenWidth - 40 
-
-			local minCellSize = 75  
-			local maxCellSize = 110 
-			local cellPad = 10
-
-			local cols = math.floor((safeWidth + cellPad) / (maxCellSize + cellPad))
-			if safeWidth < 500 then
-				cols = math.max(3, cols) 
-			end
-
-			local calculatedSize = math.floor((safeWidth - (cellPad * (cols - 1))) / cols)
-			calculatedSize = math.clamp(calculatedSize, minCellSize, maxCellSize)
-
-			local finalCols = math.floor((safeWidth + cellPad) / (calculatedSize + cellPad))
-			if finalCols < 1 then finalCols = 1 end
-			local rows = math.ceil(#abilities / finalCols)
-
-			local container = category.ItemsContainer
-			local grid = Instance.new("UIGridLayout", container)
-			grid.CellSize = UDim2.new(0, calculatedSize, 0, calculatedSize)
-			grid.CellPadding = UDim2.new(0, cellPad, 0, cellPad)
-			grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-			for _, ab in ipairs(abilities) do
-				local isUnlocked = table.find(unlockedIndex, ab.Name) ~= nil
-				local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
-				item.Parent = container
-
-				if ab.Type == "Stand" then
-					item.InputBegan:Connect(function(input)
-						if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-							SFXManager.Play("Click")
-							cachedTooltipMgr.Hide()
-							ShowFusionsList(ab.Name)
-						end
-					end)
-				end
-
-				local iconLabel = item:FindFirstChild("Icon")
-				if not iconLabel then
-					iconLabel = Instance.new("ImageLabel", item)
-					iconLabel.Name = "Icon"
-					iconLabel.Size = UDim2.new(1, -10, 1, -35)
-					iconLabel.Position = UDim2.new(0, 5, 0, 5)
-					iconLabel.BackgroundTransparency = 1
-					iconLabel.ZIndex = 40
-					iconLabel.ScaleType = Enum.ScaleType.Fit
-				end
-
-				local qMark = iconLabel:FindFirstChild("QuestionMark")
-				if not qMark then
-					qMark = Instance.new("TextLabel", iconLabel)
-					qMark.Name = "QuestionMark"
-					qMark.Size = UDim2.new(1, 0, 1, 0)
-					qMark.BackgroundTransparency = 1
-					qMark.Text = "?"
-					qMark.Font = Enum.Font.GothamBold
-					qMark.TextScaled = true
-					qMark.ZIndex = 41
-				end
-
-				if isUnlocked then
-					local displayName = ab.Name
-					if ab.Type == "Stand" and totalValidFusions > 0 then
-						local collectedFusions = 0
-						local seenFusions = {}
-						for _, fStr in ipairs(unlockedFusionsList) do
-							if fStr ~= "" then
-								local parts = string.split(fStr, "|")
-								if parts[1] == ab.Name and validStands[parts[2]] then
-									if not seenFusions[parts[2]] then
-										seenFusions[parts[2]] = true
-										collectedFusions += 1
-									end
-								end
-							end
-						end
-						if collectedFusions >= totalValidFusions then
-							displayName = displayName .. " ⭐"
-							item:FindFirstChild("UIStroke").Color = Color3.fromRGB(255, 215, 0)
-						end
-					end
-
-					item.NameLabel.Text = displayName
-					item.NameLabel.TextColor3 = (ab.Type == "Stand") and (rarityColors[ab.Rarity] or Color3.new(1,1,1)) or Color3.fromRGB(255, 140, 0)
-					item.BackgroundColor3 = Color3.fromRGB(40, 30, 50)
-
-					if ab.Icon and ab.Icon ~= "" then
-						iconLabel.Image = ab.Icon
-						qMark.Visible = false
-					else
-						iconLabel.Image = ""
-						qMark.Visible = true 
-						qMark.TextColor3 = Color3.fromRGB(150, 150, 150)
-					end
-
-					item.MouseEnter:Connect(function()
-						cachedTooltipMgr.Show(cachedTooltipMgr.GetIndexTooltip(ab.Name, ab.Type, ab.Rarity))
-					end)
-					item.MouseLeave:Connect(function()
-						cachedTooltipMgr.Hide()
-					end)
-				else
-					item.NameLabel.Text = "???"
-					item.NameLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-					item.BackgroundColor3 = Color3.fromRGB(20, 15, 25)
-
-					iconLabel.Image = ""
-					qMark.Visible = true 
-					qMark.TextColor3 = Color3.fromRGB(60, 60, 60) 
-				end
-			end
-
-			local catHeight = 75 + (rows * (calculatedSize + cellPad))
-			category.Size = UDim2.new(1, -24, 0, catHeight)
-			yOffset += catHeight + 10
-		end
-	end
-
-	indexTabContent.CanvasSize = UDim2.new(0, 0, 0, yOffset + 150)
-end
-
-ShowFusionsList = function(standName)
-	if not indexTabContent then return end
-	for _, child in pairs(indexTabContent:GetChildren()) do
-		if child:IsA("Frame") then child:Destroy() end
-	end
-
-	local layout = indexTabContent:FindFirstChildOfClass("UIListLayout")
-	if not layout then
-		layout = Instance.new("UIListLayout", indexTabContent)
-		layout.SortOrder = Enum.SortOrder.LayoutOrder
-	end
-	layout.Padding = UDim.new(0, 10)
-	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-	local padding = indexTabContent:FindFirstChildOfClass("UIPadding")
-	if not padding then
-		padding = Instance.new("UIPadding", indexTabContent)
-	end
-	padding.PaddingTop = UDim.new(0, 4)
-	padding.PaddingBottom = UDim.new(0, 4)
-	padding.PaddingLeft = UDim.new(0, 4)
-	padding.PaddingRight = UDim.new(0, 4)
-
-	local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
-	local unlockedFusionsList = string.split(unlockedFusionsStr, ",")
-
-	local category = Templates:WaitForChild("IndexCategoryTemplate"):Clone()
-	category.LayoutOrder = 1
-	category.Parent = indexTabContent
-
-	category.Header.TitleLabel.Text = standName .. " Fusions"
-	category.Header.BonusLabel.Text = "Possible combinations using " .. standName
-	category.Header.BonusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-
-	local backBtn = category.Header.ClaimBtn
-	backBtn.Visible = true
-	backBtn.Text = "Back"
-	backBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-	backBtn.Active = true
-	backBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		cachedTooltipMgr.Hide()
-		RefreshIndexList()
-	end)
-
 	local screenWidth = indexTabContent.AbsoluteSize.X
 	if screenWidth <= 0 then screenWidth = 900 end 
-	local safeWidth = screenWidth - 40 
 
+	local safeWidth = screenWidth - 40 
 	local minCellSize = 75  
 	local maxCellSize = 110 
 	local cellPad = 10
@@ -985,125 +732,515 @@ ShowFusionsList = function(standName)
 	local finalCols = math.floor((safeWidth + cellPad) / (calculatedSize + cellPad))
 	if finalCols < 1 then finalCols = 1 end
 
-	local container = category.ItemsContainer
-	local grid = Instance.new("UIGridLayout", container)
-	grid.CellSize = UDim2.new(0, calculatedSize, 0, calculatedSize)
-	grid.CellPadding = UDim2.new(0, cellPad, 0, cellPad)
-	grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	local yOffset = 0
 
-	local validStands = {}
-	for sName, sData in pairs(StandData.Stands) do
-		if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
-			table.insert(validStands, sName)
+	for _, category in ipairs(indexTabContent:GetChildren()) do
+		if category:IsA("Frame") then
+			local container = category:FindFirstChild("ItemsContainer")
+			if container then
+				local grid = container:FindFirstChildOfClass("UIGridLayout")
+				if grid then
+					grid.CellSize = UDim2.new(0, calculatedSize, 0, calculatedSize)
+
+					local itemCount = 0
+					for _, item in ipairs(container:GetChildren()) do
+						if item:IsA("Frame") then itemCount += 1 end
+					end
+
+					local rows = math.ceil(itemCount / finalCols)
+					local catHeight = 75 + (rows * (calculatedSize + cellPad))
+					category.Size = UDim2.new(1, -24, 0, catHeight)
+					yOffset += catHeight + 10
+				end
+			end
 		end
 	end
-	table.sort(validStands)
 
-	for _, s2Name in ipairs(validStands) do
-		local fusionString = standName .. "|" .. s2Name
-		local isUnlocked = table.find(unlockedFusionsList, fusionString) ~= nil
+	indexTabContent.CanvasSize = UDim2.new(0, 0, 0, yOffset + 150)
+end
 
-		local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
-		item.Parent = container
+local function RefreshIndexList()
+	if not indexTabContent then return end
 
-		local iconLabel = item:FindFirstChild("Icon")
-		if not iconLabel then
-			iconLabel = Instance.new("ImageLabel", item)
-			iconLabel.Name = "Icon"
-			iconLabel.Size = UDim2.new(1, -10, 1, -35)
-			iconLabel.Position = UDim2.new(0, 5, 0, 5)
-			iconLabel.BackgroundTransparency = 1
-			iconLabel.ZIndex = 40
-			iconLabel.ScaleType = Enum.ScaleType.Fit
+	if activeIndexThread then
+		task.cancel(activeIndexThread)
+		activeIndexThread = nil
+	end
+
+	activeIndexThread = task.spawn(function()
+		for _, child in pairs(indexTabContent:GetChildren()) do
+			if child:IsA("Frame") then child:Destroy() end
 		end
 
-		local qMark = iconLabel:FindFirstChild("QuestionMark")
-		if not qMark then
-			qMark = Instance.new("TextLabel", iconLabel)
-			qMark.Name = "QuestionMark"
-			qMark.Size = UDim2.new(1, 0, 1, 0)
-			qMark.BackgroundTransparency = 1
-			qMark.Text = "?"
-			qMark.Font = Enum.Font.GothamBold
-			qMark.TextScaled = true
-			qMark.ZIndex = 41
+		local layout = indexTabContent:FindFirstChildOfClass("UIListLayout")
+		if not layout then
+			layout = Instance.new("UIListLayout", indexTabContent)
+			layout.SortOrder = Enum.SortOrder.LayoutOrder
+		end
+		layout.Padding = UDim.new(0, 10)
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+		local padding = indexTabContent:FindFirstChildOfClass("UIPadding")
+		if not padding then
+			padding = Instance.new("UIPadding", indexTabContent)
+		end
+		padding.PaddingTop = UDim.new(0, 4)
+		padding.PaddingBottom = UDim.new(0, 4)
+		padding.PaddingLeft = UDim.new(0, 4)
+		padding.PaddingRight = UDim.new(0, 4)
+
+		local unlockedIndex = string.split(player:GetAttribute("UnlockedIndex") or "", ",")
+		local claimedBonuses = string.split(player:GetAttribute("ClaimedIndexBonuses") or "", ",")
+		local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+		local unlockedFusionsList = string.split(unlockedFusionsStr, ",")
+
+		local totalValidFusions = 0
+		local validStands = {}
+		for sName, sData in pairs(StandData.Stands) do
+			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
+				validStands[sName] = true
+				totalValidFusions += 1
+			end
 		end
 
-		if isUnlocked then
-			local fusedName = FusionUtility.CalculateFusedName(standName, s2Name)
-			item.NameLabel.Text = fusedName
-			item.NameLabel.TextColor3 = Color3.fromRGB(215, 69, 255)
-			item.BackgroundColor3 = Color3.fromRGB(40, 30, 50)
+		local parts = {"Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6", "Part 7", "Part 8", "Non-Canon", "Event"}
 
-			iconLabel.Image = ""
-			qMark.Visible = true 
-			qMark.TextColor3 = Color3.fromRGB(150, 150, 150)
-			qMark.Text = "F"
+		local PartNames = {
+			["Part 1"] = "Phantom Blood",
+			["Part 2"] = "Battle Tendency",
+			["Part 3"] = "Stardust Crusaders",
+			["Part 4"] = "Diamond is Unbreakable",
+			["Part 5"] = "Golden Wind",
+			["Part 6"] = "Stone Ocean",
+			["Part 7"] = "Steel Ball Run",
+			["Part 8"] = "JoJolion",
+			["Non-Canon"] = "Non-Canon",
+			["Event"] = "Event"
+		}
 
-			item.MouseEnter:Connect(function()
-				local skills = FusionUtility.CalculateFusedAbilities(standName, s2Name, SkillData)
-				local tooltip = "<b><font color='#D745FF'>" .. fusedName .. "</font></b>\n<font color='#AAAAAA'>Fusion: " .. standName .. " + " .. s2Name .. "</font>\n____________________\n\n"
+		local renderCount = 0
 
-				if #skills == 0 then
-					tooltip = tooltip .. "<font color='#AAAAAA'>No known abilities.</font>"
-				else
-					for i, sk in ipairs(skills) do
-						local sData = sk.Data
-						tooltip = tooltip .. "<b><font color='#55FF55'>[" .. sk.Name .. "]</font></b>\n"
+		for i, partName in ipairs(parts) do
+			local abilities = {}
+			for sName, sData in pairs(StandData.Stands) do
+				if sData.Part == partName then table.insert(abilities, {Name = sName, Type = "Stand", Rarity = sData.Rarity, Icon = sData.Icon}) end
+			end
+			for stName, stPart in pairs(GameData.StyleParts) do
+				if stPart == partName then 
+					local sIcon = GameData.StyleIcons and GameData.StyleIcons[stName] or ""
+					table.insert(abilities, {Name = stName, Type = "Style", Rarity = "None", Icon = sIcon}) 
+				end
+			end
 
-						local details = {}
-						if sData.Mult and sData.Mult > 0 then 
-							table.insert(details, "DMG: <font color='#FFFFFF'>" .. sData.Mult .. "x</font>") 
-						end
-						if sData.Cooldown and sData.Cooldown > 0 then 
-							table.insert(details, "CD: <font color='#FFFFFF'>" .. sData.Cooldown .. " turns</font>") 
-						end
+			table.sort(abilities, function(a, b)
+				local tierA = indexRaritySortTiers[a.Rarity] or 99
+				local tierB = indexRaritySortTiers[b.Rarity] or 99
 
-						if #details > 0 then
-							tooltip = tooltip .. "<font color='#AAAAAA'>  • " .. table.concat(details, " | ") .. "</font>\n"
-						end
+				if a.Type == "Style" then tierA = 100 end
+				if b.Type == "Style" then tierB = 100 end
 
-						if sData.Effect then
-							local cleanEffectName = sData.Effect:gsub("_", " ")
-							local effectText = cleanEffectName
+				if tierA == tierB then return a.Name < b.Name end
+				return tierA < tierB
+			end)
 
-							if sData.Duration and sData.Duration > 0 then
-								effectText = effectText .. " (" .. sData.Duration .. " turns)"
-							end
-							tooltip = tooltip .. "<font color='#FFAA55'>  • Effect: " .. effectText .. "</font>\n"
-						end
-
-						if i < #skills then
-							tooltip = tooltip .. "\n"
-						end
-					end
+			if #abilities > 0 then
+				local unlockedCount = 0
+				for _, ab in ipairs(abilities) do
+					if table.find(unlockedIndex, ab.Name) then unlockedCount += 1 end
 				end
 
-				cachedTooltipMgr.Show(tooltip)
-			end)
-			item.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
-		else
-			item.NameLabel.Text = "???"
-			item.NameLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-			item.BackgroundColor3 = Color3.fromRGB(20, 15, 25)
+				local category = Templates:WaitForChild("IndexCategoryTemplate"):Clone()
+				category.LayoutOrder = i * 100
+				category.Parent = indexTabContent
 
-			iconLabel.Image = ""
-			qMark.Visible = true 
-			qMark.TextColor3 = Color3.fromRGB(60, 60, 60)
-			qMark.Text = "?"
+				local displayTitle = PartNames[partName] or partName
+				category.Header.TitleLabel.Text = displayTitle .. " Collection (" .. unlockedCount .. "/" .. #abilities .. ")"
 
-			item.MouseEnter:Connect(function()
-				cachedTooltipMgr.Show("<b><font color='#888888'>Unknown Fusion</font></b>\n<font color='#AAAAAA'>Requires: " .. standName .. " + ???</font>")
-			end)
-			item.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+
+				local isClaimed = table.find(claimedBonuses, partName) ~= nil
+
+				local bonusData = GameData.IndexCompletionBonuses[partName]
+				local claimBtn = category.Header.ClaimBtn
+
+				if bonusData then
+					category.Header.BonusLabel.Text = partName .. " Bonus: " .. bonusData.Description
+					local isClaimed = table.find(claimedBonuses, partName) ~= nil
+
+					if unlockedCount >= #abilities then
+						if isClaimed then
+							claimBtn.Text = "Claimed"
+							claimBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+							claimBtn.Active = false
+						else
+							claimBtn.Text = "Claim Bonus"
+							claimBtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
+							claimBtn.MouseButton1Click:Connect(function()
+								SFXManager.Play("Click")
+								Network:WaitForChild("CollectionAction"):FireServer("ClaimIndex", partName)
+							end)
+						end
+					else
+						claimBtn.Visible = false
+					end
+				else
+					category.Header.BonusLabel.Text = "Limited-Time Event Abilities"
+					category.Header.BonusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+					claimBtn.Visible = false
+				end
+
+				local container = category.ItemsContainer
+				local grid = Instance.new("UIGridLayout", container)
+				grid.CellPadding = UDim2.new(0, 10, 0, 10)
+				grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+				for _, ab in ipairs(abilities) do
+					local isUnlocked = table.find(unlockedIndex, ab.Name) ~= nil
+					local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
+					item.Parent = container
+
+					if ab.Type == "Stand" then
+						item.InputBegan:Connect(function(input)
+							if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+								SFXManager.Play("Click")
+								cachedTooltipMgr.Hide()
+								ShowFusionsList(ab.Name)
+							end
+						end)
+					end
+
+					local iconLabel = item:FindFirstChild("Icon")
+					if not iconLabel then
+						iconLabel = Instance.new("ImageLabel", item)
+						iconLabel.Name = "Icon"
+						iconLabel.Size = UDim2.new(1, -10, 1, -35)
+						iconLabel.Position = UDim2.new(0, 5, 0, 5)
+						iconLabel.BackgroundTransparency = 1
+						iconLabel.ZIndex = 40
+						iconLabel.ScaleType = Enum.ScaleType.Fit
+					end
+
+					local qMark = iconLabel:FindFirstChild("QuestionMark")
+					if not qMark then
+						qMark = Instance.new("TextLabel", iconLabel)
+						qMark.Name = "QuestionMark"
+						qMark.Size = UDim2.new(1, 0, 1, 0)
+						qMark.BackgroundTransparency = 1
+						qMark.Text = "?"
+						qMark.Font = Enum.Font.GothamBold
+						qMark.TextScaled = true
+						qMark.ZIndex = 41
+					end
+
+					local bgGradient = item:FindFirstChildOfClass("UIGradient")
+					local strk = item:FindFirstChildOfClass("UIStroke")
+					local strkGradient = strk and strk:FindFirstChildOfClass("UIGradient")
+
+					if isUnlocked then
+						local displayName = ab.Name
+						local isCompleted = false
+
+						if ab.Type == "Stand" and totalValidFusions > 0 then
+							local collectedFusions = 0
+							local seenFusions = {}
+							for _, fStr in ipairs(unlockedFusionsList) do
+								if fStr ~= "" then
+									local parts = string.split(fStr, "|")
+									if parts[1] == ab.Name and validStands[parts[2]] then
+										if not seenFusions[parts[2]] then
+											seenFusions[parts[2]] = true
+											collectedFusions += 1
+										end
+									end
+								end
+							end
+							if collectedFusions >= totalValidFusions then
+								displayName = displayName .. " ⭐"
+								isCompleted = true
+							end
+						end
+
+						item.NameLabel.Text = displayName
+						item.NameLabel.TextColor3 = (ab.Type == "Stand") and (rarityColors[ab.Rarity] or Color3.new(1,1,1)) or Color3.fromRGB(255, 140, 0)
+
+						local pColors = PartColors[partName] or { StrokeStart = Color3.fromRGB(100, 100, 100), StrokeEnd = Color3.fromRGB(40, 40, 40), BGStart = Color3.fromRGB(45, 40, 50), BGEnd = Color3.fromRGB(40, 40, 40) }
+
+						item.BackgroundColor3 = Color3.new(0.275, 0.275, 0.275)
+						if bgGradient then
+							bgGradient.Color = ColorSequence.new(pColors.BGStart, pColors.BGEnd)
+						else
+							item.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+						end
+
+						if strk then strk.Color = Color3.new(1, 1, 1) end
+						if strkGradient then
+							if isCompleted then
+								strkGradient.Color = ColorSequence.new(Color3.fromRGB(255, 235, 100), Color3.fromRGB(180, 140, 20))
+							else
+								strkGradient.Color = ColorSequence.new(pColors.StrokeStart, pColors.StrokeEnd)
+							end
+						elseif strk and isCompleted then
+							strk.Color = Color3.fromRGB(255, 215, 0)
+						end
+
+						if ab.Icon and ab.Icon ~= "" then
+							iconLabel.Image = ab.Icon
+							qMark.Visible = false
+						else
+							iconLabel.Image = ""
+							qMark.Visible = true 
+							qMark.TextColor3 = Color3.fromRGB(150, 150, 150)
+						end
+
+						item.MouseEnter:Connect(function()
+							cachedTooltipMgr.Show(cachedTooltipMgr.GetIndexTooltip(ab.Name, ab.Type, ab.Rarity))
+						end)
+						item.MouseLeave:Connect(function()
+							cachedTooltipMgr.Hide()
+						end)
+					else
+						item.NameLabel.Text = "???"
+						item.NameLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
+
+						item.BackgroundColor3 = Color3.new(0.275, 0.275, 0.275)
+						if bgGradient then
+							bgGradient.Color = ColorSequence.new(Color3.fromRGB(25, 20, 30), Color3.fromRGB(15, 10, 20))
+						else
+							item.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+						end
+
+						if strk then strk.Color = Color3.new(1, 1, 1) end
+						if strkGradient then
+							strkGradient.Color = ColorSequence.new(Color3.fromRGB(50, 50, 50), Color3.fromRGB(25, 25, 25))
+						end
+
+						iconLabel.Image = ""
+						qMark.Visible = true 
+						qMark.TextColor3 = Color3.fromRGB(60, 60, 60) 
+					end
+
+					renderCount += 1
+					if renderCount % 15 == 0 then task.wait() end
+				end
+				task.wait() 
+			end
 		end
+
+		UpdateIndexLayout()
+		activeIndexThread = nil
+	end)
+end
+
+ShowFusionsList = function(standName)
+	if not indexTabContent then return end
+
+	if activeIndexThread then
+		task.cancel(activeIndexThread)
+		activeIndexThread = nil
 	end
 
-	local rows = math.ceil(#validStands / finalCols)
-	local catHeight = 75 + (rows * (calculatedSize + cellPad))
-	category.Size = UDim2.new(1, -24, 0, catHeight)
+	activeIndexThread = task.spawn(function()
+		for _, child in pairs(indexTabContent:GetChildren()) do
+			if child:IsA("Frame") then child:Destroy() end
+		end
 
-	indexTabContent.CanvasSize = UDim2.new(0, 0, 0, catHeight + 150)
+		local layout = indexTabContent:FindFirstChildOfClass("UIListLayout")
+		if not layout then
+			layout = Instance.new("UIListLayout", indexTabContent)
+			layout.SortOrder = Enum.SortOrder.LayoutOrder
+		end
+		layout.Padding = UDim.new(0, 10)
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+		local padding = indexTabContent:FindFirstChildOfClass("UIPadding")
+		if not padding then
+			padding = Instance.new("UIPadding", indexTabContent)
+		end
+		padding.PaddingTop = UDim.new(0, 4)
+		padding.PaddingBottom = UDim.new(0, 4)
+		padding.PaddingLeft = UDim.new(0, 4)
+		padding.PaddingRight = UDim.new(0, 4)
+
+		local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+		local unlockedFusionsList = string.split(unlockedFusionsStr, ",")
+
+		local category = Templates:WaitForChild("IndexCategoryTemplate"):Clone()
+		category.LayoutOrder = 1
+		category.Parent = indexTabContent
+
+		category.Header.TitleLabel.Text = standName .. " Fusions"
+		category.Header.BonusLabel.Text = "Possible combinations using " .. standName
+		category.Header.BonusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+
+		local backBtn = category.Header.ClaimBtn
+		backBtn.Visible = true
+		backBtn.Text = "Back"
+		backBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+		backBtn.Active = true
+		backBtn.MouseButton1Click:Connect(function()
+			SFXManager.Play("Click")
+			cachedTooltipMgr.Hide()
+			RefreshIndexList()
+		end)
+
+		local container = category.ItemsContainer
+		local grid = Instance.new("UIGridLayout", container)
+		grid.CellPadding = UDim2.new(0, 10, 0, 10)
+		grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+		local validStands = {}
+		for sName, sData in pairs(StandData.Stands) do
+			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
+				table.insert(validStands, {Name = sName, Part = sData.Part})
+			end
+		end
+
+		table.sort(validStands, function(a, b)
+			local orderA = PartSortOrder[a.Part] or 99
+			local orderB = PartSortOrder[b.Part] or 99
+			if orderA == orderB then
+				return a.Name < b.Name
+			end
+			return orderA < orderB
+		end)
+
+		local renderCount = 0
+
+		for _, sData in ipairs(validStands) do
+			local s2Name = sData.Name
+			local s2Part = sData.Part
+			local fusionString = standName .. "|" .. s2Name
+			local isUnlocked = table.find(unlockedFusionsList, fusionString) ~= nil
+
+			local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
+			item.Parent = container
+
+			local iconLabel = item:FindFirstChild("Icon")
+			if not iconLabel then
+				iconLabel = Instance.new("ImageLabel", item)
+				iconLabel.Name = "Icon"
+				iconLabel.Size = UDim2.new(1, -10, 1, -35)
+				iconLabel.Position = UDim2.new(0, 5, 0, 5)
+				iconLabel.BackgroundTransparency = 1
+				iconLabel.ZIndex = 40
+				iconLabel.ScaleType = Enum.ScaleType.Fit
+			end
+
+			local qMark = iconLabel:FindFirstChild("QuestionMark")
+			if not qMark then
+				qMark = Instance.new("TextLabel", iconLabel)
+				qMark.Name = "QuestionMark"
+				qMark.Size = UDim2.new(1, 0, 1, 0)
+				qMark.BackgroundTransparency = 1
+				qMark.Text = "?"
+				qMark.Font = Enum.Font.GothamBold
+				qMark.TextScaled = true
+				qMark.ZIndex = 41
+			end
+
+			local bgGradient = item:FindFirstChildOfClass("UIGradient")
+			local strk = item:FindFirstChildOfClass("UIStroke")
+			local strkGradient = strk and strk:FindFirstChildOfClass("UIGradient")
+
+			if isUnlocked then
+				local fusedName = FusionUtility.CalculateFusedName(standName, s2Name)
+				item.NameLabel.Text = fusedName
+				item.NameLabel.TextColor3 = Color3.fromRGB(215, 69, 255)
+
+				local pColors = PartColors[s2Part] or { StrokeStart = Color3.fromRGB(100, 100, 100), StrokeEnd = Color3.fromRGB(40, 40, 40), BGStart = Color3.fromRGB(45, 40, 50), BGEnd = Color3.fromRGB(40, 40, 40) }
+
+				item.BackgroundColor3 = Color3.new(0.275, 0.275, 0.275)
+				if bgGradient then
+					bgGradient.Color = ColorSequence.new(pColors.BGStart, pColors.BGEnd)
+				else
+					item.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+				end
+
+				if strk then strk.Color = Color3.new(1, 1, 1) end
+				if strkGradient then
+					strkGradient.Color = ColorSequence.new(pColors.StrokeStart, pColors.StrokeEnd)
+				end
+
+				iconLabel.Image = ""
+				qMark.Visible = true 
+				qMark.TextColor3 = Color3.fromRGB(150, 150, 150)
+				qMark.Text = "F"
+
+				item.MouseEnter:Connect(function()
+					local skills = FusionUtility.CalculateFusedAbilities(standName, s2Name, SkillData)
+					local tooltip = "<b><font color='#D745FF'>" .. fusedName .. "</font></b>\n<font color='#AAAAAA'>Fusion: " .. standName .. " + " .. s2Name .. "</font>\n____________________\n\n"
+
+					if #skills == 0 then
+						tooltip = tooltip .. "<font color='#AAAAAA'>No known abilities.</font>"
+					else
+						for i, sk in ipairs(skills) do
+							local skData = sk.Data
+							tooltip = tooltip .. "<b><font color='#55FF55'>[" .. sk.Name .. "]</font></b>\n"
+
+							local details = {}
+							if skData.Mult and skData.Mult > 0 then 
+								table.insert(details, "DMG: <font color='#FFFFFF'>" .. skData.Mult .. "x</font>") 
+							end
+							if skData.Cooldown and skData.Cooldown > 0 then 
+								table.insert(details, "CD: <font color='#FFFFFF'>" .. skData.Cooldown .. " turns</font>") 
+							end
+
+							if #details > 0 then
+								tooltip = tooltip .. "<font color='#AAAAAA'>  • " .. table.concat(details, " | ") .. "</font>\n"
+							end
+
+							if skData.Effect then
+								local cleanEffectName = skData.Effect:gsub("_", " ")
+								local effectText = cleanEffectName
+
+								if skData.Duration and skData.Duration > 0 then
+									effectText = effectText .. " (" .. skData.Duration .. " turns)"
+								end
+								tooltip = tooltip .. "<font color='#FFAA55'>  • Effect: " .. effectText .. "</font>\n"
+							end
+
+							if i < #skills then
+								tooltip = tooltip .. "\n"
+							end
+						end
+					end
+
+					cachedTooltipMgr.Show(tooltip)
+				end)
+				item.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+			else
+				item.NameLabel.Text = "???"
+				item.NameLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
+
+				item.BackgroundColor3 = Color3.new(0.275, 0.275, 0.275)
+				if bgGradient then
+					bgGradient.Color = ColorSequence.new(Color3.fromRGB(25, 20, 30), Color3.fromRGB(15, 10, 20))
+				else
+					item.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+				end
+
+				if strk then strk.Color = Color3.new(1, 1, 1) end
+				if strkGradient then
+					strkGradient.Color = ColorSequence.new(Color3.fromRGB(50, 50, 50), Color3.fromRGB(25, 25, 25))
+				end
+
+				iconLabel.Image = ""
+				qMark.Visible = true 
+				qMark.TextColor3 = Color3.fromRGB(60, 60, 60)
+				qMark.Text = "?"
+
+				item.MouseEnter:Connect(function()
+					cachedTooltipMgr.Show("<b><font color='#888888'>Unknown Fusion</font></b>\n<font color='#AAAAAA'>Requires: " .. standName .. " + ???</font>")
+				end)
+				item.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+			end
+
+			renderCount += 1
+			if renderCount % 15 == 0 then task.wait() end
+		end
+
+		UpdateIndexLayout()
+		activeIndexThread = nil
+	end)
 end
 
 local function UpdateTopDisplays()
@@ -1364,7 +1501,8 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		UpdateLayoutForScreen()
 
 		if target == "TITLE" then RefreshTitlesList()
-		elseif target == "INDEX" then RefreshIndexList() end
+		elseif target == "INDEX" then RefreshIndexList()
+		elseif target == "INV" then RefreshInventoryList() end
 	end
 
 	invTabBtn.MouseButton1Click:Connect(function() SetActiveTab("INV") end)
@@ -1473,13 +1611,17 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("StandTrait"):Connect(function() UpdateTopDisplays(); RefreshStorageList() end)
 	player:GetAttributeChangedSignal("UnlockedTitles"):Connect(RefreshTitlesList)
 	player:GetAttributeChangedSignal("EquippedTitle"):Connect(RefreshTitlesList)
-	player:GetAttributeChangedSignal("UnlockedIndex"):Connect(RefreshIndexList)
-	player:GetAttributeChangedSignal("UnlockedFusions"):Connect(RefreshIndexList)
 
+	player:GetAttributeChangedSignal("UnlockedIndex"):Connect(function()
+		if currentActiveTab == "INDEX" then RefreshIndexList() end
+	end)
+	player:GetAttributeChangedSignal("UnlockedFusions"):Connect(function()
+		if currentActiveTab == "INDEX" then RefreshIndexList() end
+	end)
 	player:GetAttributeChangedSignal("ClaimedIndexBonuses"):Connect(function() 
-		RefreshIndexList() 
 		RefreshStatTexts()
-		RefreshInventoryList() 
+		if currentActiveTab == "INDEX" then RefreshIndexList() end
+		if currentActiveTab == "INV" then RefreshInventoryList() end
 	end)
 
 	player:GetAttributeChangedSignal("Active_FusedStand1"):Connect(function() UpdateTopDisplays(); RefreshStatTexts(); RefreshStorageList() end)
@@ -1511,14 +1653,23 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	player:GetAttributeChangedSignal("LockedItems"):Connect(RefreshInventoryList)
 
 	for _, stat in ipairs(allStatsToUpgrade) do player:GetAttributeChangedSignal(stat):Connect(RefreshStatTexts) end
-	for _, item in ipairs(KnownItems) do player:GetAttributeChangedSignal(item:gsub("[^%w]", "").."Count"):Connect(RefreshInventoryList) end
+	for _, item in ipairs(KnownItems) do 
+		player:GetAttributeChangedSignal(item:gsub("[^%w]", "").."Count"):Connect(function()
+			if currentActiveTab == "INV" or currentActiveTab == "PLAYER" or currentActiveTab == "STAND" then
+				RefreshInventoryList()
+			end
+		end) 
+	end
 
-	indexTabContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(RefreshIndexList)
+	indexTabContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateIndexLayout)
 
 	task.spawn(function()
 		local pObj = player:WaitForChild("leaderstats", 5)
 		if pObj then 
-			pObj:WaitForChild("Prestige", 5).Changed:Connect(function() RefreshStatTexts(); RefreshInventoryList(); RefreshStorageList() end)
+			pObj:WaitForChild("Prestige", 5).Changed:Connect(function() 
+				RefreshStatTexts(); RefreshStorageList()
+				if currentActiveTab == "INV" then RefreshInventoryList() end 
+			end)
 			pObj:WaitForChild("Yen", 5).Changed:Connect(UpdateTopDisplays) 
 		end
 		UpdateTopDisplays(); RefreshStatTexts(); RefreshInventoryList(); RefreshStorageList()
@@ -1528,10 +1679,15 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		if parentFrame.Visible then
 			UpdateTopDisplays()
 			RefreshStatTexts()
-			RefreshInventoryList()
 			RefreshStorageList()
-			RefreshTitlesList()
-			RefreshIndexList()
+
+			if currentActiveTab == "INV" or currentActiveTab == "PLAYER" or currentActiveTab == "STAND" then
+				RefreshInventoryList()
+			elseif currentActiveTab == "TITLE" then
+				RefreshTitlesList()
+			elseif currentActiveTab == "INDEX" then
+				RefreshIndexList()
+			end
 		end
 	end)
 end
