@@ -711,7 +711,7 @@ local function RefreshIndexList()
 		end
 	end
 
-	local parts = {"Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6", "Part 7", "Part 8", "Event"}
+	local parts = {"Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6", "Part 7", "Part 8", "Non-Canon", "Event"}
 
 	local PartNames = {
 		["Part 1"] = "Phantom Blood",
@@ -722,6 +722,7 @@ local function RefreshIndexList()
 		["Part 6"] = "Stone Ocean",
 		["Part 7"] = "Steel Ball Run",
 		["Part 8"] = "JoJolion",
+		["Non-Canon"] = "Non-Canon",
 		["Event"] = "Event"
 	}
 
