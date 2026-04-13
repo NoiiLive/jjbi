@@ -9,6 +9,7 @@ local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local UIModules = script.Parent
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
 local NotificationManager = require(UIModules:WaitForChild("NotificationManager"))
@@ -671,6 +672,8 @@ local function RefreshTitlesList()
 	spacer.Parent = titlesTabContent
 end
 
+local ShowFusionsList -- Forward Declaration for mutually recursive calls
+
 local function RefreshIndexList()
 	if not indexTabContent then return end
 	for _, child in pairs(indexTabContent:GetChildren()) do
@@ -823,6 +826,16 @@ local function RefreshIndexList()
 				local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
 				item.Parent = container
 
+				if ab.Type == "Stand" then
+					item.InputBegan:Connect(function(input)
+						if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+							SFXManager.Play("Click")
+							cachedTooltipMgr.Hide()
+							ShowFusionsList(ab.Name)
+						end
+					end)
+				end
+
 				local iconLabel = item:FindFirstChild("Icon")
 				if not iconLabel then
 					iconLabel = Instance.new("ImageLabel", item)
@@ -905,6 +918,191 @@ local function RefreshIndexList()
 	end
 
 	indexTabContent.CanvasSize = UDim2.new(0, 0, 0, yOffset + 150)
+end
+
+ShowFusionsList = function(standName)
+	if not indexTabContent then return end
+	for _, child in pairs(indexTabContent:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
+
+	local layout = indexTabContent:FindFirstChildOfClass("UIListLayout")
+	if not layout then
+		layout = Instance.new("UIListLayout", indexTabContent)
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+	end
+	layout.Padding = UDim.new(0, 10)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+	local padding = indexTabContent:FindFirstChildOfClass("UIPadding")
+	if not padding then
+		padding = Instance.new("UIPadding", indexTabContent)
+	end
+	padding.PaddingTop = UDim.new(0, 4)
+	padding.PaddingBottom = UDim.new(0, 4)
+	padding.PaddingLeft = UDim.new(0, 4)
+	padding.PaddingRight = UDim.new(0, 4)
+
+	local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+	local unlockedFusionsList = string.split(unlockedFusionsStr, ",")
+
+	local category = Templates:WaitForChild("IndexCategoryTemplate"):Clone()
+	category.LayoutOrder = 1
+	category.Parent = indexTabContent
+
+	category.Header.TitleLabel.Text = standName .. " Fusions"
+	category.Header.BonusLabel.Text = "Possible combinations using " .. standName
+	category.Header.BonusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+
+	local backBtn = category.Header.ClaimBtn
+	backBtn.Visible = true
+	backBtn.Text = "Back"
+	backBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+	backBtn.Active = true
+	backBtn.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		cachedTooltipMgr.Hide()
+		RefreshIndexList()
+	end)
+
+	local screenWidth = indexTabContent.AbsoluteSize.X
+	if screenWidth <= 0 then screenWidth = 900 end 
+	local safeWidth = screenWidth - 40 
+
+	local minCellSize = 75  
+	local maxCellSize = 110 
+	local cellPad = 10
+
+	local cols = math.floor((safeWidth + cellPad) / (maxCellSize + cellPad))
+	if safeWidth < 500 then
+		cols = math.max(3, cols) 
+	end
+
+	local calculatedSize = math.floor((safeWidth - (cellPad * (cols - 1))) / cols)
+	calculatedSize = math.clamp(calculatedSize, minCellSize, maxCellSize)
+
+	local finalCols = math.floor((safeWidth + cellPad) / (calculatedSize + cellPad))
+	if finalCols < 1 then finalCols = 1 end
+
+	local container = category.ItemsContainer
+	local grid = Instance.new("UIGridLayout", container)
+	grid.CellSize = UDim2.new(0, calculatedSize, 0, calculatedSize)
+	grid.CellPadding = UDim2.new(0, cellPad, 0, cellPad)
+	grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+	local validStands = {}
+	for sName, sData in pairs(StandData.Stands) do
+		if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
+			table.insert(validStands, sName)
+		end
+	end
+	table.sort(validStands)
+
+	for _, s2Name in ipairs(validStands) do
+		local fusionString = standName .. "|" .. s2Name
+		local isUnlocked = table.find(unlockedFusionsList, fusionString) ~= nil
+
+		local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
+		item.Parent = container
+
+		local iconLabel = item:FindFirstChild("Icon")
+		if not iconLabel then
+			iconLabel = Instance.new("ImageLabel", item)
+			iconLabel.Name = "Icon"
+			iconLabel.Size = UDim2.new(1, -10, 1, -35)
+			iconLabel.Position = UDim2.new(0, 5, 0, 5)
+			iconLabel.BackgroundTransparency = 1
+			iconLabel.ZIndex = 40
+			iconLabel.ScaleType = Enum.ScaleType.Fit
+		end
+
+		local qMark = iconLabel:FindFirstChild("QuestionMark")
+		if not qMark then
+			qMark = Instance.new("TextLabel", iconLabel)
+			qMark.Name = "QuestionMark"
+			qMark.Size = UDim2.new(1, 0, 1, 0)
+			qMark.BackgroundTransparency = 1
+			qMark.Text = "?"
+			qMark.Font = Enum.Font.GothamBold
+			qMark.TextScaled = true
+			qMark.ZIndex = 41
+		end
+
+		if isUnlocked then
+			local fusedName = FusionUtility.CalculateFusedName(standName, s2Name)
+			item.NameLabel.Text = fusedName
+			item.NameLabel.TextColor3 = Color3.fromRGB(215, 69, 255)
+			item.BackgroundColor3 = Color3.fromRGB(40, 30, 50)
+
+			iconLabel.Image = ""
+			qMark.Visible = true 
+			qMark.TextColor3 = Color3.fromRGB(150, 150, 150)
+			qMark.Text = "F"
+
+			item.MouseEnter:Connect(function()
+				local skills = FusionUtility.CalculateFusedAbilities(standName, s2Name, SkillData)
+				local tooltip = "<b><font color='#D745FF'>" .. fusedName .. "</font></b>\n<font color='#AAAAAA'>Fusion: " .. standName .. " + " .. s2Name .. "</font>\n____________________\n\n"
+
+				if #skills == 0 then
+					tooltip = tooltip .. "<font color='#AAAAAA'>No known abilities.</font>"
+				else
+					for i, sk in ipairs(skills) do
+						local sData = sk.Data
+						tooltip = tooltip .. "<b><font color='#55FF55'>[" .. sk.Name .. "]</font></b>\n"
+
+						local details = {}
+						if sData.Mult and sData.Mult > 0 then 
+							table.insert(details, "DMG: <font color='#FFFFFF'>" .. sData.Mult .. "x</font>") 
+						end
+						if sData.Cooldown and sData.Cooldown > 0 then 
+							table.insert(details, "CD: <font color='#FFFFFF'>" .. sData.Cooldown .. " turns</font>") 
+						end
+
+						if #details > 0 then
+							tooltip = tooltip .. "<font color='#AAAAAA'>  • " .. table.concat(details, " | ") .. "</font>\n"
+						end
+
+						if sData.Effect then
+							local cleanEffectName = sData.Effect:gsub("_", " ")
+							local effectText = cleanEffectName
+
+							if sData.Duration and sData.Duration > 0 then
+								effectText = effectText .. " (" .. sData.Duration .. " turns)"
+							end
+							tooltip = tooltip .. "<font color='#FFAA55'>  • Effect: " .. effectText .. "</font>\n"
+						end
+
+						if i < #skills then
+							tooltip = tooltip .. "\n"
+						end
+					end
+				end
+
+				cachedTooltipMgr.Show(tooltip)
+			end)
+			item.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+		else
+			item.NameLabel.Text = "???"
+			item.NameLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
+			item.BackgroundColor3 = Color3.fromRGB(20, 15, 25)
+
+			iconLabel.Image = ""
+			qMark.Visible = true 
+			qMark.TextColor3 = Color3.fromRGB(60, 60, 60)
+			qMark.Text = "?"
+
+			item.MouseEnter:Connect(function()
+				cachedTooltipMgr.Show("<b><font color='#888888'>Unknown Fusion</font></b>\n<font color='#AAAAAA'>Requires: " .. standName .. " + ???</font>")
+			end)
+			item.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+		end
+	end
+
+	local rows = math.ceil(#validStands / finalCols)
+	local catHeight = 75 + (rows * (calculatedSize + cellPad))
+	category.Size = UDim2.new(1, -24, 0, catHeight)
+
+	indexTabContent.CanvasSize = UDim2.new(0, 0, 0, catHeight + 150)
 end
 
 local function UpdateTopDisplays()
