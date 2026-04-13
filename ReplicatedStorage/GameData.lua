@@ -101,7 +101,8 @@ GameData.IndexCompletionBonuses = {
 	["Part 5"] = { Description = "+5% Global Damage", Stat = "GlobalDamage", Value = 0.05 },
 	["Part 6"] = { Description = "+5 Inventory Capacity", Stat = "Inventory", Value = 5 },
 	["Part 7"] = { Description = "+1% Luck", Stat = "Luck", Value = 1 },
-	["Part 8"] = { Description = "+5% Global Damage", Stat = "GlobalDamage", Value = 0.05 }
+	["Part 8"] = { Description = "+5% Global Damage", Stat = "GlobalDamage", Value = 0.05 },
+	["Non-Canon"] = { Description = "+5 Inventory Capacity", Stat = "Inventory", Value = 5 },
 }
 
 GameData.StyleParts = {
