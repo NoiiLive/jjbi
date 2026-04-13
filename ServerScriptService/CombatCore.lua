@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -179,37 +180,36 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
 	local fusionBonusMult = 0
 
-	local function getFusionBonus(standName)
-		if standName == "None" or standName == "Unknown" or not StandData.Stands[standName] then return 0 end
-		if TotalValidFusions == 0 then return 0 end
-
-		local collectedFusions = 0
-		local seenFusions = {}
+	if TotalValidFusions > 0 and unlockedFusionsStr ~= "" then
+		local fusionCounts = {}
 		for _, fStr in ipairs(string.split(unlockedFusionsStr, ",")) do
 			if fStr ~= "" then
 				local parts = string.split(fStr, "|")
-				if parts[1] == standName and ValidStandsForFusion[parts[2]] then
-					if not seenFusions[parts[2]] then
-						seenFusions[parts[2]] = true
-						collectedFusions += 1
+				local s1, s2 = parts[1], parts[2]
+				if s1 and s2 and ValidStandsForFusion[s1] and ValidStandsForFusion[s2] then
+					fusionCounts[s1] = fusionCounts[s1] or { Count = 0 }
+					if not fusionCounts[s1][s2] then
+						fusionCounts[s1][s2] = true
+						fusionCounts[s1].Count += 1
 					end
 				end
 			end
 		end
-		if collectedFusions >= TotalValidFusions then
-			return 0.5
+
+		local completedStands = 0
+		for s1, data in pairs(fusionCounts) do
+			if data.Count >= TotalValidFusions then
+				completedStands += 1
+			end
 		end
-		return 0
+		fusionBonusMult = completedStands * 0.01
 	end
 
 	if sName == "Fused Stand" then
 		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
 		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
-		fusionBonusMult = getFusionBonus(fs1) + getFusionBonus(fs2)
 		local fusedSkills = FusionUtility.CalculateFusedAbilities(fs1, fs2, SkillData)
 		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
-	else
-		fusionBonusMult = getFusionBonus(sName)
 	end
 
 	for n, s in pairs(SkillData.Skills) do
@@ -583,7 +583,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		if reqCount > 0 then mult *= (1.50 ^ reqCount) end
 
 		if attacker.FusionDamageBonus and attacker.FusionDamageBonus > 0 then
-			mult += attacker.FusionDamageBonus
+			mult += (attacker.FusionDamageBonus / hitsToDo)
 		end
 
 		local gachaMsg = ""
