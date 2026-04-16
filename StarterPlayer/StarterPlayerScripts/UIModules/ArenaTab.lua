@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local ArenaTab = {}
 
 local player = game.Players.LocalPlayer
@@ -48,7 +49,7 @@ local currentCapacity = 2
 local StatusIcons = {
 	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF", Dizzy = "DZY", Chilly = "CLD",
 	Acid = "ACD", Infection = "INF", Rupture = "RPT", Frostburn = "FBN", Frostbite = "FBT", Decay = "DCY",
-	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM",
+	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM", Warded = "WRD",
 	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
 	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-",
 	EnergyExhausted = "ENG-", StaminaExhausted = "STM-"
@@ -74,6 +75,7 @@ local StatusDescs = {
 	Necrosis = "Takes heavy synergized damage every turn.",
 	Plague = "Takes heavy synergized damage every turn.",
 	Calamity = "Takes apocalyptic synergized damage every turn.",
+	Warded = "Immune to incoming debuffs and ailments.",
 	Buff_Strength = "Increased damage dealt.",
 	Buff_Defense = "Reduced damage taken.",
 	Buff_Speed = "Increased evasion and turn priority.",
@@ -82,8 +84,8 @@ local StatusDescs = {
 	Debuff_Defense = "Increased damage taken.",
 	Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance.",
-	EnergyExhausted = "Cannot use stand skills.",
-	StaminaExhausted = "Cannot use style skills."
+	EnergyExhausted = "Cannot use stand skills. Take +15% damage.",
+	StaminaExhausted = "Cannot use style skills. Take +15% damage."
 }
 
 local function AppendLog(text)
@@ -531,7 +533,7 @@ function ArenaTab.HandleUpdate(action, data)
 							end)
 						end
 						task.wait(0.3)
-					elseif string.find(line, "Poison damage") or string.find(line, "Burn damage") or string.find(line, "bled for") or string.find(line, "Freeze damage") then
+					elseif string.find(line, "damage!") or string.find(line, "bled for") or string.find(line, "Freeze damage") then
 						SFXManager.Play("CombatHit")
 						task.wait(0.3)
 					end
@@ -601,6 +603,10 @@ function ArenaTab.UpdateCombatState(state)
 			fObj:UpdateHealth(pData.HP, pData.MaxHP)
 		end
 
+		if pData.Stamina and pData.MaxStamina and pData.StandEnergy and pData.MaxStandEnergy then
+			fObj:UpdateResources(pData.Stamina, pData.MaxStamina, pData.StandEnergy, pData.MaxStandEnergy)
+		end
+
 		local currentStatuses = {}
 		if pData.Statuses then
 			for eff, duration in pairs(pData.Statuses) do
@@ -630,6 +636,10 @@ function ArenaTab.UpdateCombatState(state)
 			activeFighters[id] = fObj
 		else
 			fObj:UpdateHealth(pData.HP, pData.MaxHP)
+		end
+
+		if pData.Stamina and pData.MaxStamina and pData.StandEnergy and pData.MaxStandEnergy then
+			fObj:UpdateResources(pData.Stamina, pData.MaxStamina, pData.StandEnergy, pData.MaxStandEnergy)
 		end
 
 		if not isSpectating then
