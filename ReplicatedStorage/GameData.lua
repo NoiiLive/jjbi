@@ -45,7 +45,6 @@ GameData.StyleIcons = {
 }
 
 GameData.Titles = {
-	-- Progression
 	["Novice"] = { Desc = "Equip your very first Stand.", Requirement = "Obtain your first Stand.", Color = "#FFFFFF", Order = 1 },
 	["Apprentice"] = { Desc = "Begin your combat journey.", Requirement = "Reach Prestige 1.", Color = "#AAAAAA", Order = 2 },
 	["Master"] = { Desc = "Reach the upper echelons of power.", Requirement = "Reach Prestige 15.", Color = "#00FFFF", Order = 3 },
@@ -53,29 +52,23 @@ GameData.Titles = {
 	["Hoarder"] = { Desc = "Expand your collection.", Requirement = "Fill all your free Stand Slots.", Color = "#8A2BE2", Order = 5 },
 	["Mobster"] = { Desc = "Join a syndicate.", Requirement = "Join a Gang.", Color = "#FFFF55", Order = 6 },
 
-	-- Endless Mode
 	["Endurance"] = { Desc = "Survive the initial onslaught.", Requirement = "Reach Floor 10 in Endless Mode.", Color = "#FF5555", Order = 7 },
 	["Unyielding"] = { Desc = "Conquer a hundred challenges.", Requirement = "Reach Floor 100 in Endless Mode.", Color = "#FF0055", Order = 8 },
 	["Immortal"] = { Desc = "Become a legend of survival.", Requirement = "Reach Floor 1000 in Endless Mode.", Color = "#8B0000", Order = 9 },
 
-	-- Raids
 	["Raider"] = { Desc = "Complete your first raid.", Requirement = "Win 1 Raid.", Color = "#FFAA00", Order = 10 },
 	["Raid Veteran"] = { Desc = "Become a seasoned raider.", Requirement = "Win 25 Raids.", Color = "#FF5500", Order = 11 },
 	["Raid Expert"] = { Desc = "Dominate the raid bosses.", Requirement = "Win 50 Raids.", Color = "#FF0000", Order = 12 },
 	["Raid God"] = { Desc = "An unstoppable force in raids.", Requirement = "Win 100 Raids.", Color = "#AA0000", Order = 13 },
 
-	-- World Bosses
 	["Challenger"] = { Desc = "Face a massive threat.", Requirement = "Participate in a World Boss fight.", Color = "#55FFFF", Order = 14 },
 	["Slayer"] = { Desc = "Deal a fatal blow to a massive threat.", Requirement = "Deal 1,000,000+ Damage to a World Boss.", Color = "#0055FF", Order = 15 },
 
-	-- PvP / Competitive
 	["Gladiator"] = { Desc = "Prove your strength against others.", Requirement = "Win an Arena match.", Color = "#FF8800", Order = 16 },
 	["Champion"] = { Desc = "Cross the finish line first.", Requirement = "Place 1st in the Steel Ball Run.", Color = "#FFD700", Order = 17 },
 
-	-- Special
 	["VIP"] = { Desc = "Thank you for supporting the game!", Requirement = "Purchase the VIP gamepass.", Color = "#FFD700", Order = 18 },
 
-	-- Parts
 	["Phantom Blood"] = { Desc = "Conquer the beginning of the bloodline.", Requirement = "Complete the Part 1 Index.", Color = "#5260F1", Order = 19 },
 	["Battle Tendency"] = { Desc = "Awaken the ancient warriors.", Requirement = "Complete the Part 2 Index.", Color = "#E0FF87", Order = 20 },
 	["Stardust Crusader"] = { Desc = "Journey to Egypt to save a life.", Requirement = "Complete the Part 3 Index.", Color = "#B69AF7", Order = 21 },
@@ -85,7 +78,6 @@ GameData.Titles = {
 	["Steel Ball Run"] = { Desc = "Cross the American continent.", Requirement = "Complete the Part 7 Index.", Color = "#86ED36", Order = 25 },
 	["JoJolion"] = { Desc = "Break the curse.", Requirement = "Complete the Part 8 Index.", Color = "#C4D1F3", Order = 26 },
 
-	-- Staff
 	["Owner"] = { Desc = "Creator and Lead Developer.", Requirement = "Be an Owner.", Color = "#FF0000", Order = 100, Secret = true },
 	["Admin"] = { Desc = "Game Administrator.", Requirement = "Be an Admin.", Color = "#FF5500", Order = 101, Secret = true },
 	["Sr. Mod"] = { Desc = "Senior Moderator.", Requirement = "Be a Sr. Mod.", Color = "#FFAA00", Order = 102, Secret = true },
@@ -161,7 +153,10 @@ GameData.UniverseModifiers = {
 	["Hardened Armor"] = { Description = "Your Defense is increased by 10%.", Color = "#AAAAAA" },
 	["Brittle Armor"] = { Description = "Your Defense is reduced by 10%.", Color = "#555555" },
 	["Determined"] = { Description = "Your Willpower is increased by 10%.", Color = "#FF55FF" },
-	["Faltering"] = { Description = "Your Willpower is reduced by 10%.", Color = "#555555" }
+	["Faltering"] = { Description = "Your Willpower is reduced by 10%.", Color = "#555555" },
+	["Resource Drought"] = { Description = "All Stamina and Stand Energy costs for skills are increased by 50%, and Rest only recovers half the normal amount.", Color = "#D2B48C" },
+	["Aggressive Attrition"] = { Description = "The amount of Stamina/Energy depleted when taking damage is increased to 35%.", Color = "#FF4500" },
+	["Unstable"] = { Description = "DoT effects (Bleed, Poison, Burn) deal double damage, but their duration is reduced to 1 single turn.", Color = "#FF00FF" }
 }
 
 GameData.HorseTraits = {
