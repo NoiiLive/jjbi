@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -342,7 +341,7 @@ function CombatCore.TakeDamageWithWillpower(combatant, damage)
 end
 
 function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player, battle, waitMultiplier)
-	local statusDmgMod = CombatCore.HasModifier(uniModStr, "Cursed Wounds") and 0.15 or 0.10 
+	local statusDmgMod = CombatCore.HasModifier(uniModStr, "Cursed Wounds") and 0.25 or 0.15 
 
 	if combatant.IsBoss then
 		statusDmgMod = statusDmgMod * 0.75
@@ -371,6 +370,16 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		combatant.Statuses.Poison -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#AA00AA'>"..combatant.Name.." took "..math.floor(dmg).." Poison damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
+		task.wait(waitMultiplier)
+	end
+	if combatant.HP < 1 then return end
+
+	if combatant.Statuses.Burn > 0 then
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
+		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
+		combatant.Statuses.Burn -= 1
+		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#FF5500'>"..combatant.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 	end
 	if combatant.HP < 1 then return end
@@ -430,7 +439,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		msgPrefix = "<font color='#FF55FF'>[CONFUSED] </font>"
 		t = attacker; tName = fLogName; b = defender; bName = fDefName
 	end
-	
+
 	if isSkippingFromDizzy then
 		return msgPrefix .. fLogName .. " attempted to use <b>" .. skillName .. "</b>... but was too dizzy, missing the attack entirely!", false, "None"
 	end
@@ -505,7 +514,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	elseif skill.Effect == "Rest" or skill.Effect == "CleanseRest" then
 		local clearedStatuses = false
 		if skill.Effect == "CleanseRest" and b.Statuses then
-			local toClear = {"Poison", "Burn", "Bleed", "Stun", "Freeze", "Confusion"}
+			local toClear = {"Poison", "Burn", "Bleed", "Stun", "Freeze", "Confusion", "Debuff_Strength", "Debuff_Defense", "Debuff_Speed", "Debuff_Willpower", "StaminaExhausted", "EnergyExhausted", "Dizzy", "Chilly"}
 			for _, st in ipairs(toClear) do
 				if (b.Statuses[st] or 0) > 0 then
 					b.Statuses[st] = 0
@@ -727,21 +736,20 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		end
 
 		if damage > 0 and not isBlocking then
-			local drainAmt = math.floor(damage * 0.15)
+			local pctDamage = math.clamp(damage / (t.MaxHP or 1), 0, 1)
 
-			if drainAmt > 0 then
-				postMsg = postMsg .. " <font color='#888888'>[-" .. drainAmt .. " Stamina & Energy]</font>"
-			end
+			local stamDrain = math.floor((t.MaxStamina or 100) * (pctDamage * 1.5))
+			local nrgDrain = math.floor((t.MaxStandEnergy or 100) * (pctDamage * 1.5))
 
 			if t.Stamina then
-				t.Stamina = math.max(0, t.Stamina - drainAmt)
+				t.Stamina = math.max(0, t.Stamina - stamDrain)
 				if t.Stamina == 0 and (t.Statuses.StaminaExhausted or 0) == 0 then
 					t.Statuses.StaminaExhausted = 3
 					postMsg = postMsg .. " <font color='#AAAAAA'>(Stamina Broken!)</font>"
 				end
 			end
 			if t.StandEnergy then
-				t.StandEnergy = math.max(0, t.StandEnergy - drainAmt)
+				t.StandEnergy = math.max(0, t.StandEnergy - nrgDrain)
 				if t.StandEnergy == 0 and (t.Statuses.EnergyExhausted or 0) == 0 then
 					t.Statuses.EnergyExhausted = 3
 					postMsg = postMsg .. " <font color='#A020F0'>(Energy Broken!)</font>"
