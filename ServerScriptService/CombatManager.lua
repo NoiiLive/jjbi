@@ -100,7 +100,7 @@ local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentP
 			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, 
 			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0,
 			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
-			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0 
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
 		},
 		Cooldowns = {},
 		Skills = template.Skills or {"Basic Attack"},
@@ -243,7 +243,7 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
-			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
+			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy" or sName == "Warded") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
 		end
 		if combatant.StunImmunity and combatant.StunImmunity > 0 then combatant.StunImmunity -= 1 end
 		if combatant.ConfusionImmunity and combatant.ConfusionImmunity > 0 then combatant.ConfusionImmunity -= 1 end
