@@ -64,6 +64,8 @@ local function GetAvailableBosses()
 	local list = {}
 
 	for bossName, _ in pairs(EnemyData.WorldBosses or {}) do
+		if bossName == "Easter Bunny" then continue end
+
 		if table.find(APRIL_FOOLS_BOSSES, bossName) then
 			if isAprilFools then 
 				table.insert(list, bossName) 
@@ -430,16 +432,6 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		pcall(function() maxInv = GameData.GetMaxInventory(player) end)
 
 		local droppedItems = {}
-
-		if battle.Enemy.Name == "Easter Bunny" then
-			local eggsEarned = math.min(100, math.floor(damageDealt / 10000))
-			if eggsEarned > 0 then
-				pcall(function()
-					player:SetAttribute("EasterEggCount", (player:GetAttribute("EasterEggCount") or 0) + eggsEarned)
-				end)
-				table.insert(droppedItems, "<font color='#FF55FF'>" .. eggsEarned .. "x Easter Egg</font>")
-			end
-		end
 
 		pcall(function()
 			if not isDeath and battle.Drops and battle.Drops.ItemChance then
