@@ -270,6 +270,7 @@ local function ProcessTurn(match)
 		end
 
 		if combatant.BlockTurns then combatant.BlockTurns = math.max(0, combatant.BlockTurns - 1) end
+		if combatant.CounterTurns then combatant.CounterTurns = math.max(0, combatant.CounterTurns - 1) end
 
 		if not combatant.IsBoss then 
 			local usedSkillData = SkillData.Skills[combatant.SelectedSkill]
