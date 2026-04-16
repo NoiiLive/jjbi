@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -932,6 +931,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		dodgeChance += (5 * CombatCore.CountTrait(t, "Lucky"))
 		dodgeChance += (25 * CombatCore.CountTrait(t, "Blessed"))
 
+		dodgeChance = math.min(dodgeChance, 80)
+
 		local dodged = false
 		if not isUnavoidable and (t.Statuses and t.Statuses.Stun or 0) == 0 and (t.Statuses and t.Statuses.Freeze or 0) == 0 and math.random(1, 100) <= dodgeChance then
 			dodged = true
@@ -955,6 +956,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		critChance += (15 * CombatCore.CountTrait(attacker, "Brutal"))
 		critChance += (5 * CombatCore.CountTrait(attacker, "Lucky"))
 		critChance += (25 * CombatCore.CountTrait(attacker, "Blessed"))
+
+		critChance = math.min(critChance, 100)
 
 		local isCrit = math.random(1, 100) <= critChance
 		local critMult = 1.5 + (1.5 * CombatCore.CountTrait(attacker, "Lethal"))
@@ -1056,8 +1059,11 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			local baseExhaust = CombatCore.HasModifier(uniModStr, "Aggressive Attrition") and 3.5 or 1.5
 			local exhaustMult = baseExhaust + (1.5 * shatterCount)
 
-			local stamDrain = math.floor((t.MaxStamina or 100) * (pctDamage * exhaustMult))
-			local nrgDrain = math.floor((t.MaxStandEnergy or 100) * (pctDamage * exhaustMult))
+			local stoicCount = CombatCore.CountTrait(t, "Stoic")
+			local stoicMult = 0.5 ^ stoicCount
+
+			local stamDrain = math.floor((t.MaxStamina or 100) * (pctDamage * exhaustMult) * stoicMult)
+			local nrgDrain = math.floor((t.MaxStandEnergy or 100) * (pctDamage * exhaustMult) * stoicMult)
 
 			if t.Stamina then
 				t.Stamina = math.max(0, t.Stamina - stamDrain)
