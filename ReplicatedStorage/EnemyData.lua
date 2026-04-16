@@ -177,7 +177,7 @@ EnemyData.WorldBosses = {
 
 EnemyData.Parts = {
 	[1] = {
-		Boss = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337", Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain"}, Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=15} } },
+		Boss = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337", Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain", "Rest"}, Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=15} } },
 		RandomFlavor = {"You wander the streets of London, and encounter a %s!", "A %s steps out from the shadows!", "You are ambushed by a %s!"},
 		Mobs = {
 			{ Name = "Zombie Thug", Icon = "", 
@@ -240,11 +240,11 @@ EnemyData.Parts = {
 				Drops = { Yen = 30, XP = 60 } },
 			["Head Dio"] = { IsBoss = true, Name = "Dio Brando (Head)", Icon = "rbxassetid://82000644585448",
 				Health = 120, Strength = 12, Defense = 5, Speed = 10, Willpower = 10, StandStats = emptyStands, 
-				Skills = {"Space Ripper Stingy Eyes", "Blood Drain"}, 
+				Skills = {"Space Ripper Stingy Eyes", "Blood Drain", "Rest"}, 
 				Drops = { Yen = 60, XP = 100, ItemChance={["Vampire Mask"]=10} } },
 			["Vampire Dio"] = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337",
 				Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, 
-				Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain"}, 
+				Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain", "Rest"}, 
 				Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=20} } }
 		},
 		Missions = {
@@ -269,7 +269,7 @@ EnemyData.Parts = {
 	},
 
 	[2] = {
-		Boss = { IsBoss = true, Name = "Kars (ULF)", Icon = "", Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, Skills = {"Sunlight Yellow Overdrive", "Space Ripper Stingy Eyes", "Deep Breathing", "Flesh Assimilation", "Block"}, Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } },
+		Boss = { IsBoss = true, Name = "Kars (ULF)", Icon = "", Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, Skills = {"Sunlight Yellow Overdrive", "Space Ripper Stingy Eyes", "Deep Breathing", "Flesh Assimilation", "Block", "Rest"}, Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } },
 		RandomFlavor = {"You encounter a %s in the wasteland!", "A %s jumps out from the ruins!"},
 		Mobs = {
 			{ Name = "Vampire Soldier", Icon = "",
@@ -320,7 +320,7 @@ EnemyData.Parts = {
 				Drops = { Yen = 110, XP = 250 } },
 			["Ultimate Kars"] = { IsBoss = true, Name = "Kars (ULF)", Icon = "rbxassetid://132306871638759",
 				Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, 
-				Skills = {"Melting Overdrive", "Light Slip Blades", "Apex Adaptation", "Heavy Attack", "Block"}, 
+				Skills = {"Melting Overdrive", "Light Slip Blades", "Apex Adaptation", "Heavy Attack", "Block", "Rest"}, 
 				Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } }
 		},
 		Missions = {
@@ -345,7 +345,7 @@ EnemyData.Parts = {
 	},
 
 	[3] = {
-		Boss = { IsBoss = true, Name = "DIO", Icon = "rbxassetid://84790385900886", Health = 600, Strength = 60, Defense = 35, Speed = 50, Willpower = 45, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block"}, Drops = { Yen = 400, XP = 800, ItemChance = { ["Stand Arrow"] = 100, ["Anubis Sword"] = 30, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 30, ["Dio's Throwing Knives"] = 25 } } },
+		Boss = { IsBoss = true, Name = "DIO", Icon = "rbxassetid://84790385900886", Health = 600, Strength = 60, Defense = 35, Speed = 50, Willpower = 45, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block", "Rest"}, Drops = { Yen = 400, XP = 800, ItemChance = { ["Stand Arrow"] = 100, ["Anubis Sword"] = 30, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 30, ["Dio's Throwing Knives"] = 25 } } },
 		RandomFlavor = {"A %s attacks you in Egypt!", "An enemy Stand User, %s, blocks the path!"},
 		Mobs = {
 			{ Name = "Stand User", Icon = "",
@@ -392,7 +392,7 @@ EnemyData.Parts = {
 				Drops = { Yen = 150, XP = 400 } },
 			["DIO"] = { IsBoss = true, Name = "DIO", Icon = "rbxassetid://84790385900886",
 				Health = 600, Strength = 60, Defense = 35, Speed = 50, Willpower = 45, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, 
-				Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block"}, 
+				Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block", "Rest"}, 
 				Drops = { Yen = 400, XP = 800, ItemChance = { ["Stand Arrow"] = 100, ["Anubis Sword"] = 30, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 30, ["Dio's Throwing Knives"] = 25 } } }
 		},
 		Missions = {
@@ -417,7 +417,7 @@ EnemyData.Parts = {
 	},
 
 	[4] = {
-		Boss = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "rbxassetid://78559266675698", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15 } } },
+		Boss = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "rbxassetid://78559266675698", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block", "Rest"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15 } } },
 		RandomFlavor = {"You run into a %s in Morioh!"},
 		Mobs = { { Name = "Morioh Delinquent", Icon = "",
 			Health = 350, Strength = 40, Defense = 25, Speed = 35, Willpower = 25, StandStats = {Power="B", Speed="C", Range="D", Durability="C", Precision="C", Potential="C"}, 
@@ -463,7 +463,7 @@ EnemyData.Parts = {
 				Drops = { Yen = 300, XP = 800 } },
 			["Kira BTD"] = { IsBoss = true, Name = "Yoshikage Kira (BTD)", Icon = "rbxassetid://78559266675698",
 				Health = 1100, Strength = 90, Defense = 55, Speed = 75, Willpower = 60, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
-				Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Air Bomb", "Block"}, 
+				Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Air Bomb", "Block", "Rest"}, 
 				Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25 } } }
 		},
 		Missions = {
@@ -488,7 +488,7 @@ EnemyData.Parts = {
 	},
 
 	[5] = {
-		Boss = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734", Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block"}, Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } },
+		Boss = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734", Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block", "Rest"}, Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } },
 		RandomFlavor = {"A %s steps out of a dark alley in Italy!"},
 		Mobs = { { Name = "Passione Grunt", Icon = "",
 			Health = 500, Strength = 55, Defense = 40, Speed = 45, Willpower = 35, StandStats = {Power="B", Speed="B", Range="C", Durability="C", Precision="B", Potential="C"}, 
@@ -534,7 +534,7 @@ EnemyData.Parts = {
 				Drops = { Yen = 450, XP = 1300 } },
 			["Diavolo"] = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734",
 				Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, 
-				Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block"}, 
+				Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block", "Rest"}, 
 				Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } }
 		},
 		Missions = {
@@ -559,7 +559,7 @@ EnemyData.Parts = {
 	},
 
 	[6] = {
-		Boss = { IsBoss = true, Name = "Enrico Pucci", Icon = "", Health = 2400, Strength = 150, Defense = 95, Speed = 140, Willpower = 110, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block"}, Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30 } } },
+		Boss = { IsBoss = true, Name = "Enrico Pucci", Icon = "", Health = 2400, Strength = 150, Defense = 95, Speed = 140, Willpower = 110, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30 } } },
 		RandomFlavor = {"A %s tries to stop you in the prison!"},
 		Mobs = { { Name = "Prison Guards", Icon = "",
 			Health = 750, Strength = 75, Defense = 55, Speed = 60, Willpower = 50, StandStats = {Power="C", Speed="C", Range="B", Durability="B", Precision="C", Potential="C"}, 
@@ -605,7 +605,7 @@ EnemyData.Parts = {
 				Drops = { Yen = 600, XP = 2200 } },
 			["Pucci MiH"] = { IsBoss = true, Name = "Enrico Pucci (MiH)", Icon = "",
 				Health = 2400, Strength = 150, Defense = 95, Speed = 140, Willpower = 110, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, 
-				Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block"}, 
+				Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, 
 				Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30 } } }
 		},
 		Missions = {
@@ -634,7 +634,7 @@ EnemyData.Parts = {
 			IsBoss = true, Name = "Funny Valentine", Icon = "", 
 			Health = 15000, Strength = 500, Defense = 300, Speed = 250, Willpower = 250, 
 			StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
-			Skills = {"Dimensional Strike", "Sponge Paradox", "Parallel Replacement", "Between Dimensions", "Block"}, 
+			Skills = {"Dimensional Strike", "Sponge Paradox", "Parallel Replacement", "Between Dimensions", "Block", "Rest"}, 
 			Drops = { Yen = 15000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Saint's Corpse Part"] = 10 } } 
 		},
 		RandomFlavor = {"A %s ambushes you in the cross-country race!"},
@@ -703,7 +703,7 @@ EnemyData.Parts = {
 			["Valentine"] = { IsBoss = true, Name = "Funny Valentine", Icon = "",
 				Health = 12500, Strength = 420, Defense = 300, Speed = 250, Willpower = 250, 
 				StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
-				Skills = {"Dimensional Strike", "Sponge Paradox", "Parallel Replacement", "Between Dimensions", "Block"}, 
+				Skills = {"Dimensional Strike", "Sponge Paradox", "Parallel Replacement", "Between Dimensions", "Block", "Rest"}, 
 				Drops = { Yen = 15000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Saint's Corpse Part"] = 10 } } }
 		},
 		Missions = {
@@ -737,7 +737,7 @@ EnemyData.Parts = {
 			IsBoss = true, Name = "Tooru", Icon = "",
 			Health = 18000, Strength = 550, Defense = 350, Speed = 350, Willpower = 300, 
 			StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
-			Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Rain of Debris", "Block"}, 
+			Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Rain of Debris", "Block", "Rest"}, 
 			Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 50 } } 
 		},
 		RandomFlavor = {"A %s appears in Morioh!", "A %s steps out from the fruit parlor!"},
@@ -806,7 +806,7 @@ EnemyData.Parts = {
 			["Tooru"] = { IsBoss = true, Name = "Tooru", Icon = "",
 				Health = 18000, Strength = 550, Defense = 350, Speed = 350, Willpower = 300, 
 				StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
-				Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Raining Debris", "Block"}, 
+				Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Raining Debris", "Block", "Rest"}, 
 				Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Saint's Corpse Part"] = 100, ["Rokakaka"] = 50 } } }
 		},
 		Missions = {
@@ -835,35 +835,5 @@ EnemyData.Parts = {
 		}
 	}
 }
-
-local globalDrops = {
-	["Easter Egg"] = { Chance = 5, Min = 1, Max = 3 }
-}
-
-local globalBossDrops = {
-	["Easter Egg"] = { Chance = 40, Min = 1, Max = 5 }
-}
-
-local function injectDrops(enemyTable)
-	for _, enemy in pairs(enemyTable) do
-		if enemy.Drops then
-			enemy.Drops.ItemChance = enemy.Drops.ItemChance or {}
-			local dropsToUse = enemy.IsBoss and globalBossDrops or globalDrops
-			for itemName, dropData in pairs(dropsToUse) do
-				enemy.Drops.ItemChance[itemName] = dropData
-			end
-		end
-	end
-end
-
-injectDrops(EnemyData.RaidBosses)
-injectDrops(EnemyData.WorldBosses)
-injectDrops(EnemyData.Parts)
-
-for _, partData in pairs(EnemyData.Parts) do
-	if partData.Boss then injectDrops({partData.Boss}) end
-	if partData.Mobs then injectDrops(partData.Mobs) end
-	if partData.Templates then injectDrops(partData.Templates) end
-end
 
 return EnemyData
