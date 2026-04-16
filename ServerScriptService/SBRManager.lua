@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -311,13 +312,24 @@ local function GeneratePvEMob(player)
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
 	local scale = 1 + (prestige * 0.05)
 
+	local eHP = template.Health * scale
+
 	return {
 		IsPlayer = false, Name = template.Name, Trait = "None", IsBoss = false,
-		HP = template.Health * scale, MaxHP = template.Health * scale,
+		HP = eHP, MaxHP = eHP,
 		TotalStrength = template.Strength * scale, TotalDefense = template.Defense * scale,
 		TotalSpeed = template.Speed * (1 + (prestige * 0.05)), TotalWillpower = template.Willpower,
+		Stamina = 150 + (eHP * 0.1), MaxStamina = 150 + (eHP * 0.1),
+		StandEnergy = 150 + (eHP * 0.1), MaxStandEnergy = 150 + (eHP * 0.1),
 		TotalRange = 0, TotalPrecision = 0, BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
+		Statuses = { 
+			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, 
+			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0, 
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0, 
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
+		},
 		Cooldowns = {}, Skills = template.Skills or {"Basic Attack"}
 	}
 end
@@ -407,8 +419,9 @@ function ExecuteCombatTurn(racer)
 
 	if p2Skill then
 		if b.OpponentRacer then
-			if CombatCore.HasModifier(uniModStr, "Speed of Light") then stamCost2 *= 1.5; nrgCost2 *= 1.5 end
-			if CombatCore.HasModifier(uniModStr, "Endless Stamina") then stamCost2 *= 0.5; nrgCost2 *= 0.5 end
+			local uniModStr2 = b.OpponentRacer.Player:GetAttribute("UniverseModifier") or "None"
+			if CombatCore.HasModifier(uniModStr2, "Speed of Light") then stamCost2 *= 1.5; nrgCost2 *= 1.5 end
+			if CombatCore.HasModifier(uniModStr2, "Endless Stamina") then stamCost2 *= 0.5; nrgCost2 *= 0.5 end
 			b.Opponent.Stamina = math.max(0, b.Opponent.Stamina - stamCost2)
 			b.Opponent.StandEnergy = math.max(0, b.Opponent.StandEnergy - nrgCost2)
 		end
@@ -448,9 +461,14 @@ function ExecuteCombatTurn(racer)
 
 		if c.Cooldowns then for sName, cd in pairs(c.Cooldowns) do if cd > 0 then c.Cooldowns[sName] = cd - 1 end end end
 
-		for sName, sVal in pairs(c.Statuses) do if sVal > 0 then c.Statuses[sName] = sVal - 1 end end
+		for sName, sVal in pairs(c.Statuses) do 
+			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy" or sName == "Warded") and sVal > 0 then 
+				c.Statuses[sName] = sVal - 1 
+			end 
+		end
 		if c.StunImmunity > 0 then c.StunImmunity -= 1 end; if c.ConfusionImmunity > 0 then c.ConfusionImmunity -= 1 end
 		if c.BlockTurns > 0 then c.BlockTurns -= 1 end
+		if c.CounterTurns then c.CounterTurns = math.max(0, c.CounterTurns - 1) end
 
 		local dummyRemote = { FireClient = function(_, plr, ev, data) 
 			SBRUpdate:FireClient(plr, "CombatTurn", {LogMsg = data.LogMsg, P1 = b.Player, P2 = b.Opponent, DidHit = data.DidHit, ShakeType = data.ShakeType, Deadline = b.TurnDeadline})
@@ -460,7 +478,19 @@ function ExecuteCombatTurn(racer)
 		end}
 
 		local fz = CombatCore.ApplyStatusDamage(c, "None", dummyRemote, racer.Player, nil, 0)
-		if c.HP < 1 or fz == "Frozen" or c.Statuses.Stun > 0 then continue end
+		if fz == "Frozen" then continue end
+		if c.HP < 1 then continue end
+
+		if c.Statuses.Stun > 0 then
+			c.Statuses.Stun -= 1
+			if c.IsPlayer and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then
+				c.Stamina = math.min(c.MaxStamina, c.Stamina + 5)
+				c.StandEnergy = math.min(c.MaxStandEnergy, c.StandEnergy + 5)
+			end
+			local stMsg = "<font color='#AAAAAA'>"..c.Name.." is Stunned and cannot move!</font>"
+			dummyRemote:FireClient(racer.Player, "CombatTurn", {LogMsg = stMsg, DidHit = false, ShakeType = "None"})
+			continue
+		end
 
 		if c == b.Player then 
 			Dispatch(b.Player, b.Opponent, p1SkillName)
@@ -498,8 +528,9 @@ function ExecuteCombatTurn(racer)
 		b.TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 5
 
 		if b.OpponentRacer then
-			if p2Skill and (p2Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + 5) end
-			if p2Skill and (p2Skill.EnergyCost or 0) == 0 and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + 5) end
+			local uniModStr2 = b.OpponentRacer.Player:GetAttribute("UniverseModifier") or "None"
+			if p2Skill and (p2Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr2, "Endless Stamina") then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + 5) end
+			if p2Skill and (p2Skill.EnergyCost or 0) == 0 and not CombatCore.HasModifier(uniModStr2, "Endless Stamina") then b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + 5) end
 			local p2VigCount = CombatCore.CountTrait(b.Opponent, "Vigorous")
 			if p2VigCount > 0 then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + (10 * p2VigCount)); b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + (10 * p2VigCount)) end
 
