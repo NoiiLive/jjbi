@@ -5,7 +5,7 @@ SkillData.Skills = {
 	["Basic Attack"] = { Requirement = "None", Type = "Basic", Mult = 1.0, StaminaCost = 0, EnergyCost = 0, Order = 1, Description = "A standard strike. Regenerates 5 Stamina and 5 Energy." },
 	["Heavy Strike"] = { Requirement = "None", Type = "Basic", Mult = 1.4, StaminaCost = 5, EnergyCost = 0, Order = 2, Description = "A powerful, stamina-consuming physical attack." },
 	["Block"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 5, EnergyCost = 0, Effect = "Block", Cooldown = 3, Order = 3, Description = "Reduces incoming damage by 50% for the next 2 turns." },
-	["Rest"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "CleanseRest", Cooldown = 3, Order = 4, Description = "Catch your breath to wipe away all negative status conditions (DoT, Stun, etc.) and recover 20 Stamina & Energy." },
+	["Rest"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "CleanseRest", Cooldown = 3, Order = 4, Description = "Catch your breath to wipe away all negative status conditionsand recover 50 Stamina & Energy." },
 	["Flee"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Flee", Order = 5, Description = "Escape from the current battle." },
 
 	-- Style Skills
