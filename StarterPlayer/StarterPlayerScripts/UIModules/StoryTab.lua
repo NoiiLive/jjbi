@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local StoryTab = {}
 
 local player = game.Players.LocalPlayer
@@ -23,7 +24,7 @@ local resourceLabel
 local StatusIcons = {
 	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF", Dizzy = "DZY", Chilly = "CLD",
 	Acid = "ACD", Infection = "INF", Rupture = "RPT", Frostburn = "FBN", Frostbite = "FBT", Decay = "DCY",
-	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM",
+	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM", Warded = "WRD",
 	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
 	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-",
 	EnergyExhausted = "ENG-", StaminaExhausted = "STM-"
@@ -49,6 +50,7 @@ local StatusDescs = {
 	Necrosis = "Takes heavy synergized damage every turn.",
 	Plague = "Takes heavy synergized damage every turn.",
 	Calamity = "Takes apocalyptic synergized damage every turn.",
+	Warded = "Immune to incoming debuffs and ailments.",
 	Buff_Strength = "Increased damage dealt.",
 	Buff_Defense = "Reduced damage taken.",
 	Buff_Speed = "Increased evasion and turn priority.",
@@ -57,8 +59,8 @@ local StatusDescs = {
 	Debuff_Defense = "Increased damage taken.",
 	Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance.",
-	EnergyExhausted = "Cannot use stand skills.",
-	StaminaExhausted = "Cannot use style skills."
+	EnergyExhausted = "Cannot use stand skills. Take +15% damage.",
+	StaminaExhausted = "Cannot use style skills. Take +15% damage."
 }
 
 local currentLog = ""
@@ -71,7 +73,7 @@ local function AddLog(text, append)
 	if combatUI then combatUI:Log(currentLog) end
 end
 
-local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, immunities)
+local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, immunities, stam, maxStam, nrg, maxNrg)
 	if not activeFighters[fKey] then
 		activeFighters[fKey] = combatUI:AddFighter(isAlly, id, name, iconId, hp, maxHp)
 	else
@@ -80,6 +82,10 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 	end
 	local f = activeFighters[fKey]
 	f:UpdateHealth(hp, maxHp)
+
+	if stam and maxStam and nrg and maxNrg then
+		f:UpdateResources(stam, maxStam, nrg, maxNrg)
+	end
 
 	local currentStatuses = {}
 	if statuses then
@@ -145,6 +151,7 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 
 	resourceLabel = storyControls:WaitForChild("ResourceLabel"):Clone()
 	resourceLabel.Parent = combatUI.ContentContainer
+	resourceLabel.Visible = false
 
 	buttonContainer = storyControls:WaitForChild("ButtonContainer"):Clone()
 	buttonContainer.Parent = combatUI.ContentContainer
@@ -164,10 +171,8 @@ function StoryTab.Init(parentFrame, tooltipMgr, focusFunc, passedModifierBubble)
 		local isHorizontalMobile = (vp.X > vp.Y) and (vp.Y <= 600)
 
 		if isHorizontalMobile then
-			resourceLabel.Size = UDim2.new(1, 0, 0.08, 0)
 			buttonContainer.Size = UDim2.new(1, 0, 0.38, 0)
 		else
-			resourceLabel.Size = UDim2.new(1, 0, 0.05, 0)
 			buttonContainer.Size = UDim2.new(1, 0, 0.31, 0)
 		end
 	end
@@ -308,7 +313,6 @@ function StoryTab.UpdateCombat(status, data)
 		combatUI.ChatText.Text = ""
 		buttonContainer.Visible = false
 		combatUI.AbilitiesArea.Visible = true
-		resourceLabel.Visible = true
 
 		for fKey, f in pairs(activeFighters) do
 			if f.Frame then f.Frame:Destroy() end
@@ -371,7 +375,6 @@ function StoryTab.UpdateCombat(status, data)
 
 	elseif status == "Victory" or status == "Defeat" or status == "Fled" then
 		combatUI.AbilitiesArea.Visible = false
-		resourceLabel.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
 			if f.Frame then f.Frame:Destroy() end
@@ -398,17 +401,15 @@ function StoryTab.UpdateCombat(status, data)
 	end
 
 	if data and data.Battle and status ~= "Victory" and status ~= "Defeat" and status ~= "Fled" then
-		resourceLabel.Text = "STAMINA: " .. math.floor(data.Battle.Player.Stamina) .. " | ENERGY: " .. math.floor(data.Battle.Player.StandEnergy)
-
-		SyncFighter("Player", true, "Player", data.Battle.Player.Name, player.UserId, data.Battle.Player.HP, data.Battle.Player.MaxHP, data.Battle.Player.Statuses, {Stun=data.Battle.Player.StunImmunity, Confusion=data.Battle.Player.ConfusionImmunity})
+		SyncFighter("Player", true, "Player", data.Battle.Player.Name, player.UserId, data.Battle.Player.HP, data.Battle.Player.MaxHP, data.Battle.Player.Statuses, {Stun=data.Battle.Player.StunImmunity, Confusion=data.Battle.Player.ConfusionImmunity}, data.Battle.Player.Stamina, data.Battle.Player.MaxStamina, data.Battle.Player.StandEnergy, data.Battle.Player.MaxStandEnergy)
 		if data.Battle.Player.HP <= 0 and activeFighters["Player"] then
 			activeFighters["Player"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Player.Name .. " (KO)"
 		end
 
-		SyncFighter("Enemy", false, "Enemy", data.Battle.Enemy.Name, data.Battle.Enemy.Icon, data.Battle.Enemy.HP, data.Battle.Enemy.MaxHP, data.Battle.Enemy.Statuses, {Stun=data.Battle.Enemy.StunImmunity, Confusion=data.Battle.Enemy.ConfusionImmunity})
+		SyncFighter("Enemy", false, "Enemy", data.Battle.Enemy.Name, data.Battle.Enemy.Icon, data.Battle.Enemy.HP, data.Battle.Enemy.MaxHP, data.Battle.Enemy.Statuses, {Stun=data.Battle.Enemy.StunImmunity, Confusion=data.Battle.Enemy.ConfusionImmunity}, data.Battle.Enemy.Stamina, data.Battle.Enemy.MaxStamina, data.Battle.Enemy.StandEnergy, data.Battle.Enemy.MaxStandEnergy)
 
 		if data.Battle.Ally then
-			SyncFighter("Ally", true, "Ally", data.Battle.Ally.Name, data.Battle.Ally.Icon, data.Battle.Ally.HP, data.Battle.Ally.MaxHP, data.Battle.Ally.Statuses, {Stun=data.Battle.Ally.StunImmunity, Confusion=data.Battle.Ally.ConfusionImmunity})
+			SyncFighter("Ally", true, "Ally", data.Battle.Ally.Name, data.Battle.Ally.Icon, data.Battle.Ally.HP, data.Battle.Ally.MaxHP, data.Battle.Ally.Statuses, {Stun=data.Battle.Ally.StunImmunity, Confusion=data.Battle.Ally.ConfusionImmunity}, data.Battle.Ally.Stamina, data.Battle.Ally.MaxStamina, data.Battle.Ally.StandEnergy, data.Battle.Ally.MaxStandEnergy)
 			if data.Battle.Ally.HP <= 0 and activeFighters["Ally"] then
 				activeFighters["Ally"].Frame:FindFirstChild("InfoArea").NameLabel.Text = data.Battle.Ally.Name .. " (KO)"
 			end
