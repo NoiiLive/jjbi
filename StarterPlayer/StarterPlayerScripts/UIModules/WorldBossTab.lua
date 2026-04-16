@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local WorldBossTab = {}
 
 local player = game.Players.LocalPlayer
@@ -24,7 +25,7 @@ local BOSS_ACTIVE_MINUTES = 30
 local StatusIcons = {
 	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF", Dizzy = "DZY", Chilly = "CLD",
 	Acid = "ACD", Infection = "INF", Rupture = "RPT", Frostburn = "FBN", Frostbite = "FBT", Decay = "DCY",
-	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM",
+	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM", Warded = "WRD",
 	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
 	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-",
 	EnergyExhausted = "ENG-", StaminaExhausted = "STM-"
@@ -50,6 +51,7 @@ local StatusDescs = {
 	Necrosis = "Takes heavy synergized damage every turn.",
 	Plague = "Takes heavy synergized damage every turn.",
 	Calamity = "Takes apocalyptic synergized damage every turn.",
+	Warded = "Immune to incoming debuffs and ailments.",
 	Buff_Strength = "Increased damage dealt.",
 	Buff_Defense = "Reduced damage taken.",
 	Buff_Speed = "Increased evasion and turn priority.",
@@ -58,8 +60,8 @@ local StatusDescs = {
 	Debuff_Defense = "Increased damage taken.",
 	Debuff_Speed = "Reduced evasion and turn priority.",
 	Debuff_Willpower = "Reduced crit and survival chance.",
-	EnergyExhausted = "Cannot use stand skills.",
-	StaminaExhausted = "Cannot use style skills."
+	EnergyExhausted = "Cannot use stand skills. Take +15% damage.",
+	StaminaExhausted = "Cannot use style skills. Take +15% damage."
 }
 
 local currentLog = ""
@@ -78,7 +80,7 @@ local function FormatTime(seconds)
 	return string.format("%02d:%02d", m, s)
 end
 
-local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, immunities)
+local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, immunities, stam, maxStam, nrg, maxNrg)
 	if not activeFighters[fKey] then
 		activeFighters[fKey] = combatUI:AddFighter(isAlly, id, name, iconId, hp, maxHp)
 	else
@@ -87,6 +89,10 @@ local function SyncFighter(fKey, isAlly, id, name, iconId, hp, maxHp, statuses, 
 	end
 	local f = activeFighters[fKey]
 	f:UpdateHealth(hp, maxHp)
+
+	if stam and maxStam and nrg and maxNrg then
+		f:UpdateResources(stam, maxStam, nrg, maxNrg)
+	end
 
 	local currentStatuses = {}
 	if statuses then
@@ -151,6 +157,7 @@ function WorldBossTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	resourceLabel = wbControls:WaitForChild("ResourceLabel"):Clone()
 	resourceLabel.Parent = combatUI.ContentContainer
+	resourceLabel.Visible = false
 
 	engageBtn.MouseButton1Click:Connect(function()
 		if engageBtn.Text == "ENGAGE BOSS" or engageBtn.Text == "ENGAGE PRIVATE BOSS" then
@@ -324,6 +331,7 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		menuContainer.Visible = false
 		combatUI.MainFrame.Visible = true
 		combatUI.AbilitiesArea.Visible = true
+		resourceLabel.Visible = true
 
 		for fKey, f in pairs(activeFighters) do
 			if f.Frame then f.Frame:Destroy() end
@@ -368,6 +376,7 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 
 	elseif status == "Victory" or status == "Defeat" or status == "Fled" then
 		combatUI.AbilitiesArea.Visible = false
+		resourceLabel.Visible = false
 
 		for fKey, f in pairs(activeFighters) do
 			if f.Frame then f.Frame:Destroy() end
@@ -404,13 +413,13 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		local turnsLeft = 11 - (battle.TurnCounter or 1)
 		turnLabel.Text = "Turns Remaining: " .. math.max(0, turnsLeft) .. "/10"
 
-		SyncFighter("Player", true, "Player", battle.Player.Name, player.UserId, battle.Player.HP, battle.Player.MaxHP, battle.Player.Statuses, {Stun=battle.Player.StunImmunity, Confusion=battle.Player.ConfusionImmunity})
+		SyncFighter("Player", true, "Player", battle.Player.Name, player.UserId, battle.Player.HP, battle.Player.MaxHP, battle.Player.Statuses, {Stun=battle.Player.StunImmunity, Confusion=battle.Player.ConfusionImmunity}, battle.Player.Stamina, battle.Player.MaxStamina, battle.Player.StandEnergy, battle.Player.MaxStandEnergy)
 		if battle.Player.HP <= 0 and activeFighters["Player"] then
 			activeFighters["Player"].Frame:FindFirstChild("InfoArea").NameLabel.Text = battle.Player.Name .. " (KO)"
 		end
 
 		if battle.Enemy then
-			SyncFighter("Enemy", false, "Enemy", battle.Enemy.Name, battle.Enemy.Icon, battle.Enemy.HP, battle.Enemy.MaxHP, battle.Enemy.Statuses, {Stun=battle.Enemy.StunImmunity, Confusion=battle.Enemy.ConfusionImmunity})
+			SyncFighter("Enemy", false, "Enemy", battle.Enemy.Name, battle.Enemy.Icon, battle.Enemy.HP, battle.Enemy.MaxHP, battle.Enemy.Statuses, {Stun=battle.Enemy.StunImmunity, Confusion=battle.Enemy.ConfusionImmunity}, battle.Enemy.Stamina, battle.Enemy.MaxStamina, battle.Enemy.StandEnergy, battle.Enemy.MaxStandEnergy)
 			if battle.Enemy.HP <= 0 and activeFighters["Enemy"] then
 				activeFighters["Enemy"].Frame:FindFirstChild("InfoArea").NameLabel.Text = battle.Enemy.Name .. " (KO)"
 			end
@@ -422,7 +431,7 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 		end
 
 		if battle.Ally then
-			SyncFighter("Ally", true, "Ally", battle.Ally.Name, battle.Ally.Icon, battle.Ally.HP, battle.Ally.MaxHP, battle.Ally.Statuses, {Stun=battle.Ally.StunImmunity, Confusion=battle.Ally.ConfusionImmunity})
+			SyncFighter("Ally", true, "Ally", battle.Ally.Name, battle.Ally.Icon, battle.Ally.HP, battle.Ally.MaxHP, battle.Ally.Statuses, {Stun=battle.Ally.StunImmunity, Confusion=battle.Ally.ConfusionImmunity}, battle.Ally.Stamina, battle.Ally.MaxStamina, battle.Ally.StandEnergy, battle.Ally.MaxStandEnergy)
 			if battle.Ally.HP <= 0 and activeFighters["Ally"] then
 				activeFighters["Ally"].Frame:FindFirstChild("InfoArea").NameLabel.Text = battle.Ally.Name .. " (KO)"
 			end
