@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local ShopTab = {}
 
 local player = game.Players.LocalPlayer
@@ -16,7 +17,6 @@ local GiftManager = require(UIModules:WaitForChild("GiftManager"))
 local PREMIUM_RESTOCK_PRODUCT_ID = 3548843760
 
 local shopContainer, timerLabel, yenLabel
-local easterTimerLabel
 local cachedTooltipMgr = nil
 
 local rarityColors = {
@@ -60,26 +60,6 @@ local premiumItems = {
 	{ Type = "Pass", Id = 1749586333, GiftId = 3557535781, Name = "Custom Horse", Price = 40, Desc = "<b><font color='#55FFFF'>Horse Name</font></b>\nAbility to <font color='#55FF55'>name your horse</font>!", Attr = "HasHorseNamePass" },
 }
 
-local EasterStockList = {
-	{ Name = "Stand Arrow", Price = 25, Rarity = "Legendary" },
-	{ Name = "Dio's Diary", Price = 100, Rarity = "Legendary" },
-	{ Name = "Green Baby", Price = 100, Rarity = "Legendary" },
-	{ Name = "Strange Arrow", Price = 100, Rarity = "Legendary" },
-	{ Name = "Rokakaka", Price = 50, Rarity = "Legendary" },
-	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Legendary" },
-	{ Name = "Requiem Arrow", Price = 2500, Rarity = "Mythical" },
-	{ Name = "New Rokakaka", Price = 2500, Rarity = "Mythical" },
-	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Special" },
-	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Special" },	
-	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
-	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
-	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
-	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
-	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
-	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
-	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Special" },
-}
-
 local function FormatTime(seconds)
 	local h = math.floor(seconds / 3600)
 	local m = math.floor((seconds % 3600) / 60)
@@ -96,12 +76,10 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local subNavFrame = innerContent:WaitForChild("SubNavFrame")
 	local marketTabBtn = subNavFrame:WaitForChild("MarketTabBtn")
 	local premiumTabBtn = subNavFrame:WaitForChild("PremiumTabBtn")
-	local easterTabBtn = subNavFrame:WaitForChild("TempEasterTabBtn")
 
 	local tabContainer = innerContent:WaitForChild("TabContainer")
 	local marketTabContent = tabContainer:WaitForChild("MarketTabContent")
 	local premiumTabContent = tabContainer:WaitForChild("PremiumTabContent")
-	local easterTabContent = tabContainer:WaitForChild("EasterTabContent")
 
 	local stockCard = marketTabContent:WaitForChild("StockCard")
 	local scTop = stockCard:WaitForChild("TopArea")
@@ -127,46 +105,9 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	local passCard = premiumTabContent:WaitForChild("PassesCard")
 	local passScroll = passCard:WaitForChild("PassScroll")
 
-	local easterStockCard = easterTabContent:WaitForChild("StockCard")
-	local easterShopContainer = easterStockCard:WaitForChild("ShopContainer")
-	local easterTopArea = easterStockCard:WaitForChild("TopArea")
-	local eggLabel = easterTopArea:WaitForChild("EggLabel")
-	easterTimerLabel = easterTopArea:WaitForChild("TimerLabel")
-
-	local easterRestockArea = easterTopArea:WaitForChild("RestockArea")
-	local easterRestockYenBtn = easterRestockArea:WaitForChild("RestockYenBtn")
-	local easterRestockRobuxBtn = easterRestockArea:WaitForChild("RestockRobuxBtn")
-
 	local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
 	local shopItemTpl = Templates:WaitForChild("ShopItemTemplate")
 	local premiumItemTpl = Templates:WaitForChild("PremiumItemTemplate")
-	local shopItemTplEaster = Templates:WaitForChild("ShopItemTemplateEaster")
-
-	local donationCard = easterTabContent:WaitForChild("DonationCard")
-	local btnContainer = donationCard:WaitForChild("ButtonContainer")
-
-	btnContainer:WaitForChild("Donate1Btn").MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("DonateEasterEggs", 1)
-	end)
-
-	btnContainer:WaitForChild("Donate10Btn").MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("DonateEasterEggs", 10)
-	end)
-
-	btnContainer:WaitForChild("Donate100Btn").MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("DonateEasterEggs", 100)
-	end)
-
-	btnContainer:WaitForChild("DonateAllBtn").MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("DonateEasterEggs", "All")
-	end)
-
-	Network.ShopAction:FireServer("RequestGlobalEggs")
-
 
 	local premLabels = {}
 	local gachaBtns = {}
@@ -179,17 +120,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 	restockRobuxBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		Network.ShopAction:FireServer("SetRestockType", "Normal")
-		MarketplaceService:PromptProductPurchase(player, PREMIUM_RESTOCK_PRODUCT_ID)
-	end)
-
-	easterRestockYenBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("RestockEasterYen")
-	end)
-
-	easterRestockRobuxBtn.MouseButton1Click:Connect(function()
-		SFXManager.Play("Click")
-		Network.ShopAction:FireServer("SetRestockType", "Easter")
 		MarketplaceService:PromptProductPurchase(player, PREMIUM_RESTOCK_PRODUCT_ID)
 	end)
 
@@ -289,7 +219,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		SFXManager.Play("Click")
 		marketTabContent.Visible = (target == "MARKET")
 		premiumTabContent.Visible = (target == "PREMIUM")
-		easterTabContent.Visible = (target == "EASTER")
 
 		marketTabBtn.BackgroundColor3 = (target == "MARKET") and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)
 		marketTabBtn.TextColor3 = (target == "MARKET") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220)
@@ -300,16 +229,10 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		premiumTabBtn.TextColor3 = (target == "PREMIUM") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(200, 200, 220)
 		premiumTabBtn:FindFirstChild("UIStroke").Color = (target == "PREMIUM") and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(90, 50, 120)
 		premiumTabBtn:FindFirstChild("UIStroke").Thickness = (target == "PREMIUM") and 2 or 1
-
-		easterTabBtn.BackgroundColor3 = (target == "EASTER") and Color3.fromRGB(172, 88, 180) or Color3.fromRGB(141, 69, 141)
-		easterTabBtn.TextColor3 = (target == "EASTER") and Color3.fromRGB(255, 235, 130) or Color3.fromRGB(242, 242, 255)
-		easterTabBtn:FindFirstChild("UIStroke").Color = (target == "EASTER") and Color3.fromRGB(255, 215, 50) or Color3.fromRGB(255, 156, 250)
-		easterTabBtn:FindFirstChild("UIStroke").Thickness = (target == "EASTER") and 2 or 1
 	end
 
 	marketTabBtn.MouseButton1Click:Connect(function() SwitchTab("MARKET") end)
 	premiumTabBtn.MouseButton1Click:Connect(function() SwitchTab("PREMIUM") end)
-	easterTabBtn.MouseButton1Click:Connect(function() SwitchTab("EASTER") end)
 
 	redeemBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
@@ -449,75 +372,9 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		end
 	end
 
-	local function RefreshEasterShopItems(stockStr)
-		for _, child in pairs(easterShopContainer:GetChildren()) do 
-			if child:IsA("Frame") then 
-				child:Destroy() 
-			end 
-		end
-
-		if not stockStr or stockStr == "" then return end
-		local items = string.split(stockStr, ",")
-		local stockData = {}
-
-		for _, name in ipairs(items) do
-			if name ~= "" then
-				local cost = 0
-				local rarity = "Common"
-				for _, itemData in ipairs(EasterStockList) do
-					if itemData.Name == name then
-						cost = itemData.Price
-						rarity = itemData.Rarity
-						break
-					end
-				end
-				table.insert(stockData, { Name = name, Price = cost, Rarity = rarity })
-			end
-		end
-
-		for _, item in ipairs(stockData) do
-			local eFrm = shopItemTplEaster:Clone()
-			eFrm.Name = item.Name
-
-			local sCol = rarityColors[item.Rarity] or rarityColors.Common
-			eFrm:WaitForChild("UIStroke").Color = sCol
-
-			local nLabel = eFrm:WaitForChild("NameLabel")
-			nLabel.TextColor3 = sCol
-			nLabel.Text = item.Name .. "\n<font color='#AAFFAA'>Easter Eggs: " .. item.Price .. " 🥚</font>"
-
-			local buyBtn = eFrm:WaitForChild("BuyBtn")
-			buyBtn.MouseButton1Click:Connect(function() 
-				SFXManager.Play("Click") 
-				Network.ShopAction:FireServer("BuyEaster", item.Name) 
-			end)
-
-			eFrm.MouseEnter:Connect(function() cachedTooltipMgr.Show(cachedTooltipMgr.GetItemTooltip(item.Name)) end)
-			eFrm.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
-
-			eFrm.Parent = easterShopContainer
-		end
-	end
-
 	Network:WaitForChild("ShopUpdate").OnClientEvent:Connect(function(action, data)
 		if action == "Refresh" then 
 			RefreshShopItems(table.concat(data, ",")) 
-
-		elseif action == "UpdateGlobalEggs" then
-			local currentEggs = tonumber(data) or 0
-			local goal = 10000
-			local progress = currentEggs % goal
-			local fillPercent = math.clamp(progress / goal, 0, 1)
-
-			local donCard = easterTabContent:FindFirstChild("DonationCard")
-			if donCard then
-				local middleArea = donCard:FindFirstChild("MiddleArea")
-				local bBg = middleArea and middleArea:FindFirstChild("BarBG")
-				if bBg then
-					bBg.BarFill.Size = UDim2.new(fillPercent, 0, 1, 0)
-					bBg.BarText.Text = progress .. " / " .. goal .. " Eggs"
-				end
-			end
 
 		elseif type(data) == "string" and (action == "Notify" or action == "Notification" or action == "SystemMessage" or action == "Message" or action == "Error" or action == "Success") then
 			NotificationManager.Show(data)
@@ -549,17 +406,6 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
 	end)
 
-	player:GetAttributeChangedSignal("EasterShopStock"):Connect(function()
-		RefreshEasterShopItems(player:GetAttribute("EasterShopStock"))
-	end)
-
-	local function SyncEasterEggsText()
-		local count = player:GetAttribute("EasterEggCount") or 0
-		eggLabel.Text = "Easter Eggs: <font color='#AAFFAA'>" .. count .. " 🥚</font>"
-	end
-	player:GetAttributeChangedSignal("EasterEggCount"):Connect(SyncEasterEggsText)
-	SyncEasterEggsText()
-
 	task.spawn(function()
 		local leaderstats = player:WaitForChild("leaderstats", 5)
 		if leaderstats then
@@ -582,20 +428,11 @@ function ShopTab.Init(parentFrame, tooltipMgr)
 			else 
 				timerLabel.Text = "Restocking..." 
 			end
-
-			local ert = player:GetAttribute("EasterShopRefreshTime") or 0
-			local eremain = ert - math.floor(workspace:GetServerTimeNow())
-			if eremain > 0 then
-				easterTimerLabel.Text = "Restocks in: " .. FormatTime(eremain)
-			else
-				easterTimerLabel.Text = "Restocking..."
-			end
 		end
 	end)
 
 	task.delay(1, function() 
 		RefreshShopItems(player:GetAttribute("ShopStock")) 
-		RefreshEasterShopItems(player:GetAttribute("EasterShopStock")) 
 	end)
 
 	local camera = workspace.CurrentCamera
