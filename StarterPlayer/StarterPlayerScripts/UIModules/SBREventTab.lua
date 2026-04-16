@@ -61,19 +61,44 @@ local Names2 = {
 }
 
 local StatusIcons = {
-	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF",
+	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF", Dizzy = "DZY", Chilly = "CLD",
+	Acid = "ACD", Infection = "INF", Rupture = "RPT", Frostburn = "FBN", Frostbite = "FBT", Decay = "DCY",
+	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM",
 	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
-	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-"
+	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-",
+	EnergyExhausted = "ENG-", StaminaExhausted = "STM-"
 }
 
 local StatusDescs = {
-	Stun = "Cannot move or act.", Poison = "Takes damage every turn.", Burn = "Takes damage every turn.",
-	Bleed = "Takes damage every turn.", Freeze = "Frozen solid. Cannot move, takes damage.",
-	Confusion = "May attack allies or self.", Buff_Strength = "Increased damage dealt.",
-	Buff_Defense = "Reduced damage taken.", Buff_Speed = "Increased evasion and turn priority.",
-	Buff_Willpower = "Increased crit and survival chance.", Debuff_Strength = "Reduced damage dealt.",
-	Debuff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
-	Debuff_Willpower = "Reduced crit and survival chance."
+	Stun = "Cannot move or act.",
+	Poison = "Takes damage every turn.",
+	Burn = "Takes damage every turn.",
+	Bleed = "Takes damage every turn.",
+	Freeze = "Frozen solid. Cannot move, takes damage.",
+	Confusion = "May attack allies or self.",
+	Dizzy = "May miss or attack self",
+	Chilly = "Takes damage every turn.",
+	Acid = "Takes synergized damage every turn.",
+	Infection = "Takes synergized damage every turn.",
+	Rupture = "Takes synergized damage every turn.",
+	Frostburn = "Takes synergized damage every turn.",
+	Frostbite = "Takes synergized damage every turn.",
+	Decay = "Takes synergized damage every turn.",
+	Blight = "Takes heavy synergized damage every turn.",
+	Miasma = "Takes heavy synergized damage every turn.",
+	Necrosis = "Takes heavy synergized damage every turn.",
+	Plague = "Takes heavy synergized damage every turn.",
+	Calamity = "Takes apocalyptic synergized damage every turn.",
+	Buff_Strength = "Increased damage dealt.",
+	Buff_Defense = "Reduced damage taken.",
+	Buff_Speed = "Increased evasion and turn priority.",
+	Buff_Willpower = "Increased crit and survival chance.",
+	Debuff_Strength = "Reduced damage dealt.",
+	Debuff_Defense = "Increased damage taken.",
+	Debuff_Speed = "Reduced evasion and turn priority.",
+	Debuff_Willpower = "Reduced crit and survival chance.",
+	EnergyExhausted = "Cannot use stand skills.",
+	StaminaExhausted = "Cannot use style skills."
 }
 
 local function FormatTime(seconds)
