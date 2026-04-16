@@ -32,6 +32,7 @@ StandData.Traits = {
 	["Serrated"] = { Rarity = "Legendary", Color = "#FF0000", Desc = "Attacks have a 10% chance to apply Bleed for 3 turns." },
 	["Disorienting"] = { Rarity = "Legendary", Color = "#FF55FF", Desc = "Attacks have a 10% chance to apply Confusion for 1 turn." },
 	["Stoic"] = { Rarity = "Legendary", Color = "#B06AEA", Desc = "Lose 50% less stamina/energy when attacked." },
+	["Purifying"] = { Rarity = "Legendary", Color = "#E0FFFF", Desc = "Heal 10% when using rest." },
 
 	["Siphoning"] = { Rarity = "Mythical", Color = "#8B008B", Desc = "Steals 10% of drained energy/stamina when attacking." },
 	["Shattering"] = { Rarity = "Mythical", Color = "#FF4500", Desc = "Exhausts enemies twice as fast." },
@@ -43,6 +44,8 @@ StandData.Traits = {
 	["Gloomy"] = { Rarity = "Mythical", Color = "#888888", Desc = "Attacks have a 10% chance to apply a random debuff for 3 turns." },
 	["Cheerful"] = { Rarity = "Mythical", Color = "#FFFF55", Desc = "Attacks have a 10% chance to apply a random buff for 3 turns." },
 	["Blessed"] = { Rarity = "Mythical", Color = "#FFFF55", Desc = "+25% Dodge Chance and +25% Crit Chance." },
+	["Infectious"] = { Rarity = "Mythical", Color = "#8B008B", Desc = "Passes status effects to the next enemy that spawns at half duration." },
+	["Junkie"] = { Rarity = "Mythical", Color = "#32CD32", Desc = "Deal 15% more damage for each negative effect on yourself." },
 
 	["Perseverance"] = { Rarity = "Unique", Color = "#AAAAAA", Desc = "+50% HP & Willpower, Fatal damage now heals you for 25%." },
 	["Requiem"] = { Rarity = "Unique", Color = "#F5AA3D", Desc = "All base damage is increase by 50%" },
