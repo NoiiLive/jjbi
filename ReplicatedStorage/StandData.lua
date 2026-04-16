@@ -22,6 +22,7 @@ StandData.Traits = {
 	["Vigorous"] = { Rarity = "Rare", Color = "#55FF55", Desc = "Recover extra Stamina/Energy per turn." },
 	["Evasive"] = { Rarity = "Rare", Color = "#55FFFF", Desc = "+20% Dodge Chance." },
 
+	["Opportunistic"] = { Rarity = "Legendary", Color = "#4682B4", Desc = "Attacks have a 10% chance to ready a Counter stance." },
 	["Indomitable"] = { Rarity = "Legendary", Color = "#55FFFF", Desc = "Take 25% less damage when below 30% HP." },
 	["Relentless"] = { Rarity = "Legendary", Color = "#FF0055", Desc = "All base damage is increased by 15%." },
 	["Flaming"] = { Rarity = "Legendary", Color = "#FF5500", Desc = "Attacks have a 10% chance to apply Burn for 3 turns." },
@@ -31,6 +32,9 @@ StandData.Traits = {
 	["Serrated"] = { Rarity = "Legendary", Color = "#FF0000", Desc = "Attacks have a 10% chance to apply Bleed for 3 turns." },
 	["Disorienting"] = { Rarity = "Legendary", Color = "#FF55FF", Desc = "Attacks have a 10% chance to apply Confusion for 1 turn." },
 
+	["Siphoning"] = { Rarity = "Mythical", Color = "#8B008B", Desc = "Steals 10% of drained energy/stamina when attacking." },
+	["Shattering"] = { Rarity = "Mythical", Color = "#FF4500", Desc = "Exhausts enemies twice as fast." },
+	["Dominating"] = { Rarity = "Mythical", Color = "#8B0000", Desc = "Status effects ignore 50% of armor." },
 	["Lethal"] = { Rarity = "Mythical", Color = "#FF0000", Desc = "Critical hits deal 3.0x damage instead of 1.5x." },
 	["Vampiric"] = { Rarity = "Mythical", Color = "#AA00AA", Desc = "Heal for 20% of all damage dealt." },
 	["Overwhelming"] = { Rarity = "Mythical", Color = "#FFD700", Desc = "Attacks bypass 30% of enemy defense." },
@@ -180,7 +184,7 @@ StandData.Stands = {
 
 	["Chiikawa"] = { Rarity = "Unique", Part = "Event", Icon = "", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Charmy Green"] = { Rarity = "Unique", Part = "Event", Icon = "", Stats = {Power="A", Speed="A", Range="C", Durability="B", Precision="A", Potential="B"} },
-	
+
 	["Steel Platinum"] = { Rarity = "Unique", Part = "", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Fused Stand"] = { Rarity = "Unique", Part = "", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 }
