@@ -468,6 +468,10 @@ local function RefreshInventoryList()
 		table.sort(playerConsItems, sortItemsFunc)
 		table.sort(standConsItems, sortItemsFunc)
 
+		equipContainer.CanvasSize = UDim2.new(0, 0, 0, (#equipItems * 34) + 10)
+		playerConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#playerConsItems * 34) + 10)
+		standConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#standConsItems * 34) + 10)
+
 		if capacityLabel then
 			local maxInv = GameData.GetMaxInventory(player)
 			capacityLabel.Text = "Capacity: " .. currentInvCount .. "/" .. maxInv
@@ -598,10 +602,6 @@ local function RefreshInventoryList()
 		for i, item in ipairs(equipItems) do RenderItem(item.Name, item.Count, equipContainer, i); checkYield() end
 		for i, item in ipairs(playerConsItems) do RenderItem(item.Name, item.Count, playerConsContainer, i); checkYield() end
 		for i, item in ipairs(standConsItems) do RenderItem(item.Name, item.Count, standConsContainer, i); checkYield() end
-
-		equipContainer.CanvasSize = UDim2.new(0, 0, 0, (#equipItems * 34) + 10)
-		playerConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#playerConsItems * 34) + 10)
-		standConsContainer.CanvasSize = UDim2.new(0, 0, 0, (#standConsItems * 34) + 10)
 
 		activeInvThread = nil
 	end)
@@ -742,9 +742,12 @@ local function UpdateIndexLayout()
 				if grid then
 					grid.CellSize = UDim2.new(0, calculatedSize, 0, calculatedSize)
 
-					local itemCount = 0
-					for _, item in ipairs(container:GetChildren()) do
-						if item:IsA("Frame") then itemCount += 1 end
+					local itemCount = tonumber(category:GetAttribute("TotalItems"))
+					if not itemCount then
+						itemCount = 0
+						for _, item in ipairs(container:GetChildren()) do
+							if item:IsA("Frame") then itemCount += 1 end
+						end
 					end
 
 					local rows = math.ceil(itemCount / finalCols)
@@ -892,6 +895,9 @@ local function RefreshIndexList()
 				local grid = Instance.new("UIGridLayout", container)
 				grid.CellPadding = UDim2.new(0, 10, 0, 10)
 				grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+				category:SetAttribute("TotalItems", #abilities)
+				UpdateIndexLayout()
 
 				for _, ab in ipairs(abilities) do
 					local isUnlocked = table.find(unlockedIndex, ab.Name) ~= nil
@@ -1102,6 +1108,9 @@ ShowFusionsList = function(standName)
 			end
 			return orderA < orderB
 		end)
+
+		category:SetAttribute("TotalItems", #validStands)
+		UpdateIndexLayout()
 
 		local renderCount = 0
 
