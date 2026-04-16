@@ -308,7 +308,6 @@ function CombatCore.ChooseAISkill(combatant)
 		end
 	end
 
-	-- Added safe fallbacks for max values to prevent math errors
 	local cHP = tonumber(combatant.HP) or 1
 	local cMaxHP = tonumber(combatant.MaxHP) or 1
 	local hpPct = cHP / math.max(1, cMaxHP)
@@ -333,7 +332,7 @@ function CombatCore.ChooseAISkill(combatant)
 				if sData.Type == "Stand" and ((combatant.StandEnergy or 0) < (sData.EnergyCost or 0) or (combatant.Statuses.EnergyExhausted or 0) > 0) then continue end
 				if sData.Type == "Style" and ((combatant.Stamina or 0) < (sData.StaminaCost or 0) or (combatant.Statuses.StaminaExhausted or 0) > 0) then continue end
 
-				if sData.Effect == "Block" and combatant.BlockTurns > 0 then continue end
+				if sData.Effect == "Block" and (combatant.BlockTurns or 0) > 0 then continue end
 
 				table.insert(validSkills, sName)
 
