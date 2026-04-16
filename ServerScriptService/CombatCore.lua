@@ -21,24 +21,13 @@ end
 
 function CombatCore.CountTrait(combatant, traitName)
 	local count = 0
-	if combatant.Trait == traitName then count += 1 end
 
-	if type(combatant.Traits) == "table" then
+	if type(combatant.Traits) == "table" and #combatant.Traits > 0 then
 		for _, t in ipairs(combatant.Traits) do
 			if t == traitName then count += 1 end
 		end
-	end
-
-	if combatant.IsPlayer and combatant.PlayerObj then
-		local sTrait = combatant.PlayerObj:GetAttribute("StandTrait")
-		if sTrait == "Fused" then
-			local t1 = combatant.PlayerObj:GetAttribute("Active_FusedTrait1")
-			local t2 = combatant.PlayerObj:GetAttribute("Active_FusedTrait2")
-			if t1 == traitName then count += 1 end
-			if t2 == traitName then count += 1 end
-		elseif sTrait == traitName then
-			count += 1
-		end
+	elseif combatant.Trait == traitName then
+		count += 1
 	end
 
 	return count
@@ -347,15 +336,23 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		statusDmgMod = statusDmgMod * 0.75
 	end
 
+	local opponent = nil
+	if battle then
+		opponent = (combatant == battle.Player) and battle.Enemy or battle.Player
+	end
+	local domCount = opponent and CombatCore.CountTrait(opponent, "Dominating") or 0
+	local armorIgnore = math.min(1, domCount * 0.50)
+
 	local defBuff = (combatant.Statuses and (combatant.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
 	local defDebuff = (combatant.Statuses and (combatant.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
-	local effectiveArmor = (combatant.TotalDefense or 0) * defBuff * defDebuff
+	local effectiveArmor = ((combatant.TotalDefense or 0) * defBuff * defDebuff) * (1 - armorIgnore)
 
 	local defMult = 100 / (100 + math.max(0, effectiveArmor))
 	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
+	local unstableMult = CombatCore.HasModifier(uniModStr, "Unstable") and 2.0 or 1.0
 
 	if combatant.Statuses.Bleed > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult) * unstableMult
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Bleed -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -365,7 +362,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if combatant.HP < 1 then return end
 
 	if combatant.Statuses.Poison > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult) * unstableMult
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Poison -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -375,7 +372,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if combatant.HP < 1 then return end
 
 	if combatant.Statuses.Burn > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult) * unstableMult
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Burn -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -447,6 +444,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	if skill.Effect ~= "Flee" then
 		local stamCost = skill.StaminaCost or 0
 		local nrgCost = skill.EnergyCost or 0
+		if CombatCore.HasModifier(uniModStr, "Resource Drought") then stamCost *= 1.5; nrgCost *= 1.5 end
+
 		if attacker.IsPlayer then
 			if CombatCore.HasModifier(uniModStr, "Speed of Light") then stamCost *= 1.5; nrgCost *= 1.5 end
 			if CombatCore.HasModifier(uniModStr, "Endless Stamina") then stamCost *= 0.5; nrgCost *= 0.5 end
@@ -472,6 +471,10 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	end
 
 	local function ApplyCC(effectName, duration, tgt, colorHex, overrideMsg)
+		if CombatCore.HasModifier(uniModStr, "Unstable") and (effectName == "Bleed" or effectName == "Poison" or effectName == "Burn") then
+			duration = 1
+		end
+
 		if effectName == "Stun" then
 			if (tgt.StunImmunity and tgt.StunImmunity > 0) or (tgt.Statuses.Stun and tgt.Statuses.Stun > 0) then
 				tgt.Statuses.Dizzy = math.max(tgt.Statuses.Dizzy or 0, duration)
@@ -523,8 +526,9 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			end
 		end
 
-		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + 50) end
-		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + 50) end
+		local restAmount = CombatCore.HasModifier(uniModStr, "Resource Drought") and 25 or 50
+		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + restAmount) end
+		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + restAmount) end
 
 		if clearedStatuses then
 			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FFFF'>" .. bName .. " takes a deep breath, restoring resources and Cleansing all ailments!</font>", false, "None"
@@ -730,6 +734,12 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			postMsg = postMsg .. " <font color='#AA00AA'>(Healed " .. math.floor(vHeal) .. ")</font>"
 		end
 
+		local oppCount = CombatCore.CountTrait(attacker, "Opportunistic")
+		if oppCount > 0 and math.random(1, 100) <= (10 * oppCount) then
+			attacker.CounterTurns = math.max(attacker.CounterTurns or 0, 2)
+			postMsg = postMsg .. " <font color='#55AAFF'>(Opportunistic Counter!)</font>"
+		end
+
 		if CombatCore.HasModifier(uniModStr, "Vampiric Night") and not attacker.IsPlayer and not attacker.IsAlly and damage > 0 then
 			local nHeal = damage * 0.05; attacker.HP = math.min(attacker.MaxHP, attacker.HP + nHeal)
 			postMsg = postMsg .. " <font color='#AA00AA'>(Night Heal: " .. math.floor(nHeal) .. ")</font>"
@@ -738,8 +748,12 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		if damage > 0 and not isBlocking then
 			local pctDamage = math.clamp(damage / (t.MaxHP or 1), 0, 1)
 
-			local stamDrain = math.floor((t.MaxStamina or 100) * (pctDamage * 1.5))
-			local nrgDrain = math.floor((t.MaxStandEnergy or 100) * (pctDamage * 1.5))
+			local shatterCount = CombatCore.CountTrait(attacker, "Shattering")
+			local baseExhaust = CombatCore.HasModifier(uniModStr, "Aggressive Attrition") and 3.5 or 1.5
+			local exhaustMult = baseExhaust + (1.5 * shatterCount)
+
+			local stamDrain = math.floor((t.MaxStamina or 100) * (pctDamage * exhaustMult))
+			local nrgDrain = math.floor((t.MaxStandEnergy or 100) * (pctDamage * exhaustMult))
 
 			if t.Stamina then
 				t.Stamina = math.max(0, t.Stamina - stamDrain)
@@ -753,6 +767,17 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 				if t.StandEnergy == 0 and (t.Statuses.EnergyExhausted or 0) == 0 then
 					t.Statuses.EnergyExhausted = 3
 					postMsg = postMsg .. " <font color='#A020F0'>(Energy Broken!)</font>"
+				end
+			end
+
+			local siphonCount = CombatCore.CountTrait(attacker, "Siphoning")
+			if siphonCount > 0 then
+				local siphonedStam = math.floor(stamDrain * 0.10 * siphonCount)
+				local siphonedNrg = math.floor(nrgDrain * 0.10 * siphonCount)
+				if siphonedStam > 0 or siphonedNrg > 0 then
+					if attacker.Stamina then attacker.Stamina = math.min(attacker.MaxStamina, attacker.Stamina + siphonedStam) end
+					if attacker.StandEnergy then attacker.StandEnergy = math.min(attacker.MaxStandEnergy, attacker.StandEnergy + siphonedNrg) end
+					postMsg = postMsg .. " <font color='#8B008B'>(Siphoned " .. (siphonedStam + siphonedNrg) .. " Resources)</font>"
 				end
 			end
 
