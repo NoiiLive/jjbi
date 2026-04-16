@@ -17,49 +17,49 @@ EnemyData.RaidBosses = {
 	["Raid_Part1"] = { 
 		IsBoss = true, Name = "Vampire King", Req = 1, Icon = "rbxassetid://86531285156337",
 		Health = 5000, Strength = 60, Defense = 50, Speed = 45, Willpower = 60, StandStats = emptyStands, 
-		Skills = {"Heavy Strike", "Space Ripper Stingy Eyes", "Blood Drain", "Block"}, 
+		Skills = {"Heavy Strike", "Space Ripper Stingy Eyes", "Blood Drain", "Block", "Rest"}, 
 		Drops = { Yen = 1000, XP = 2500, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Luck and Pluck"] = 1, ["Dio's Head Jar"] = 1, ["Vampire Mask"] = 25, ["Dio's Throwing Knives"] = 25 } } 
 	},
 	["Raid_Part2"] = { 
 		IsBoss = true, Name = "Ultimate Lifeform", Req = 1, Icon = "rbxassetid://132306871638759",
 		Health = 10000, Strength = 80, Defense = 65, Speed = 60, Willpower = 70, StandStats = emptyStands, 
-		Skills = {"Light Slip Blades", "Melting Overdrive", "Apex Adaptation", "Heavy Strike", "Block"}, 
+		Skills = {"Light Slip Blades", "Melting Overdrive", "Apex Adaptation", "Heavy Strike", "Block", "Rest"}, 
 		Drops = { Yen = 2500, XP = 5000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 6, ["Perfect Aja Mask"] = 1, ["Kars' Arm Blade"] = 1, ["Kars' Horn"] = 1, ["Red Stone of Aja"] = 15, ["Ancient Mask"] = 15, ["Aja Stone Amulet"] = 25 } } 
 	},
 	["Raid_Part3"] = { 
 		IsBoss = true, Name = "Time Stop Vampire", Req = 1, Icon = "rbxassetid://84790385900886", 
 		Health = 15000, Strength = 100, Defense = 80, Speed = 80, Willpower = 95, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, 
-		Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block"}, 
+		Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block", "Rest"}, 
 		Drops = { Yen = 5000, XP = 10000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 7, ["DIO's Road Sign"] = 1, ["DIO's Headband"] = 1, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 25, ["Anubis Sword"] = 25 } } 
 	},
 	["Raid_Part4"] = { 
 		IsBoss = true, Name = "Serial Killer", Req = 1, Icon = "rbxassetid://78559266675698", 
 		Health = 20000, Strength = 150, Defense = 125, Speed = 125, Willpower = 110, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
-		Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block"}, 
+		Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block", "Rest"}, 
 		Drops = { Yen = 8000, XP = 15000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 8, ["Stray Cat"] = 1, ["Kira's Wristwatch"] = 1, ["Strange Arrow"] = 10, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 25 } } 
 	},
 	["Raid_Part5"] = { 
 		IsBoss = true, Name = "Mafia Boss", Req = 1, Icon = "rbxassetid://86941295205734",
 		Health = 25000, Strength = 200, Defense = 140, Speed = 150, Willpower = 155, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, 
-		Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block"}, 
+		Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block", "Rest"}, 
 		Drops = { Yen = 12000, XP = 22000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 9, ["Doppio's Phone"] = 1, ["Passione Badge"] = 1, ["Strange Arrow"] = 15, ["Giorno's Ladybug Brooch"] = 25, ["Mista's Pistol"] = 25 } } 
 	},
 	["Raid_Part6"] = { 
 		IsBoss = true, Name = "Gravity Priest", Req = 1, Icon = "",
 		Health = 30000, Strength = 250, Defense = 200, Speed = 210, Willpower = 210, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, 
-		Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block"}, 
+		Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, 
 		Drops = { Yen = 20000, XP = 35000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 10, ["Heavenly Stand Disc"] = 5, ["DIO's Bone"] = 1, ["Priest's Rosary"] = 1, ["Green Baby"] = 10, ["Pucci's Disc"] = 25, ["Jolyne's String"] = 25 } } 
 	},
 	["Raid_Part7"] = { 
 		IsBoss = true, Name = "23rd President", Req = 1, Icon = "",
 		Health = 35000, Strength = 300, Defense = 250, Speed = 260, Willpower = 260, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
-		Skills = {"Dimensional Strike", "Sponge Paradox", "Between Dimensions", "Heavy Strike", "Block"}, 
+		Skills = {"Dimensional Strike", "Sponge Paradox", "Between Dimensions", "Heavy Strike", "Block", "Rest"}, 
 		Drops = { Yen = 30000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 15, ["Steel Ball"] = 20, ["Saint's Corpse Part"] = 20, ["Saint's Left Arm"] = 10, ["Saint's Right Eye"] = 10, ["Saint's Heart"] = 1, ["Saint's Spine"] = 1, ["Saint's Pelvis"] = 1, ["Golden Spin Scroll"] = 1, ["Valentine's Revolver"] = 1, ["The First Napkin"] = 1 } } 
 	},
 	["Raid_Part8"] = { 
 		IsBoss = true, Name = "The Head Doctor", Req = 1, Icon = "rbxassetid://107039057776207",
 		Health = 40000, Strength = 350, Defense = 300, Speed = 350, Willpower = 300, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
-		Skills = {"Cane Strike", "Flow of Calamity", "Raining Debris", "Illusory Presence", "Heavy Strike", "Block"}, 
+		Skills = {"Cane Strike", "Flow of Calamity", "Raining Debris", "Illusory Presence", "Heavy Strike", "Block", "Rest"}, 
 		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1, ["Rokakaka Fruit"] = 1} } 
 	}
 }
@@ -68,7 +68,7 @@ EnemyData.WorldBosses = {
 	["Weather Report"] = {
 		Name = "Weather Report", IsBoss = true, Icon = "rbxassetid://125669897777686",
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="E", Potential="A"},
-		Skills = {"Weather Control", "Heavy Weather", "Torrential Downpour", "Stand Barrage", "Block"},
+		Skills = {"Weather Control", "Heavy Weather", "Torrential Downpour", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Weather Report Disc"] = 1 } 
@@ -77,7 +77,7 @@ EnemyData.WorldBosses = {
 	["Rohan Kishibe"] = {
 		Name = "Rohan Kishibe", IsBoss = true, Icon = "rbxassetid://104201942548364", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="D", Speed="B", Range="B", Durability="D", Precision="C", Potential="A"},
-		Skills = {"Page Peel", "Character Flaw", "Written Calamity", "Stand Barrage", "Block"},
+		Skills = {"Page Peel", "Character Flaw", "Written Calamity", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Heaven's Door Disc"] = 1 } 
@@ -86,7 +86,7 @@ EnemyData.WorldBosses = {
 	["Okuyasu Nijimura"] = {
 		Name = "Okuyasu Nijimura", IsBoss = true, Icon = "rbxassetid://95630365107580", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="B", Speed="B", Range="D", Durability="C", Precision="C", Potential="C"},
-		Skills = {"Erasure Barrage", "Space Erasure", "Erasure Pull", "Stand Barrage", "Block"},
+		Skills = {"Erasure Barrage", "Space Erasure", "Erasure Pull", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The Hand Disc"] = 1 } 
@@ -95,7 +95,7 @@ EnemyData.WorldBosses = {
 	["Risotto Nero"] = {
 		Name = "Risotto Nero", IsBoss = true, Icon = "rbxassetid://105116104427033",
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="C", Speed="C", Range="C", Durability="A", Precision="C", Potential="C"},
-		Skills = {"Camouflaged Strike", "Iron Manipulation", "Hemoglobin Exhaustion", "Stand Barrage", "Block"},
+		Skills = {"Camouflaged Strike", "Iron Manipulation", "Hemoglobin Exhaustion", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Metallica Disc"] = 1 } 
@@ -104,7 +104,7 @@ EnemyData.WorldBosses = {
 	["Giorno Giovanna"] = {
 		Name = "Giorno Giovanna", IsBoss = true, Icon = "rbxassetid://115852687905113", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"Truth Unveiled", "Revert to Zero", "Apex Vitality", "Infinite Retribution", "Stand Barrage", "Block"},
+		Skills = {"Truth Unveiled", "Revert to Zero", "Apex Vitality", "Infinite Retribution", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Requiem Arrow"] = 1 } 
@@ -113,7 +113,7 @@ EnemyData.WorldBosses = {
 	["DIO"] = {
 		Name = "DIO", IsBoss = true, Icon = "rbxassetid://84790385900886", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"MUDA MUDA MUDA!", "Road Roller", "ZA WARUDO!", "Stand Barrage", "Block"},
+		Skills = {"MUDA MUDA MUDA!", "Road Roller", "ZA WARUDO!", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1 } 
@@ -122,7 +122,7 @@ EnemyData.WorldBosses = {
 	["Jotaro Kujo"] = {
 		Name = "Jotaro Kujo", IsBoss = true, Icon = "rbxassetid://79124723802203", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"ORA ORA ORA!", "Bearing Shot", "Time Stop", "Stand Barrage", "Block"},
+		Skills = {"ORA ORA ORA!", "Bearing Shot", "Time Stop", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Star Platinum Disc"] = 1 } 
@@ -131,7 +131,7 @@ EnemyData.WorldBosses = {
 	["Wonder of U"] = {
 		Name = "Wonder of U", IsBoss = true, Icon = "rbxassetid://71731455259515", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"Flow of Calamity", "Illusory Presence", "Raining Debris", "Stand Barrage", "Cane Strike", "Block"},
+		Skills = {"Flow of Calamity", "Illusory Presence", "Raining Debris", "Stand Barrage", "Cane Strike", "Block", "Rest"},
 		Drops = { 
 			XP = 35000, Yen = 15000, 
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1, ["Inversion Medicine"] = 1 } 
@@ -149,7 +149,7 @@ EnemyData.WorldBosses = {
 	["Chiikawa"] = {
 		Name = "Chiikawa", IsBoss = true, Icon = "rbxassetid://110637525741731", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"Waaah!", "Pajama Party", "Weed Whacker", "Usagi's Help", "Block"},
+		Skills = {"Waaah!", "Pajama Party", "Weed Whacker", "Usagi's Help", "Block", "Rest"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
 			ItemChance = { ["Chiikawa Mascot"] = 1, ["Pink Sasumata"] = 1, ["Pochette's Armor"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
@@ -158,7 +158,7 @@ EnemyData.WorldBosses = {
 	["Satoru Gojo"] = {
 		Name = "Satoru Gojo", IsBoss = true, Icon = "",
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"Lapse: Blue", "Reversal: Red", "Hollow Purple", "Unlimited Void", "Block"},
+		Skills = {"Lapse: Blue", "Reversal: Red", "Hollow Purple", "Unlimited Void", "Block", "Rest"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
 			ItemChance = { ["Limitless Manual"] = 1, ["Playful Cloud"] = 1, ["Gojo's Blindfold"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
@@ -167,7 +167,7 @@ EnemyData.WorldBosses = {
 	["Ryomen Sukuna"] = {
 		Name = "Ryomen Sukuna", IsBoss = true, Icon = "", 
 		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
-		Skills = {"Dismantle", "Cleave", "Divine Flame", "Malevolent Shrine", "Block"},
+		Skills = {"Dismantle", "Cleave", "Divine Flame", "Malevolent Shrine", "Block", "Rest"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
 			ItemChance = { ["Cursed Finger"] = 1, ["Kamutoke"] = 1, ["Heian Era Robes"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
@@ -218,7 +218,7 @@ EnemyData.Parts = {
 				Health = 25, Strength = 4, Defense = 1, Speed = 2, Willpower = 1, StandStats = emptyStands, 
 				Skills = {"Basic Attack"}, 
 				Drops = { Yen = 5, XP = 15 } },
-			["Fresh Vampire Dio"] = { Name = "Dio (Fresh Vampire)", Icon = "rbxassetid://102982650003498",
+			["Fresh Vampire Dio"] = { Name = "Dio Brando", Icon = "rbxassetid://102982650003498",
 				Health = 80, Strength = 8, Defense = 4, Speed = 6, Willpower = 8, StandStats = emptyStands, 
 				Skills = {"Blood Drain", "Heavy Strike", "Block"}, 
 				Drops = { Yen = 30, XP = 60, ItemChance={["Vampire Mask"]=5} } },
@@ -269,7 +269,7 @@ EnemyData.Parts = {
 	},
 
 	[2] = {
-		Boss = { IsBoss = true, Name = "Kars (Ultimate)", Icon = "", Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, Skills = {"Sunlight Yellow Overdrive", "Space Ripper Stingy Eyes", "Deep Breathing", "Flesh Assimilation", "Block"}, Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } },
+		Boss = { IsBoss = true, Name = "Kars (ULF)", Icon = "", Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, Skills = {"Sunlight Yellow Overdrive", "Space Ripper Stingy Eyes", "Deep Breathing", "Flesh Assimilation", "Block"}, Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } },
 		RandomFlavor = {"You encounter a %s in the wasteland!", "A %s jumps out from the ruins!"},
 		Mobs = {
 			{ Name = "Vampire Soldier", Icon = "",
@@ -318,7 +318,7 @@ EnemyData.Parts = {
 				Health = 300, Strength = 30, Defense = 20, Speed = 22, Willpower = 28, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
 				Drops = { Yen = 110, XP = 250 } },
-			["Ultimate Kars"] = { IsBoss = true, Name = "Kars (Ultimate)", Icon = "rbxassetid://132306871638759",
+			["Ultimate Kars"] = { IsBoss = true, Name = "Kars (ULF)", Icon = "rbxassetid://132306871638759",
 				Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, 
 				Skills = {"Melting Overdrive", "Light Slip Blades", "Apex Adaptation", "Heavy Attack", "Block"}, 
 				Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } }
@@ -461,7 +461,7 @@ EnemyData.Parts = {
 				Health = 850, Strength = 75, Defense = 50, Speed = 60, Willpower = 50, StandStats = {Power="B", Speed="E", Range="None", Durability="A", Precision="E", Potential="C"}, 
 				Skills = {"Stand Barrage"}, 
 				Drops = { Yen = 300, XP = 800 } },
-			["Kira BTD"] = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "rbxassetid://78559266675698",
+			["Kira BTD"] = { IsBoss = true, Name = "Yoshikage Kira (BTD)", Icon = "rbxassetid://78559266675698",
 				Health = 1100, Strength = 90, Defense = 55, Speed = 75, Willpower = 60, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
 				Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Air Bomb", "Block"}, 
 				Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25 } } }
@@ -599,11 +599,11 @@ EnemyData.Parts = {
 				Health = 1750, Strength = 125, Defense = 85, Speed = 110, Willpower = 95, StandStats = {Power="None", Speed="C", Range="A", Durability="A", Precision="None", Potential="None"}, 
 				Skills = {"Iron Bar Strike", "Three Memories", "Block"}, 
 				Drops = { Yen = 550, XP = 1800 } },
-			["Pucci C-Moon"] = { Name = "Pucci (C-Moon)", Icon = "",
+			["Pucci C-Moon"] = { Name = "Enrico Pucci", Icon = "rbxassetid://138993866592031",
 				Health = 1900, Strength = 135, Defense = 90, Speed = 120, Willpower = 100, StandStats = {Power="B", Speed="D", Range="C", Durability="A", Precision="None", Potential="None"}, 
 				Skills = {"Surface Inversion", "Gravity Shift", "Gravity Repulsion"}, 
 				Drops = { Yen = 600, XP = 2200 } },
-			["Pucci MiH"] = { IsBoss = true, Name = "Enrico Pucci", Icon = "",
+			["Pucci MiH"] = { IsBoss = true, Name = "Enrico Pucci (MiH)", Icon = "",
 				Health = 2400, Strength = 150, Defense = 95, Speed = 140, Willpower = 110, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, 
 				Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block"}, 
 				Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30 } } }
