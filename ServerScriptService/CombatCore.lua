@@ -227,7 +227,7 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, 
 			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0, 
 			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0, 
-			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0 
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
 		}, 
 		Cooldowns = {}, SelectedSkill = nil, Skills = validSkills
 	}
@@ -273,7 +273,12 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	local effectiveDefense = math.max(0, effectiveArmor - armorPen)
 
 	local defenseMultiplier = 100 / (100 + effectiveDefense)
-	local finalDmg = baseDmg * defenseMultiplier
+
+	local exhaustVuln = 0
+	if (defender.Statuses.StaminaExhausted or 0) > 0 then exhaustVuln += 0.15 end
+	if (defender.Statuses.EnergyExhausted or 0) > 0 then exhaustVuln += 0.15 end
+
+	local finalDmg = baseDmg * defenseMultiplier * (1 + exhaustVuln)
 
 	local armCount = CombatCore.CountTrait(defender, "Armored")
 	if armCount > 0 then finalDmg *= (0.85 ^ armCount) end
@@ -292,6 +297,33 @@ end
 
 function CombatCore.ChooseAISkill(combatant)
 	local validSkills = {}
+	local categorized = { Attack = {}, Debuff = {}, Buff = {}, Block = {}, Rest = {} }
+
+	local statusCount = 0
+	if combatant.Statuses then
+		for k, v in pairs(combatant.Statuses) do
+			if v > 0 and k ~= "Warded" and not string.match(k, "Buff_") and not string.match(k, "Immunity") then
+				statusCount += 1
+			end
+		end
+	end
+
+	-- Added safe fallbacks for max values to prevent math errors
+	local cHP = tonumber(combatant.HP) or 1
+	local cMaxHP = tonumber(combatant.MaxHP) or 1
+	local hpPct = cHP / math.max(1, cMaxHP)
+
+	local cStam = tonumber(combatant.Stamina) or 1
+	local cMaxStam = tonumber(combatant.MaxStamina) or 1
+	local stamPct = cStam / math.max(1, cMaxStam)
+
+	local cNrg = tonumber(combatant.StandEnergy) or 1
+	local cMaxNrg = tonumber(combatant.MaxStandEnergy) or 1
+	local nrgPct = cNrg / math.max(1, cMaxNrg)
+
+	local needsRest = statusCount >= 3 or stamPct < 0.3 or nrgPct < 0.3
+	local isLowHp = hpPct < 0.4
+
 	if combatant.Skills then
 		for _, sName in ipairs(combatant.Skills) do
 			local cd = combatant.Cooldowns and combatant.Cooldowns[sName] or 0
@@ -302,11 +334,47 @@ function CombatCore.ChooseAISkill(combatant)
 				if sData.Type == "Style" and ((combatant.Stamina or 0) < (sData.StaminaCost or 0) or (combatant.Statuses.StaminaExhausted or 0) > 0) then continue end
 
 				if sData.Effect == "Block" and combatant.BlockTurns > 0 then continue end
+
 				table.insert(validSkills, sName)
+
+				if sData.Effect == "Rest" or sData.Effect == "CleanseRest" then
+					table.insert(categorized.Rest, sName)
+				elseif sData.Effect == "Block" or sData.Effect == "Counter" then
+					table.insert(categorized.Block, sName)
+				elseif string.match(sData.Effect or "", "Buff_") then
+					table.insert(categorized.Buff, sName)
+				elseif string.match(sData.Effect or "", "Debuff_") or sData.Effect == "Stun" or sData.Effect == "Freeze" or sData.Effect == "Confusion" or sData.Effect == "Burn" or sData.Effect == "Poison" or sData.Effect == "Bleed" or sData.Effect == "Status_Random" then
+					table.insert(categorized.Debuff, sName)
+				else
+					table.insert(categorized.Attack, sName)
+				end
 			end
 		end
 	end
-	if #validSkills > 0 then return validSkills[math.random(1, #validSkills)] else return "Basic Attack" end
+
+	if #validSkills == 0 then return "Basic Attack" end
+
+	if needsRest and #categorized.Rest > 0 then
+		return categorized.Rest[math.random(1, #categorized.Rest)]
+	end
+
+	if isLowHp then
+		local lowHpPool = {}
+		for _, s in ipairs(categorized.Block) do table.insert(lowHpPool, s) end
+		for _, s in ipairs(categorized.Buff) do table.insert(lowHpPool, s) end
+		if #lowHpPool > 0 and math.random() < 0.7 then
+			return lowHpPool[math.random(1, #lowHpPool)]
+		end
+	else
+		local highHpPool = {}
+		for _, s in ipairs(categorized.Debuff) do table.insert(highHpPool, s) end
+		for _, s in ipairs(categorized.Attack) do table.insert(highHpPool, s) end
+		if #highHpPool > 0 and math.random() < 0.8 then
+			return highHpPool[math.random(1, #highHpPool)]
+		end
+	end
+
+	return validSkills[math.random(1, #validSkills)]
 end
 
 function CombatCore.TakeDamageWithWillpower(combatant, damage)
@@ -496,6 +564,10 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	end
 
 	local function ApplyCC(effectName, duration, tgt, colorHex, overrideMsg)
+		if (tgt.Statuses.Warded or 0) > 0 then
+			return " <font color='#AAAAAA'>(Warded! Status Blocked!)</font>"
+		end
+
 		if CombatCore.HasModifier(uniModStr, "Unstable") and (effectName == "Bleed" or effectName == "Poison" or effectName == "Burn") then
 			duration = 1
 		end
@@ -741,8 +813,18 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + restAmount) end
 		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + restAmount) end
 
-		if clearedStatuses then
+		local appliedWarded = false
+		if b.BlockTurns and b.BlockTurns > 0 then
+			if b.Statuses then b.Statuses.Warded = 2 end
+			appliedWarded = true
+		end
+
+		if clearedStatuses and appliedWarded then
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> behind their guard! <font color='#55FFFF'>" .. bName .. " restores resources, Cleanses ailments, and gains Warded!</font>", false, "None"
+		elseif clearedStatuses then
 			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FFFF'>" .. bName .. " takes a deep breath, restoring resources and Cleansing all ailments!</font>", false, "None"
+		elseif appliedWarded then
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> behind their guard! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy, and gains Warded!</font>", false, "None"
 		else
 			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy.</font>", false, "None"
 		end
@@ -758,7 +840,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		if b.Statuses then
 			b.Statuses.Poison = 0; b.Statuses.Burn = 0; b.Statuses.Bleed = 0; b.Statuses.Freeze = 0; b.Statuses.Confusion = 0
 			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
-			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0
+			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0; b.Statuses.Warded = 0
 		end
 		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF55FF'>Bites the Dust activates! Rewinding time to restore " .. math.floor(healAmount) .. " HP and clear ailments for " .. bName .. "!</font>", false, "Heavy"
 	elseif skill.Effect == "TimeReset" then
@@ -768,7 +850,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		if b.Statuses then
 			b.Statuses.Poison = 0; b.Statuses.Burn = 0; b.Statuses.Bleed = 0; b.Statuses.Freeze = 0; b.Statuses.Confusion = 0
 			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
-			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0
+			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0; b.Statuses.Warded = 0
 		end
 		local ccMsg = ""
 		if t and t.Statuses then
@@ -780,7 +862,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		if b.Statuses then
 			b.Statuses.Poison = 0; b.Statuses.Burn = 0; b.Statuses.Bleed = 0; b.Statuses.Freeze = 0; b.Statuses.Confusion = 0
 			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
-			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0
+			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0; b.Statuses.Warded = 0
 		end
 		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFD700'>Return to Zero! Reality is reset, fully restoring " .. bName .. " and nullifying all negative effects.</font>", false, "Heavy"
 	elseif skill.Effect == "TimeErase" then
@@ -799,11 +881,17 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local statName = string.sub(skill.Effect, 6); b.Statuses[skill.Effect] = skill.Duration or 3
 		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFFF55'>" .. bName .. "'s " .. statName .. " is boosted!</font>", false, "None"
 	elseif skill.Effect == "Debuff_Random" then
+		if (t.Statuses.Warded or 0) > 0 then
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>But " .. tName .. " is Warded!</font>", false, "None"
+		end
 		local stats = {"Strength", "Defense", "Speed", "Willpower"}
 		local s = stats[math.random(1, 4)]
 		t.Statuses["Debuff_"..s] = skill.Duration or 3
 		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF5555'>" .. tName .. "'s " .. s .. " is reduced!</font>", false, "None"
 	elseif skill.Effect and string.sub(skill.Effect, 1, 7) == "Debuff_" then
+		if (t.Statuses.Warded or 0) > 0 then
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>But " .. tName .. " is Warded!</font>", false, "None"
+		end
 		local statName = string.sub(skill.Effect, 8); t.Statuses[skill.Effect] = skill.Duration or 3
 		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF5555'>" .. tName .. "'s " .. statName .. " is reduced!</font>", false, "None"
 	end
@@ -1018,9 +1106,11 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 				local pick = ({{ "Bleed", "#FF0000" }, { "Poison", "#AA00AA" }, { "Burn", "#FF5500" }, { "Confusion", "#FF55FF" }, { "Stun", "#FFFF55" }, { "Freeze", "#00FFFF" }})[math.random(1, 6)]
 				postMsg = postMsg .. ApplyCC(pick[1], 2, t, pick[2], "Gambler: " .. pick[1])
 			elseif glCount > 0 and math.random(1, 100) <= (10 * glCount) then
-				local s = {"Strength", "Defense", "Speed", "Willpower"}
-				t.Statuses["Debuff_"..s[math.random(1,4)]] = 3
-				postMsg = postMsg .. " <font color='#FF5555'>(Gloomy Debuff!)</font>"
+				if (t.Statuses.Warded or 0) == 0 then
+					local s = {"Strength", "Defense", "Speed", "Willpower"}
+					t.Statuses["Debuff_"..s[math.random(1,4)]] = 3
+					postMsg = postMsg .. " <font color='#FF5555'>(Gloomy Debuff!)</font>"
+				end
 			elseif chCount > 0 and math.random(1, 100) <= (10 * chCount) then
 				local s = {"Strength", "Defense", "Speed", "Willpower"}
 				b.Statuses["Buff_"..s[math.random(1,4)]] = 3
