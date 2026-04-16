@@ -46,19 +46,31 @@ local isNoHoldsBarred = false
 local currentCapacity = 2
 
 local StatusIcons = {
-	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF",
+	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF", Dizzy = "DZY", Chilly = "CLD",
 	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
-	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-"
+	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-",
+	EnergyExhausted = "ENG-", StaminaExhausted = "STM-"
 }
 
 local StatusDescs = {
-	Stun = "Cannot move or act.", Poison = "Takes damage every turn.", Burn = "Takes damage every turn.",
-	Bleed = "Takes damage every turn.", Freeze = "Frozen solid. Cannot move, takes damage.",
-	Confusion = "May attack allies or self.", Buff_Strength = "Increased damage dealt.",
-	Buff_Defense = "Reduced damage taken.", Buff_Speed = "Increased evasion and turn priority.",
-	Buff_Willpower = "Increased crit and survival chance.", Debuff_Strength = "Reduced damage dealt.",
-	Debuff_Defense = "Increased damage taken.", Debuff_Speed = "Reduced evasion and turn priority.",
-	Debuff_Willpower = "Reduced crit and survival chance."
+	Stun = "Cannot move or act.",
+	Poison = "Takes damage every turn.",
+	Burn = "Takes damage every turn.",
+	Bleed = "Takes damage every turn.",
+	Freeze = "Frozen solid. Cannot move, takes damage.",
+	Confusion = "May attack allies or self.",
+	Dizzy = "May miss or attack self",
+	Chilly = "Takes damage every turn.",
+	Buff_Strength = "Increased damage dealt.",
+	Buff_Defense = "Reduced damage taken.",
+	Buff_Speed = "Increased evasion and turn priority.",
+	Buff_Willpower = "Increased crit and survival chance.",
+	Debuff_Strength = "Reduced damage dealt.",
+	Debuff_Defense = "Increased damage taken.",
+	Debuff_Speed = "Reduced evasion and turn priority.",
+	Debuff_Willpower = "Reduced crit and survival chance.",
+	EnergyExhausted = "Cannot use stand skills.",
+	StaminaExhausted = "Cannot use style skills."
 }
 
 local function AppendLog(text)
