@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
@@ -18,83 +19,6 @@ if not AdminLogger then
 	AdminLogger.Name = "AdminLogger"
 	AdminLogger.Parent = Network
 end
-
-local GlobalEggStore = DataStoreService:GetDataStore("GlobalEasterEvent2026")
-local GLOBAL_EGG_GOAL = 10000
-local pendingDonations = 0
-local currentGlobalEggs = 0
-local lastProcessedMilestone = -1
-
-local function SyncGlobalEggs()
-	local increment = pendingDonations
-	pendingDonations = 0 
-
-	local success, newVal = pcall(function()
-		if increment > 0 then
-			return GlobalEggStore:UpdateAsync("TotalDonated", function(oldVal)
-				return (oldVal or 0) + increment
-			end)
-		else
-			return GlobalEggStore:GetAsync("TotalDonated") or 0
-		end
-	end)
-
-	if success and newVal then
-		currentGlobalEggs = newVal
-		local currentMilestone = math.floor(currentGlobalEggs / GLOBAL_EGG_GOAL)
-
-		if lastProcessedMilestone == -1 then
-			lastProcessedMilestone = currentMilestone
-		elseif currentMilestone > lastProcessedMilestone then
-			local boxesToGive = currentMilestone - lastProcessedMilestone
-			lastProcessedMilestone = currentMilestone
-
-			for _, p in ipairs(game.Players:GetPlayers()) do
-				local attr = "MythicalGiftboxCount"
-				p:SetAttribute(attr, (p:GetAttribute(attr) or 0) + boxesToGive)
-				NotificationEvent:FireClient(p, "<font color='#FF55FF'>Global Easter Goal Reached! You received " .. boxesToGive .. "x Mythical Giftbox!</font>")
-			end
-		end
-
-		ShopUpdate:FireAllClients("UpdateGlobalEggs", currentGlobalEggs)
-	else
-		pendingDonations += increment
-	end
-end
-
-task.spawn(function()
-	SyncGlobalEggs()
-
-	while task.wait(300) do
-		SyncGlobalEggs()
-	end
-end)
-
-game:BindToClose(function()
-	if pendingDonations > 0 then
-		SyncGlobalEggs()
-	end
-end)
-
-local EasterStockList = {
-	{ Name = "Stand Arrow", Price = 25, Rarity = "Legendary" },
-	{ Name = "Dio's Diary", Price = 100, Rarity = "Legendary" },
-	{ Name = "Green Baby", Price = 100, Rarity = "Legendary" },
-	{ Name = "Strange Arrow", Price = 100, Rarity = "Legendary" },
-	{ Name = "Rokakaka", Price = 50, Rarity = "Legendary" },
-	{ Name = "Saint's Corpse Part", Price = 50, Rarity = "Legendary" },
-	{ Name = "Requiem Arrow", Price = 2500, Rarity = "Mythical" },
-	{ Name = "New Rokakaka", Price = 2500, Rarity = "Mythical" },
-	{ Name = "Legendary Giftbox", Price = 150, Rarity = "Special" },
-	{ Name = "Mythical Giftbox", Price = 500, Rarity = "Special" },	
-	{ Name = "Kakyoin's Egg", Price = 1000, Rarity = "Unique" },
-	{ Name = "Shoshinsha Mark", Price = 1500, Rarity = "Unique" },
-	{ Name = "Kakyoin's Paintbrush", Price = 1500, Rarity = "Unique" },
-	{ Name = "Parasitic Egg", Price = 5000, Rarity = "Unique" },
-	{ Name = "Baoh Arm Blade", Price = 1500, Rarity = "Unique" },
-	{ Name = "Ikuro's Jacket", Price = 1500, Rarity = "Unique" },
-	{ Name = "Unique Giftbox", Price = 10000, Rarity = "Unique" },
-}
 
 local function RollItem(forcedRarity)
 	local targetRarity = "Common"
@@ -118,34 +42,6 @@ local function RollItem(forcedRarity)
 
 	if #validItems > 0 then return validItems[math.random(1, #validItems)] end
 	return "Wooden Bat"
-end
-
-local function RollEasterItem()
-	local targetRarity = "Uncommon"
-	local rng = math.random(1, 100)
-
-	if rng <= 5 then 
-		targetRarity = "Special"
-	elseif rng <= 10 then 
-		targetRarity = "Unique"
-	elseif rng <= 50 then 
-		targetRarity = "Mythical"
-	else 
-		targetRarity = "Legendary" 
-	end
-
-	local validItems = {}
-	for _, itemData in ipairs(EasterStockList) do
-		if itemData.Rarity == targetRarity then
-			table.insert(validItems, itemData.Name)
-		end
-	end
-
-	if #validItems > 0 then
-		return validItems[math.random(1, #validItems)]
-	end
-
-	return "Stand Arrow"
 end
 
 local function GenerateShopStock(player)
@@ -173,17 +69,6 @@ local function GenerateShopStock(player)
 	ShopUpdate:FireClient(player, "Refresh", newStock)
 end
 
-local function GenerateEasterShopStock(player)
-	local newStock = {}
-
-	for i = 1, 6 do
-		table.insert(newStock, RollEasterItem())
-	end
-
-	player:SetAttribute("EasterShopStock", table.concat(newStock, ","))
-	player:SetAttribute("EasterShopRefreshTime", math.floor(workspace:GetServerTimeNow()) + 1800)
-end
-
 local PlayerJoinTimes = {}
 
 task.spawn(function()
@@ -200,13 +85,6 @@ task.spawn(function()
 				if not refreshTime or math.floor(workspace:GetServerTimeNow()) >= refreshTime then 
 					GenerateShopStock(player) 
 				end
-
-				local easterRefreshTime = player:GetAttribute("EasterShopRefreshTime")
-				local easterStock = player:GetAttribute("EasterShopStock")
-
-				if not easterRefreshTime or math.floor(workspace:GetServerTimeNow()) >= easterRefreshTime or not easterStock or easterStock == "" then 
-					GenerateEasterShopStock(player) 
-				end
 			end
 		end
 	end
@@ -218,11 +96,6 @@ game.Players.PlayerAdded:Connect(function(player)
 	player:GetAttributeChangedSignal("ShopRefreshTime"):Connect(function()
 		local rt = player:GetAttribute("ShopRefreshTime")
 		if rt and rt < math.floor(workspace:GetServerTimeNow()) then GenerateShopStock(player) end
-	end)
-
-	player:GetAttributeChangedSignal("EasterShopRefreshTime"):Connect(function()
-		local rt = player:GetAttribute("EasterShopRefreshTime")
-		if rt and rt < math.floor(workspace:GetServerTimeNow()) then GenerateEasterShopStock(player) end
 	end)
 end)
 
@@ -241,37 +114,9 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		return
 	end
 
-	if action == "RequestGlobalEggs" then
-		ShopUpdate:FireClient(player, "UpdateGlobalEggs", currentGlobalEggs + pendingDonations)
-		return
-	end
-
 	if action == "SetRestockType" then
-		if data == "Easter" or data == "Normal" then
+		if data == "Normal" then
 			player:SetAttribute("PendingRestockType", data)
-		end
-		return
-	end
-
-	if action == "DonateEasterEggs" then
-		local currentEggs = player:GetAttribute("EasterEggCount") or 0
-		local amount = 0
-
-		if data == "All" then
-			amount = currentEggs
-		else
-			amount = tonumber(data) or 0
-		end
-
-		if amount <= 0 then return end
-
-		if currentEggs >= amount then
-			player:SetAttribute("EasterEggCount", currentEggs - amount)
-			pendingDonations += amount
-			NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Donated " .. amount .. " eggs to the global pool!</font>")
-			ShopUpdate:FireAllClients("UpdateGlobalEggs", currentGlobalEggs + pendingDonations)
-		else
-			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Easter Eggs to donate!</font>")
 		end
 		return
 	end
@@ -448,58 +293,6 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			NotificationEvent:FireClient(player, "<font color='#55FF55'>Restocked Shop for 100k Yen!</font>")
 		else
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Yen to restock!</font>")
-		end
-
-	elseif action == "BuyEaster" then
-		local itemName = data
-
-		local stockStr = player:GetAttribute("EasterShopStock") or ""
-		local stockList = string.split(stockStr, ",")
-		local itemIndex = table.find(stockList, itemName)
-		if not itemIndex then return end
-
-		local cost = nil
-		for _, itemData in ipairs(EasterStockList) do
-			if itemData.Name == itemName then
-				cost = itemData.Price
-				break
-			end
-		end
-
-		if not cost then return end
-
-		local currentEggs = player:GetAttribute("EasterEggCount") or 0
-		if currentEggs < cost then
-			NotificationEvent:FireClient(player, "<font color='#FF5555'>You do not have enough Easter Eggs!</font>")
-			return
-		end
-
-		local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka")
-		if not isIgnored and GameData.GetInventoryCount(player) >= GameData.GetMaxInventory(player) then
-			NotificationEvent:FireClient(player, "<font color='#FF5555'>Inventory Full!</font>")
-			return
-		end
-
-		player:SetAttribute("EasterEggCount", currentEggs - cost)
-
-		local attrName = itemName:gsub("[^%w]", "") .. "Count"
-		player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
-
-		table.remove(stockList, itemIndex)
-		player:SetAttribute("EasterShopStock", table.concat(stockList, ","))
-
-		NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Successfully purchased " .. itemName .. " from the Easter Shop!</font>")
-
-	elseif action == "RestockEasterYen" then
-		local cost = 25
-		local currentEggs = player:GetAttribute("EasterEggCount") or 0
-		if currentEggs >= cost then
-			player:SetAttribute("EasterEggCount", currentEggs - cost)
-
-			player:SetAttribute("EasterShopRefreshTime", 0) 
-			NotificationEvent:FireClient(player, "<font color='#AAFFAA'>Restocked Easter Shop for 25 Easter Eggs!</font>")
-		else
-			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Easter Eggs to restock!</font>")
 		end
 
 	elseif action == "Sell" then
