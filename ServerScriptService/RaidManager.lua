@@ -413,7 +413,7 @@ local function StartRaidMatch(hostId)
 			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
 			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
 		},
-		Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
+		BlockTurns = 0, CounterTurns = 0, Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
 	}
 
 	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, IsDead = false, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
