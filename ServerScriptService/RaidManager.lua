@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -64,11 +65,21 @@ end
 
 local function GetClientState(match, myId)
 	local state = {
-		Party = {}, StunImmunity = match.Boss.StunImmunity,
-		Boss = { Name = match.Boss.Name, Icon = match.Boss.Icon, HP = match.Boss.HP, MaxHP = match.Boss.MaxHP, StunImmunity = match.Boss.StunImmunity, ConfusionImmunity = match.Boss.ConfusionImmunity, Statuses = match.Boss.Statuses }, MyId = myId
+		Party = {}, 
+		Boss = { 
+			Name = match.Boss.Name, Icon = match.Boss.Icon, HP = match.Boss.HP, MaxHP = match.Boss.MaxHP, 
+			Stamina = match.Boss.Stamina, MaxStamina = match.Boss.MaxStamina, StandEnergy = match.Boss.StandEnergy, MaxStandEnergy = match.Boss.MaxStandEnergy,
+			StunImmunity = match.Boss.StunImmunity, ConfusionImmunity = match.Boss.ConfusionImmunity, Statuses = match.Boss.Statuses 
+		}, 
+		MyId = myId
 	}
 	for _, pData in ipairs(match.Party) do
-		table.insert(state.Party, { UserId = pData.UserId, Name = pData.Name, HP = pData.HP, MaxHP = pData.MaxHP, Stamina = pData.Stamina, StandEnergy = pData.StandEnergy, Cooldowns = pData.Cooldowns, Stand = pData.Stand, Style = pData.Style, Statuses = pData.Statuses, StunImmunity = pData.StunImmunity, ConfusionImmunity = pData.ConfusionImmunity })
+		table.insert(state.Party, { 
+			UserId = pData.UserId, Name = pData.Name, HP = pData.HP, MaxHP = pData.MaxHP, 
+			Stamina = pData.Stamina, MaxStamina = pData.MaxStamina, StandEnergy = pData.StandEnergy, MaxStandEnergy = pData.MaxStandEnergy, 
+			Cooldowns = pData.Cooldowns, Stand = pData.Stand, Style = pData.Style, Statuses = pData.Statuses, 
+			StunImmunity = pData.StunImmunity, ConfusionImmunity = pData.ConfusionImmunity 
+		})
 	end
 	return state
 end
@@ -119,59 +130,58 @@ local function ProcessTurn(match)
 		if not attacker or attacker.HP < 1 then continue end
 
 		local uniModStr = "None" 
+		if attacker.IsPlayer then uniModStr = attacker.PlayerObj and attacker.PlayerObj:GetAttribute("UniverseModifier") or "None" end
 
 		if attacker.StunImmunity and attacker.StunImmunity > 0 then attacker.StunImmunity -= 1 end
 		if attacker.ConfusionImmunity and attacker.ConfusionImmunity > 0 then attacker.ConfusionImmunity -= 1 end
 
 		local statusDmgMod = 0.05 
 		if attacker.IsBoss then statusDmgMod = statusDmgMod * 0.85 end
+		local unstableMult = CombatCore.HasModifier(uniModStr, "Unstable") and 2.0 or 1.0
 
-		if attacker.Statuses and (attacker.Statuses.Bleed or 0) > 0 then
-			local dmg = math.max(1, attacker.MaxHP * statusDmgMod)
-			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
-			attacker.Statuses.Bleed -= 1
-			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-			local msg = "<font color='#FF0000'>"..attacker.Name.." bled for "..math.floor(dmg).." damage!"..svMsg.."</font>"
-			for _, p in ipairs(match.Party) do 
-				if ActiveRaids[p.Player] == match then
-					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
+		local function ProcessDoT(statusName, hexColor, mult)
+			if attacker.Statuses and (attacker.Statuses[statusName] or 0) > 0 then
+				local dmg = math.max(1, attacker.MaxHP * statusDmgMod * mult) * unstableMult
+				local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
+				attacker.Statuses[statusName] -= 1
+				local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+				local msg = "<font color='"..hexColor.."'>"..attacker.Name.." took "..math.floor(dmg).." "..statusName.." damage!"..svMsg.."</font>"
+				for _, p in ipairs(match.Party) do 
+					if ActiveRaids[p.Player] == match then
+						RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
+					end
 				end
+				task.wait(waitMultiplier)
+				return true
 			end
-			task.wait(waitMultiplier)
-			if match.IsDead then return end
+			return false
 		end
-		if attacker.HP < 1 then continue end
 
-		if attacker.Statuses and (attacker.Statuses.Poison or 0) > 0 then
-			local dmg = math.max(1, attacker.MaxHP * statusDmgMod)
-			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
-			attacker.Statuses.Poison -= 1
-			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-			local msg = "<font color='#AA00AA'>"..attacker.Name.." took "..math.floor(dmg).." Poison damage!"..svMsg.."</font>"
-			for _, p in ipairs(match.Party) do 
-				if ActiveRaids[p.Player] == match then
-					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
-				end
-			end
-			task.wait(waitMultiplier)
-			if match.IsDead then return end
-		end
-		if attacker.HP < 1 then continue end
+		local dotsToProcess = {
+			{Name="Calamity", Color="#CC00FF", Mult=1.75},
+			{Name="Blight", Color="#4B0082", Mult=1.5},
+			{Name="Miasma", Color="#2E8B57", Mult=1.5},
+			{Name="Necrosis", Color="#8B4513", Mult=1.5},
+			{Name="Plague", Color="#556B2F", Mult=1.5},
+			{Name="Acid", Color="#80FF00", Mult=1.25},
+			{Name="Infection", Color="#800000", Mult=1.25},
+			{Name="Rupture", Color="#FF4400", Mult=1.25},
+			{Name="Frostburn", Color="#55AAFF", Mult=1.25},
+			{Name="Frostbite", Color="#0055FF", Mult=1.25},
+			{Name="Decay", Color="#00AA55", Mult=1.25},
+			{Name="Bleed", Color="#FF0000", Mult=1.0},
+			{Name="Poison", Color="#AA00AA", Mult=1.0},
+			{Name="Burn", Color="#FF5500", Mult=1.0},
+			{Name="Chilly", Color="#66CCFF", Mult=1.0}
+		}
 
-		if attacker.Statuses and (attacker.Statuses.Burn or 0) > 0 then
-			local dmg = math.max(1, attacker.MaxHP * statusDmgMod)
-			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
-			attacker.Statuses.Burn -= 1
-			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-			local msg = "<font color='#FF5500'>"..attacker.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>"
-			for _, p in ipairs(match.Party) do 
-				if ActiveRaids[p.Player] == match then
-					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = true, ShakeType = "Light", Deadline = match.TurnDeadline}) 
-				end
+		for _, dot in ipairs(dotsToProcess) do
+			if ProcessDoT(dot.Name, dot.Color, dot.Mult) then 
+				if attacker.HP < 1 or match.IsDead then break end
 			end
-			task.wait(waitMultiplier)
-			if match.IsDead then return end
 		end
+
+		if match.IsDead then return end
 		if attacker.HP < 1 then continue end
 
 		if attacker.Statuses and (attacker.Statuses.Freeze or 0) > 0 then
@@ -216,12 +226,7 @@ local function ProcessTurn(match)
 
 		local skillName = attacker.SelectedSkill
 		if attacker.IsBoss then
-			local validSkills = {}
-			for _, sName in ipairs(attacker.Skills or {}) do
-				local cd = attacker.Cooldowns and attacker.Cooldowns[sName] or 0
-				if cd <= 0 then table.insert(validSkills, sName) end
-			end
-			skillName = #validSkills > 0 and validSkills[math.random(1, #validSkills)] or "Basic Attack"
+			skillName = CombatCore.ChooseAISkill(attacker)
 			if attacker.Cooldowns then attacker.Cooldowns[skillName] = SkillData.Skills[skillName].Cooldown or 0 end
 		end
 
@@ -265,7 +270,7 @@ local function ProcessTurn(match)
 
 		if combatant.Statuses then 
 			for sName, sVal in pairs(combatant.Statuses) do 
-				if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
+				if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy" or sName == "Warded") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
 			end 
 		end
 
@@ -391,18 +396,29 @@ local function StartRaidMatch(hostId)
 	local finalHP = math.floor(bossTemplate.Health * prestigeMult * (1 + partyMult))
 	local finalStr = math.floor(bossTemplate.Strength * prestigeMult * (1 + partyMult))
 
+	local sStats = bossTemplate.StandStats or {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}
+
+	local calcStamina = bossTemplate.Stamina or (150 + ((bossTemplate.Willpower or 1) * 2) + (finalHP * 0.05))
+	local calcEnergy = bossTemplate.StandEnergy or (150 + ((GameData.StandRanks[sStats.Potential] or 0) * 10) + (finalHP * 0.05))
+
 	local raidBoss = {
 		IsBoss = true, Name = bossTemplate.Name, Icon = bossTemplate.Icon or "", HP = finalHP, MaxHP = finalHP, TotalStrength = finalStr,
 		TotalDefense = math.floor(bossTemplate.Defense * prestigeMult), TotalSpeed = math.floor(bossTemplate.Speed * minorMult), TotalWillpower = math.floor(bossTemplate.Willpower * minorMult),
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
+		Stamina = calcStamina, MaxStamina = calcStamina, StandEnergy = calcEnergy, MaxStandEnergy = calcEnergy,
+		Statuses = { 
+			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0,
+			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0,
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
+		},
 		Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
 	}
 
 	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, IsDead = false, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 
 	for _, pData in ipairs(party) do 
-		pData.Stamina = pData.MaxStamina or 100
-		pData.StandEnergy = pData.MaxStandEnergy or 100
 		pData.Cooldowns = {}
 
 		if ActiveRaids[pData.Player] then
