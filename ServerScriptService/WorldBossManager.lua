@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local MemoryStoreService = game:GetService("MemoryStoreService")
@@ -260,6 +261,9 @@ local function StartBossBattle(player)
 
 	local pData = CombatCore.BuildPlayerStruct(player, true)
 
+	local calcStamina = bossTemplate.Stamina or (150 + ((bossTemplate.Willpower or 1) * 2) + (bossTemplate.Health * 0.05))
+	local calcEnergy = bossTemplate.StandEnergy or (150 + ((GameData.StandRanks[bossTemplate.StandStats.Potential] or 0) * 10) + (bossTemplate.Health * 0.05))
+
 	local bossEntity = {
 		IsPlayer = false, IsAlly = false, Name = bossTemplate.Name, Icon = bossTemplate.Icon or "", Trait = "None", IsBoss = true,
 		HP = bossTemplate.Health, MaxHP = bossTemplate.Health,
@@ -267,10 +271,19 @@ local function StartBossBattle(player)
 		TotalDefense = bossTemplate.Defense + (GameData.StandRanks[bossTemplate.StandStats.Durability] or 0),
 		TotalSpeed = bossTemplate.Speed + (GameData.StandRanks[bossTemplate.StandStats.Speed] or 0),
 		TotalWillpower = bossTemplate.Willpower,
+		Stamina = calcStamina, MaxStamina = calcStamina,
+		StandEnergy = calcEnergy, MaxStandEnergy = calcEnergy,
 		TotalRange = (GameData.StandRanks[bossTemplate.StandStats.Range] or 0),
 		TotalPrecision = (GameData.StandRanks[bossTemplate.StandStats.Precision] or 0),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
+		Statuses = { 
+			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, 
+			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0,
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0 
+		},
 		Cooldowns = {}, Skills = bossTemplate.Skills
 	}
 
@@ -355,7 +368,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
-			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted")) and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
+			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
 		end
 		if combatant.StunImmunity and combatant.StunImmunity > 0 then combatant.StunImmunity -= 1 end
 		if combatant.ConfusionImmunity and combatant.ConfusionImmunity > 0 then combatant.ConfusionImmunity -= 1 end
