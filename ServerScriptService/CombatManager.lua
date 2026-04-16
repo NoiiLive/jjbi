@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
@@ -93,7 +94,14 @@ local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentP
 		TotalRange = (GameData.StandRanks[sStats.Range] or 0),
 		TotalPrecision = (GameData.StandRanks[sStats.Precision] or 0),
 		BlockTurns = 0, CounterTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, StaminaExhausted = 0, EnergyExhausted = 0 },
+		Statuses = { 
+			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, 
+			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0,
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0 
+		},
 		Cooldowns = {},
 		Skills = template.Skills or {"Basic Attack"},
 		ScaledDrops = scaledDrops
