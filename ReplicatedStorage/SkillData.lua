@@ -5,7 +5,7 @@ SkillData.Skills = {
 	["Basic Attack"] = { Requirement = "None", Type = "Basic", Mult = 1.0, StaminaCost = 0, EnergyCost = 0, Order = 1, Description = "A standard strike. Regenerates 5 Stamina and 5 Energy." },
 	["Heavy Strike"] = { Requirement = "None", Type = "Basic", Mult = 1.4, StaminaCost = 5, EnergyCost = 0, Order = 2, Description = "A powerful, stamina-consuming physical attack." },
 	["Block"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 5, EnergyCost = 0, Effect = "Block", Cooldown = 3, Order = 3, Description = "Reduces incoming damage by 50% for the next 2 turns." },
-	["Rest"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Rest", Order = 4, Description = "Skip your turn to rapidly recover 20 Stamina and 20 Energy." },
+	["Rest"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "CleanseRest", Cooldown = 3, Order = 4, Description = "Catch your breath to wipe away all negative status conditions (DoT, Stun, etc.) and recover 20 Stamina & Energy." },
 	["Flee"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Flee", Order = 5, Description = "Escape from the current battle." },
 
 	-- Style Skills
@@ -229,7 +229,7 @@ SkillData.Skills = {
 	["Donut Punch"] = { Requirement = "King Crimson", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A devastating punch straight through the enemy's torso." },
 
 	["Time Erasure"] = { Requirement = "King Crimson", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "TimeErase", Duration = 2, Cooldown = 6, Order = 12, Description = "Erases time, stunning the enemy and boosting Speed." },
-	["Epitaph"] = { Requirement = "King Crimson", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Predicts the future, massively increasing your Speed." },
+	["Epitaph"] = { Requirement = "King Crimson", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Counter", Cooldown = 6, Order = 13, Description = "Predicts the absolute future of an incoming attack, rendering it useless, and counter-attacking instantly." },
 
 	["DORA DORA DORA!"] = { Requirement = "Crazy Diamond", Type = "Stand", Mult = 0.7, Hits = 3, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "A rapid barrage of high-strength punches." },
 	["Blood Bullet"] = { Requirement = "Crazy Diamond", Type = "Stand", Mult = 2.7, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 3, Cooldown = 4, Order = 12, Description = "Fires a hardened shard of glass tracking your dried blood." },
