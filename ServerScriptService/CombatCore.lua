@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -481,6 +480,10 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
 	local unstableMult = CombatCore.HasModifier(uniModStr, "Unstable") and 2.0 or 1.0
 
+	local isBlocking = (combatant.BlockTurns or 0) > 0
+	local blockMult = isBlocking and 0.5 or 1.0
+	local statusBlockMult = isBlocking and 0.25 or 1.0
+
 	local function CheckDeath()
 		if combatant.HP < 1 then
 			if opponent then CombatCore.HandleInfectiousSpread(opponent, combatant) end
@@ -491,20 +494,19 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 
 	local function ProcessDoT(statusName, hexColor, mult)
 		if (combatant.Statuses[statusName] or 0) > 0 then
-			local dmg = math.max(1, (combatant.MaxHP * statusDmgMod * mult) * defMult) * unstableMult
+			local dmg = math.max(1, (combatant.MaxHP * statusDmgMod * mult) * defMult) * unstableMult * statusBlockMult
 			local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 			combatant.Statuses[statusName] -= 1
 			local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-			CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='"..hexColor.."'>"..combatant.Name.." took "..math.floor(dmg).." "..statusName.." damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
+			local blockMsg = isBlocking and " <font color='#AAAAAA'>(Blocked)</font>" or ""
+			CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='"..hexColor.."'>"..combatant.Name.." took "..math.floor(dmg).." "..statusName.." damage!"..svMsg..blockMsg.."</font>", DidHit = true, ShakeType = "Light"})
 			task.wait(waitMultiplier)
 		end
 	end
 
-	-- Tier 3 Synergy (1.75x)
 	ProcessDoT("Calamity", "#CC00FF", 1.75)
 	if CheckDeath() then return end
 
-	-- Tier 2 Synergies (1.5x)
 	ProcessDoT("Blight", "#4B0082", 1.5)
 	if CheckDeath() then return end
 	ProcessDoT("Miasma", "#2E8B57", 1.5)
@@ -514,7 +516,6 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	ProcessDoT("Plague", "#556B2F", 1.5)
 	if CheckDeath() then return end
 
-	-- Tier 1 Synergies (1.25x)
 	ProcessDoT("Acid", "#80FF00", 1.25)
 	if CheckDeath() then return end
 	ProcessDoT("Infection", "#800000", 1.25)
@@ -528,7 +529,6 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	ProcessDoT("Decay", "#00AA55", 1.25)
 	if CheckDeath() then return end
 
-	-- Base DoTs (1.0x)
 	ProcessDoT("Bleed", "#FF0000", 1.0)
 	if CheckDeath() then return end
 	ProcessDoT("Poison", "#AA00AA", 1.0)
@@ -537,21 +537,23 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if CheckDeath() then return end
 
 	if (combatant.Statuses.Chilly or 0) > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult * blockMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Chilly -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#66CCFF'>"..combatant.Name.." shivers, taking "..math.floor(dmg).." Chilly damage!</font>"..svMsg, DidHit = true, ShakeType = "Light"})
+		local blockMsg = isBlocking and " <font color='#AAAAAA'>(Blocked)</font>" or ""
+		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#66CCFF'>"..combatant.Name.." shivers, taking "..math.floor(dmg).." Chilly damage!</font>"..svMsg..blockMsg, DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 	end
 	if CheckDeath() then return end
 
 	if combatant.Statuses.Freeze > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult * blockMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Freeze -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#00FFFF'>"..combatant.Name.." took "..math.floor(dmg).." Freeze damage and is frozen solid!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
+		local blockMsg = isBlocking and " <font color='#AAAAAA'>(Blocked)</font>" or ""
+		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#00FFFF'>"..combatant.Name.." took "..math.floor(dmg).." Freeze damage and is frozen solid!"..svMsg..blockMsg.."</font>", DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 		if CheckDeath() then return end
 		if combatant.IsPlayer and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then
