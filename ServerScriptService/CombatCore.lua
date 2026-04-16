@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -220,7 +221,14 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		TotalWillpower = pWill,
 		TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
 		BlockTurns = 0, CounterTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0 }, 
+		Statuses = { 
+			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, 
+			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0, 
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0, 
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0 
+		}, 
 		Cooldowns = {}, SelectedSkill = nil, Skills = validSkills
 	}
 end
@@ -351,34 +359,51 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
 	local unstableMult = CombatCore.HasModifier(uniModStr, "Unstable") and 2.0 or 1.0
 
-	if combatant.Statuses.Bleed > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult) * unstableMult
-		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
-		combatant.Statuses.Bleed -= 1
-		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#FF0000'>"..combatant.Name.." bled for "..math.floor(dmg).." damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
-		task.wait(waitMultiplier)
+	local function ProcessDoT(statusName, hexColor, mult)
+		if (combatant.Statuses[statusName] or 0) > 0 then
+			local dmg = math.max(1, (combatant.MaxHP * statusDmgMod * mult) * defMult) * unstableMult
+			local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
+			combatant.Statuses[statusName] -= 1
+			local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+			CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='"..hexColor.."'>"..combatant.Name.." took "..math.floor(dmg).." "..statusName.." damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
+			task.wait(waitMultiplier)
+		end
 	end
+
+	-- Tier 3 Synergy (1.75x)
+	ProcessDoT("Calamity", "#CC00FF", 1.75)
 	if combatant.HP < 1 then return end
 
-	if combatant.Statuses.Poison > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult) * unstableMult
-		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
-		combatant.Statuses.Poison -= 1
-		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#AA00AA'>"..combatant.Name.." took "..math.floor(dmg).." Poison damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
-		task.wait(waitMultiplier)
-	end
+	-- Tier 2 Synergies (1.5x)
+	ProcessDoT("Blight", "#4B0082", 1.5)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Miasma", "#2E8B57", 1.5)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Necrosis", "#8B4513", 1.5)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Plague", "#556B2F", 1.5)
 	if combatant.HP < 1 then return end
 
-	if combatant.Statuses.Burn > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult) * unstableMult
-		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
-		combatant.Statuses.Burn -= 1
-		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#FF5500'>"..combatant.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
-		task.wait(waitMultiplier)
-	end
+	-- Tier 1 Synergies (1.25x)
+	ProcessDoT("Acid", "#80FF00", 1.25)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Infection", "#800000", 1.25)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Rupture", "#FF4400", 1.25)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Frostburn", "#55AAFF", 1.25)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Frostbite", "#0055FF", 1.25)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Decay", "#00AA55", 1.25)
+	if combatant.HP < 1 then return end
+
+	-- Base DoTs (1.0x)
+	ProcessDoT("Bleed", "#FF0000", 1.0)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Poison", "#AA00AA", 1.0)
+	if combatant.HP < 1 then return end
+	ProcessDoT("Burn", "#FF5500", 1.0)
 	if combatant.HP < 1 then return end
 
 	if (combatant.Statuses.Chilly or 0) > 0 then
@@ -486,8 +511,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 
 		elseif effectName == "Freeze" then
 			if (tgt.StunImmunity and tgt.StunImmunity > 0) or (tgt.Statuses.Freeze and tgt.Statuses.Freeze > 0) then
-				tgt.Statuses.Chilly = math.max(tgt.Statuses.Chilly or 0, duration)
-				return " <font color='#AAAAAA'>(Freeze Resisted! Applied <font color='#66CCFF'>Chilly</font> instead!)</font>"
+				return ApplyCC("Chilly", duration, tgt, "#66CCFF", "Chilly")
 			else
 				tgt.Statuses.Freeze = duration; tgt.StunImmunity = duration + (tgt.IsBoss and 4 or 2)
 				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
@@ -502,6 +526,189 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
 			end
 
+		elseif effectName == "Burn" then
+			if (tgt.Statuses.Plague or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Plague)
+				tgt.Statuses.Calamity = mergedDur; tgt.Statuses.Plague = 0; tgt.Statuses.Burn = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Infection or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Infection)
+				tgt.Statuses.Blight = mergedDur; tgt.Statuses.Infection = 0; tgt.Statuses.Burn = 0
+				return " <font color='#4B0082'>(Blight!)</font>"
+			elseif (tgt.Statuses.Frostbite or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Frostbite)
+				tgt.Statuses.Necrosis = mergedDur; tgt.Statuses.Frostbite = 0; tgt.Statuses.Burn = 0
+				return " <font color='#8B4513'>(Necrosis!)</font>"
+			elseif (tgt.Statuses.Decay or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Decay)
+				tgt.Statuses.Miasma = mergedDur; tgt.Statuses.Decay = 0; tgt.Statuses.Burn = 0
+				return " <font color='#2E8B57'>(Miasma!)</font>"
+			elseif (tgt.Statuses.Calamity or 0) > 0 then
+				tgt.Statuses.Calamity = math.max(tgt.Statuses.Calamity, duration); tgt.Statuses.Burn = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Blight or 0) > 0 then
+				tgt.Statuses.Blight = math.max(tgt.Statuses.Blight, duration); tgt.Statuses.Burn = 0
+				return " <font color='#4B0082'>(Blight!)</font>"
+			elseif (tgt.Statuses.Necrosis or 0) > 0 then
+				tgt.Statuses.Necrosis = math.max(tgt.Statuses.Necrosis, duration); tgt.Statuses.Burn = 0
+				return " <font color='#8B4513'>(Necrosis!)</font>"
+			elseif (tgt.Statuses.Miasma or 0) > 0 then
+				tgt.Statuses.Miasma = math.max(tgt.Statuses.Miasma, duration); tgt.Statuses.Burn = 0
+				return " <font color='#2E8B57'>(Miasma!)</font>"
+			elseif (tgt.Statuses.Poison or 0) > 0 or (tgt.Statuses.Acid or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Poison or 0, tgt.Statuses.Acid or 0)
+				tgt.Statuses.Acid = mergedDur; tgt.Statuses.Poison = 0; tgt.Statuses.Burn = 0
+				return " <font color='#80FF00'>(Acid!)</font>"
+			elseif (tgt.Statuses.Bleed or 0) > 0 or (tgt.Statuses.Rupture or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Bleed or 0, tgt.Statuses.Rupture or 0)
+				tgt.Statuses.Rupture = mergedDur; tgt.Statuses.Bleed = 0; tgt.Statuses.Burn = 0
+				return " <font color='#FF4400'>(Rupture!)</font>"
+			elseif (tgt.Statuses.Chilly or 0) > 0 or (tgt.Statuses.Frostburn or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Chilly or 0, tgt.Statuses.Frostburn or 0)
+				tgt.Statuses.Frostburn = mergedDur; tgt.Statuses.Chilly = 0; tgt.Statuses.Burn = 0
+				return " <font color='#55AAFF'>(Frostburn!)</font>"
+			else
+				tgt.Statuses.Burn = math.max(tgt.Statuses.Burn or 0, duration)
+				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
+			end
+
+		elseif effectName == "Poison" then
+			if (tgt.Statuses.Necrosis or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Necrosis)
+				tgt.Statuses.Calamity = mergedDur; tgt.Statuses.Necrosis = 0; tgt.Statuses.Poison = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Rupture or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Rupture)
+				tgt.Statuses.Blight = mergedDur; tgt.Statuses.Rupture = 0; tgt.Statuses.Poison = 0
+				return " <font color='#4B0082'>(Blight!)</font>"
+			elseif (tgt.Statuses.Frostburn or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Frostburn)
+				tgt.Statuses.Miasma = mergedDur; tgt.Statuses.Frostburn = 0; tgt.Statuses.Poison = 0
+				return " <font color='#2E8B57'>(Miasma!)</font>"
+			elseif (tgt.Statuses.Frostbite or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Frostbite)
+				tgt.Statuses.Plague = mergedDur; tgt.Statuses.Frostbite = 0; tgt.Statuses.Poison = 0
+				return " <font color='#556B2F'>(Plague!)</font>"
+			elseif (tgt.Statuses.Calamity or 0) > 0 then
+				tgt.Statuses.Calamity = math.max(tgt.Statuses.Calamity, duration); tgt.Statuses.Poison = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Blight or 0) > 0 then
+				tgt.Statuses.Blight = math.max(tgt.Statuses.Blight, duration); tgt.Statuses.Poison = 0
+				return " <font color='#4B0082'>(Blight!)</font>"
+			elseif (tgt.Statuses.Miasma or 0) > 0 then
+				tgt.Statuses.Miasma = math.max(tgt.Statuses.Miasma, duration); tgt.Statuses.Poison = 0
+				return " <font color='#2E8B57'>(Miasma!)</font>"
+			elseif (tgt.Statuses.Plague or 0) > 0 then
+				tgt.Statuses.Plague = math.max(tgt.Statuses.Plague, duration); tgt.Statuses.Poison = 0
+				return " <font color='#556B2F'>(Plague!)</font>"
+			elseif (tgt.Statuses.Burn or 0) > 0 or (tgt.Statuses.Acid or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Burn or 0, tgt.Statuses.Acid or 0)
+				tgt.Statuses.Acid = mergedDur; tgt.Statuses.Burn = 0; tgt.Statuses.Poison = 0
+				return " <font color='#80FF00'>(Acid!)</font>"
+			elseif (tgt.Statuses.Bleed or 0) > 0 or (tgt.Statuses.Infection or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Bleed or 0, tgt.Statuses.Infection or 0)
+				tgt.Statuses.Infection = mergedDur; tgt.Statuses.Bleed = 0; tgt.Statuses.Poison = 0
+				return " <font color='#800000'>(Infection!)</font>"
+			elseif (tgt.Statuses.Chilly or 0) > 0 or (tgt.Statuses.Decay or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Chilly or 0, tgt.Statuses.Decay or 0)
+				tgt.Statuses.Decay = mergedDur; tgt.Statuses.Chilly = 0; tgt.Statuses.Poison = 0
+				return " <font color='#00AA55'>(Decay!)</font>"
+			else
+				tgt.Statuses.Poison = math.max(tgt.Statuses.Poison or 0, duration)
+				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
+			end
+
+		elseif effectName == "Bleed" then
+			if (tgt.Statuses.Miasma or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Miasma)
+				tgt.Statuses.Calamity = mergedDur; tgt.Statuses.Miasma = 0; tgt.Statuses.Bleed = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Acid or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Acid)
+				tgt.Statuses.Blight = mergedDur; tgt.Statuses.Acid = 0; tgt.Statuses.Bleed = 0
+				return " <font color='#4B0082'>(Blight!)</font>"
+			elseif (tgt.Statuses.Frostburn or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Frostburn)
+				tgt.Statuses.Necrosis = mergedDur; tgt.Statuses.Frostburn = 0; tgt.Statuses.Bleed = 0
+				return " <font color='#8B4513'>(Necrosis!)</font>"
+			elseif (tgt.Statuses.Decay or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Decay)
+				tgt.Statuses.Plague = mergedDur; tgt.Statuses.Decay = 0; tgt.Statuses.Bleed = 0
+				return " <font color='#556B2F'>(Plague!)</font>"
+			elseif (tgt.Statuses.Calamity or 0) > 0 then
+				tgt.Statuses.Calamity = math.max(tgt.Statuses.Calamity, duration); tgt.Statuses.Bleed = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Blight or 0) > 0 then
+				tgt.Statuses.Blight = math.max(tgt.Statuses.Blight, duration); tgt.Statuses.Bleed = 0
+				return " <font color='#4B0082'>(Blight!)</font>"
+			elseif (tgt.Statuses.Necrosis or 0) > 0 then
+				tgt.Statuses.Necrosis = math.max(tgt.Statuses.Necrosis, duration); tgt.Statuses.Bleed = 0
+				return " <font color='#8B4513'>(Necrosis!)</font>"
+			elseif (tgt.Statuses.Plague or 0) > 0 then
+				tgt.Statuses.Plague = math.max(tgt.Statuses.Plague, duration); tgt.Statuses.Bleed = 0
+				return " <font color='#556B2F'>(Plague!)</font>"
+			elseif (tgt.Statuses.Burn or 0) > 0 or (tgt.Statuses.Rupture or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Burn or 0, tgt.Statuses.Rupture or 0)
+				tgt.Statuses.Rupture = mergedDur; tgt.Statuses.Burn = 0; tgt.Statuses.Bleed = 0
+				return " <font color='#FF4400'>(Rupture!)</font>"
+			elseif (tgt.Statuses.Poison or 0) > 0 or (tgt.Statuses.Infection or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Poison or 0, tgt.Statuses.Infection or 0)
+				tgt.Statuses.Infection = mergedDur; tgt.Statuses.Poison = 0; tgt.Statuses.Bleed = 0
+				return " <font color='#800000'>(Infection!)</font>"
+			elseif (tgt.Statuses.Chilly or 0) > 0 or (tgt.Statuses.Frostbite or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Chilly or 0, tgt.Statuses.Frostbite or 0)
+				tgt.Statuses.Frostbite = mergedDur; tgt.Statuses.Chilly = 0; tgt.Statuses.Bleed = 0
+				return " <font color='#0055FF'>(Frostbite!)</font>"
+			else
+				tgt.Statuses.Bleed = math.max(tgt.Statuses.Bleed or 0, duration)
+				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
+			end
+
+		elseif effectName == "Chilly" then
+			if (tgt.Statuses.Blight or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Blight)
+				tgt.Statuses.Calamity = mergedDur; tgt.Statuses.Blight = 0; tgt.Statuses.Chilly = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Acid or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Acid)
+				tgt.Statuses.Miasma = mergedDur; tgt.Statuses.Acid = 0; tgt.Statuses.Chilly = 0
+				return " <font color='#2E8B57'>(Miasma!)</font>"
+			elseif (tgt.Statuses.Rupture or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Rupture)
+				tgt.Statuses.Necrosis = mergedDur; tgt.Statuses.Rupture = 0; tgt.Statuses.Chilly = 0
+				return " <font color='#8B4513'>(Necrosis!)</font>"
+			elseif (tgt.Statuses.Infection or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Infection)
+				tgt.Statuses.Plague = mergedDur; tgt.Statuses.Infection = 0; tgt.Statuses.Chilly = 0
+				return " <font color='#556B2F'>(Plague!)</font>"
+			elseif (tgt.Statuses.Calamity or 0) > 0 then
+				tgt.Statuses.Calamity = math.max(tgt.Statuses.Calamity, duration); tgt.Statuses.Chilly = 0
+				return " <font color='#CC00FF'>(Calamity!)</font>"
+			elseif (tgt.Statuses.Miasma or 0) > 0 then
+				tgt.Statuses.Miasma = math.max(tgt.Statuses.Miasma, duration); tgt.Statuses.Chilly = 0
+				return " <font color='#2E8B57'>(Miasma!)</font>"
+			elseif (tgt.Statuses.Necrosis or 0) > 0 then
+				tgt.Statuses.Necrosis = math.max(tgt.Statuses.Necrosis, duration); tgt.Statuses.Chilly = 0
+				return " <font color='#8B4513'>(Necrosis!)</font>"
+			elseif (tgt.Statuses.Plague or 0) > 0 then
+				tgt.Statuses.Plague = math.max(tgt.Statuses.Plague, duration); tgt.Statuses.Chilly = 0
+				return " <font color='#556B2F'>(Plague!)</font>"
+			elseif (tgt.Statuses.Burn or 0) > 0 or (tgt.Statuses.Frostburn or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Burn or 0, tgt.Statuses.Frostburn or 0)
+				tgt.Statuses.Frostburn = mergedDur; tgt.Statuses.Burn = 0; tgt.Statuses.Chilly = 0
+				return " <font color='#55AAFF'>(Frostburn!)</font>"
+			elseif (tgt.Statuses.Bleed or 0) > 0 or (tgt.Statuses.Frostbite or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Bleed or 0, tgt.Statuses.Frostbite or 0)
+				tgt.Statuses.Frostbite = mergedDur; tgt.Statuses.Bleed = 0; tgt.Statuses.Chilly = 0
+				return " <font color='#0055FF'>(Frostbite!)</font>"
+			elseif (tgt.Statuses.Poison or 0) > 0 or (tgt.Statuses.Decay or 0) > 0 then
+				local mergedDur = math.max(duration, tgt.Statuses.Poison or 0, tgt.Statuses.Decay or 0)
+				tgt.Statuses.Decay = mergedDur; tgt.Statuses.Poison = 0; tgt.Statuses.Chilly = 0
+				return " <font color='#00AA55'>(Decay!)</font>"
+			else
+				tgt.Statuses.Chilly = math.max(tgt.Statuses.Chilly or 0, duration)
+				return " <font color='" .. (colorHex or "#66CCFF") .. "'>(" .. (overrideMsg or "Chilly") .. "!)</font>"
+			end
 		else
 			tgt.Statuses[effectName] = duration
 			return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
@@ -517,7 +724,11 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	elseif skill.Effect == "Rest" or skill.Effect == "CleanseRest" then
 		local clearedStatuses = false
 		if skill.Effect == "CleanseRest" and b.Statuses then
-			local toClear = {"Poison", "Burn", "Bleed", "Stun", "Freeze", "Confusion", "Debuff_Strength", "Debuff_Defense", "Debuff_Speed", "Debuff_Willpower", "StaminaExhausted", "EnergyExhausted", "Dizzy", "Chilly"}
+			local toClear = {
+				"Poison", "Burn", "Bleed", "Stun", "Freeze", "Confusion", "Debuff_Strength", "Debuff_Defense", "Debuff_Speed", "Debuff_Willpower", 
+				"StaminaExhausted", "EnergyExhausted", "Dizzy", "Chilly", "Acid", "Infection", "Rupture", "Frostburn", "Frostbite", "Decay",
+				"Blight", "Miasma", "Necrosis", "Plague", "Calamity"
+			}
 			for _, st in ipairs(toClear) do
 				if (b.Statuses[st] or 0) > 0 then
 					b.Statuses[st] = 0
@@ -546,6 +757,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		b.HP = math.min(b.MaxHP or b.HP, b.HP + healAmount)
 		if b.Statuses then
 			b.Statuses.Poison = 0; b.Statuses.Burn = 0; b.Statuses.Bleed = 0; b.Statuses.Freeze = 0; b.Statuses.Confusion = 0
+			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
+			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0
 		end
 		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF55FF'>Bites the Dust activates! Rewinding time to restore " .. math.floor(healAmount) .. " HP and clear ailments for " .. bName .. "!</font>", false, "Heavy"
 	elseif skill.Effect == "TimeReset" then
@@ -554,6 +767,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		b.HP = math.min(b.MaxHP or b.HP, b.HP + healAmount)
 		if b.Statuses then
 			b.Statuses.Poison = 0; b.Statuses.Burn = 0; b.Statuses.Bleed = 0; b.Statuses.Freeze = 0; b.Statuses.Confusion = 0
+			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
+			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0
 		end
 		local ccMsg = ""
 		if t and t.Statuses then
@@ -564,6 +779,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		b.HP = b.MaxHP or b.HP
 		if b.Statuses then
 			b.Statuses.Poison = 0; b.Statuses.Burn = 0; b.Statuses.Bleed = 0; b.Statuses.Freeze = 0; b.Statuses.Confusion = 0
+			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
+			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0
 		end
 		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFD700'>Return to Zero! Reality is reset, fully restoring " .. bName .. " and nullifying all negative effects.</font>", false, "Heavy"
 	elseif skill.Effect == "TimeErase" then
@@ -818,7 +1035,11 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 
 		if not effectApplied then
 			local eff = skill.Effect
-			local statColors = { Stun = "#FFFF55", Freeze = "#00FFFF", Poison = "#AA00AA", Burn = "#FF5500", Bleed = "#FF0000", Confusion = "#FF55FF" }
+			local statColors = { 
+				Stun = "#FFFF55", Freeze = "#00FFFF", Poison = "#AA00AA", Burn = "#FF5500", Bleed = "#FF0000", Confusion = "#FF55FF",
+				Acid = "#80FF00", Infection = "#800000", Rupture = "#FF4400", Frostburn = "#55AAFF", Frostbite = "#0055FF", Decay = "#00AA55",
+				Blight = "#4B0082", Miasma = "#2E8B57", Necrosis = "#8B4513", Plague = "#556B2F", Calamity = "#CC00FF"
+			}
 
 			if statColors[eff] then
 				postMsg = postMsg .. ApplyCC(eff, skill.Duration or 2, t, statColors[eff])
