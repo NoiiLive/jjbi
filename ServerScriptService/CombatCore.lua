@@ -231,8 +231,8 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		TotalDefense = pDef, TotalSpeed = pSpd,
 		TotalWillpower = pWill,
 		TotalRange = sRan + CombatCore.GetEquipBonus(player, "Stand_Range"), TotalPrecision = sPre + CombatCore.GetEquipBonus(player, "Stand_Precision"),
-		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 }, 
+		BlockTurns = 0, CounterTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
+		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0 }, 
 		Cooldowns = {}, SelectedSkill = nil, Skills = validSkills
 	}
 end
@@ -301,8 +301,13 @@ function CombatCore.ChooseAISkill(combatant)
 			local cd = combatant.Cooldowns and combatant.Cooldowns[sName] or 0
 			if cd > 0 then continue end
 			local sData = SkillData.Skills[sName]
-			if sData and sData.Effect == "Block" and combatant.BlockTurns > 0 then continue end
-			table.insert(validSkills, sName)
+			if sData then
+				if sData.Type == "Stand" and ((combatant.StandEnergy or 0) < (sData.EnergyCost or 0) or (combatant.Statuses.EnergyExhausted or 0) > 0) then continue end
+				if sData.Type == "Style" and ((combatant.Stamina or 0) < (sData.StaminaCost or 0) or (combatant.Statuses.StaminaExhausted or 0) > 0) then continue end
+
+				if sData.Effect == "Block" and combatant.BlockTurns > 0 then continue end
+				table.insert(validSkills, sName)
+			end
 		end
 	end
 	if #validSkills > 0 then return validSkills[math.random(1, #validSkills)] else return "Basic Attack" end
@@ -337,16 +342,21 @@ function CombatCore.TakeDamageWithWillpower(combatant, damage)
 end
 
 function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player, battle, waitMultiplier)
-	local statusDmgMod = CombatCore.HasModifier(uniModStr, "Cursed Wounds") and 0.07 or 0.05 
+	local statusDmgMod = CombatCore.HasModifier(uniModStr, "Cursed Wounds") and 0.15 or 0.10 
 
 	if combatant.IsBoss then
-		statusDmgMod = statusDmgMod * 0.85
+		statusDmgMod = statusDmgMod * 0.75
 	end
 
+	local defBuff = (combatant.Statuses and (combatant.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
+	local defDebuff = (combatant.Statuses and (combatant.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
+	local effectiveArmor = (combatant.TotalDefense or 0) * defBuff * defDebuff
+
+	local defMult = 100 / (100 + math.max(0, effectiveArmor))
 	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
 
 	if combatant.Statuses.Bleed > 0 then
-		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Bleed -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -356,7 +366,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if combatant.HP < 1 then return end
 
 	if combatant.Statuses.Poison > 0 then
-		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Poison -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -365,18 +375,18 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	end
 	if combatant.HP < 1 then return end
 
-	if combatant.Statuses.Burn > 0 then
-		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
+	if (combatant.Statuses.Chilly or 0) > 0 then
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
-		combatant.Statuses.Burn -= 1
+		combatant.Statuses.Chilly -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#FF5500'>"..combatant.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
+		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#66CCFF'>"..combatant.Name.." shivers, taking "..math.floor(dmg).." Chilly damage!</font>"..svMsg, DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 	end
 	if combatant.HP < 1 then return end
 
 	if combatant.Statuses.Freeze > 0 then
-		local dmg = math.max(1, combatant.MaxHP * statusDmgMod)
+		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Freeze -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -403,13 +413,26 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	local tName = fDefName
 	local b = attacker
 	local bName = fLogName
+	local isSkippingFromDizzy = false
 
-	if attacker.Statuses and (attacker.Statuses.Confusion or 0) > 0 then
+	if attacker.Statuses and (attacker.Statuses.Dizzy or 0) > 0 then
+		local dizzyRoll = math.random(1, 100)
+		if dizzyRoll <= 15 then
+			msgPrefix = "<font color='#E6E600'>[DIZZY] </font>"
+			t = attacker; tName = fLogName; b = defender; bName = fDefName
+		elseif dizzyRoll <= 35 then
+			msgPrefix = "<font color='#E6E600'>[DIZZY] </font>"
+			isSkippingFromDizzy = true
+		end
+	end
+
+	if not isSkippingFromDizzy and attacker.Statuses and (attacker.Statuses.Confusion or 0) > 0 then
 		msgPrefix = "<font color='#FF55FF'>[CONFUSED] </font>"
-		t = attacker
-		tName = fLogName
-		b = defender
-		bName = fDefName
+		t = attacker; tName = fLogName; b = defender; bName = fDefName
+	end
+	
+	if isSkippingFromDizzy then
+		return msgPrefix .. fLogName .. " attempted to use <b>" .. skillName .. "</b>... but fumbled their footing from Dizziness, dropping the attack entirely!", false, "None"
 	end
 
 	if skill.Effect ~= "Flee" then
@@ -419,28 +442,54 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			if CombatCore.HasModifier(uniModStr, "Speed of Light") then stamCost *= 1.5; nrgCost *= 1.5 end
 			if CombatCore.HasModifier(uniModStr, "Endless Stamina") then stamCost *= 0.5; nrgCost *= 0.5 end
 		end
-		if attacker.Stamina then attacker.Stamina = math.max(0, attacker.Stamina - stamCost) end
-		if attacker.StandEnergy then attacker.StandEnergy = math.max(0, attacker.StandEnergy - nrgCost) end
+
+		if attacker.Stamina then 
+			attacker.Stamina = math.max(0, attacker.Stamina - stamCost) 
+			if attacker.Stamina == 0 and (attacker.Statuses.StaminaExhausted or 0) == 0 then
+				attacker.Statuses.StaminaExhausted = 3
+				msgPrefix = msgPrefix .. "<font color='#AAAAAA'>[STAMINA EXHAUSTED!] </font>"
+			end
+		end
+
+		if attacker.StandEnergy then 
+			attacker.StandEnergy = math.max(0, attacker.StandEnergy - nrgCost)
+			if attacker.StandEnergy == 0 and (attacker.Statuses.EnergyExhausted or 0) == 0 then
+				attacker.Statuses.EnergyExhausted = 3
+				msgPrefix = msgPrefix .. "<font color='#A020F0'>[ENERGY EXHAUSTED!] </font>"
+			end
+		end
+
 		if attacker.Cooldowns then attacker.Cooldowns[skillName] = skill.Cooldown or 0 end
 	end
 
 	local function ApplyCC(effectName, duration, tgt, colorHex, overrideMsg)
-		if effectName == "Stun" or effectName == "Freeze" then
-			if tgt.StunImmunity and tgt.StunImmunity > 0 then
-				return " <font color='#AAAAAA'>(" .. (overrideMsg or effectName) .. " Resisted!)</font>"
+		if effectName == "Stun" then
+			if (tgt.StunImmunity and tgt.StunImmunity > 0) or (tgt.Statuses.Stun and tgt.Statuses.Stun > 0) then
+				tgt.Statuses.Dizzy = math.max(tgt.Statuses.Dizzy or 0, duration)
+				return " <font color='#AAAAAA'>(Stun Resisted! Applied <font color='#E6E600'>Dizzy</font> instead!)</font>"
 			else
-				tgt.Statuses[effectName] = duration
-				tgt.StunImmunity = duration + (tgt.IsBoss and 4 or 2)
+				tgt.Statuses.Stun = duration; tgt.StunImmunity = duration + (tgt.IsBoss and 4 or 2)
 				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
 			end
+
+		elseif effectName == "Freeze" then
+			if (tgt.StunImmunity and tgt.StunImmunity > 0) or (tgt.Statuses.Freeze and tgt.Statuses.Freeze > 0) then
+				tgt.Statuses.Chilly = math.max(tgt.Statuses.Chilly or 0, duration)
+				return " <font color='#AAAAAA'>(Freeze Resisted! Applied <font color='#66CCFF'>Chilly</font> instead!)</font>"
+			else
+				tgt.Statuses.Freeze = duration; tgt.StunImmunity = duration + (tgt.IsBoss and 4 or 2)
+				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
+			end
+
 		elseif effectName == "Confusion" then
-			if tgt.ConfusionImmunity and tgt.ConfusionImmunity > 0 then
-				return " <font color='#AAAAAA'>(Confusion Resisted!)</font>"
+			if (tgt.ConfusionImmunity and tgt.ConfusionImmunity > 0) or (tgt.Statuses.Confusion and tgt.Statuses.Confusion > 0) then
+				tgt.Statuses.Dizzy = math.max(tgt.Statuses.Dizzy or 0, duration)
+				return " <font color='#AAAAAA'>(Confusion Resisted! Applied <font color='#E6E600'>Dizzy</font> instead!)</font>"
 			else
-				tgt.Statuses[effectName] = duration
-				tgt.ConfusionImmunity = duration + (tgt.IsBoss and 6 or 3)
+				tgt.Statuses.Confusion = duration; tgt.ConfusionImmunity = duration + (tgt.IsBoss and 6 or 3)
 				return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
 			end
+
 		else
 			tgt.Statuses[effectName] = duration
 			return " <font color='" .. colorHex .. "'>(" .. (overrideMsg or effectName) .. "!)</font>"
@@ -449,10 +498,31 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 
 	if skill.Effect == "Block" then
 		b.BlockTurns = 2; return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! " .. bName .. " reduces incoming damage.", false, "None"
-	elseif skill.Effect == "Rest" then
+
+	elseif skill.Effect == "Counter" then
+		b.CounterTurns = 2; return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55AAFF'>" .. bName .. " readies a counter-stance.</font>", false, "None"
+
+	elseif skill.Effect == "Rest" or skill.Effect == "CleanseRest" then
+		local clearedStatuses = false
+		if skill.Effect == "CleanseRest" and b.Statuses then
+			local toClear = {"Poison", "Burn", "Bleed", "Stun", "Freeze", "Confusion"}
+			for _, st in ipairs(toClear) do
+				if (b.Statuses[st] or 0) > 0 then
+					b.Statuses[st] = 0
+					clearedStatuses = true
+				end
+			end
+		end
+
 		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + 20) end
 		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + 20) end
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy.</font>", false, "None"
+
+		if clearedStatuses then
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FFFF'>" .. bName .. " takes a deep breath, restoring resources and Cleansing all ailments!</font>", false, "None"
+		else
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy.</font>", false, "None"
+		end
+
 	elseif skill.Effect == "Heal" then
 		local healAmount = (b.MaxHP or 100) * (skill.HealPercent or 0.25)
 		b.HP = math.min(b.MaxHP or b.HP, b.HP + healAmount)
@@ -601,8 +671,30 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		end
 
 		local isBlocking = (t.BlockTurns or 0) > 0
+		local isCountering = (t.CounterTurns or 0) > 0
 
 		local damage = CombatCore.CalculateDamage(attacker, t, mult, isBlocking, uniModStr, skill.Type)
+
+		if isCountering and damage > 0 then
+			t.CounterTurns = 0
+
+			local reflectedDmg = math.max(1, damage)
+			local counterSurvival = CombatCore.TakeDamageWithWillpower(attacker, reflectedDmg)
+
+			local cMsg = " <font color='#55AAFF'>(COUNTERED! " .. tName .. " predicted it, evading completely and striking back for " .. math.floor(reflectedDmg) .. " damage!)</font>"
+			if counterSurvival then cMsg = cMsg .. " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>" end
+
+			if hitsToDo == 1 then
+				msg = msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>... but it was caught! " .. cMsg
+			else
+				table.insert(hitLogs, "<font color='#AAAAAA'>- Hit " .. i .. " triggered a trap...</font>" .. cMsg)
+			end
+
+			didHitAtAll = true
+			overallShake = "Heavy"
+
+			break
+		end
 
 		local survivalTriggered = CombatCore.TakeDamageWithWillpower(t, damage)
 
@@ -635,6 +727,27 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		end
 
 		if damage > 0 and not isBlocking then
+			local drainAmt = math.floor(damage * 0.15)
+
+			if drainAmt > 0 then
+				postMsg = postMsg .. " <font color='#888888'>[-" .. drainAmt .. " Stamina & Energy]</font>"
+			end
+
+			if t.Stamina then
+				t.Stamina = math.max(0, t.Stamina - drainAmt)
+				if t.Stamina == 0 and (t.Statuses.StaminaExhausted or 0) == 0 then
+					t.Statuses.StaminaExhausted = 3
+					postMsg = postMsg .. " <font color='#AAAAAA'>(Stamina Broken!)</font>"
+				end
+			end
+			if t.StandEnergy then
+				t.StandEnergy = math.max(0, t.StandEnergy - drainAmt)
+				if t.StandEnergy == 0 and (t.Statuses.EnergyExhausted or 0) == 0 then
+					t.Statuses.EnergyExhausted = 3
+					postMsg = postMsg .. " <font color='#A020F0'>(Energy Broken!)</font>"
+				end
+			end
+
 			local elecCount = CombatCore.CountTrait(attacker, "Electric")
 			local frozCount = CombatCore.CountTrait(attacker, "Frozen")
 			local flameCount = CombatCore.CountTrait(attacker, "Flaming")
