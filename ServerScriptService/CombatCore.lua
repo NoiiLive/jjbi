@@ -432,7 +432,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	end
 	
 	if isSkippingFromDizzy then
-		return msgPrefix .. fLogName .. " attempted to use <b>" .. skillName .. "</b>... but fumbled their footing from Dizziness, dropping the attack entirely!", false, "None"
+		return msgPrefix .. fLogName .. " attempted to use <b>" .. skillName .. "</b>... but was too dizzy, missing the attack entirely!", false, "None"
 	end
 
 	if skill.Effect ~= "Flee" then
@@ -514,8 +514,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			end
 		end
 
-		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + 20) end
-		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + 20) end
+		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + 50) end
+		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + 50) end
 
 		if clearedStatuses then
 			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FFFF'>" .. bName .. " takes a deep breath, restoring resources and Cleansing all ailments!</font>", false, "None"
