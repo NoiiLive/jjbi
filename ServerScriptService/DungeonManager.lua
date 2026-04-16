@@ -54,10 +54,19 @@ local function GenerateDungeonEnemy(template, dungeonId)
 		IsBoss = template.IsBoss or false,
 		HP = eHP, MaxHP = eHP, TotalStrength = eStr, TotalDefense = eDef, TotalSpeed = eSpd,
 		TotalWillpower = (template.Willpower or 1) * minorScaleMult,
+		Stamina = 150 + (eHP * 0.1), MaxStamina = 150 + (eHP * 0.1),
+		StandEnergy = 150 + (eHP * 0.1), MaxStandEnergy = 150 + (eHP * 0.1),
 		TotalRange = (GameData.StandRanks[template.StandStats.Range] or 0),
 		TotalPrecision = (GameData.StandRanks[template.StandStats.Precision] or 0),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
+		Statuses = { 
+			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0,
+			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0,
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
+		},
 		Cooldowns = {}, Skills = template.Skills or {"Basic Attack"},
 		RawDrops = { Yen = dYen, XP = dXP, ItemChance = template.Drops and template.Drops.ItemChance or {} }
 	}
@@ -222,9 +231,18 @@ local function GenerateRandomEndlessEnemy(floor)
 		IsPlayer = false, Name = fullName, Icon = "", Trait = eTrait, Trait2 = eTrait2,
 		IsBoss = isBossFloor,
 		HP = eHP, MaxHP = eHP, TotalStrength = eStr, TotalDefense = eDef, TotalSpeed = eSpd, TotalWillpower = finalWill,
+		Stamina = 150 + (eHP * 0.1), MaxStamina = 150 + (eHP * 0.1),
+		StandEnergy = 150 + (eHP * 0.1), MaxStandEnergy = 150 + (eHP * 0.1),
 		TotalRange = (GameData.StandRanks[standRan] or 0), TotalPrecision = (GameData.StandRanks[standPre] or 0),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
-		Statuses = { Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0 },
+		Statuses = { 
+			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0,
+			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0,
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
+		},
 		Cooldowns = {}, Skills = eSkills, RawDrops = { Yen = dYen, XP = dXP, ItemChance = {} }
 	}
 end
@@ -344,7 +362,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
-			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted")) and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
+			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy" or sName == "Warded") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
 		end
 		if combatant.StunImmunity and combatant.StunImmunity > 0 then combatant.StunImmunity -= 1 end
 		if combatant.ConfusionImmunity and combatant.ConfusionImmunity > 0 then combatant.ConfusionImmunity -= 1 end
