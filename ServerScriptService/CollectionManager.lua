@@ -168,10 +168,10 @@ function CollectionManager.CheckAutomaticTitles(player)
 
 	local s0 = player:GetAttribute("Stand")
 	local s1 = player:GetAttribute("StoredStand1")
-	local s2 = player:GetAttribute("StoredStand2")
-	local s3 = player:GetAttribute("StoredStand3")
+	local s4 = player:GetAttribute("StoredStand4")
+	local s5 = player:GetAttribute("StoredStand5")
 
-	if s0 and s0 ~= "None" and s1 and s1 ~= "None" and s2 and s2 ~= "None" and s3 and s3 ~= "None" then
+	if s0 and s0 ~= "None" and s1 and s1 ~= "None" and s4 and s4 ~= "None" and s5 and s5 ~= "None" then
 		CollectionManager.UnlockTitle(player, "Hoarder")
 	end
 
