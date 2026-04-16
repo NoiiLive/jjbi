@@ -514,11 +514,10 @@ SkillData.Skills = {
 	["Cane Strike"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A simple, yet impossibly painful strike with a cane." },
 	["Flow of Calamity"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 5, Cooldown = 6, Order = 12, Description = "Manipulates the logic of the world to make the target succeptible to attacks." },
 	["Illusory Presence"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Confusion", Duration = 3, Cooldown = 6, Order = 13, Description = "Appears in the corner of their eye, Confusing them completely." },
-	["Rain of Debris"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0.6, Hits = 5, StaminaCost = 0, EnergyCost = 35, Effect = "Status_Random", Duration = 5, Cooldown = 6, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing random effects." },
+	["Rain of Debris"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0.6, Hits = 5, StaminaCost = 0, EnergyCost = 35, Effect = "Calamity", Duration = 5, Cooldown = 6, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target." },
 
 	-- Boss Alternatives
 	["Revert to Zero"] = { Requirement = "Boss", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Heal", HealPercent = 0.40, Duration = 3, Cooldown = 20, Order = 13, Description = "Resets the enemy's actions to zero, where they cannot reach the truth." },
-	["Raining Debris"] = { Requirement = "Boss", Type = "Stand", Mult = 0.6, Hits = 3, StaminaCost = 0, EnergyCost = 35, Effect = "Status_Random", Duration = 2, Cooldown = 20, Order = 14, Description = "A calamity forces surrounding objects to violently crash into the target, causing random effects." },
 
 	-- April Fools
 	["Waaah!"] = { Requirement = "Chiikawa", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Tears up and wildly flails around." },
