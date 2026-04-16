@@ -202,6 +202,15 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 		local hpText = hpContainer:WaitForChild("HpText")
 		local statusContainer = infoArea:WaitForChild("StatusContainer")
 
+		local resContainer = infoArea:WaitForChild("ResourceContainer")
+		local stamContainer = resContainer:WaitForChild("StaminaContainer")
+		local stamFill = stamContainer:WaitForChild("StaminaFill")
+		local stamText = stamContainer:WaitForChild("StaminaText")
+
+		local nrgContainer = resContainer:WaitForChild("EnergyContainer")
+		local nrgFill = nrgContainer:WaitForChild("EnergyFill")
+		local nrgText = nrgContainer:WaitForChild("EnergyText")
+
 		local pct = math.clamp(initialHp / maxHp, 0, 1)
 		hpFill.Size = UDim2.new(pct, 0, 1, 0)
 		hpText.Text = math.floor(initialHp) .. " / " .. math.floor(maxHp)
@@ -211,8 +220,14 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			InfoArea = infoArea,
 			HpFill = hpFill,
 			HpText = hpText,
+			StaminaFill = stamFill,
+			StaminaText = stamText,
+			EnergyFill = nrgFill,
+			EnergyText = nrgText,
 			StatusContainer = statusContainer,
 			MaxHp = maxHp,
+			MaxStamina = 1,
+			MaxEnergy = 1,
 			IconImage = iconImg,
 			IconText = iconTxt
 		}
@@ -223,6 +238,23 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 			self.HpText.Text = math.floor(newHp) .. " / " .. math.floor(self.MaxHp)
 			TweenService:Create(self.HpFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				Size = UDim2.new(newPct, 0, 1, 0)
+			}):Play()
+		end
+
+		function fighterObj:UpdateResources(newStam, newMaxStam, newNrg, newMaxNrg)
+			if newMaxStam then self.MaxStamina = newMaxStam end
+			if newMaxNrg then self.MaxEnergy = newMaxNrg end
+
+			local sPct = math.clamp(newStam / self.MaxStamina, 0, 1)
+			self.StaminaText.Text = math.floor(newStam) .. " / " .. math.floor(self.MaxStamina)
+			TweenService:Create(self.StaminaFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(sPct, 0, 1, 0)
+			}):Play()
+
+			local nPct = math.clamp(newNrg / self.MaxEnergy, 0, 1)
+			self.EnergyText.Text = math.floor(newNrg) .. " / " .. math.floor(self.MaxEnergy)
+			TweenService:Create(self.EnergyFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(nPct, 0, 1, 0)
 			}):Play()
 		end
 
