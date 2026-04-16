@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -233,6 +234,20 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 end
 
 function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlocking, uniModStr, skillType)
+	local junkieCount = CombatCore.CountTrait(attacker, "Junkie")
+	if junkieCount > 0 and attacker.Statuses then
+		local debuffCount = 0
+		local negStats = {"Poison", "Burn", "Bleed", "Freeze", "Confusion", "Stun", "Dizzy", "Chilly", "Acid", "Infection", "Rupture", "Frostburn", "Frostbite", "Decay", "Blight", "Miasma", "Necrosis", "Plague", "Calamity", "Debuff_Strength", "Debuff_Defense", "Debuff_Speed", "Debuff_Willpower", "StaminaExhausted", "EnergyExhausted"}
+		for _, stat in ipairs(negStats) do
+			if (attacker.Statuses[stat] or 0) > 0 then
+				debuffCount += 1
+			end
+		end
+		if debuffCount > 0 then
+			skillMult *= (1 + (0.15 * junkieCount * debuffCount))
+		end
+	end
+
 	local atkBuff = (attacker.Statuses and (attacker.Statuses.Buff_Strength or 0) > 0) and 1.5 or 1.0
 	local atkDebuff = (attacker.Statuses and (attacker.Statuses.Debuff_Strength or 0) > 0) and 0.5 or 1.0
 
@@ -375,6 +390,47 @@ function CombatCore.ChooseAISkill(combatant)
 	return validSkills[math.random(1, #validSkills)]
 end
 
+function CombatCore.HandleInfectiousSpread(attacker, defender)
+	if not attacker or not defender then return end
+	if defender.HP < 1 and attacker.IsPlayer and attacker.PlayerObj then
+		local infectCount = CombatCore.CountTrait(attacker, "Infectious")
+		if infectCount > 0 and defender.Statuses then
+			local carryOver = {}
+			local dots = {"Poison", "Burn", "Bleed", "Freeze", "Acid", "Infection", "Rupture", "Frostburn", "Frostbite", "Decay", "Blight", "Miasma", "Necrosis", "Plague", "Calamity"}
+			local hasAny = false
+			for _, stat in ipairs(dots) do
+				if (defender.Statuses[stat] or 0) > 0 then
+					table.insert(carryOver, stat .. ":" .. math.max(1, math.ceil((defender.Statuses[stat] or 1) / 2)))
+					hasAny = true
+				end
+			end
+			if hasAny then
+				attacker.PlayerObj:SetAttribute("InfectiousCarryover", table.concat(carryOver, ","))
+			end
+		end
+	end
+end
+
+function CombatCore.ApplyInfectiousCarryover(playerObj, newEnemyStruct)
+	if not playerObj or not newEnemyStruct or not newEnemyStruct.Statuses then return end
+	local carry = playerObj:GetAttribute("InfectiousCarryover")
+	if carry and carry ~= "" then
+		local appliedAny = false
+		for _, part in ipairs(string.split(carry, ",")) do
+			local split = string.split(part, ":")
+			local stat = split[1]
+			local dur = tonumber(split[2])
+			if stat and dur and newEnemyStruct.Statuses[stat] ~= nil then
+				newEnemyStruct.Statuses[stat] = math.max(newEnemyStruct.Statuses[stat] or 0, dur)
+				appliedAny = true
+			end
+		end
+		if appliedAny then
+			playerObj:SetAttribute("InfectiousCarryover", "")
+		end
+	end
+end
+
 function CombatCore.TakeDamageWithWillpower(combatant, damage)
 	if (combatant.HP - damage) < 1 then
 		local defWillBuff = (((combatant.Statuses and combatant.Statuses.Buff_Willpower or 0) > 0) and 1.5 or 1.0) * (((combatant.Statuses and combatant.Statuses.Debuff_Willpower or 0) > 0) and 0.5 or 1.0)
@@ -425,6 +481,14 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
 	local unstableMult = CombatCore.HasModifier(uniModStr, "Unstable") and 2.0 or 1.0
 
+	local function CheckDeath()
+		if combatant.HP < 1 then
+			if opponent then CombatCore.HandleInfectiousSpread(opponent, combatant) end
+			return true
+		end
+		return false
+	end
+
 	local function ProcessDoT(statusName, hexColor, mult)
 		if (combatant.Statuses[statusName] or 0) > 0 then
 			local dmg = math.max(1, (combatant.MaxHP * statusDmgMod * mult) * defMult) * unstableMult
@@ -438,39 +502,39 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 
 	-- Tier 3 Synergy (1.75x)
 	ProcessDoT("Calamity", "#CC00FF", 1.75)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 
 	-- Tier 2 Synergies (1.5x)
 	ProcessDoT("Blight", "#4B0082", 1.5)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Miasma", "#2E8B57", 1.5)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Necrosis", "#8B4513", 1.5)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Plague", "#556B2F", 1.5)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 
 	-- Tier 1 Synergies (1.25x)
 	ProcessDoT("Acid", "#80FF00", 1.25)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Infection", "#800000", 1.25)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Rupture", "#FF4400", 1.25)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Frostburn", "#55AAFF", 1.25)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Frostbite", "#0055FF", 1.25)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Decay", "#00AA55", 1.25)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 
 	-- Base DoTs (1.0x)
 	ProcessDoT("Bleed", "#FF0000", 1.0)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Poison", "#AA00AA", 1.0)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 	ProcessDoT("Burn", "#FF5500", 1.0)
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 
 	if (combatant.Statuses.Chilly or 0) > 0 then
 		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
@@ -480,7 +544,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#66CCFF'>"..combatant.Name.." shivers, taking "..math.floor(dmg).." Chilly damage!</font>"..svMsg, DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
 	end
-	if combatant.HP < 1 then return end
+	if CheckDeath() then return end
 
 	if combatant.Statuses.Freeze > 0 then
 		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult)
@@ -489,7 +553,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
 		CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#00FFFF'>"..combatant.Name.." took "..math.floor(dmg).." Freeze damage and is frozen solid!"..svMsg.."</font>", DidHit = true, ShakeType = "Light"})
 		task.wait(waitMultiplier)
-		if combatant.HP < 1 then return end
+		if CheckDeath() then return end
 		if combatant.IsPlayer and not CombatCore.HasModifier(uniModStr, "Endless Stamina") then
 			combatant.Stamina = math.min(combatant.MaxStamina, combatant.Stamina + 5)
 			combatant.StandEnergy = math.min(combatant.MaxStandEnergy, combatant.StandEnergy + 5)
@@ -805,6 +869,13 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 					clearedStatuses = true
 				end
 			end
+		end
+
+		local purifyCount = CombatCore.CountTrait(b, "Purifying")
+		if clearedStatuses and purifyCount > 0 then
+			local healAmt = (b.MaxHP or 100) * (0.10 * purifyCount)
+			b.HP = math.min(b.MaxHP, b.HP + healAmt)
+			msgPrefix = msgPrefix .. "<font color='#55FF55'>[Purified +"..math.floor(healAmt).." HP!] </font>"
 		end
 
 		local restAmount = CombatCore.HasModifier(uniModStr, "Resource Drought") and 25 or 50
@@ -1149,7 +1220,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 
 		if hitsToDo == 1 then msg = hitMsg .. postMsg else table.insert(hitLogs, hitMsg .. postMsg) end
 
-		if attacker.HP < 1 then break end
+		CombatCore.HandleInfectiousSpread(attacker, t)
+		if attacker.HP < 1 or t.HP < 1 then break end
 	end
 
 	if hitsToDo > 1 then
