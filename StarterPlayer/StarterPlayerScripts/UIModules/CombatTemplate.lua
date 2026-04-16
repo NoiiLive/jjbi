@@ -257,7 +257,7 @@ function CombatTemplate.Create(parentGui, tooltipMgr)
 				local strokeColor = Color3.fromRGB(255, 215, 50)
 				if isImmunity then
 					strokeColor = Color3.fromRGB(150, 150, 150)
-				elseif string.sub(statusId, 1, 5) == "Buff_" then
+				elseif string.sub(statusId, 1, 5) == "Buff_" or statusId == "Warded" then
 					strokeColor = Color3.fromRGB(50, 255, 50)
 				elseif string.sub(statusId, 1, 7) == "Debuff_" or statusId == "StaminaExhausted" or statusId == "EnergyExhausted" then
 					strokeColor = Color3.fromRGB(255, 50, 50)
