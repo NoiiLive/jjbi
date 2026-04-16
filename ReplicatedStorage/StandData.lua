@@ -31,6 +31,7 @@ StandData.Traits = {
 	["Frozen"] = { Rarity = "Legendary", Color = "#00FFFF", Desc = "Attacks have a 10% chance to apply Freeze for 1 turn." },
 	["Serrated"] = { Rarity = "Legendary", Color = "#FF0000", Desc = "Attacks have a 10% chance to apply Bleed for 3 turns." },
 	["Disorienting"] = { Rarity = "Legendary", Color = "#FF55FF", Desc = "Attacks have a 10% chance to apply Confusion for 1 turn." },
+	["Stoic"] = { Rarity = "Legendary", Color = "#B06AEA", Desc = "Lose 50% less stamina/energy when attacked." },
 
 	["Siphoning"] = { Rarity = "Mythical", Color = "#8B008B", Desc = "Steals 10% of drained energy/stamina when attacking." },
 	["Shattering"] = { Rarity = "Mythical", Color = "#FF4500", Desc = "Exhausts enemies twice as fast." },
