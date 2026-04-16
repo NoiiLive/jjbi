@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -87,8 +88,8 @@ local function GetClientState(match, requestingPlayer, isSpectator)
 
 	local state = { MyTeam = {}, EnemyTeam = {}, MyId = requestingPlayer.UserId, IsSpectator = isSpectator, Pool1 = match.Pool1, Pool2 = match.Pool2, MatchId = match.Id }
 
-	for _, p in ipairs(myTeamStruct) do table.insert(state.MyTeam, { UserId = p.UserId, Name = p.Name, HP = p.HP, MaxHP = p.MaxHP, Stamina = p.Stamina, StandEnergy = p.StandEnergy, Cooldowns = p.Cooldowns, BlockTurns = p.BlockTurns, StunImmunity = p.StunImmunity, ConfusionImmunity = p.ConfusionImmunity, Stand = p.Stand, Style = p.Style, Statuses = p.Statuses }) end
-	for _, p in ipairs(enemyTeamStruct) do table.insert(state.EnemyTeam, { UserId = p.UserId, Name = p.Name, HP = p.HP, MaxHP = p.MaxHP, StunImmunity = p.StunImmunity, ConfusionImmunity = p.ConfusionImmunity, Stand = p.Stand, Style = p.Style, Statuses = p.Statuses }) end
+	for _, p in ipairs(myTeamStruct) do table.insert(state.MyTeam, { UserId = p.UserId, Name = p.Name, HP = p.HP, MaxHP = p.MaxHP, Stamina = p.Stamina, MaxStamina = p.MaxStamina, StandEnergy = p.StandEnergy, MaxStandEnergy = p.MaxStandEnergy, Cooldowns = p.Cooldowns, BlockTurns = p.BlockTurns, StunImmunity = p.StunImmunity, ConfusionImmunity = p.ConfusionImmunity, Stand = p.Stand, Style = p.Style, Statuses = p.Statuses }) end
+	for _, p in ipairs(enemyTeamStruct) do table.insert(state.EnemyTeam, { UserId = p.UserId, Name = p.Name, HP = p.HP, MaxHP = p.MaxHP, Stamina = p.Stamina, MaxStamina = p.MaxStamina, StandEnergy = p.StandEnergy, MaxStandEnergy = p.MaxStandEnergy, StunImmunity = p.StunImmunity, ConfusionImmunity = p.ConfusionImmunity, Stand = p.Stand, Style = p.Style, Statuses = p.Statuses }) end
 
 	return state
 end
@@ -125,35 +126,51 @@ local function ProcessTurn(match)
 		if IsTeamDead(match.Team1) or IsTeamDead(match.Team2) then break end
 		if attacker.HP < 1 then continue end
 
+		local uniModStr = "None" 
+		if attacker.IsPlayer and attacker.PlayerObj then uniModStr = attacker.PlayerObj:GetAttribute("UniverseModifier") or "None" end
+
 		if attacker.StunImmunity and attacker.StunImmunity > 0 then attacker.StunImmunity -= 1 end
 		if attacker.ConfusionImmunity and attacker.ConfusionImmunity > 0 then attacker.ConfusionImmunity -= 1 end
 
-		if attacker.Statuses.Bleed > 0 then
-			local dmg = math.max(1, attacker.MaxHP * 0.05)
-			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
-			attacker.Statuses.Bleed -= 1
-			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-			table.insert(logMessages, "<font color='#FF0000'>"..attacker.Name.." bled for "..math.floor(dmg).." damage!"..svMsg.."</font>")
+		local statusDmgMod = 0.05 
+		local unstableMult = CombatCore.HasModifier(uniModStr, "Unstable") and 2.0 or 1.0
+
+		local function ProcessDoT(statusName, hexColor, mult)
+			if attacker.Statuses and (attacker.Statuses[statusName] or 0) > 0 then
+				local dmg = math.max(1, attacker.MaxHP * statusDmgMod * mult) * unstableMult
+				local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
+				attacker.Statuses[statusName] -= 1
+				local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
+				table.insert(logMessages, "<font color='"..hexColor.."'>"..attacker.Name.." took "..math.floor(dmg).." "..statusName.." damage!"..svMsg.."</font>")
+			end
 		end
-		if attacker.Statuses.Poison > 0 then
-			local dmg = math.max(1, attacker.MaxHP * 0.05)
-			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
-			attacker.Statuses.Poison -= 1
-			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-			table.insert(logMessages, "<font color='#AA00AA'>"..attacker.Name.." took "..math.floor(dmg).." Poison damage!"..svMsg.."</font>")
-		end
-		if attacker.Statuses.Burn > 0 then
-			local dmg = math.max(1, attacker.MaxHP * 0.05)
-			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
-			attacker.Statuses.Burn -= 1
-			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
-			table.insert(logMessages, "<font color='#FF5500'>"..attacker.Name.." took "..math.floor(dmg).." Burn damage!"..svMsg.."</font>")
+
+		local dotsToProcess = {
+			{Name="Calamity", Color="#CC00FF", Mult=1.75},
+			{Name="Blight", Color="#4B0082", Mult=1.5},
+			{Name="Miasma", Color="#2E8B57", Mult=1.5},
+			{Name="Necrosis", Color="#8B4513", Mult=1.5},
+			{Name="Plague", Color="#556B2F", Mult=1.5},
+			{Name="Acid", Color="#80FF00", Mult=1.25},
+			{Name="Infection", Color="#800000", Mult=1.25},
+			{Name="Rupture", Color="#FF4400", Mult=1.25},
+			{Name="Frostburn", Color="#55AAFF", Mult=1.25},
+			{Name="Frostbite", Color="#0055FF", Mult=1.25},
+			{Name="Decay", Color="#00AA55", Mult=1.25},
+			{Name="Bleed", Color="#FF0000", Mult=1.0},
+			{Name="Poison", Color="#AA00AA", Mult=1.0},
+			{Name="Burn", Color="#FF5500", Mult=1.0},
+			{Name="Chilly", Color="#66CCFF", Mult=1.0}
+		}
+
+		for _, dot in ipairs(dotsToProcess) do
+			ProcessDoT(dot.Name, dot.Color, dot.Mult)
 		end
 
 		if attacker.HP < 1 then continue end
 
-		if attacker.Statuses.Freeze > 0 then
-			local dmg = math.max(1, attacker.MaxHP * 0.05)
+		if attacker.Statuses and (attacker.Statuses.Freeze or 0) > 0 then
+			local dmg = math.max(1, attacker.MaxHP * statusDmgMod)
 			local survived = CombatCore.TakeDamageWithWillpower(attacker, dmg)
 			attacker.Statuses.Freeze -= 1
 			local svMsg = survived and (CombatCore.CountTrait(attacker, "Perseverance") > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -165,7 +182,7 @@ local function ProcessTurn(match)
 			continue
 		end
 
-		if attacker.Statuses.Stun > 0 then
+		if attacker.Statuses and (attacker.Statuses.Stun or 0) > 0 then
 			attacker.Statuses.Stun -= 1
 			table.insert(logMessages, "<font color='#AAAAAA'>"..attacker.Name.." is Stunned and skips their turn!</font>")
 			attacker.Stamina = math.min(attacker.MaxStamina, attacker.Stamina + 5)
@@ -192,7 +209,7 @@ local function ProcessTurn(match)
 
 		if skill and defender then
 			local s, msg, hit, shake = pcall(function()
-				return CombatCore.ExecuteStrike(attacker, defender, skillName, "None", attacker.Name, defender.Name, "#55FF55", "#FF5555")
+				return CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, attacker.Name, defender.Name, "#55FF55", "#FF5555")
 			end)
 			if s then
 				table.insert(logMessages, msg)
@@ -204,7 +221,7 @@ local function ProcessTurn(match)
 			end
 		end
 
-		if attacker.Statuses.Confusion > 0 then attacker.Statuses.Confusion -= 1 end
+		if attacker.Statuses and (attacker.Statuses.Confusion or 0) > 0 then attacker.Statuses.Confusion -= 1 end
 	end
 
 	for _, combatant in ipairs(allCombatants) do
@@ -213,11 +230,12 @@ local function ProcessTurn(match)
 
 		if combatant.Statuses then 
 			for sName, sVal in pairs(combatant.Statuses) do 
-				if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
+				if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy" or sName == "Warded") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
 			end 
 		end
 
 		if combatant.BlockTurns > 0 then combatant.BlockTurns -= 1 end
+		if combatant.CounterTurns then combatant.CounterTurns = math.max(0, combatant.CounterTurns - 1) end
 
 		local sk = SkillData.Skills[combatant.SelectedSkill]
 		if sk then
@@ -298,7 +316,7 @@ local function ProcessTurn(match)
 
 		for _, pData in ipairs(allCombatants) do
 			ArenaUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = logStr, State = GetClientState(match, pData.Player, false), DidHit = didHit, ShakeType = shakeType, Deadline = match.TurnDeadline})
-			if pData.HP > 0 and pData.Statuses.Stun > 0 then pData.SelectedSkill = "Stunned" end
+			if pData.HP > 0 and (pData.Statuses.Stun or 0) > 0 then pData.SelectedSkill = "Stunned" end
 		end
 
 		for _, specPlayer in ipairs(match.Spectators) do
