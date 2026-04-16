@@ -316,6 +316,11 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	if not skill or battle.Player.Stamina < stamCost or battle.Player.StandEnergy < nrgCost then return end
 	if battle.Player.Cooldowns[skillName] and battle.Player.Cooldowns[skillName] > 0 then return end
 
+	if battle.Player.Statuses then
+		if skill.Type == "Stand" and (battle.Player.Statuses.EnergyExhausted or 0) > 0 then return end
+		if skill.Type == "Style" and (battle.Player.Statuses.StaminaExhausted or 0) > 0 then return end
+	end
+
 	battle.IsProcessing = true
 	local waitMultiplier = player:GetAttribute("Has2xBattleSpeed") and 0.6 or 1.2
 
@@ -348,11 +353,12 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
-			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
+			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted")) and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
 		end
 		if combatant.StunImmunity and combatant.StunImmunity > 0 then combatant.StunImmunity -= 1 end
 		if combatant.ConfusionImmunity and combatant.ConfusionImmunity > 0 then combatant.ConfusionImmunity -= 1 end
 		if combatant.BlockTurns then combatant.BlockTurns = math.max(0, combatant.BlockTurns - 1) end
+		if combatant.CounterTurns then combatant.CounterTurns = math.max(0, combatant.CounterTurns - 1) end
 
 		local freezeResult = CombatCore.ApplyStatusDamage(combatant, "None", WorldBossUpdate, player, battle, waitMultiplier)
 		if freezeResult == "Frozen" then continue end
