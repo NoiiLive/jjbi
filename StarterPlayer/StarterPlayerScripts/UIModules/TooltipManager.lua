@@ -175,10 +175,14 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 		end
 
 		if totalValidFusions > 0 then
+			local completionRatio = math.clamp(collectedFusions / totalValidFusions, 0, 1)
+			local currentDamageBonus = completionRatio * 0.01
+			local formattedBonus = string.format("+%.3fx", currentDamageBonus)
+
 			if collectedFusions >= totalValidFusions then
-				text = text .. "\n\n<font color='#55FF55'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (+0.01x Global DMG)</font>"
+				text = text .. "\n\n<font color='#55FF55'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (" .. formattedBonus .. " Global DMG)</font>"
 			else
-				text = text .. "\n\n<font color='#AAAAAA'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. "</font>"
+				text = text .. "\n\n<font color='#AAAAAA'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (" .. formattedBonus .. " Global DMG)</font>"
 			end
 		end
 	end
