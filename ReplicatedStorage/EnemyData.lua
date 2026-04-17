@@ -18,49 +18,49 @@ EnemyData.RaidBosses = {
 		IsBoss = true, Name = "Vampire King", Req = 1, Icon = "rbxassetid://86531285156337",
 		Health = 5000, Strength = 60, Defense = 50, Speed = 45, Willpower = 60, StandStats = emptyStands, 
 		Skills = {"Heavy Strike", "Space Ripper Stingy Eyes", "Blood Drain", "Block", "Rest"}, 
-		Drops = { Yen = 1000, XP = 2500, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Luck and Pluck"] = 1, ["Dio's Head Jar"] = 1, ["Vampire Mask"] = 25, ["Dio's Throwing Knives"] = 25 } } 
+		Drops = { Yen = 1000, XP = 2500, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Luck and Pluck"] = 1, ["Dio's Head Jar"] = 1, ["Vampire Mask"] = 25, ["Dio's Throwing Knives"] = 25, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part2"] = { 
 		IsBoss = true, Name = "Ultimate Lifeform", Req = 1, Icon = "rbxassetid://132306871638759",
 		Health = 10000, Strength = 80, Defense = 65, Speed = 60, Willpower = 70, StandStats = emptyStands, 
 		Skills = {"Light Slip Blades", "Melting Overdrive", "Apex Adaptation", "Heavy Strike", "Block", "Rest"}, 
-		Drops = { Yen = 2500, XP = 5000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 6, ["Perfect Aja Mask"] = 1, ["Kars' Arm Blade"] = 1, ["Kars' Horn"] = 1, ["Red Stone of Aja"] = 15, ["Ancient Mask"] = 15, ["Aja Stone Amulet"] = 25 } } 
+		Drops = { Yen = 2500, XP = 5000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 6, ["Perfect Aja Mask"] = 1, ["Kars' Arm Blade"] = 1, ["Kars' Horn"] = 1, ["Red Stone of Aja"] = 15, ["Ancient Mask"] = 15, ["Aja Stone Amulet"] = 25, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part3"] = { 
 		IsBoss = true, Name = "Time Stop Vampire", Req = 1, Icon = "rbxassetid://84790385900886", 
 		Health = 15000, Strength = 100, Defense = 80, Speed = 80, Willpower = 95, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, 
 		Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block", "Rest"}, 
-		Drops = { Yen = 5000, XP = 10000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 7, ["DIO's Road Sign"] = 1, ["DIO's Headband"] = 1, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 25, ["Anubis Sword"] = 25 } } 
+		Drops = { Yen = 5000, XP = 10000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 7, ["DIO's Road Sign"] = 1, ["DIO's Headband"] = 1, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 25, ["Anubis Sword"] = 25, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part4"] = { 
 		IsBoss = true, Name = "Serial Killer", Req = 1, Icon = "rbxassetid://78559266675698", 
 		Health = 20000, Strength = 150, Defense = 125, Speed = 125, Willpower = 110, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
 		Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block", "Rest"}, 
-		Drops = { Yen = 8000, XP = 15000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 8, ["Stray Cat"] = 1, ["Kira's Wristwatch"] = 1, ["Strange Arrow"] = 10, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 25 } } 
+		Drops = { Yen = 8000, XP = 15000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 8, ["Stray Cat"] = 1, ["Kira's Wristwatch"] = 1, ["Strange Arrow"] = 10, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 25, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part5"] = { 
 		IsBoss = true, Name = "Mafia Boss", Req = 1, Icon = "rbxassetid://86941295205734",
 		Health = 25000, Strength = 200, Defense = 140, Speed = 150, Willpower = 155, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, 
 		Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block", "Rest"}, 
-		Drops = { Yen = 12000, XP = 22000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 9, ["Doppio's Phone"] = 1, ["Passione Badge"] = 1, ["Strange Arrow"] = 15, ["Giorno's Ladybug Brooch"] = 25, ["Mista's Pistol"] = 25 } } 
+		Drops = { Yen = 12000, XP = 22000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 9, ["Doppio's Phone"] = 1, ["Passione Badge"] = 1, ["Strange Arrow"] = 15, ["Giorno's Ladybug Brooch"] = 25, ["Mista's Pistol"] = 25, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part6"] = { 
-		IsBoss = true, Name = "Gravity Priest", Req = 1, Icon = "",
+		IsBoss = true, Name = "Gravity Priest", Req = 1, Icon = "rbxassetid://80960379225409",
 		Health = 30000, Strength = 250, Defense = 200, Speed = 210, Willpower = 210, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, 
 		Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, 
-		Drops = { Yen = 20000, XP = 35000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 10, ["Heavenly Stand Disc"] = 5, ["DIO's Bone"] = 1, ["Priest's Rosary"] = 1, ["Green Baby"] = 10, ["Pucci's Disc"] = 25, ["Jolyne's String"] = 25 } } 
+		Drops = { Yen = 20000, XP = 35000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 10, ["Heavenly Stand Disc"] = 5, ["DIO's Bone"] = 1, ["Priest's Rosary"] = 1, ["Green Baby"] = 10, ["Pucci's Disc"] = 25, ["Jolyne's String"] = 25, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part7"] = { 
 		IsBoss = true, Name = "23rd President", Req = 1, Icon = "",
 		Health = 35000, Strength = 300, Defense = 250, Speed = 260, Willpower = 260, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
 		Skills = {"Dimensional Strike", "Sponge Paradox", "Between Dimensions", "Heavy Strike", "Block", "Rest"}, 
-		Drops = { Yen = 30000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 15, ["Steel Ball"] = 20, ["Saint's Corpse Part"] = 20, ["Saint's Left Arm"] = 10, ["Saint's Right Eye"] = 10, ["Saint's Heart"] = 1, ["Saint's Spine"] = 1, ["Saint's Pelvis"] = 1, ["Golden Spin Scroll"] = 1, ["Valentine's Revolver"] = 1, ["The First Napkin"] = 1 } } 
+		Drops = { Yen = 30000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 15, ["Steel Ball"] = 20, ["Saint's Corpse Part"] = 20, ["Saint's Left Arm"] = 10, ["Saint's Right Eye"] = 10, ["Saint's Heart"] = 1, ["Saint's Spine"] = 1, ["Saint's Pelvis"] = 1, ["Golden Spin Scroll"] = 1, ["Valentine's Revolver"] = 1, ["The First Napkin"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part8"] = { 
 		IsBoss = true, Name = "The Head Doctor", Req = 1, Icon = "rbxassetid://107039057776207",
 		Health = 40000, Strength = 350, Defense = 300, Speed = 350, Willpower = 300, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
 		Skills = {"Cane Strike", "Flow of Calamity", "Rain of Debris", "Illusory Presence", "Heavy Strike", "Block", "Rest"}, 
-		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1, ["Rokakaka Fruit"] = 1} } 
+		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1, ["Rokakaka Fruit"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	}
 }
 
@@ -71,7 +71,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Weather Control", "Heavy Weather", "Torrential Downpour", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Weather Report Disc"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Weather Report Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["Rohan Kishibe"] = {
@@ -80,7 +80,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Page Peel", "Character Flaw", "Written Calamity", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Heaven's Door Disc"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Heaven's Door Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["Okuyasu Nijimura"] = {
@@ -89,7 +89,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Erasure Barrage", "Space Erasure", "Erasure Pull", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The Hand Disc"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The Hand Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["Risotto Nero"] = {
@@ -98,7 +98,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Camouflaged Strike", "Iron Manipulation", "Hemoglobin Exhaustion", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Metallica Disc"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Metallica Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["Giorno Giovanna"] = {
@@ -107,7 +107,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Truth Unveiled", "Revert to Zero", "Apex Vitality", "Infinite Retribution", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Requiem Arrow"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Requiem Arrow"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["DIO"] = {
@@ -116,7 +116,7 @@ EnemyData.WorldBosses = {
 		Skills = {"MUDA MUDA MUDA!", "Road Roller", "ZA WARUDO!", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["Jotaro Kujo"] = {
@@ -125,7 +125,7 @@ EnemyData.WorldBosses = {
 		Skills = {"ORA ORA ORA!", "Bearing Shot", "Time Stop", "Stand Barrage", "Block", "Rest"},
 		Drops = { 
 			XP = 25000, Yen = 10000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Star Platinum Disc"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Star Platinum Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["Wonder of U"] = {
@@ -134,7 +134,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Flow of Calamity", "Illusory Presence", "Rain of Debris", "Stand Barrage", "Cane Strike", "Block", "Rest"},
 		Drops = { 
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1, ["Inversion Medicine"] = 1 } 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Wonder of U Disc"] = 1, ["New Rokakaka"] = 1, ["Inversion Medicine"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
 	["Easter Bunny"] = {
@@ -143,7 +143,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Block"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Easter Egg"] = 100, ["Lucky Egg"] = 1 }
+			ItemChance = { ["Easter Egg"] = 100, ["Lucky Egg"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 }
 		}
 	},
 	["Chiikawa"] = {
@@ -152,7 +152,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Waaah!", "Pajama Party", "Weed Whacker", "Usagi's Help", "Block", "Rest"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Chiikawa Mascot"] = 1, ["Pink Sasumata"] = 1, ["Pochette's Armor"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
+			ItemChance = { ["Chiikawa Mascot"] = 1, ["Pink Sasumata"] = 1, ["Pochette's Armor"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 }
 		}
 	},
 	["Satoru Gojo"] = {
@@ -161,7 +161,7 @@ EnemyData.WorldBosses = {
 		Skills = {"Lapse: Blue", "Reversal: Red", "Hollow Purple", "Unlimited Void", "Block", "Rest"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Limitless Manual"] = 1, ["Playful Cloud"] = 1, ["Gojo's Blindfold"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
+			ItemChance = { ["Limitless Manual"] = 1, ["Playful Cloud"] = 1, ["Gojo's Blindfold"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 }
 		}
 	},
 	["Ryomen Sukuna"] = {
@@ -170,82 +170,82 @@ EnemyData.WorldBosses = {
 		Skills = {"Dismantle", "Cleave", "Divine Flame", "Malevolent Shrine", "Block", "Rest"},
 		Drops = {
 			XP = 35000, Yen = 15000, 
-			ItemChance = { ["Cursed Finger"] = 1, ["Kamutoke"] = 1, ["Heian Era Robes"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20 }
+			ItemChance = { ["Cursed Finger"] = 1, ["Kamutoke"] = 1, ["Heian Era Robes"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 }
 		}
 	},
 }
 
 EnemyData.Parts = {
 	[1] = {
-		Boss = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337", Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain", "Rest"}, Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=15} } },
+		Boss = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337", Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain", "Rest"}, Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=15, ["Strength Training Manual"]=5} } },
 		RandomFlavor = {"You wander the streets of London, and encounter a %s!", "A %s steps out from the shadows!", "You are ambushed by a %s!"},
 		Mobs = {
 			{ Name = "Zombie Thug", Icon = "", 
 				Health = 20, Strength = 3, Defense = 1, Speed = 2, Willpower = 2, StandStats = emptyStands, 
 				Skills = {"Basic Attack", "Block"}, 
-				Drops = { Yen = 5, XP = 10, ItemChance = { ["Brass Knuckles"] = 2, ["Wooden Bat"] = 5 } } },
+				Drops = { Yen = 5, XP = 10, ItemChance = { ["Brass Knuckles"] = 2, ["Wooden Bat"] = 5, ["Strength Training Manual"] = 1 } } },
 			{ Name = "Vampire Minion", Icon = "",
 				Health = 30, Strength = 4, Defense = 2, Speed = 3, Willpower = 3, StandStats = emptyStands, 
 				Skills = {"Basic Attack", "Blood Drain"}, 
-				Drops = { Yen = 8, XP = 20, ItemChance = { ["Boxing Manual"] = 2, ["Zeppeli's Scarf"] = 2 } } },
+				Drops = { Yen = 8, XP = 20, ItemChance = { ["Boxing Manual"] = 2, ["Zeppeli's Scarf"] = 2, ["Speed Training Manual"] = 1 } } },
 			{ Name = "Street Thug", Icon = "",
 				Health = 15, Strength = 2, Defense = 1, Speed = 1, Willpower = 1, StandStats = emptyStands, 
 				Skills = {"Basic Attack"}, 
-				Drops = { Yen = 6, XP = 12, ItemChance = { ["Steel Pipe"] = 5, ["Leather Jacket"] = 5 } } }
+				Drops = { Yen = 6, XP = 12, ItemChance = { ["Steel Pipe"] = 5, ["Leather Jacket"] = 5, ["Stamina Training Manual"] = 1 } } }
 		},
 		Templates = {
 			["Boxer"] = { Name = "Local Boxer", Icon = "",
 				Health = 20, Strength = 3, Defense = 1, Speed = 2, Willpower = 2, StandStats = emptyStands, 
 				Skills = {"Haymaker", "Liver Blow", "Block"}, 
-				Drops = { Yen = 5, XP = 10 } },
+				Drops = { Yen = 5, XP = 10, ItemChance = { ["Stamina Training Manual"] = 1 } } },
 			["Young Dio"] = { Name = "Young Dio", Icon = "",
 				Health = 50, Strength = 5, Defense = 3, Speed = 5, Willpower = 5, StandStats = emptyStands, 
 				Skills = {"Liver Blow", "Heavy Strike", "Block"}, 
-				Drops = { Yen = 20, XP = 40, ItemChance={["Boxing Manual"]=10} } },
+				Drops = { Yen = 20, XP = 40, ItemChance={["Boxing Manual"]=10, ["Willpower Training Manual"] = 1} } },
 			["Dio's Grunt"] = { Name = "Dio's Grunt", Icon = "",
 				Health = 15, Strength = 2, Defense = 1, Speed = 1, Willpower = 1, StandStats = emptyStands, 
 				Skills = {"Basic Attack"}, 
-				Drops = { Yen = 4, XP = 8, ItemChance={["Combat Knife"] = 5} } },
+				Drops = { Yen = 4, XP = 8, ItemChance={["Combat Knife"] = 5, ["Strength Training Manual"] = 1} } },
 			["Street Thug"] = { Name = "Street Thug", Icon = "",
 				Health = 25, Strength = 3, Defense = 1, Speed = 2, Willpower = 2, StandStats = emptyStands, 
 				Skills = {"Basic Attack"}, 
-				Drops = { Yen = 6, XP = 12, ItemChance={["Steel Pipe"] = 5} } },
+				Drops = { Yen = 6, XP = 12, ItemChance={["Steel Pipe"] = 5, ["Stamina Training Manual"] = 1} } },
 			["Speedwagon"] = { Name = "R.E.O. Speedwagon", Icon = "",
 				Health = 40, Strength = 4, Defense = 2, Speed = 4, Willpower = 5, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Basic Attack"}, 
-				Drops = { Yen = 15, XP = 30, ItemChance={["Boxing Manual"]=10} } },
+				Drops = { Yen = 15, XP = 30, ItemChance={["Boxing Manual"]=10, ["Speed Training Manual"] = 1} } },
 			["Zombie Thrall"] = { Name = "Zombie Thrall", Icon = "",
 				Health = 25, Strength = 4, Defense = 1, Speed = 2, Willpower = 1, StandStats = emptyStands, 
 				Skills = {"Basic Attack"}, 
-				Drops = { Yen = 5, XP = 15 } },
+				Drops = { Yen = 5, XP = 15, ItemChance={ ["Health Training Manual"] = 1 } } },
 			["Fresh Vampire Dio"] = { Name = "Dio Brando", Icon = "rbxassetid://102982650003498",
 				Health = 80, Strength = 8, Defense = 4, Speed = 6, Willpower = 8, StandStats = emptyStands, 
 				Skills = {"Blood Drain", "Heavy Strike", "Block"}, 
-				Drops = { Yen = 30, XP = 60, ItemChance={["Vampire Mask"]=5} } },
+				Drops = { Yen = 30, XP = 60, ItemChance={["Vampire Mask"]=5, ["Strength Training Manual"] = 1} } },
 			["Zombie Jack"] = { Name = "Jack the Ripper", Icon = "",
 				Health = 60, Strength = 7, Defense = 2, Speed = 8, Willpower = 4, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Basic Attack"}, 
-				Drops = { Yen = 25, XP = 50 } },
+				Drops = { Yen = 25, XP = 50, ItemChance={ ["Speed Training Manual"] = 1 } } },
 			["Bruford"] = { Name = "Bruford", Icon = "",
 				Health = 90, Strength = 9, Defense = 5, Speed = 7, Willpower = 6, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Haymaker", "Block"}, 
-				Drops = { Yen = 35, XP = 70, ItemChance={["Luck Sword"]=20} } },
+				Drops = { Yen = 35, XP = 70, ItemChance={["Luck Sword"]=20, ["Willpower Training Manual"] = 1} } },
 			["Tarkus"] = { Name = "Tarkus", Icon = "",
 				Health = 100, Strength = 10, Defense = 6, Speed = 3, Willpower = 8, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Haymaker", "Block"}, 
-				Drops = { Yen = 40, XP = 80, ItemChance={["Zeppeli's Scarf"] = 10} } },
+				Drops = { Yen = 40, XP = 80, ItemChance={["Zeppeli's Scarf"] = 10, ["Strength Training Manual"] = 1} } },
 			["Wang Chan"] = { Name = "Wang Chan", Icon = "",
 				Health = 80, Strength = 8, Defense = 4, Speed = 8, Willpower = 5, StandStats = emptyStands, 
 				Skills = {"Blood Drain", "Block"}, 
-				Drops = { Yen = 30, XP = 60 } },
+				Drops = { Yen = 30, XP = 60, ItemChance={ ["Speed Training Manual"] = 1 } } },
 			["Head Dio"] = { IsBoss = true, Name = "Dio Brando (Head)", Icon = "rbxassetid://82000644585448",
 				Health = 120, Strength = 12, Defense = 5, Speed = 10, Willpower = 10, StandStats = emptyStands, 
 				Skills = {"Space Ripper Stingy Eyes", "Blood Drain", "Rest"}, 
-				Drops = { Yen = 60, XP = 100, ItemChance={["Vampire Mask"]=10} } },
+				Drops = { Yen = 60, XP = 100, ItemChance={["Vampire Mask"]=10, ["Willpower Training Manual"] = 5} } },
 			["Vampire Dio"] = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337",
 				Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Block", "Space Ripper Stingy Eyes", "Blood Drain", "Rest"}, 
-				Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=20} } }
+				Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=20, ["Strength Training Manual"] = 5} } }
 		},
 		Missions = {
 			[1] = { Name = "Fateful Encounter", Waves = { { Template = "Young Dio", Flavor = "A young man arrives at your estate..." } } },
@@ -269,59 +269,59 @@ EnemyData.Parts = {
 	},
 
 	[2] = {
-		Boss = { IsBoss = true, Name = "Kars (ULF)", Icon = "", Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, Skills = {"Sunlight Yellow Overdrive", "Space Ripper Stingy Eyes", "Deep Breathing", "Flesh Assimilation", "Block", "Rest"}, Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } },
+		Boss = { IsBoss = true, Name = "Kars (ULF)", Icon = "", Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, Skills = {"Sunlight Yellow Overdrive", "Space Ripper Stingy Eyes", "Deep Breathing", "Flesh Assimilation", "Block", "Rest"}, Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20, ["Speed Training Manual"] = 5 } } },
 		RandomFlavor = {"You encounter a %s in the wasteland!", "A %s jumps out from the ruins!"},
 		Mobs = {
 			{ Name = "Vampire Soldier", Icon = "",
 				Health = 80, Strength = 10, Defense = 5, Speed = 8, Willpower = 8, StandStats = emptyStands, 
 				Skills = {"Basic Attack", "Block", "Space Ripper Stingy Eyes", "Blood Drain"}, 
-				Drops = { Yen = 15, XP = 40, ItemChance = { ["Aja Stone Amulet"] = 5, ["Hamon Clackers"] = 5 } } },
+				Drops = { Yen = 15, XP = 40, ItemChance = { ["Aja Stone Amulet"] = 5, ["Hamon Clackers"] = 5, ["Strength Training Manual"] = 1 } } },
 			{ Name = "Pillar Man Thrall", Icon = "",
 				Health = 120, Strength = 14, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Block"}, 
-				Drops = { Yen = 25, XP = 60, ItemChance = { ["Breathing Mask"] = 2, ["Iron Ring"] = 5 } } }
+				Drops = { Yen = 25, XP = 60, ItemChance = { ["Breathing Mask"] = 2, ["Iron Ring"] = 5, ["Defense Training Manual"] = 1 } } }
 		},
 		Templates = {
 			["Vampire Soldier"] = { Name = "Vampire Soldier", Icon = "",
 				Health = 80, Strength = 10, Defense = 5, Speed = 8, Willpower = 8, StandStats = emptyStands, 
 				Skills = {"Basic Attack", "Block", "Space Ripper Stingy Eyes", "Blood Drain"}, 
-				Drops = { Yen = 15, XP = 40 } },
+				Drops = { Yen = 15, XP = 40, ItemChance = { ["Strength Training Manual"] = 1 } } },
 			["Pillar Man Thrall"] = { Name = "Pillar Man Thrall", Icon = "", 
 				Health = 120, Strength = 14, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Block"}, 
-				Drops = { Yen = 25, XP = 60 } },
+				Drops = { Yen = 25, XP = 60, ItemChance = { ["Defense Training Manual"] = 1 } } },
 			["Straizo"] = { Name = "Straizo", Icon = "",
 				Health = 150, Strength = 15, Defense = 10, Speed = 12, Willpower = 15, StandStats = emptyStands, 
 				Skills = {"Space Ripper Stingy Eyes", "Blood Drain", "Block"}, 
-				Drops = { Yen = 40, XP = 80 } },
+				Drops = { Yen = 40, XP = 80, ItemChance = { ["Speed Training Manual"] = 1 } } },
 			["Santana"] = { Name = "Santana", Icon = "",
 				Health = 200, Strength = 20, Defense = 15, Speed = 12, Willpower = 18, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
-				Drops = { Yen = 50, XP = 120, ItemChance = { ["Ancient Mask"] = 5, ["Cyborg Blueprints"] = 5 } } },
+				Drops = { Yen = 50, XP = 120, ItemChance = { ["Ancient Mask"] = 5, ["Cyborg Blueprints"] = 5, ["Defense Training Manual"] = 1 } } },
 			["Wamuu Base"] = { Name = "Wamuu (Awakened)", Icon = "",
 				Health = 240, Strength = 24, Defense = 18, Speed = 16, Willpower = 22, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
-				Drops = { Yen = 60, XP = 150 } },
+				Drops = { Yen = 60, XP = 150, ItemChance = { ["Strength Training Manual"] = 1 } } },
 			["Loggins"] = { Name = "Loggins", Icon = "",
 				Health = 180, Strength = 18, Defense = 12, Speed = 15, Willpower = 15, StandStats = emptyStands, 
 				Skills = {"Deep Breathing", "Basic Attack", "Block"}, 
-				Drops = { Yen = 45, XP = 100, ItemChance = { ["Hamon Manual"] = 5 } } },
+				Drops = { Yen = 45, XP = 100, ItemChance = { ["Hamon Manual"] = 5, ["Stamina Training Manual"] = 1 } } },
 			["Esidisi"] = { Name = "Esidisi", Icon = "",
 				Health = 260, Strength = 26, Defense = 15, Speed = 20, Willpower = 24, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
-				Drops = { Yen = 75, XP = 180 } },
+				Drops = { Yen = 75, XP = 180, ItemChance = { ["Health Training Manual"] = 1 } } },
 			["Kars Base"] = { Name = "Kars", Icon = "rbxassetid://119492217139174",
 				Health = 280, Strength = 28, Defense = 18, Speed = 25, Willpower = 26, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
-				Drops = { Yen = 90, XP = 200 } },
+				Drops = { Yen = 90, XP = 200, ItemChance = { ["Speed Training Manual"] = 1 } } },
 			["Wamuu Chariot"] = { Name = "Wamuu (Chariot)", Icon = "",
 				Health = 300, Strength = 30, Defense = 20, Speed = 22, Willpower = 28, StandStats = emptyStands, 
 				Skills = {"Heavy Strike", "Flesh Assimilation", "Body Contortion", "Block"}, 
-				Drops = { Yen = 110, XP = 250 } },
+				Drops = { Yen = 110, XP = 250, ItemChance = { ["Speed Training Manual"] = 1 } } },
 			["Ultimate Kars"] = { IsBoss = true, Name = "Kars (ULF)", Icon = "rbxassetid://132306871638759",
 				Health = 350, Strength = 32, Defense = 22, Speed = 28, Willpower = 30, StandStats = emptyStands, 
 				Skills = {"Melting Overdrive", "Light Slip Blades", "Apex Adaptation", "Heavy Attack", "Block", "Rest"}, 
-				Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20 } } }
+				Drops = { Yen = 150, XP = 300, ItemChance = { ["Red Stone of Aja"] = 20, ["Breathing Mask"] = 50, ["Hamon Clackers"] = 50, ["Ancient Mask"] = 20, ["Speed Training Manual"] = 5 } } }
 		},
 		Missions = {
 			[1] = { Name = "New York Cafe", Waves = { { Template = "Straizo", Flavor = "Straizo betrays you! He fires his stingy eyes across the cafe." } } },
@@ -345,55 +345,55 @@ EnemyData.Parts = {
 	},
 
 	[3] = {
-		Boss = { IsBoss = true, Name = "DIO", Icon = "rbxassetid://84790385900886", Health = 600, Strength = 60, Defense = 35, Speed = 50, Willpower = 45, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block", "Rest"}, Drops = { Yen = 400, XP = 800, ItemChance = { ["Stand Arrow"] = 100, ["Anubis Sword"] = 30, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 30, ["Dio's Throwing Knives"] = 25 } } },
+		Boss = { IsBoss = true, Name = "DIO", Icon = "rbxassetid://84790385900886", Health = 600, Strength = 60, Defense = 35, Speed = 50, Willpower = 45, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block", "Rest"}, Drops = { Yen = 400, XP = 800, ItemChance = { ["Stand Arrow"] = 100, ["Anubis Sword"] = 30, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 30, ["Dio's Throwing Knives"] = 25, ["Stand Power Training Manual"] = 5 } } },
 		RandomFlavor = {"A %s attacks you in Egypt!", "An enemy Stand User, %s, blocks the path!"},
 		Mobs = {
 			{ Name = "Stand User", Icon = "",
 				Health = 200, Strength = 25, Defense = 15, Speed = 20, Willpower = 18, StandStats = {Power="C", Speed="C", Range="C", Durability="C", Precision="C", Potential="C"}, 
 				Skills = {"Basic Attack", "Stand Barrage", "Block"}, 
-				Drops = { Yen = 40, XP = 150, ItemChance = { ["Stand Arrow"] = 5, ["Tinted Sunglasses"] = 5 } } }
+				Drops = { Yen = 40, XP = 150, ItemChance = { ["Stand Arrow"] = 5, ["Tinted Sunglasses"] = 5, ["Stand Potential Training Manual"] = 1 } } }
 		},
 		Templates = {
 			["Kakyoin"] = { Name = "Noriaki Kakyoin", Icon = "",
 				Health = 220, Strength = 28, Defense = 16, Speed = 25, Willpower = 20, StandStats = {Power="C", Speed="B", Range="A", Durability="B", Precision="C", Potential="D"}, 
 				Skills = {"Emerald Splash", "Tentacle Trap"}, 
-				Drops = { Yen = 60, XP = 180, ItemChance={["Kakyoin's Sunglasses"] = 10} } },
+				Drops = { Yen = 60, XP = 180, ItemChance={["Kakyoin's Sunglasses"] = 10, ["Stand Range Training Manual"] = 1} } },
 			["Gray Fly"] = { Name = "Tower of Gray", Icon = "",
 				Health = 240, Strength = 30, Defense = 15, Speed = 30, Willpower = 20, StandStats = {Power="E", Speed="A", Range="A", Durability="C", Precision="E", Potential="E"}, 
 				Skills = {"Tower Needle", "Massacre"}, 
-				Drops = { Yen = 65, XP = 200 } },
+				Drops = { Yen = 65, XP = 200, ItemChance = { ["Stand Speed Training Manual"] = 1 } } },
 			["Devo"] = { Name = "Ebony Devil", Icon = "",
 				Health = 260, Strength = 32, Defense = 18, Speed = 28, Willpower = 22, StandStats = {Power="D", Speed="D", Range="A", Durability="B", Precision="D", Potential="B"}, 
 				Skills = {"Voodoo Doll", "Malice", "Block"}, 
-				Drops = { Yen = 70, XP = 220 } },
+				Drops = { Yen = 70, XP = 220, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Hol Horse"] = { Name = "Hol Horse", Icon = "",
 				Health = 280, Strength = 35, Defense = 18, Speed = 30, Willpower = 25, StandStats = {Power="B", Speed="B", Range="B", Durability="C", Precision="E", Potential="E"}, 
 				Skills = {"Homing Bullet", "Quick Draw"}, 
-				Drops = { Yen = 80, XP = 250, ItemChance={["Emperor Gun"] = 10, ["Heavy Revolver"] = 15} } },
+				Drops = { Yen = 80, XP = 250, ItemChance={["Emperor Gun"] = 10, ["Heavy Revolver"] = 15, ["Stand Precision Training Manual"] = 1} } },
 			["Steely Dan"] = { Name = "The Lovers", Icon = "",
 				Health = 300, Strength = 20, Defense = 25, Speed = 40, Willpower = 25, StandStats = {Power="E", Speed="D", Range="A", Durability="A", Precision="D", Potential="E"}, 
 				Skills = {"Brain Spores", "Flesh Bud"}, 
-				Drops = { Yen = 90, XP = 280 } },
+				Drops = { Yen = 90, XP = 280, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 			["Death 13"] = { Name = "Death 13", Icon = "",
 				Health = 320, Strength = 38, Defense = 22, Speed = 32, Willpower = 28, StandStats = {Power="C", Speed="C", Range="E", Durability="B", Precision="D", Potential="B"}, 
 				Skills = {"Dream Scythe", "Lali-Ho!"}, 
-				Drops = { Yen = 100, XP = 300 } },
+				Drops = { Yen = 100, XP = 300, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["N'Doul"] = { Name = "N'Doul", Icon = "",
 				Health = 350, Strength = 40, Defense = 22, Speed = 30, Willpower = 30, StandStats = {Power="C", Speed="B", Range="A", Durability="B", Precision="A", Potential="D"}, 
 				Skills = {"Water Slash", "Sand Sonar", "Block"}, 
-				Drops = { Yen = 100, XP = 300 } },
+				Drops = { Yen = 100, XP = 300, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Pet Shop"] = { Name = "Pet Shop", Icon = "",
 				Health = 400, Strength = 45, Defense = 25, Speed = 35, Willpower = 35, StandStats = {Power="B", Speed="B", Range="A", Durability="C", Precision="E", Potential="C"}, 
 				Skills = {"Ice Spikes", "Flash Freeze"}, 
-				Drops = { Yen = 120, XP = 350 } },
+				Drops = { Yen = 120, XP = 350, ItemChance = { ["Stand Speed Training Manual"] = 1 } } },
 			["Vanilla Ice"] = { Name = "Vanilla Ice", Icon = "",
 				Health = 450, Strength = 50, Defense = 28, Speed = 40, Willpower = 38, StandStats = {Power="B", Speed="B", Range="D", Durability="C", Precision="C", Potential="D"}, 
 				Skills = {"Void Erasure", "Dimension Hide", "Heavy Strike"}, 
-				Drops = { Yen = 150, XP = 400 } },
+				Drops = { Yen = 150, XP = 400, ItemChance = { ["Stand Power Training Manual"] = 1 } } },
 			["DIO"] = { IsBoss = true, Name = "DIO", Icon = "rbxassetid://84790385900886",
 				Health = 600, Strength = 60, Defense = 35, Speed = 50, Willpower = 45, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="B", Potential="B"}, 
 				Skills = {"ZA WARUDO!", "MUDA MUDA MUDA!", "Road Roller", "Space Ripper Stingy Eyes", "Block", "Rest"}, 
-				Drops = { Yen = 400, XP = 800, ItemChance = { ["Stand Arrow"] = 100, ["Anubis Sword"] = 30, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 30, ["Dio's Throwing Knives"] = 25 } } }
+				Drops = { Yen = 400, XP = 800, ItemChance = { ["Stand Arrow"] = 100, ["Anubis Sword"] = 30, ["Dio's Diary"] = 5, ["Jotaro's Hat"] = 30, ["Dio's Throwing Knives"] = 25, ["Stand Power Training Manual"] = 5 } } }
 		},
 		Missions = {
 			[1] = { Name = "High School Nurse", Waves = { { Template = "Kakyoin", Flavor = "The nurse's office is a trap. Kakyoin strikes with Hierophant Green!" } } },
@@ -417,54 +417,54 @@ EnemyData.Parts = {
 	},
 
 	[4] = {
-		Boss = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "rbxassetid://78559266675698", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block", "Rest"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15 } } },
+		Boss = { IsBoss = true, Name = "Kira (Bites the Dust)", Icon = "rbxassetid://78559266675698", Health = 1100, Strength = 90, Defense = 50, Speed = 75, Willpower = 65, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="C", Potential="A"}, Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Block", "Rest"}, Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Josuke's Peace Badge"] = 15, ["Stand Power Training Manual"] = 5 } } },
 		RandomFlavor = {"You run into a %s in Morioh!"},
 		Mobs = { { Name = "Morioh Delinquent", Icon = "",
 			Health = 350, Strength = 40, Defense = 25, Speed = 35, Willpower = 25, StandStats = {Power="B", Speed="C", Range="D", Durability="C", Precision="C", Potential="C"}, 
 			Skills = {"Basic Attack", "Block"}, 
-			Drops = { Yen = 60, XP = 200, ItemChance = { ["Stand Arrow"] = 8, ["Wooden Bat"] = 10, ["Running Shoes"] = 5 } } } 
+			Drops = { Yen = 60, XP = 200, ItemChance = { ["Stand Arrow"] = 8, ["Wooden Bat"] = 10, ["Running Shoes"] = 5, ["Strength Training Manual"] = 1 } } } 
 		},
 		Templates = {
 			["Angelo"] = { Name = "Angelo", Icon = "",
 				Health = 400, Strength = 45, Defense = 30, Speed = 35, Willpower = 28, StandStats = {Power="C", Speed="C", Range="A", Durability="A", Precision="C", Potential="E"}, 
 				Skills = {"Internal Tear", "Steam Sneak"}, 
-				Drops = { Yen = 70, XP = 250 } },
+				Drops = { Yen = 70, XP = 250, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Okuyasu"] = { Name = "Okuyasu", Icon = "rbxassetid://95630365107580",
 				Health = 450, Strength = 55, Defense = 35, Speed = 40, Willpower = 35, StandStats = {Power="B", Speed="B", Range="D", Durability="C", Precision="C", Potential="C"}, 
 				Skills = {"Space Erasure", "Erasure Pull"}, 
-				Drops = { Yen = 120, XP = 350 } },
+				Drops = { Yen = 120, XP = 350, ItemChance = { ["Stand Power Training Manual"] = 1 } } },
 			["Akira"] = { Name = "Akira Otoishi", Icon = "",
 				Health = 500, Strength = 60, Defense = 35, Speed = 50, Willpower = 38, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="C", Potential="A"}, 
 				Skills = {"Zap", "Electric Charge", "Heavy Strike"}, 
-				Drops = { Yen = 150, XP = 400 } },
+				Drops = { Yen = 150, XP = 400, ItemChance = { ["Stand Speed Training Manual"] = 1 } } },
 			["Shigechi"] = { Name = "Shigechi", Icon = "",
 				Health = 550, Strength = 55, Defense = 40, Speed = 45, Willpower = 40, StandStats = {Power="E", Speed="B", Range="A", Durability="A", Precision="E", Potential="C"}, 
 				Skills = {"Swarm Attack", "Coin Toss"}, 
-				Drops = { Yen = 160, XP = 450 } },
+				Drops = { Yen = 160, XP = 450, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Kira Base"] = { Name = "Yoshikage Kira", Icon = "rbxassetid://112623512172737",
 				Health = 650, Strength = 70, Defense = 45, Speed = 50, Willpower = 42, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
 				Skills = {"Primary Bomb", "Stand Barrage", "Block"}, 
-				Drops = { Yen = 180, XP = 500 } },
+				Drops = { Yen = 180, XP = 500, ItemChance = { ["Stand Power Training Manual"] = 1 } } },
 			["Sheer Heart Attack"] = { Name = "Sheer Heart Attack", Icon = "",
 				Health = 700, Strength = 80, Defense = 70, Speed = 30, Willpower = 45, StandStats = {Power="A", Speed="C", Range="A", Durability="A", Precision="E", Potential="A"}, 
 				Skills = {"Heavy Strike"}, 
-				Drops = { Yen = 200, XP = 550 } },
+				Drops = { Yen = 200, XP = 550, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 			["Toyohiro"] = { Name = "Toyohiro", Icon = "",
 				Health = 750, Strength = 65, Defense = 50, Speed = 45, Willpower = 45, StandStats = {Power="E", Speed="E", Range="E", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Block", "Basic Attack"}, 
-				Drops = { Yen = 220, XP = 600 } },
+				Drops = { Yen = 220, XP = 600, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 			["Terunosuke"] = { Name = "Terunosuke", Icon = "",
 				Health = 800, Strength = 70, Defense = 50, Speed = 50, Willpower = 48, StandStats = {Power="E", Speed="E", Range="C", Durability="A", Precision="C", Potential="C"}, 
 				Skills = {"Paper Trap", "Paper Gun"}, 
-				Drops = { Yen = 250, XP = 700 } },
+				Drops = { Yen = 250, XP = 700, ItemChance = { ["Stand Speed Training Manual"] = 1 } } },
 			["Stray Cat"] = { Name = "Stray Cat", Icon = "",
 				Health = 850, Strength = 75, Defense = 50, Speed = 60, Willpower = 50, StandStats = {Power="B", Speed="E", Range="None", Durability="A", Precision="E", Potential="C"}, 
 				Skills = {"Stand Barrage"}, 
-				Drops = { Yen = 300, XP = 800 } },
+				Drops = { Yen = 300, XP = 800, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Kira BTD"] = { IsBoss = true, Name = "Yoshikage Kira (BTD)", Icon = "rbxassetid://78559266675698",
 				Health = 1100, Strength = 90, Defense = 55, Speed = 75, Willpower = 60, StandStats = {Power="A", Speed="B", Range="D", Durability="B", Precision="B", Potential="A"}, 
 				Skills = {"Primary Bomb", "Sheer Heart Attack", "Bites the Dust", "Air Bomb", "Block", "Rest"}, 
-				Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25 } } }
+				Drops = { Yen = 600, XP = 1200, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Bite the Dust Detonator"] = 25, ["Kira's Tie"] = 25, ["Stand Power Training Manual"] = 5 } } }
 		},
 		Missions = {
 			[1] = { Name = "Aqua Necklace", Waves = { { Template = "Angelo", Flavor = "Angelo tries to drown you from the inside!" } } },
@@ -488,54 +488,54 @@ EnemyData.Parts = {
 	},
 
 	[5] = {
-		Boss = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734", Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block", "Rest"}, Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } },
+		Boss = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734", Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block", "Rest"}, Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5, ["Stand Power Training Manual"] = 5 } } },
 		RandomFlavor = {"A %s steps out of a dark alley in Italy!"},
 		Mobs = { { Name = "Passione Grunt", Icon = "",
 			Health = 500, Strength = 55, Defense = 40, Speed = 45, Willpower = 35, StandStats = {Power="B", Speed="B", Range="C", Durability="C", Precision="B", Potential="C"}, 
 			Skills = {"Stand Barrage", "Basic Attack"}, 
-			Drops = { Yen = 100, XP = 300, ItemChance = { ["Stand Arrow"] = 10, ["Heavy Revolver"] = 5, ["Iron Ring"] = 5 } } } 
+			Drops = { Yen = 100, XP = 300, ItemChance = { ["Stand Arrow"] = 10, ["Heavy Revolver"] = 5, ["Iron Ring"] = 5, ["Stand Precision Training Manual"] = 1 } } } 
 		},
 		Templates = {
 			["Bruno"] = { Name = "Bruno Bucciarati", Icon = "",
 				Health = 650, Strength = 70, Defense = 50, Speed = 60, Willpower = 45, StandStats = {Power="A", Speed="A", Range="E", Durability="D", Precision="C", Potential="D"}, 
 				Skills = {"ARI ARI ARI!", "Zipper Dash", "Block"}, 
-				Drops = { Yen = 150, XP = 500, ItemChance={["Giorno's Ladybug Brooch"] = 15} } },
+				Drops = { Yen = 150, XP = 500, ItemChance={["Giorno's Ladybug Brooch"] = 15, ["Stand Speed Training Manual"] = 1} } },
 			["Zucchero"] = { Name = "Zucchero", Icon = "",
 				Health = 680, Strength = 72, Defense = 50, Speed = 55, Willpower = 48, StandStats = {Power="A", Speed="C", Range="E", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Rapier Thrust", "Deflate", "Block"}, 
-				Drops = { Yen = 160, XP = 520 } },
+				Drops = { Yen = 160, XP = 520, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 			["Formaggio"] = { Name = "Formaggio", Icon = "",
 				Health = 720, Strength = 75, Defense = 55, Speed = 65, Willpower = 50, StandStats = {Power="D", Speed="B", Range="E", Durability="A", Precision="D", Potential="C"}, 
 				Skills = {"Shrink Slash", "Size Alteration"}, 
-				Drops = { Yen = 180, XP = 550 } },
+				Drops = { Yen = 180, XP = 550, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Illuso"] = { Name = "Illuso", Icon = "",
 				Health = 780, Strength = 80, Defense = 55, Speed = 60, Willpower = 52, StandStats = {Power="C", Speed="C", Range="C", Durability="D", Precision="C", Potential="E"}, 
 				Skills = {"Mirror Shards", "Mirror Pull"}, 
-				Drops = { Yen = 200, XP = 600 } },
+				Drops = { Yen = 200, XP = 600, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Pesci"] = { Name = "Pesci", Icon = "",
 				Health = 850, Strength = 85, Defense = 60, Speed = 55, Willpower = 55, StandStats = {Power="C", Speed="B", Range="B", Durability="C", Precision="C", Potential="A"}, 
 				Skills = {"Hook Strike", "Line Reel", "Heavy Strike"}, 
-				Drops = { Yen = 250, XP = 700, ItemChance={["Mista's Pistol"] = 10} } },
+				Drops = { Yen = 250, XP = 700, ItemChance={["Mista's Pistol"] = 10, ["Stand Range Training Manual"] = 1} } },
 			["Melone"] = { Name = "Melone", Icon = "",
 				Health = 900, Strength = 90, Defense = 60, Speed = 65, Willpower = 58, StandStats = {Power="A", Speed="B", Range="A", Durability="A", Precision="None", Potential="None"}, 
 				Skills = {"Basic Attack"}, 
-				Drops = { Yen = 280, XP = 800 } },
+				Drops = { Yen = 280, XP = 800, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Ghiaccio"] = { Name = "Ghiaccio", Icon = "",
 				Health = 1000, Strength = 95, Defense = 75, Speed = 70, Willpower = 60, StandStats = {Power="A", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Cryokinesis", "Gently Weeps", "Block"}, 
-				Drops = { Yen = 350, XP = 900 } },
+				Drops = { Yen = 350, XP = 900, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 			["KC Base"] = { Name = "King Crimson", Icon = "",
 				Health = 1150, Strength = 105, Defense = 65, Speed = 80, Willpower = 70, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, 
 				Skills = {"Time Erasure", "Donut Punch", "Block"}, 
-				Drops = { Yen = 400, XP = 1100 } },
+				Drops = { Yen = 400, XP = 1100, ItemChance = { ["Stand Power Training Manual"] = 1 } } },
 			["Cioccolata"] = { Name = "Cioccolata", Icon = "",
 				Health = 1250, Strength = 105, Defense = 65, Speed = 75, Willpower = 75, StandStats = {Power="A", Speed="C", Range="A", Durability="A", Precision="E", Potential="A"}, 
 				Skills = {"Mold Spread", "Downward Dismemberment"}, 
-				Drops = { Yen = 450, XP = 1300 } },
+				Drops = { Yen = 450, XP = 1300, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Diavolo"] = { IsBoss = true, Name = "Diavolo", Icon = "rbxassetid://86941295205734",
 				Health = 1600, Strength = 120, Defense = 70, Speed = 95, Willpower = 85, StandStats = {Power="A", Speed="A", Range="E", Durability="E", Precision="B", Potential="A"}, 
 				Skills = {"Time Erasure", "Donut Punch", "Epitaph", "Block", "Rest"}, 
-				Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5 } } }
+				Drops = { Yen = 1000, XP = 2000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Vampire Cape"] = 5, ["Stand Power Training Manual"] = 5 } } }
 		},
 		Missions = {
 			[1] = { Name = "Naples Station", Waves = { { Template = "Bruno", Flavor = "Bruno Bucciarati unzips the train car and interrogates you!" } } },
@@ -559,54 +559,54 @@ EnemyData.Parts = {
 	},
 
 	[6] = {
-		Boss = { IsBoss = true, Name = "Enrico Pucci", Icon = "", Health = 2400, Strength = 150, Defense = 95, Speed = 140, Willpower = 110, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30 } } },
+		Boss = { IsBoss = true, Name = "Enrico Pucci", Icon = "rbxassetid://80960379225409", Health = 2400, Strength = 150, Defense = 95, Speed = 140, Willpower = 110, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30, ["Stand Speed Training Manual"] = 5 } } },
 		RandomFlavor = {"A %s tries to stop you in the prison!"},
 		Mobs = { { Name = "Prison Guards", Icon = "",
 			Health = 750, Strength = 75, Defense = 55, Speed = 60, Willpower = 50, StandStats = {Power="C", Speed="C", Range="B", Durability="B", Precision="C", Potential="C"}, 
 			Skills = {"Basic Attack", "Heavy Strike"}, 
-			Drops = { Yen = 150, XP = 500, ItemChance = { ["Stand Arrow"] = 15, ["Steel Pipe"] = 10 } } } 
+			Drops = { Yen = 150, XP = 500, ItemChance = { ["Stand Arrow"] = 15, ["Steel Pipe"] = 10, ["Strength Training Manual"] = 1 } } } 
 		},
 		Templates = {
 			["Gwess"] = { Name = "Gwess", Icon = "",
 				Health = 900, Strength = 80, Defense = 60, Speed = 65, Willpower = 60, StandStats = {Power="D", Speed="C", Range="B", Durability="D", Precision="B", Potential="B"}, 
 				Skills = {"Rat Corpse", "Shrink Command"}, 
-				Drops = { Yen = 200, XP = 600, ItemChance={["Jolyne's String"] = 15} } },
+				Drops = { Yen = 200, XP = 600, ItemChance={["Jolyne's String"] = 15, ["Stand Range Training Manual"] = 1} } },
 			["Johngalli A"] = { Name = "Johngalli A.", Icon = "",
 				Health = 1000, Strength = 90, Defense = 65, Speed = 75, Willpower = 65, StandStats = {Power="E", Speed="E", Range="A", Durability="A", Precision="A", Potential="C"}, 
 				Skills = {"Ricochet Shot", "Wind Reading"}, 
-				Drops = { Yen = 250, XP = 800 } },
+				Drops = { Yen = 250, XP = 800, ItemChance = { ["Stand Precision Training Manual"] = 1 } } },
 			["Miraschon"] = { Name = "Miraschon", Icon = "",
 				Health = 1100, Strength = 95, Defense = 70, Speed = 80, Willpower = 70, StandStats = {Power="E", Speed="A", Range="A", Durability="A", Precision="A", Potential="C"}, 
 				Skills = {"Basic Attack", "Block", "The Hook", "Debt Collection"}, 
-				Drops = { Yen = 300, XP = 1000 } },
+				Drops = { Yen = 300, XP = 1000, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Lang Rangler"] = { Name = "Lang Rangler", Icon = "",
 				Health = 1200, Strength = 100, Defense = 75, Speed = 85, Willpower = 75, StandStats = {Power="B", Speed="C", Range="B", Durability="A", Precision="D", Potential="B"}, 
 				Skills = {"Zero Gravity", "Centrifuge Strike"}, 
-				Drops = { Yen = 350, XP = 1100 } },
+				Drops = { Yen = 350, XP = 1100, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 			["Sports Maxx"] = { Name = "Sports Maxx", Icon = "",
 				Health = 1350, Strength = 105, Defense = 75, Speed = 90, Willpower = 80, StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, 
 				Skills = {"Invisible Bite", "Zombie Swarm", "Block"}, 
-				Drops = { Yen = 400, XP = 1200 } },
+				Drops = { Yen = 400, XP = 1200, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Guccio"] = { Name = "Guccio", Icon = "",
 				Health = 1450, Strength = 110, Defense = 80, Speed = 95, Willpower = 85, StandStats = {Power="E", Speed="E", Range="E", Durability="C", Precision="E", Potential="E"}, 
 				Skills = {"Neural Shock", "Spark Fight"}, 
-				Drops = { Yen = 450, XP = 1300 } },
+				Drops = { Yen = 450, XP = 1300, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Westwood"] = { Name = "Viviano Westwood", Icon = "",
 				Health = 1600, Strength = 120, Defense = 80, Speed = 100, Willpower = 90, StandStats = {Power="A", Speed="B", Range="A", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Meteor Strike", "Meteor Barrage"}, 
-				Drops = { Yen = 500, XP = 1500 } },
+				Drops = { Yen = 500, XP = 1500, ItemChance = { ["Strength Training Manual"] = 1 } } },
 			["Miu Miu"] = { Name = "Miu Miu", Icon = "",
 				Health = 1750, Strength = 125, Defense = 85, Speed = 110, Willpower = 95, StandStats = {Power="None", Speed="C", Range="A", Durability="A", Precision="None", Potential="None"}, 
 				Skills = {"Iron Bar Strike", "Three Memories", "Block"}, 
-				Drops = { Yen = 550, XP = 1800 } },
+				Drops = { Yen = 550, XP = 1800, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 			["Pucci C-Moon"] = { Name = "Enrico Pucci", Icon = "rbxassetid://138993866592031",
 				Health = 1900, Strength = 135, Defense = 90, Speed = 120, Willpower = 100, StandStats = {Power="B", Speed="D", Range="C", Durability="A", Precision="None", Potential="None"}, 
 				Skills = {"Surface Inversion", "Gravity Shift", "Gravity Repulsion"}, 
-				Drops = { Yen = 600, XP = 2200 } },
-			["Pucci MiH"] = { IsBoss = true, Name = "Enrico Pucci (MiH)", Icon = "",
+				Drops = { Yen = 600, XP = 2200, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
+			["Pucci MiH"] = { IsBoss = true, Name = "Enrico Pucci (MiH)", Icon = "rbxassetid://80960379225409",
 				Health = 2400, Strength = 150, Defense = 95, Speed = 140, Willpower = 110, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, 
 				Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, 
-				Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30 } } }
+				Drops = { Yen = 2000, XP = 5000, ItemChance = { ["Stand Arrow"] = 50, ["Strange Arrow"] = 5, ["Green Baby"] = 10, ["Pucci's Disc"] = 30, ["Stand Speed Training Manual"] = 5 } } }
 		},
 		Missions = {
 			[1] = { Name = "Prison Cell", Waves = { { Template = "Gwess", Flavor = "Gwess shrinks you down and puts you in a parrot corpse!" } } },
@@ -635,7 +635,7 @@ EnemyData.Parts = {
 			Health = 15000, Strength = 500, Defense = 300, Speed = 250, Willpower = 250, 
 			StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
 			Skills = {"Dimensional Strike", "Sponge Paradox", "Parallel Replacement", "Between Dimensions", "Block", "Rest"}, 
-			Drops = { Yen = 15000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Saint's Corpse Part"] = 10 } } 
+			Drops = { Yen = 15000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Saint's Corpse Part"] = 10, ["Stand Durability Training Manual"] = 5 } } 
 		},
 		RandomFlavor = {"A %s ambushes you in the cross-country race!"},
 		Mobs = { 
@@ -643,68 +643,68 @@ EnemyData.Parts = {
 				Health = 4000, Strength = 150, Defense = 100, Speed = 100, Willpower = 100, 
 				StandStats = {Power="B", Speed="B", Range="B", Durability="C", Precision="B", Potential="C"}, 
 				Skills = {"Steel Ball Throw", "Basic Attack", "Block"}, 
-				Drops = { Yen = 1500, XP = 8000, ItemChance = { ["Stand Arrow"] = 25, ["Steel Ball"] = 1 } } } 
+				Drops = { Yen = 1500, XP = 8000, ItemChance = { ["Stand Arrow"] = 25, ["Steel Ball"] = 1, ["Speed Training Manual"] = 1 } } } 
 		},
 		Templates = {
 			["Oyecomova"] = { Name = "Oyecomova", Icon = "",
 				Health = 5000, Strength = 200, Defense = 120, Speed = 120, Willpower = 120, 
 				StandStats = {Power="B", Speed="B", Range="B", Durability="B", Precision="C", Potential="C"}, 
 				Skills = {"Pin Detonation", "Clockwork Trap", "Listen to My Rhythm", "Block"}, 
-				Drops = { Yen = 2500, XP = 12000 } },
+				Drops = { Yen = 2500, XP = 12000, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Pork Pie Hat"] = { Name = "Pork Pie Hat Kid", Icon = "",
 				Health = 5500, Strength = 220, Defense = 130, Speed = 130, Willpower = 130, 
 				StandStats = {Power="C", Speed="C", Range="A", Durability="B", Precision="B", Potential="C"}, 
 				Skills = {"Stealth Drop", "Block", "Dimensional Hook", "Reel In"}, 
-				Drops = { Yen = 3000, XP = 13500 } },
+				Drops = { Yen = 3000, XP = 13500, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Sandman"] = { Name = "Sandman", Icon = "",
 				Health = 6000, Strength = 250, Defense = 150, Speed = 150, Willpower = 150, 
 				StandStats = {Power="C", Speed="C", Range="D", Durability="A", Precision="D", Potential="B"}, 
 				Skills = {"Sound Construct", "Destructive Slash", "Sound Camouflage", "Block"}, 
-				Drops = { Yen = 3500, XP = 15000 } },
+				Drops = { Yen = 3500, XP = 15000, ItemChance = { ["Stand Speed Training Manual"] = 1 } } },
 
 			["Eleven Men"] = { Name = "Eleven Men", Icon = "",
 				Health = 6500, Strength = 270, Defense = 160, Speed = 160, Willpower = 160, 
 				StandStats = {Power="None", Speed="E", Range="C", Durability="B", Precision="E", Potential="E"}, 
 				Skills = {"Assassination Shot", "Eleven Men Swarm", "Hide in the Canvas", "Block"}, 
-				Drops = { Yen = 4000, XP = 17000, ItemChance = { ["Saint's Left Arm"] = 10 } } },
+				Drops = { Yen = 4000, XP = 17000, ItemChance = { ["Saint's Left Arm"] = 10, ["Stand Range Training Manual"] = 1 } } },
 
 			["Blackmore"] = { Name = "Blackmore", Icon = "",
 				Health = 7000, Strength = 300, Defense = 180, Speed = 180, Willpower = 180, 
 				StandStats = {Power="C", Speed="C", Range="B", Durability="B", Precision="B", Potential="D"}, 
 				Skills = {"Raindrop Blade", "Storm Slicer", "Walking on Water", "Block"}, 
-				Drops = { Yen = 5000, XP = 20000 } },
+				Drops = { Yen = 5000, XP = 20000, ItemChance = { ["Stand Precision Training Manual"] = 1 } } },
 
 			["Ringo"] = { Name = "Ringo Roadagain", Icon = "",
 				Health = 7500, Strength = 320, Defense = 200, Speed = 200, Willpower = 200, 
 				StandStats = {Power="None", Speed="A", Range="None", Durability="E", Precision="None", Potential="C"}, 
 				Skills = {"Pistol Quickdraw", "True Man's World", "Six Seconds Rewind", "Disorienting Time", "Block"}, 
-				Drops = { Yen = 7000, XP = 25000 } },
+				Drops = { Yen = 7000, XP = 25000, ItemChance = { ["Stand Precision Training Manual"] = 1 } } },
 
 			["Wekapipo"] = { Name = "Wekapipo", Icon = "",
 				Health = 8000, Strength = 350, Defense = 220, Speed = 210, Willpower = 210, 
 				StandStats = {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}, 
 				Skills = {"Steel Ball Throw", "Wrecking Ball", "Ratio Visualization", "Block"}, 
-				Drops = { Yen = 8000, XP = 28000, ItemChance = { ["Steel Ball"] = 15 } } },
+				Drops = { Yen = 8000, XP = 28000, ItemChance = { ["Steel Ball"] = 15, ["Stand Precision Training Manual"] = 1 } } },
 
 			["Magenta"] = { Name = "Magenta Magenta", Icon = "",
 				Health = 9000, Strength = 380, Defense = 500, Speed = 100, Willpower = 220, 
 				StandStats = {Power="None", Speed="C", Range="None", Durability="A", Precision="D", Potential="C"}, 
 				Skills = {"Grounded Strike", "Energy Redirection", "Absolute Defense", "Block"}, 
-				Drops = { Yen = 9000, XP = 30000 } },
+				Drops = { Yen = 9000, XP = 30000, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 
 			["Diego"] = { Name = "Diego Brando", Icon = "",
 				Health = 10000, Strength = 400, Defense = 250, Speed = 220, Willpower = 220, 
 				StandStats = {Power="B", Speed="B", Range="B", Durability="A", Precision="C", Potential="B"}, 
 				Skills = {"Raptor Claw", "Dinosaur Virus", "Fossilization", "Predator's Agility", "Block"}, 
-				Drops = { Yen = 10000, XP = 35000, ItemChance = { ["Saint's Right Eye"] = 10 } } },
+				Drops = { Yen = 10000, XP = 35000, ItemChance = { ["Saint's Right Eye"] = 10, ["Stand Speed Training Manual"] = 1 } } },
 
 			["Valentine"] = { IsBoss = true, Name = "Funny Valentine", Icon = "",
 				Health = 12500, Strength = 420, Defense = 300, Speed = 250, Willpower = 250, 
 				StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
 				Skills = {"Dimensional Strike", "Sponge Paradox", "Parallel Replacement", "Between Dimensions", "Block", "Rest"}, 
-				Drops = { Yen = 15000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Saint's Corpse Part"] = 10 } } }
+				Drops = { Yen = 15000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Saint's Corpse Part"] = 10, ["Stand Durability Training Manual"] = 5 } } }
 		},
 		Missions = {
 			[1] = { Name = "Boku no Rhythm", Waves = { { Template = "Oyecomova", Flavor = "A terrorist with clockwork bombs attacks!" } } },
@@ -738,7 +738,7 @@ EnemyData.Parts = {
 			Health = 18000, Strength = 550, Defense = 350, Speed = 350, Willpower = 300, 
 			StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
 			Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Rain of Debris", "Block", "Rest"}, 
-			Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 50 } } 
+			Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 50, ["Stand Range Training Manual"] = 5 } } 
 		},
 		RandomFlavor = {"A %s appears in Morioh!", "A %s steps out from the fruit parlor!"},
 		Mobs = { 
@@ -746,68 +746,68 @@ EnemyData.Parts = {
 				Health = 5000, Strength = 200, Defense = 150, Speed = 120, Willpower = 150, 
 				StandStats = {Power="C", Speed="C", Range="D", Durability="B", Precision="D", Potential="E"}, 
 				Skills = {"Silicon Strike", "Rock Armor", "Basic Attack", "Block"}, 
-				Drops = { Yen = 2000, XP = 10000, ItemChance = { ["Stand Arrow"] = 25, ["Rokakaka"] = 2 } } } 
+				Drops = { Yen = 2000, XP = 10000, ItemChance = { ["Stand Arrow"] = 25, ["Rokakaka"] = 2, ["Defense Training Manual"] = 1 } } } 
 		},
 		Templates = {
 			["Ojiro"] = { Name = "Ojiro Sasame", Icon = "",
 				Health = 5500, Strength = 200, Defense = 150, Speed = 150, Willpower = 150, 
 				StandStats = {Power="D", Speed="C", Range="D", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Above You", "Mark", "Puppeteer", "Block"}, 
-				Drops = { Yen = 3000, XP = 14000 } },
+				Drops = { Yen = 3000, XP = 14000, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Daiya"] = { Name = "Daiya Higashikata", Icon = "",
 				Health = 6000, Strength = 220, Defense = 160, Speed = 160, Willpower = 160, 
 				StandStats = {Power="E", Speed="E", Range="E", Durability="B", Precision="E", Potential="E"}, 
 				Skills = {"Sneak Attack", "Memory Theft", "Rule Enforcement", "Block"}, 
-				Drops = { Yen = 3500, XP = 15500 } },
+				Drops = { Yen = 3500, XP = 15500, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Tsurugi"] = { Name = "Tsurugi Higashikata", Icon = "",
 				Health = 6500, Strength = 240, Defense = 170, Speed = 170, Willpower = 170, 
 				StandStats = {Power="E", Speed="E", Range="C", Durability="C", Precision="C", Potential="E"}, 
 				Skills = {"Origami Strike", "Sensory Illusion", "Swarm", "Block"}, 
-				Drops = { Yen = 4000, XP = 17000 } },
+				Drops = { Yen = 4000, XP = 17000, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Yotsuyu"] = { Name = "Yotsuyu Yagiyama", Icon = "",
 				Health = 7000, Strength = 260, Defense = 180, Speed = 180, Willpower = 180, 
 				StandStats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Gravity Pull", "Attract Objects", "Spike Rain", "Block"}, 
-				Drops = { Yen = 4500, XP = 18500 } },
+				Drops = { Yen = 4500, XP = 18500, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 
 			["Aisho"] = { Name = "Aisho Dainenjiyama", Icon = "",
 				Health = 7500, Strength = 280, Defense = 190, Speed = 190, Willpower = 190, 
 				StandStats = {Power="C", Speed="C", Range="A", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Tornado Strike", "Breath Tracking", "Suffocate", "Block"}, 
-				Drops = { Yen = 5000, XP = 20000 } },
+				Drops = { Yen = 5000, XP = 20000, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Damo"] = { Name = "Tamaki Damo", Icon = "",
 				Health = 8500, Strength = 320, Defense = 220, Speed = 210, Willpower = 210, 
 				StandStats = {Power="E", Speed="E", Range="C", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Soft Strike", "Liquefy", "Melt Down", "Block"}, 
-				Drops = { Yen = 6500, XP = 24000 } },
+				Drops = { Yen = 6500, XP = 24000, ItemChance = { ["Stand Durability Training Manual"] = 1 } } },
 
 			["Urban"] = { Name = "Urban Guerrilla", Icon = "",
 				Health = 9500, Strength = 350, Defense = 240, Speed = 230, Willpower = 230, 
 				StandStats = {Power="C", Speed="C", Range="C", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Toxin Touch", "Cellular Breakdown", "Melt", "Block"}, 
-				Drops = { Yen = 7500, XP = 27000 } },
+				Drops = { Yen = 7500, XP = 27000, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Dolomite"] = { Name = "Dolomite", Icon = "",
 				Health = 10500, Strength = 380, Defense = 260, Speed = 240, Willpower = 240, 
 				StandStats = {Power="E", Speed="E", Range="A", Durability="A", Precision="E", Potential="E"}, 
 				Skills = {"Zombie Strike", "Mind Controlling", "Relentless Pursuit", "Block"}, 
-				Drops = { Yen = 8500, XP = 30000 } },
+				Drops = { Yen = 8500, XP = 30000, ItemChance = { ["Stand Range Training Manual"] = 1 } } },
 
 			["Jobin"] = { Name = "Jobin Higashikata", Icon = "",
 				Health = 12500, Strength = 420, Defense = 280, Speed = 280, Willpower = 280, 
 				StandStats = {Power="C", Speed="B", Range="D", Durability="A", Precision="C", Potential="C"}, 
 				Skills = {"Heat Strike", "Boiling Point", "Combustion", "Block"}, 
-				Drops = { Yen = 10000, XP = 35000 } },
+				Drops = { Yen = 10000, XP = 35000, ItemChance = { ["Stand Power Training Manual"] = 1 } } },
 
 			["Tooru"] = { IsBoss = true, Name = "Tooru", Icon = "",
 				Health = 18000, Strength = 550, Defense = 350, Speed = 350, Willpower = 300, 
 				StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
 				Skills = {"Cane Strike", "Flow of Calamity", "Illusory Presence", "Rain of Debris", "Block", "Rest"}, 
-				Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Saint's Corpse Part"] = 100, ["Rokakaka"] = 50 } } }
+				Drops = { Yen = 20000, XP = 60000, ItemChance = { ["Saint's Corpse Part"] = 100, ["Rokakaka"] = 50, ["Stand Range Training Manual"] = 5 } } }
 		},
 		Missions = {
 			[1] = { Name = "Fun Fun Fun", Waves = { { Template = "Ojiro", Flavor = "You are ambushed in the apartment! Fun Fun Fun takes control." } } },
