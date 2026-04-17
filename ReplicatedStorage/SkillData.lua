@@ -55,7 +55,7 @@ SkillData.Skills = {
 	-- April Fools
 	["Lapse: Blue"] = { Requirement = "Limitless", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "Creates a magnetic center of gravity, pulling the target and slowing them." },
 	["Reversal: Red"] = { Requirement = "Limitless", Type = "Style", Mult = 3.5, StaminaCost = 15, EnergyCost = 0, Cooldown = 3, Order = 7, Description = "Unleashes a powerful repelling force that shatters the enemy's guard." },
-	["Hollow Purple"] = { Requirement = "Limitless", Type = "Style", Mult = 4.0, StaminaCost = 35, EnergyCost = 0, Effect = "Bleed", Duration = 5, Cooldown = 7, Order = 8, Description = "Collides Blue and Red to create an imaginary mass that erases everything in its path." },
+	["Hollow Purple"] = { Requirement = "Limitless", Type = "Style", Mult = 4.0, StaminaCost = 35, EnergyCost = 0, Effect = "Rupture", Duration = 5, Cooldown = 7, Order = 8, Description = "Collides Blue and Red to create an imaginary mass that erases everything in its path, causing Rupture." },
 	["Unlimited Void"] = { Requirement = "Limitless", Type = "Style", Mult = 0, StaminaCost = 20, EnergyCost = 0, Effect = "Stun", Duration = 3, Cooldown = 10, Order = 9, Description = "Floods the mind of your enemy with infinite, endless knowledge, stunning them." },
 
 	["Dismantle"] = { Requirement = "Shrine", Type = "Style", Mult = 2.5, StaminaCost = 10, EnergyCost = 0, Order = 6, Description = "A default slashing attack that easily slices mundane objects." },
@@ -65,7 +65,7 @@ SkillData.Skills = {
 
 	-- Easter
 	["Reskiniharden Saber"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.8, StaminaCost = 10, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 6, Order = 6, Description = "Hardens skin into wrist blades, violently slashing and causing Bleed." },
-	["Meltedin Palm"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.4, StaminaCost = 8, EnergyCost = 0, Effect = "Poison", Duration = 2, Cooldown = 6, Order = 7, Description = "Secretes corrosive enzymes from your palms, poisoning the enemy." },
+	["Meltedin Palm"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.4, StaminaCost = 8, EnergyCost = 0, Effect = "Acid", Duration = 2, Cooldown = 6, Order = 7, Description = "Secretes corrosive enzymes from your palms, poisoning the enemy with Acid." },
 	["Shooting-Bees Stinger"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 8, Description = "Shoots out hardened hair, instantly combusting upon contact, burning the enemy." },
 	["Break Dark Thunder"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.7, StaminaCost = 12, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 9, Description = "Discharges high-voltage bio-electricity, stunning the enemy." },
 
@@ -175,7 +175,7 @@ SkillData.Skills = {
 	["Zipper Dash"] = { Requirement = "Sticky Fingers", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 12, Description = "Unzips the ground to glide at extreme Speed." },
 
 	["Feral Strike"] = { Requirement = "Purple Haze", Type = "Stand", Mult = 1.8, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "A frenzied, incredibly violent punch." },
-	["Capsule Break"] = { Requirement = "Purple Haze", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 12, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 12, Description = "Crushes a virus capsule, inflicting severe Poison." },
+	["Capsule Break"] = { Requirement = "Purple Haze", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 12, Effect = "Plague", Duration = 3, Cooldown = 5, Order = 12, Description = "Crushes a virus capsule, inflicting severe Plague." },
 
 	["String Beatdown"] = { Requirement = "Stone Free", Type = "Stand", Mult = 1.7, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "Unravels its body to unleash a flurry of blows." },
 	["Mobius Strip"] = { Requirement = "Stone Free", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Defense", Duration = 4, Cooldown = 5, Order = 12, Description = "Turns your body into an inverted plane, greatly increasing Defense." },
@@ -202,7 +202,7 @@ SkillData.Skills = {
 	["Gently Weeps"] = { Requirement = "White Album", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Defense", Duration = 4, Cooldown = 5, Order = 12, Description = "Freezes the air into solid armor, heavily boosting Defense." },
 
 	["Downward Dismemberment"] = { Requirement = "Green Day", Type = "Stand", Mult = 1.7, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "A brutal physical attack targeting the lower body." },
-	["Mold Spread"] = { Requirement = "Green Day", Type = "Stand", Mult = 2.3, StaminaCost = 0, EnergyCost = 9, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 12, Description = "Infects the target with flesh-eating mold." },
+	["Mold Spread"] = { Requirement = "Green Day", Type = "Stand", Mult = 2.3, StaminaCost = 0, EnergyCost = 9, Effect = "Decay", Duration = 3, Cooldown = 5, Order = 12, Description = "Infects the target with flesh-eating mold, causing rapid Decay." },
 
 	["Meteor Strike"] = { Requirement = "Planet Waves", Type = "Stand", Mult = 1.7, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "A single flaming meteor strike." },
 	["Meteor Barrage"] = { Requirement = "Planet Waves", Type = "Stand", Mult = 0.7, Hits = 3, StaminaCost = 0, EnergyCost = 10, Effect = "Burn", Duration = 3, Cooldown = 4, Order = 12, Description = "Pulls 3 meteors from orbit down onto the enemy." },
@@ -239,7 +239,7 @@ SkillData.Skills = {
 	["Sensory Overload"] = { Requirement = "Gold Experience", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 11, Effect = "Confusion", Duration = 2, Cooldown = 5, Order = 12, Description = "Overloads the target's consciousness, Confusing them." },
 	["Life Giver"] = { Requirement = "Gold Experience", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 12, Effect = "Heal", HealPercent = 0.3, Cooldown = 5, Order = 13, Description = "Transforms objects into body parts, healing 30% Max HP." },
 
-	["Melt Your Heart"] = { Requirement = "Whitesnake", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "Strikes with a highly corrosive acid." },
+	["Melt Your Heart"] = { Requirement = "Whitesnake", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 6, Effect = "Acid", Duration = 2, Cooldown = 3, Order = 11, Description = "Strikes with a highly corrosive acid." },
 	["Gun Illusion"] = { Requirement = "Whitesnake", Type = "Stand", Mult = 2.7, StaminaCost = 0, EnergyCost = 10, Effect = "Confusion", Duration = 2, Cooldown = 5, Order = 12, Description = "Traps the enemy in an illusion, Confusing them." },
 	["Disc Extraction"] = { Requirement = "Whitesnake", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 12, Effect = "Debuff_Random", Duration = 4, Cooldown = 6, Order = 13, Description = "Steals the enemy's spirit disc, applying a random Debuff." },
 
@@ -264,11 +264,11 @@ SkillData.Skills = {
 	["Character Flaw"] = { Requirement = "Heaven's Door", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 12, Effect = "Debuff_Random", Duration = 2, Cooldown = 6, Order = 13, Description = "Rewrites the enemy's fundamental traits, randomly crippling one of their stats." },
 
 	["Camouflaged Strike"] = { Requirement = "Metallica", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "Bends light around iron particles to become invisible and striking secretely." },
-	["Iron Manipulation"] = { Requirement = "Metallica", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 8, Effect = "Bleed", Duration = 5, Cooldown = 7, Order = 12, Description = "Forces iron inside the enemy's blood to form sharp objects." },
+	["Iron Manipulation"] = { Requirement = "Metallica", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 8, Effect = "Rupture", Duration = 5, Cooldown = 7, Order = 12, Description = "Forces iron inside the enemy's blood to form sharp objects, causing severe Rupture." },
 	["Hemoglobin Exhaustion"] = { Requirement = "Metallica", Type = "Stand", Mult = 0.5, StaminaCost = 0, EnergyCost = 12, Effect = "Debuff_Defense", Duration = 4, Cooldown = 6, Order = 13, Description = "Depletes the iron from the enemy's blood, causing them to become weakened" },
 
 	["Erasure Barrage"] = { Requirement = "The Hand", Type = "Stand", Mult = 0.9, Hits = 3, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "Quickly erases the space in front of you wildy." },
-	["Space Erasure"] = { Requirement = "The Hand", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 12, Description = "Swipes the air, completely erasing anything in its path." },
+	["Space Erasure"] = { Requirement = "The Hand", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 10, Effect = "Rupture", Duration = 3, Cooldown = 5, Order = 12, Description = "Swipes the air, completely erasing anything in its path, causing Rupture." },
 	["Erasure Pull"] = { Requirement = "The Hand", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 15, Effect = "Stun", Duration = 2, Cooldown = 7, Order = 13, Description = "A terrifying vertical swipe that erases the ground and space beneath the enemy, leaving them disoriented." },
 
 	["Shattering Fist"] = { Requirement = "Steel Platinum", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Devastate those foes who doubted your power." },
@@ -301,7 +301,7 @@ SkillData.Skills = {
 	["Life Alteration"] = { Requirement = "Chariot Requiem", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Debuff_Random", Duration = 5, Cooldown = 8, Order = 14, Description = "The inevitable march of the Requiem, altering all life into something else entirely." },
 
 	["Raging Demon"] = { Requirement = "King Crimson Requiem", Type = "Stand", Mult = 0.6, Hits = 5, StaminaCost = 0, EnergyCost = 12, Order = 11, Description = "Unleash a flurry of rage and anger, obliterating the enemies that stand before you." },
-	["Dimensional Slash"] = { Requirement = "King Crimson Requiem", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 16, Effect = "Bleed", Duration = 4, Cooldown = 6, Order = 12, Description = "Cleave reality with your strike, causing severe, inescapable Bleeding." },
+	["Dimensional Slash"] = { Requirement = "King Crimson Requiem", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 16, Effect = "Rupture", Duration = 4, Cooldown = 6, Order = 12, Description = "Cleave reality with your strike, causing severe, inescapable Rupture." },
 	["True Epitaph"] = { Requirement = "King Crimson Requiem", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 22, Effect = "Debuff_Defense", Duration = 3, Cooldown = 6, Order = 13, Description = "See the fated outcome of your victory, and reposition at your enemies weakest point." },
 	["Reality Marble"] = { Requirement = "King Crimson Requiem", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "TimeErase", Duration = 3, Cooldown = 10, Order = 14, Description = "Completely obliterates the concept of time for all except yourself, freezing the enemy and wiping their actions." },
 
@@ -311,7 +311,7 @@ SkillData.Skills = {
 	["ZA WARUDO! (Over Heaven)"] = { Requirement = "The World: Over Heaven", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "TimeStop", Duration = 3, Cooldown = 10, Order = 14, Description = "Stops time on a universal scale, completely freezing the enemy." },
 
 	["Reality Barrage"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 15, Order = 11, Description = "An overwhelming punch that defies the laws of the universe." },
-	["Reality Piercing Strike"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 20, Effect = "Bleed", Duration = 4, Cooldown = 8, Order = 12, Description = "Shatters the enemy's body, causing them to bleed out." },
+	["Reality Piercing Strike"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 20, Effect = "Rupture", Duration = 4, Cooldown = 8, Order = 12, Description = "Shatters the enemy's body, causing them to Rupture." },
 	["Rewrite Truth"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 5, Cooldown = 7, Order = 13, Description = "Rewrites the truth to enforce your absolute victory, shattering their defense." },
 	["Time Stop (Over Heaven)"] = { Requirement = "Star Platinum: Over Heaven", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "TimeStop", Duration = 3, Cooldown = 10, Order = 14, Description = "Stops time on a universal scale, completely freezing the enemy." },
 
@@ -328,7 +328,7 @@ SkillData.Skills = {
 	["Flawless Luck"] = { Requirement = "Hey Ya!", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Buff_Random", Duration = 4, Cooldown = 6, Order = 13, Description = "Everything falls perfectly into place." },
 
 	["Flesh Spray"] = { Requirement = "Cream Starter", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "Sprays a high-pressure beam of pressurized flesh." },
-	["Melting Foam"] = { Requirement = "Cream Starter", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 9, Effect = "Burn", Duration = 3, Cooldown = 4, Order = 12, Description = "Sprays an acidic flesh-foam that burns the target." },
+	["Melting Foam"] = { Requirement = "Cream Starter", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 9, Effect = "Acid", Duration = 3, Cooldown = 4, Order = 12, Description = "Sprays an acidic flesh-foam that burns the target with Acid." },
 	["Flesh Healing"] = { Requirement = "Cream Starter", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Heal", HealPercent = 0.30, Cooldown = 6, Order = 13, Description = "Patches wounds with flesh spray, restoring 30% Max HP." },
 
 	["Sound Construct"] = { Requirement = "In a Silent Way", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 6, Order = 11, Description = "Materializes a solid word to strike the enemy." },
@@ -352,7 +352,7 @@ SkillData.Skills = {
 	["Misfortune Deflection"] = { Requirement = "Ticket to Ride", Type = "Stand", Mult = 2.0, StaminaCost = 0, EnergyCost = 12, Effect = "Confusion", Duration = 2, Cooldown = 5, Order = 13, Description = "Redirects a fatal blow into a chain of unfortunate events for the target, Confusing them." },
 
 	["Magnetic Pull"] = { Requirement = "Tomb of the Boom", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 8, Effect = "Debuff_Speed", Duration = 3, Cooldown = 4, Order = 11, Description = "Magnetizes the enemy, heavily reducing their Speed by pulling them to the ground." },
-	["Iron Sand Rip"] = { Requirement = "Tomb of the Boom", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 12, Effect = "Bleed", Duration = 4, Cooldown = 5, Order = 12, Description = "Forces iron particles to violently rip through the enemy's skin from the inside out." },
+	["Iron Sand Rip"] = { Requirement = "Tomb of the Boom", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 12, Effect = "Rupture", Duration = 4, Cooldown = 5, Order = 12, Description = "Forces iron particles to violently rip through the enemy's skin from the inside out." },
 	["Magnetic Repulsion"] = { Requirement = "Tomb of the Boom", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 13, Description = "Uses magnetic forces to repel metallic attacks, heavily boosting your Defense." },
 
 	["Dimensional Hook"] = { Requirement = "Wired", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 7, Order = 11, Description = "Drops a massive, heavy hook from the sky through a puddle." },
@@ -386,7 +386,7 @@ SkillData.Skills = {
 	["Between Dimensions"] = { Requirement = "Dirty Deeds Done Dirt Cheap", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 12, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 14, Description = "Hides between two objects, vastly increasing Defense against attacks." },
 
 	["Raptor Claw"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 2.6, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "A vicious slash from dinosaur claws." },
-	["Dinosaur Virus"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 12, Effect = "Poison", Duration = 4, Cooldown = 6, Order = 12, Description = "Bites the target to infect them with the dinosaur virus, causing heavy Poison." },
+	["Dinosaur Virus"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 12, Effect = "Infection", Duration = 4, Cooldown = 6, Order = 12, Description = "Bites the target to infect them with the dinosaur Infection." },
 	["Fossilization"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 13, Description = "Hardens your dinosaur scales into a fossilized armor, boosting Defense." },
 	["Predator's Agility"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 14, Description = "Taps into primal instincts to drastically increase Speed." },
 
@@ -400,17 +400,17 @@ SkillData.Skills = {
 	["Moving Bullet"] = { Requirement = "Tusk Act 2", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 12, Effect = "Debuff_Defense", Duration = 4, Cooldown = 6, Order = 14, Description = "The nail burrows through armor, lowering the enemy's Defense." },
 
 	["Spatial Nail"] = { Requirement = "Tusk Act 3", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 12, Order = 11, Description = "A masterfully spun bullet that ignores distance." },
-	["Infinite Spin"] = { Requirement = "Tusk Act 3", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 16, Effect = "Bleed", Duration = 4, Cooldown = 7, Order = 12, Description = "Fires a bullet carrying infinite rotational energy, causing massive Bleeding." },
+	["Infinite Spin"] = { Requirement = "Tusk Act 3", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 16, Effect = "Rupture", Duration = 4, Cooldown = 7, Order = 12, Description = "Fires a bullet carrying infinite rotational energy, causing massive Rupture." },
 	["Wormhole Evasion"] = { Requirement = "Tusk Act 3", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 14, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 13, Description = "Shoots yourself into the bullet hole to hide, heavily boosting Speed." },
 	["Spatial Shot"] = { Requirement = "Tusk Act 3", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 15, Effect = "Confusion", Duration = 2, Cooldown = 8, Order = 14, Description = "Fires from a completely impossible angle, Confusing the target." },
 
 	["Infinite Rotation"] = { Requirement = "Tusk Act 4", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 14, Order = 11, Description = "A punch carrying the perfect golden spin." },
 	["Golden Spin"] = { Requirement = "Tusk Act 4", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 18, Effect = "Stun", Duration = 2, Cooldown = 7, Order = 12, Description = "Injects infinite rotation into the enemy, stunning them entirely." },
 	["Absolute Energy"] = { Requirement = "Tusk Act 4", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Buff_Strength", Duration = 5, Cooldown = 6, Order = 13, Description = "Harnesses the complete power of the horse's energy, maximizing Strength." },
-	["Cellular Destruction"] = { Requirement = "Tusk Act 4", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 16, Effect = "Poison", Duration = 4, Cooldown = 8, Order = 14, Description = "The spin forces the enemy's cells to rotate and tear apart, causing severe Poison." },
+	["Cellular Destruction"] = { Requirement = "Tusk Act 4", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 16, Effect = "Necrosis", Duration = 4, Cooldown = 8, Order = 14, Description = "The spin forces the enemy's cells to rotate and tear apart, causing severe Necrosis." },
 
 	["Light Strike"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 14, Order = 11, Description = "A devastating chop imbued with the holy light." },
-	["Misfortune Redirection"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 18, Effect = "Burn", Duration = 4, Cooldown = 8, Order = 12, Description = "Pushes bad luck into the target, causing them to spontaneously ignite." },
+	["Misfortune Redirection"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 18, Effect = "Calamity", Duration = 4, Cooldown = 8, Order = 12, Description = "Pushes bad luck into the target, cursing them with Calamity." },
 	["Wall of Light"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 16, Effect = "Buff_Defense", Duration = 5, Cooldown = 6, Order = 13, Description = "Hides behind the gap in space, becoming almost entirely immune to damage." },
 	["Dimensional Clone"] = { Requirement = "D4C Love Train", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Heal", HealPercent = 0.50, Cooldown = 10, Order = 14, Description = "Transfers consciousness to a fresh clone, instantly healing 50% Max HP." },
 
@@ -455,7 +455,7 @@ SkillData.Skills = {
 	["Suffocate"] = { Requirement = "Doobie Wah!", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 30, Effect = "Burn", Duration = 3, Cooldown = 5, Order = 13, Description = "Forces the tornado into their lungs, causing massive internal Burn damage." },
 
 	["Toxin Touch"] = { Requirement = "Brain Storm", Type = "Stand", Mult = 2.1, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A light touch that begins the breakdown process." },
-	["Cellular Breakdown"] = { Requirement = "Brain Storm", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 12, Description = "Infects the enemy, causing their cells to pop like bubbles (Poison)." },
+	["Cellular Breakdown"] = { Requirement = "Brain Storm", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Necrosis", Duration = 3, Cooldown = 5, Order = 12, Description = "Infects the enemy, causing their cells to pop like bubbles (Necrosis)." },
 	["Melt"] = { Requirement = "Brain Storm", Type = "Stand", Mult = 1.3, Hits = 2, StaminaCost = 0, EnergyCost = 25, Cooldown = 4, Order = 13, Description = "Spreads the infection rapidly, dealing two waves of heavy damage." },
 
 	["Zombie Strike"] = { Requirement = "Blue Hawaii", Type = "Stand", Mult = 2.4, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A relentless, unfeeling physical attack from an infected host." },
@@ -480,7 +480,7 @@ SkillData.Skills = {
 
 	["Soft Strike"] = { Requirement = "Vitamin C", Type = "Stand", Mult = 2.2, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A seemingly harmless punch that leaves a handprint." },
 	["Liquefy"] = { Requirement = "Vitamin C", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Softens the target's body into a liquid state, destroying their Defense." },
-	["Melt Down"] = { Requirement = "Vitamin C", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 30, Effect = "Poison", Duration = 3, Cooldown = 5, Order = 13, Description = "The target's liquefied form begins to break down, taking Poison damage." },
+	["Melt Down"] = { Requirement = "Vitamin C", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 30, Effect = "Acid", Duration = 3, Cooldown = 5, Order = 13, Description = "The target's liquefied form begins to break down, taking Acid damage." },
 
 	["Pressure Push"] = { Requirement = "Ozon Baby", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A blast of highly pressurized air." },
 	["Depressurize"] = { Requirement = "Ozon Baby", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Speed", Duration = 3, Cooldown = 5, Order = 12, Description = "Lowers the atmospheric pressure, making the target sluggish and slow." },
@@ -509,7 +509,7 @@ SkillData.Skills = {
 	["Spinning Bubble"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "Fires a bubble imbued with explosive rotational energy." },
 	["Go Beyond Barrage"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 1.0, Hits = 3, StaminaCost = 0, EnergyCost = 30, Cooldown = 5, Order = 12, Description = "A devastating barrage of logic-defying explosive bubbles." },
 	["Explosive Spin"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 30, Effect = "Burn", Duration = 3, Cooldown = 6, Order = 13, Description = "Harness the power of your fused stand to create devastating explosions." },
-	["Invisible Bubble"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Bleed", Duration = 3, Cooldown = 6, Order = 14, Description = "Fires an infinitely thin, spinning bubble that ignores logic, causing massive Bleed." },
+	["Invisible Bubble"] = { Requirement = "Soft & Wet: Go Beyond", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 35, Effect = "Rupture", Duration = 3, Cooldown = 6, Order = 14, Description = "Fires an infinitely thin, spinning bubble that ignores logic, causing massive Rupture." },
 
 	["Cane Strike"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, Description = "A simple, yet impossibly painful strike with a cane." },
 	["Flow of Calamity"] = { Requirement = "Wonder of U", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Debuff_Defense", Duration = 5, Cooldown = 6, Order = 12, Description = "Manipulates the logic of the world to make the target succeptible to attacks." },
