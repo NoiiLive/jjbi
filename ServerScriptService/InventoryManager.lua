@@ -601,7 +601,8 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" 
 				or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "Chiikawa Mascot" or itemName == "Kakyoin's Egg"
 				or itemName == "Scratch-Off Ticket" or itemName == "Inversion Medicine"
-				or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc"))
+				or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc")
+				or (string.find(itemName, "Stand ") and string.find(itemName, "Training Manual")))
 
 		local isStyleItem = 
 			(itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" 
@@ -825,6 +826,73 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				itemConsumed = false
 			end
 
+		elseif itemName == "Health Training Manual" then
+			player:SetAttribute("Health", math.min(statCap, (player:GetAttribute("Health") or 1) + 15))
+			message = "You studied the manual and gained +15 Health!"
+		elseif itemName == "Strength Training Manual" then
+			player:SetAttribute("Strength", math.min(statCap, (player:GetAttribute("Strength") or 1) + 15))
+			message = "You studied the manual and gained +15 Strength!"
+		elseif itemName == "Defense Training Manual" then
+			player:SetAttribute("Defense", math.min(statCap, (player:GetAttribute("Defense") or 1) + 15))
+			message = "You studied the manual and gained +15 Defense!"
+		elseif itemName == "Speed Training Manual" then
+			player:SetAttribute("Speed", math.min(statCap, (player:GetAttribute("Speed") or 1) + 15))
+			message = "You studied the manual and gained +15 Speed!"
+		elseif itemName == "Stamina Training Manual" then
+			player:SetAttribute("Stamina", math.min(statCap, (player:GetAttribute("Stamina") or 1) + 15))
+			message = "You studied the manual and gained +15 Stamina!"
+		elseif itemName == "Willpower Training Manual" then
+			player:SetAttribute("Willpower", math.min(statCap, (player:GetAttribute("Willpower") or 1) + 15))
+			message = "You studied the manual and gained +15 Willpower!"
+
+		elseif itemName == "Stand Power Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				player:SetAttribute("Stand_Power_Val", math.min(statCap, (player:GetAttribute("Stand_Power_Val") or 0) + 15)); message = "Your Stand gained +15 Power!"
+			end
+		elseif itemName == "Stand Speed Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				player:SetAttribute("Stand_Speed_Val", math.min(statCap, (player:GetAttribute("Stand_Speed_Val") or 0) + 15)); message = "Your Stand gained +15 Speed!"
+			end
+		elseif itemName == "Stand Range Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				player:SetAttribute("Stand_Range_Val", math.min(statCap, (player:GetAttribute("Stand_Range_Val") or 0) + 15)); message = "Your Stand gained +15 Range!"
+			end
+		elseif itemName == "Stand Durability Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				player:SetAttribute("Stand_Durability_Val", math.min(statCap, (player:GetAttribute("Stand_Durability_Val") or 0) + 15)); message = "Your Stand gained +15 Durability!"
+			end
+		elseif itemName == "Stand Precision Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				player:SetAttribute("Stand_Precision_Val", math.min(statCap, (player:GetAttribute("Stand_Precision_Val") or 0) + 15)); message = "Your Stand gained +15 Precision!"
+			end
+		elseif itemName == "Stand Potential Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				player:SetAttribute("Stand_Potential_Val", math.min(statCap, (player:GetAttribute("Stand_Potential_Val") or 0) + 15)); message = "Your Stand gained +15 Potential!"
+			end
+
+		elseif itemName == "Advanced Style Training Manual" then
+			for _, s in ipairs({"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}) do
+				player:SetAttribute(s, math.min(statCap, (player:GetAttribute(s) or 1) + 10))
+			end
+			message = "You mastered the Advanced Style Training Manual! All Player Stats +10!"
+		elseif itemName == "Advanced Stand Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				for _, s in ipairs({"Power", "Speed", "Range", "Durability", "Precision", "Potential"}) do
+					player:SetAttribute("Stand_"..s.."_Val", math.min(statCap, (player:GetAttribute("Stand_"..s.."_Val") or 0) + 10))
+				end
+				message = "You mastered the Advanced Stand Training Manual! All Stand Stats +10!"
+			end
+		elseif itemName == "Master Training Manual" then
+			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				for _, s in ipairs({"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}) do
+					player:SetAttribute(s, math.min(statCap, (player:GetAttribute(s) or 1) + 5))
+				end
+				for _, s in ipairs({"Power", "Speed", "Range", "Durability", "Precision", "Potential"}) do
+					player:SetAttribute("Stand_"..s.."_Val", math.min(statCap, (player:GetAttribute("Stand_"..s.."_Val") or 0) + 5))
+				end
+				message = "You absorbed the Master Training Manual! All Stats +5!"
+			end
+
 		elseif itemName == "Boxing Manual" then
 			player:SetAttribute("FightingStyle", "Boxing"); message = "You read the manual. Gained Boxing Style."
 		elseif itemName == "Vampire Mask" then
@@ -936,17 +1004,13 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			elseif myStand == "Echoes Act 1" then EvolveStand("Echoes Act 2"); message = "Your Stand evolved into Echoes Act 2!"
 			elseif myStand == "Echoes Act 2" then EvolveStand("Echoes Act 3"); message = "Your Stand evolved into Echoes Act 3!"
 			else
-				player:SetAttribute("Stand_Power", "S"); player:SetAttribute("Stand_Power_Val", math.min(statCap, (player:GetAttribute("Stand_Power_Val") or 0) + 30))
-				player:SetAttribute("Stand_Potential", "S"); player:SetAttribute("Stand_Potential_Val", math.min(statCap, (player:GetAttribute("Stand_Potential_Val") or 0) + 30))
-				message = "Your Stand's Power and Potential evolved to Rank S!"
+				message = "The arrow has no reaction to this stand."; itemConsumed = false
 			end
 
 		elseif itemName == "Green Baby" then
 			if myStand == "Whitesnake" then EvolveStand("C-Moon"); message = "Your Stand evolved into C-Moon!"
 			else
-				player:SetAttribute("Speed", math.min(statCap, (player:GetAttribute("Speed") or 5) + 25))
-				player:SetAttribute("Defense", math.min(statCap, (player:GetAttribute("Defense") or 5) + 25))
-				message = "You fused with the Green Baby. Massive Speed/Defense boost!"
+				message = "The Green Baby has no reaction to you."; itemConsumed = false
 			end
 
 		elseif itemName == "New Rokakaka" then
