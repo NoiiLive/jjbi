@@ -827,70 +827,85 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			end
 
 		elseif itemName == "Health Training Manual" then
-			player:SetAttribute("Health", math.min(statCap, (player:GetAttribute("Health") or 1) + 15))
-			message = "You studied the manual and gained +15 Health!"
+			local amount = math.max(15, math.floor(15 * (prestige / 5)))
+			player:SetAttribute("Health", math.min(statCap, (player:GetAttribute("Health") or 1) + amount))
+			message = "You studied the manual and gained +"..amount.." Health!"
 		elseif itemName == "Strength Training Manual" then
-			player:SetAttribute("Strength", math.min(statCap, (player:GetAttribute("Strength") or 1) + 15))
-			message = "You studied the manual and gained +15 Strength!"
+			local amount = math.max(15, math.floor(15 * (prestige / 5)))
+			player:SetAttribute("Strength", math.min(statCap, (player:GetAttribute("Strength") or 1) + amount))
+			message = "You studied the manual and gained +"..amount.." Strength!"
 		elseif itemName == "Defense Training Manual" then
-			player:SetAttribute("Defense", math.min(statCap, (player:GetAttribute("Defense") or 1) + 15))
-			message = "You studied the manual and gained +15 Defense!"
+			local amount = math.max(15, math.floor(15 * (prestige / 5)))
+			player:SetAttribute("Defense", math.min(statCap, (player:GetAttribute("Defense") or 1) + amount))
+			message = "You studied the manual and gained +"..amount.." Defense!"
 		elseif itemName == "Speed Training Manual" then
-			player:SetAttribute("Speed", math.min(statCap, (player:GetAttribute("Speed") or 1) + 15))
-			message = "You studied the manual and gained +15 Speed!"
+			local amount = math.max(15, math.floor(15 * (prestige / 5)))
+			player:SetAttribute("Speed", math.min(statCap, (player:GetAttribute("Speed") or 1) + amount))
+			message = "You studied the manual and gained +"..amount.." Speed!"
 		elseif itemName == "Stamina Training Manual" then
-			player:SetAttribute("Stamina", math.min(statCap, (player:GetAttribute("Stamina") or 1) + 15))
-			message = "You studied the manual and gained +15 Stamina!"
+			local amount = math.max(15, math.floor(15 * (prestige / 5)))
+			player:SetAttribute("Stamina", math.min(statCap, (player:GetAttribute("Stamina") or 1) + amount))
+			message = "You studied the manual and gained +"..amount.." Stamina!"
 		elseif itemName == "Willpower Training Manual" then
-			player:SetAttribute("Willpower", math.min(statCap, (player:GetAttribute("Willpower") or 1) + 15))
-			message = "You studied the manual and gained +15 Willpower!"
+			local amount = math.max(15, math.floor(15 * (prestige / 5)))
+			player:SetAttribute("Willpower", math.min(statCap, (player:GetAttribute("Willpower") or 1) + amount))
+			message = "You studied the manual and gained +"..amount.." Willpower!"
 
 		elseif itemName == "Stand Power Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
-				player:SetAttribute("Stand_Power_Val", math.min(statCap, (player:GetAttribute("Stand_Power_Val") or 0) + 15)); message = "Your Stand gained +15 Power!"
+				local amount = math.max(15, math.floor(15 * (prestige / 5)))
+				player:SetAttribute("Stand_Power_Val", math.min(statCap, (player:GetAttribute("Stand_Power_Val") or 0) + amount)); message = "Your Stand gained +"..amount.." Power!"
 			end
 		elseif itemName == "Stand Speed Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
-				player:SetAttribute("Stand_Speed_Val", math.min(statCap, (player:GetAttribute("Stand_Speed_Val") or 0) + 15)); message = "Your Stand gained +15 Speed!"
+				local amount = math.max(15, math.floor(15 * (prestige / 5)))
+				player:SetAttribute("Stand_Speed_Val", math.min(statCap, (player:GetAttribute("Stand_Speed_Val") or 0) + amount)); message = "Your Stand gained +"..amount.." Speed!"
 			end
 		elseif itemName == "Stand Range Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
-				player:SetAttribute("Stand_Range_Val", math.min(statCap, (player:GetAttribute("Stand_Range_Val") or 0) + 15)); message = "Your Stand gained +15 Range!"
+				local amount = math.max(15, math.floor(15 * (prestige / 5)))
+				player:SetAttribute("Stand_Range_Val", math.min(statCap, (player:GetAttribute("Stand_Range_Val") or 0) + amount)); message = "Your Stand gained +"..amount.." Range!"
 			end
 		elseif itemName == "Stand Durability Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
-				player:SetAttribute("Stand_Durability_Val", math.min(statCap, (player:GetAttribute("Stand_Durability_Val") or 0) + 15)); message = "Your Stand gained +15 Durability!"
+				local amount = math.max(15, math.floor(15 * (prestige / 5)))
+				player:SetAttribute("Stand_Durability_Val", math.min(statCap, (player:GetAttribute("Stand_Durability_Val") or 0) + amount)); message = "Your Stand gained +"..amount.." Durability!"
 			end
 		elseif itemName == "Stand Precision Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
-				player:SetAttribute("Stand_Precision_Val", math.min(statCap, (player:GetAttribute("Stand_Precision_Val") or 0) + 15)); message = "Your Stand gained +15 Precision!"
+				local amount = math.max(15, math.floor(15 * (prestige / 5)))
+				player:SetAttribute("Stand_Precision_Val", math.min(statCap, (player:GetAttribute("Stand_Precision_Val") or 0) + amount)); message = "Your Stand gained +"..amount.." Precision!"
 			end
 		elseif itemName == "Stand Potential Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
-				player:SetAttribute("Stand_Potential_Val", math.min(statCap, (player:GetAttribute("Stand_Potential_Val") or 0) + 15)); message = "Your Stand gained +15 Potential!"
+				local amount = math.max(15, math.floor(15 * (prestige / 5)))
+				player:SetAttribute("Stand_Potential_Val", math.min(statCap, (player:GetAttribute("Stand_Potential_Val") or 0) + amount)); message = "Your Stand gained +"..amount.." Potential!"
 			end
 
 		elseif itemName == "Advanced Style Training Manual" then
+			local amount = math.max(10, math.floor(10 * (prestige / 4)))
 			for _, s in ipairs({"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}) do
-				player:SetAttribute(s, math.min(statCap, (player:GetAttribute(s) or 1) + 10))
+				player:SetAttribute(s, math.min(statCap, (player:GetAttribute(s) or 1) + amount))
 			end
-			message = "You mastered the Advanced Style Training Manual! All Player Stats +10!"
+			message = "You mastered the Advanced Style Training Manual! All Player Stats +"..amount.."!"
 		elseif itemName == "Advanced Stand Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				local amount = math.max(10, math.floor(10 * (prestige / 4)))
 				for _, s in ipairs({"Power", "Speed", "Range", "Durability", "Precision", "Potential"}) do
-					player:SetAttribute("Stand_"..s.."_Val", math.min(statCap, (player:GetAttribute("Stand_"..s.."_Val") or 0) + 10))
+					player:SetAttribute("Stand_"..s.."_Val", math.min(statCap, (player:GetAttribute("Stand_"..s.."_Val") or 0) + amount))
 				end
-				message = "You mastered the Advanced Stand Training Manual! All Stand Stats +10!"
+				message = "You mastered the Advanced Stand Training Manual! All Stand Stats +"..amount.."!"
 			end
 		elseif itemName == "Master Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
+				local amount = math.max(5, math.floor(5 * (prestige / 3)))
 				for _, s in ipairs({"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}) do
-					player:SetAttribute(s, math.min(statCap, (player:GetAttribute(s) or 1) + 5))
+					player:SetAttribute(s, math.min(statCap, (player:GetAttribute(s) or 1) + amount))
 				end
 				for _, s in ipairs({"Power", "Speed", "Range", "Durability", "Precision", "Potential"}) do
-					player:SetAttribute("Stand_"..s.."_Val", math.min(statCap, (player:GetAttribute("Stand_"..s.."_Val") or 0) + 5))
+					player:SetAttribute("Stand_"..s.."_Val", math.min(statCap, (player:GetAttribute("Stand_"..s.."_Val") or 0) + amount))
 				end
-				message = "You absorbed the Master Training Manual! All Stats +5!"
+				message = "You absorbed the Master Training Manual! All Stats +"..amount.."!"
 			end
 
 		elseif itemName == "Boxing Manual" then
