@@ -119,25 +119,25 @@ ItemData.Consumables = {
 	["Inversion Medicine"] = { Category = "Stand", Description = "The ultimate medicine. Reverts your Fused Stand back to its original forms.", Rarity = "Mythical", Cost = 500000},
 	
 	-- Stat Manuals (Player)
-	["Health Training Manual"] = { Category = "Player", Description = "A legendary manual detailing rigorous bodily conditioning. Grants +15 Health.", Rarity = "Legendary", Cost = 250000 },
-	["Strength Training Manual"] = { Category = "Player", Description = "A legendary manual detailing advanced combat techniques. Grants +15 Strength.", Rarity = "Legendary", Cost = 250000 },
-	["Defense Training Manual"] = { Category = "Player", Description = "A legendary manual detailing impenetrable guard stances. Grants +15 Defense.", Rarity = "Legendary", Cost = 250000 },
-	["Speed Training Manual"] = { Category = "Player", Description = "A legendary manual detailing weightless footwork. Grants +15 Speed.", Rarity = "Legendary", Cost = 250000 },
-	["Stamina Training Manual"] = { Category = "Player", Description = "A legendary manual detailing deep stamina reserves. Grants +15 Stamina.", Rarity = "Legendary", Cost = 250000 },
-	["Willpower Training Manual"] = { Category = "Player", Description = "A legendary manual detailing unbreakable resolve. Grants +15 Willpower.", Rarity = "Legendary", Cost = 250000 },
+	["Health Training Manual"] = { Category = "Player", Description = "A legendary manual detailing rigorous bodily conditioning. Grants Health.", Rarity = "Legendary", Cost = 250000 },
+	["Strength Training Manual"] = { Category = "Player", Description = "A legendary manual detailing advanced combat techniques. Grants Strength.", Rarity = "Legendary", Cost = 250000 },
+	["Defense Training Manual"] = { Category = "Player", Description = "A legendary manual detailing impenetrable guard stances. Grants Defense.", Rarity = "Legendary", Cost = 250000 },
+	["Speed Training Manual"] = { Category = "Player", Description = "A legendary manual detailing weightless footwork. Grants Speed.", Rarity = "Legendary", Cost = 250000 },
+	["Stamina Training Manual"] = { Category = "Player", Description = "A legendary manual detailing deep stamina reserves. Grants Stamina.", Rarity = "Legendary", Cost = 250000 },
+	["Willpower Training Manual"] = { Category = "Player", Description = "A legendary manual detailing unbreakable resolve. Grants Willpower.", Rarity = "Legendary", Cost = 250000 },
 
 	-- Stat Manuals (Stand)
-	["Stand Power Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual destruction. Grants +15 Stand Power.", Rarity = "Legendary", Cost = 250000 },
-	["Stand Speed Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual velocity. Grants +15 Stand Speed.", Rarity = "Legendary", Cost = 250000 },
-	["Stand Range Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual projection. Grants +15 Stand Range.", Rarity = "Legendary", Cost = 250000 },
-	["Stand Durability Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual resilience. Grants +15 Stand Durability.", Rarity = "Legendary", Cost = 250000 },
-	["Stand Precision Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual accuracy. Grants +15 Stand Precision.", Rarity = "Legendary", Cost = 250000 },
-	["Stand Potential Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual growth. Grants +15 Stand Potential.", Rarity = "Legendary", Cost = 250000 },
+	["Stand Power Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual destruction. Grants Stand Power.", Rarity = "Legendary", Cost = 250000 },
+	["Stand Speed Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual velocity. Grants Stand Speed.", Rarity = "Legendary", Cost = 250000 },
+	["Stand Range Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual projection. Grants Stand Range.", Rarity = "Legendary", Cost = 250000 },
+	["Stand Durability Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual resilience. Grants Stand Durability.", Rarity = "Legendary", Cost = 250000 },
+	["Stand Precision Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual accuracy. Grants Stand Precision.", Rarity = "Legendary", Cost = 250000 },
+	["Stand Potential Training Manual"] = { Category = "Stand", Description = "A legendary manual on spiritual growth. Grants Stand Potential.", Rarity = "Legendary", Cost = 250000 },
 
 	-- Advanced Training Manuals
-	["Advanced Style Training Manual"] = { Category = "Player", Description = "A mythical manual containing the pinnacle of physical arts. Grants +10 to all Player Stats.", Rarity = "Mythical", Cost = 1000000 },
-	["Advanced Stand Training Manual"] = { Category = "Stand", Description = "A mythical manual detailing the apex of spiritual manifestation. Grants +10 to all Stand Stats.", Rarity = "Mythical", Cost = 1000000 },
-	["Master Training Manual"] = { Category = "Player", Description = "A mythical manual that unifies the body and spirit perfectly. Grants +5 to all Player and Stand Stats.", Rarity = "Mythical", Cost = 1500000 },
+	["Advanced Style Training Manual"] = { Category = "Player", Description = "A mythical manual containing the pinnacle of physical arts. Grants all Player Stats.", Rarity = "Mythical", Cost = 1000000 },
+	["Advanced Stand Training Manual"] = { Category = "Stand", Description = "A mythical manual detailing the apex of spiritual manifestation. Grants +all Stand Stats.", Rarity = "Mythical", Cost = 1000000 },
+	["Master Training Manual"] = { Category = "Player", Description = "A mythical manual that unifies the body and spirit perfectly. Grants all Player and Stand Stats.", Rarity = "Mythical", Cost = 1500000 },
 	
 	-- Stand Discs
 	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Weather Report.", Rarity = "Unique", Cost = 300000},
