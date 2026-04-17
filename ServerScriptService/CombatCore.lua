@@ -185,12 +185,23 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		end
 
 		local completedStands = 0
+		local completedStandsSet = {}
 		for s1, data in pairs(fusionCounts) do
 			if data.Count >= TotalValidFusions then
 				completedStands += 1
+				completedStandsSet[s1] = true
 			end
 		end
 		fusionBonusMult = completedStands * 0.01
+
+		if sName == "Fused Stand" then
+			local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+			local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+			if completedStandsSet[fs1] then fusionBonusMult += 0.25 end
+			if completedStandsSet[fs2] then fusionBonusMult += 0.25 end
+		else
+			if completedStandsSet[sName] then fusionBonusMult += 0.25 end
+		end
 	end
 
 	if sName == "Fused Stand" then
