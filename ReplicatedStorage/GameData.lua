@@ -176,10 +176,19 @@ end
 
 function GameData.CalculateStatCost(currentStat, baseStat, prestige)
 	local baseCost = 10
-	local growthFactor = 1.05
-	local prestigeMultiplier = math.max(0.1, 1 - (prestige * 0.03))
 	local statDifference = math.max(0, currentStat - baseStat)
-	return math.floor(baseCost * (growthFactor ^ statDifference) * prestigeMultiplier)
+	local prestigeMultiplier = math.max(0.01, 0.98 ^ prestige)
+
+	local cost = 0
+	if statDifference <= 100 then
+		cost = baseCost * (1.05 ^ statDifference)
+	else
+		local cap100 = baseCost * (1.05 ^ 100)
+		local excess = statDifference - 100
+		cost = cap100 + (excess * 200) + (excess ^ 1.8)
+	end
+
+	return math.floor(cost * prestigeMultiplier)
 end
 
 function GameData.GetMaxInventory(player)
