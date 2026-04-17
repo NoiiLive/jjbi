@@ -2,6 +2,23 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.6 - Combat Overhaul Update (April 17th)</font></b>
+
+<font color='#D745FF'>[+]</font> <b>Synergized Statuses:</b> DoT effects (Burn, Bleed, Poison, Chilly) now merge into powerful Tier 2 and Tier 3 synergies when combined!
+<font color='#D745FF'>[+]</font> <b>Resource Overhaul:</b> Enemies now utilize Stamina and Energy! Taking damage depletes resources. Running out applies 'Exhausted', disabling skills and increasing damage taken by 15% (Stacks up to 30%).
+<font color='#D745FF'>[+]</font> <b>New Mechanics:</b> 
+    • <b>Cleanse & Warded:</b> Rest now Cleanses all active statuses. Using Rest while Blocking applies 'Warded', granting status immunity for 2 turns!
+    • <b>Counters:</b> New Counter skills allow you to predict, negate, and reflect enemy damage!
+    • <b>Sub-Effects:</b> Enemies immune to Stun/Confusion now get 'Dizzy' (chance to miss/hit self). Freeze immunity applies 'Chilly' (DoT without stun).
+<font color='#D745FF'>[+]</font> <b>DoT Rework:</b> Damage-over-Time effects now deal increased damage but respect the target's Defense.
+<font color='#EFFF3E'>[+]</font> <b>Dynamic Fusion Index:</b> The Fusion Index Global Damage buff now scales fractionally! You no longer need 100% completion to see a damage increase; every individual fusion now contributes to your multiplier.
+<font color='#EFFF3E'>[+]</font> <b>Training Manuals & Stat Rework:</b> Added 15 new Legendary and Mythical Training Manuals to boost your stats! To balance this, items like Stand Arrows and the Green Baby no longer grant bonus stats upon use.
+<font color='#EFFF3E'>[+]</font> <b>AI Improvements:</b> Enemies are now much smarter! They manage resources, rest when heavily debuffed, and adapt their strategy based on their HP.
+<font color='#EFFF3E'>[+]</font> <b>8 New Traits:</b> Added Siphoning, Shattering, Dominating, Infectious, Junkie (Mythics), Purifying, Opportunistic, and Stoic (Legendaries).
+<font color='#EFFF3E'>[+]</font> <b>3 New Modifiers:</b> Resource Drought, Aggressive Attrition, and Unstable added to the Prestige pool.
+
+Use codes <b><font color='#FF55FF'>12KFAVS</font></b> and <b><font color='#FF55FF'>COMBATREWORK</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.5 - Collection Update (April 10th)</font></b>
 
 <font color='#D745FF'>[+]</font> <b>Ability Index:</b> Located in the Inventory Tab, you can now track every Stand and Style you've ever obtained! Abilities are permanently recorded once obtained, even if traded or lost. Organized by Parts, with a separate section for limited abilities.
@@ -30,9 +47,7 @@ Use code <b><font color='#FF55FF'>GOTTACOLLECTEMALL</font></b> for free rewards!
 <font color='#EFFF3E'>[+]</font> <b>New Rarity [Special]:</b> Gamepasses, Giftboxes, and Easter Eggs now fall under this rarity and cannot be sold.
 <font color='#55FF55'>[*]</font> <b>Security & QoL:</b> Locked items hide use buttons to prevent accidents, and items no longer need to be unlocked to trade.
 <font color='#55FFFF'>[*]</font> <b>Technical:</b> More robust Gang data storage, synchronized global timers, and fixed offline boss cooldown resets.
-<font color='#55FF55'>[+]</font> <b>Balance:</b> Nerfed Global Donation goal to 10k and increased Easter Egg drop rates.
-
-Use codes <b><font color='#FF55FF'>8KFAVS</font></b> and <b><font color='#FF55FF'>RESTARTAHOLIC</font></b> for free rewards!]],
+<font color='#55FF55'>[+]</font> <b>Balance:</b> Nerfed Global Donation goal to 10k and increased Easter Egg drop rates.]],
 
 	[[<b><font color='#FFD700'>v2.3 - Easter Event Update (April 4th)</font></b>
 
@@ -43,9 +58,7 @@ Use codes <b><font color='#FF55FF'>8KFAVS</font></b> and <b><font color='#FF55FF
 <font color='#55FF55'>[+]</font> <b>New Limited Style:</b> Baoh Armed Phenomenon
 <font color='#55FF55'>[+]</font> <b>New World Boss:</b> Easter Bunny, that provides players with large amounts of eggs!
 <font color='#55FF55'>[+]</font> <b>New Gear:</b> Added 2 New Weapons and 2 New Accessories.
-<font color='#55FFFF'>[*]</font> <b>Boss Icons:</b> World Bosses now feature profile icons during combat!
-
-Use codes <b><font color='#FF55FF'>1MVISITS</font></b> and <b><font color='#FF55FF'>EASTER</font></b> for free rewards!]],
+<font color='#55FFFF'>[*]</font> <b>Boss Icons:</b> World Bosses now feature profile icons during combat!]],
 
 	[[<b><font color='#FFD700'>v2.2 - April Fools Update (April 1st)</font></b>
 
