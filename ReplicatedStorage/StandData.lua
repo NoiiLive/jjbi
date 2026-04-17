@@ -21,7 +21,7 @@ StandData.Traits = {
 	["Brutal"] = { Rarity = "Rare", Color = "#FF5555", Desc = "+15% Crit Chance." },
 	["Vigorous"] = { Rarity = "Rare", Color = "#55FF55", Desc = "Recover extra Stamina/Energy per turn." },
 	["Evasive"] = { Rarity = "Rare", Color = "#55FFFF", Desc = "+20% Dodge Chance." },
-
+	
 	["Opportunistic"] = { Rarity = "Legendary", Color = "#4682B4", Desc = "Attacks have a 10% chance to ready a Counter stance." },
 	["Indomitable"] = { Rarity = "Legendary", Color = "#55FFFF", Desc = "Take 25% less damage when below 30% HP." },
 	["Relentless"] = { Rarity = "Legendary", Color = "#FF0055", Desc = "All base damage is increased by 15%." },
