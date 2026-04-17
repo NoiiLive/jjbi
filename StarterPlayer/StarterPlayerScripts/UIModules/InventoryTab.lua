@@ -905,11 +905,17 @@ local function RefreshIndexList()
 					item.Parent = container
 
 					if ab.Type == "Stand" then
+						local lastClickTime = 0
 						item.InputBegan:Connect(function(input)
 							if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-								SFXManager.Play("Click")
-								cachedTooltipMgr.Hide()
-								ShowFusionsList(ab.Name)
+								local currentTime = tick()
+								if currentTime - lastClickTime < 0.4 then
+									SFXManager.Play("Click")
+									cachedTooltipMgr.Hide()
+									ShowFusionsList(ab.Name)
+								else
+									lastClickTime = currentTime
+								end
 							end
 						end)
 					end
