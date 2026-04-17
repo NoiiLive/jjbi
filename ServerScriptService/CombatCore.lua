@@ -184,15 +184,15 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 			end
 		end
 
-		local completedStands = 0
 		local completedStandsSet = {}
 		for s1, data in pairs(fusionCounts) do
+			local completionRatio = math.clamp(data.Count / TotalValidFusions, 0, 1)
+			fusionBonusMult += (completionRatio * 0.01)
+
 			if data.Count >= TotalValidFusions then
-				completedStands += 1
 				completedStandsSet[s1] = true
 			end
 		end
-		fusionBonusMult = completedStands * 0.01
 
 		if sName == "Fused Stand" then
 			local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
@@ -515,29 +515,29 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		end
 	end
 
-	ProcessDoT("Calamity", "#CC00FF", 1.75)
+	ProcessDoT("Calamity", "#CC00FF", 3.0)
 	if CheckDeath() then return end
 
-	ProcessDoT("Blight", "#4B0082", 1.5)
+	ProcessDoT("Blight", "#4B0082", 2.25)
 	if CheckDeath() then return end
-	ProcessDoT("Miasma", "#2E8B57", 1.5)
+	ProcessDoT("Miasma", "#2E8B57", 2.25)
 	if CheckDeath() then return end
-	ProcessDoT("Necrosis", "#8B4513", 1.5)
+	ProcessDoT("Necrosis", "#8B4513", 2.25)
 	if CheckDeath() then return end
-	ProcessDoT("Plague", "#556B2F", 1.5)
+	ProcessDoT("Plague", "#556B2F", 2.25)
 	if CheckDeath() then return end
 
-	ProcessDoT("Acid", "#80FF00", 1.25)
+	ProcessDoT("Acid", "#80FF00", 1.5)
 	if CheckDeath() then return end
-	ProcessDoT("Infection", "#800000", 1.25)
+	ProcessDoT("Infection", "#800000", 1.5)
 	if CheckDeath() then return end
-	ProcessDoT("Rupture", "#FF4400", 1.25)
+	ProcessDoT("Rupture", "#FF4400", 1.5)
 	if CheckDeath() then return end
-	ProcessDoT("Frostburn", "#55AAFF", 1.25)
+	ProcessDoT("Frostburn", "#55AAFF", 1.5)
 	if CheckDeath() then return end
-	ProcessDoT("Frostbite", "#0055FF", 1.25)
+	ProcessDoT("Frostbite", "#0055FF", 1.5)
 	if CheckDeath() then return end
-	ProcessDoT("Decay", "#00AA55", 1.25)
+	ProcessDoT("Decay", "#00AA55", 1.5)
 	if CheckDeath() then return end
 
 	ProcessDoT("Bleed", "#FF0000", 1.0)
