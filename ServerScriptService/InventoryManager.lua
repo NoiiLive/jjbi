@@ -898,7 +898,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			end
 		elseif itemName == "Master Training Manual" then
 			if myStand == "None" then message = "You don't have a Stand to train!"; itemConsumed = false else
-				local amount = math.max(5, math.floor(5 * (prestige / 3)))
+				local amount = math.max(5, math.floor(5 * (prestige / 4)))
 				for _, s in ipairs({"Health", "Strength", "Defense", "Speed", "Stamina", "Willpower"}) do
 					player:SetAttribute(s, math.min(statCap, (player:GetAttribute(s) or 1) + amount))
 				end
