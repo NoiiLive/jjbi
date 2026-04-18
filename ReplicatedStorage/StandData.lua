@@ -36,7 +36,7 @@ StandData.Traits = {
 
 	["Siphoning"] = { Rarity = "Mythical", Color = "#8B008B", Desc = "Steals 10% of drained energy/stamina when attacking." },
 	["Shattering"] = { Rarity = "Mythical", Color = "#FF4500", Desc = "Exhausts enemies twice as fast." },
-	["Dominating"] = { Rarity = "Mythical", Color = "#8B0000", Desc = "Status effects ignore 50% of armor." },
+	["Dominating"] = { Rarity = "Mythical", Color = "#8B0000", Desc = "Status effects ignore 25% of armor." },
 	["Lethal"] = { Rarity = "Mythical", Color = "#FF0000", Desc = "Critical hits deal 3.0x damage instead of 1.5x." },
 	["Vampiric"] = { Rarity = "Mythical", Color = "#AA00AA", Desc = "Heal for 20% of all damage dealt." },
 	["Overwhelming"] = { Rarity = "Mythical", Color = "#FFD700", Desc = "Attacks bypass 30% of enemy defense." },
