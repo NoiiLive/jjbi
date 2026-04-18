@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -315,13 +314,15 @@ local function GeneratePvEMob(player)
 	local template = pMobs[math.random(#pMobs)]
 
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
-	local pCapMult = 1 + (prestige * 0.10)
 
-	local scaleHP = pCapMult * 0.35
-	local scaleStr = pCapMult * 1.8
-	local scaleDef = pCapMult * 0.3
-	local scaleSpd = pCapMult * 0.6
-	local scaleWill = pCapMult * 0.6
+	local offCapMult = 1 + (prestige * 0.10)
+	local defCapMult = 1 + ((prestige ^ 0.9) * 0.10)
+
+	local scaleHP = defCapMult * 0.35
+	local scaleStr = offCapMult * 1.8
+	local scaleDef = defCapMult * 0.3
+	local scaleSpd = offCapMult * 0.6
+	local scaleWill = defCapMult * 0.6
 
 	local eHP = template.Health * scaleHP
 	local calcStam = ScaleResource(150 + (eHP * 0.1))
