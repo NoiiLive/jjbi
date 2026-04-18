@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -10,6 +11,11 @@ local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
 
 local TotalValidFusions = nil
 local ValidStandsForFusion = nil
+
+local function ScaleResource(val)
+	if val <= 1000 then return val end
+	return 1000 + math.floor((val - 1000) ^ 0.65 * 3)
+end
 
 function CombatCore.HasModifier(modStr, modName)
 	if not modStr or modStr == "None" or modStr == "" then return false end
@@ -117,8 +123,8 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		pDef = (player:GetAttribute("Defense") or 1) + sDur + CombatCore.GetEquipBonus(player, "Defense") + CombatCore.GetEquipBonus(player, "Stand_Durability")
 		pSpd = (player:GetAttribute("Speed") or 1) + sSpd + CombatCore.GetEquipBonus(player, "Speed") + CombatCore.GetEquipBonus(player, "Stand_Speed")
 		pWill = (player:GetAttribute("Willpower") or 1) + CombatCore.GetEquipBonus(player, "Willpower")
-		pStamina = (player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina")
-		pStandEnergy = 10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential")
+		pStamina = ScaleResource((player:GetAttribute("Stamina") or 1) + CombatCore.GetEquipBonus(player, "Stamina"))
+		pStandEnergy = ScaleResource(10 + sPot + CombatCore.GetEquipBonus(player, "Stand_Potential"))
 	else
 		pHP = 500 + CombatCore.GetEquipBonus(player, "Health")
 		pStyleStr = 500 + CombatCore.GetEquipBonus(player, "Strength")
@@ -284,23 +290,22 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	end
 
 	local overCount = CombatCore.CountTrait(attacker, "Overwhelming")
-	local defBypass = math.min(1, overCount * 0.30)
-	local effectiveArmor = ((defender.TotalDefense or 0) * defBuff * defDebuff) * (1 - defBypass)
+	local traitBypass = math.min(0.40, overCount * 0.20)
+	local rangeBypass = math.min(0.45, (attacker.TotalRange or 0) / 5000)
+	local totalBypass = math.min(0.85, traitBypass + rangeBypass)
 
-	if defender.IsPlayer then
-		if CombatCore.HasModifier(uniModStr, "Glass Cannon") then effectiveArmor *= 0.75 end
-		if CombatCore.HasModifier(uniModStr, "Hardened Armor") then effectiveArmor *= 1.10 end
-		if CombatCore.HasModifier(uniModStr, "Brittle Armor") then effectiveArmor *= 0.90 end
+	local effectiveArmor = ((defender.TotalDefense or 0) * defBuff * defDebuff) * (1 - totalBypass)
+
+	local scaledDef = math.max(0, effectiveArmor)
+	if scaledDef > 250 then
+		scaledDef = 250 + ((scaledDef - 250) ^ 0.8)
 	end
 
-	local armorPen = (attacker.TotalRange or 0) * 0.5
-	local effectiveDefense = math.max(0, effectiveArmor - armorPen)
-
-	local defenseMultiplier = 100 / (100 + effectiveDefense)
+	local defenseMultiplier = 100 / (100 + scaledDef)
 
 	local exhaustVuln = 0
-	if (defender.Statuses.StaminaExhausted or 0) > 0 then exhaustVuln += 0.15 end
-	if (defender.Statuses.EnergyExhausted or 0) > 0 then exhaustVuln += 0.15 end
+	if (defender.Statuses.StaminaExhausted or 0) > 0 then exhaustVuln += 0.25 end
+	if (defender.Statuses.EnergyExhausted or 0) > 0 then exhaustVuln += 0.25 end
 
 	local finalDmg = baseDmg * defenseMultiplier * (1 + exhaustVuln)
 
@@ -377,7 +382,7 @@ function CombatCore.ChooseAISkill(combatant)
 
 	if #validSkills == 0 then return "Basic Attack" end
 
-	if needsRest and #categorized.Rest > 0 then
+	if needsRest and #categorized.Rest > 0 and math.random() < 0.5 then
 		return categorized.Rest[math.random(1, #categorized.Rest)]
 	end
 
@@ -385,7 +390,7 @@ function CombatCore.ChooseAISkill(combatant)
 		local lowHpPool = {}
 		for _, s in ipairs(categorized.Block) do table.insert(lowHpPool, s) end
 		for _, s in ipairs(categorized.Buff) do table.insert(lowHpPool, s) end
-		if #lowHpPool > 0 and math.random() < 0.7 then
+		if #lowHpPool > 0 and math.random() < 0.4 then
 			return lowHpPool[math.random(1, #lowHpPool)]
 		end
 	else
@@ -481,13 +486,18 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		opponent = (combatant == battle.Player) and battle.Enemy or battle.Player
 	end
 	local domCount = opponent and CombatCore.CountTrait(opponent, "Dominating") or 0
-	local armorIgnore = math.min(1, domCount * 0.50)
+	local armorIgnore = math.min(0.30, domCount * 0.15)
 
 	local defBuff = (combatant.Statuses and (combatant.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
 	local defDebuff = (combatant.Statuses and (combatant.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
 	local effectiveArmor = ((combatant.TotalDefense or 0) * defBuff * defDebuff) * (1 - armorIgnore)
 
-	local defMult = 100 / (100 + math.max(0, effectiveArmor))
+	local scaledDef = effectiveArmor
+	if scaledDef > 250 then
+		scaledDef = 250 + ((scaledDef - 250) ^ 0.8)
+	end
+
+	local defMult = 100 / (100 + math.max(0, scaledDef))
 	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
 	local unstableMult = CombatCore.HasModifier(uniModStr, "Unstable") and 2.0 or 1.0
 
@@ -505,7 +515,15 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 
 	local function ProcessDoT(statusName, hexColor, mult)
 		if (combatant.Statuses[statusName] or 0) > 0 then
-			local dmg = math.max(1, (combatant.MaxHP * statusDmgMod * mult) * defMult) * unstableMult * statusBlockMult
+			local attackerOffense = opponent and (math.max(opponent.TotalStrength or 0, opponent.StyleStrength or 0, opponent.StandStrength or 0)) or 1
+			local pctDmg = combatant.MaxHP * statusDmgMod * mult
+			local statCap = (attackerOffense * 2.5) * mult
+			local minPctDmg = combatant.MaxHP * (combatant.IsBoss and 0.025 or 0.05) * mult
+
+			local cappedStatDmg = math.min(pctDmg, statCap)
+			local rawDmg = math.max(minPctDmg, cappedStatDmg)
+
+			local dmg = math.max(1, rawDmg * defMult) * unstableMult * statusBlockMult
 			local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 			combatant.Statuses[statusName] -= 1
 			local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -548,7 +566,14 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if CheckDeath() then return end
 
 	if (combatant.Statuses.Chilly or 0) > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult * blockMult)
+		local attackerOffense = opponent and (math.max(opponent.TotalStrength or 0, opponent.StyleStrength or 0, opponent.StandStrength or 0)) or 1
+		local pctDmg = combatant.MaxHP * statusDmgMod
+		local statCap = attackerOffense * 2.5
+		local minPctDmg = combatant.MaxHP * (combatant.IsBoss and 0.025 or 0.05)
+		local cappedStatDmg = math.min(pctDmg, statCap)
+		local rawDmg = math.max(minPctDmg, cappedStatDmg)
+
+		local dmg = math.max(1, rawDmg * defMult * blockMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Chilly -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -559,7 +584,14 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if CheckDeath() then return end
 
 	if combatant.Statuses.Freeze > 0 then
-		local dmg = math.max(1, (combatant.MaxHP * statusDmgMod) * defMult * blockMult)
+		local attackerOffense = opponent and (math.max(opponent.TotalStrength or 0, opponent.StyleStrength or 0, opponent.StandStrength or 0)) or 1
+		local pctDmg = combatant.MaxHP * statusDmgMod
+		local statCap = attackerOffense * 2.5
+		local minPctDmg = combatant.MaxHP * (combatant.IsBoss and 0.025 or 0.05)
+		local cappedStatDmg = math.min(pctDmg, statCap)
+		local rawDmg = math.max(minPctDmg, cappedStatDmg)
+
+		local dmg = math.max(1, rawDmg * defMult * blockMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
 		combatant.Statuses.Freeze -= 1
 		local svMsg = survived and (persCount > 0 and " <font color='#FF55FF'>...PERSEVERANCE ACTIVATED!</font>" or " <font color='#FF55FF'>...SURVIVED ON WILLPOWER!</font>") or ""
@@ -602,7 +634,9 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 
 	if not isSkippingFromDizzy and attacker.Statuses and (attacker.Statuses.Confusion or 0) > 0 then
 		msgPrefix = "<font color='#FF55FF'>[CONFUSED] </font>"
-		t = attacker; tName = fLogName; b = defender; bName = fDefName
+		if skill.Effect ~= "Block" and skill.Effect ~= "Counter" and skill.Effect ~= "Rest" and skill.Effect ~= "CleanseRest" then
+			t = attacker; tName = fLogName; b = defender; bName = fDefName
+		end
 	end
 
 	if isSkippingFromDizzy then
@@ -891,9 +925,12 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			msgPrefix = msgPrefix .. "<font color='#55FF55'>[Purified +"..math.floor(healAmt).." HP!] </font>"
 		end
 
-		local restAmount = CombatCore.HasModifier(uniModStr, "Resource Drought") and 25 or 50
-		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + restAmount) end
-		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + restAmount) end
+		local restPct = CombatCore.HasModifier(uniModStr, "Resource Drought") and 0.10 or 0.20
+		local stamRestAmount = math.floor((b.MaxStamina or 100) * restPct)
+		local nrgRestAmount = math.floor((b.MaxStandEnergy or 100) * restPct)
+
+		if b.MaxStamina then b.Stamina = math.min(b.MaxStamina, (b.Stamina or 0) + stamRestAmount) end
+		if b.MaxStandEnergy then b.StandEnergy = math.min(b.MaxStandEnergy, (b.StandEnergy or 0) + nrgRestAmount) end
 
 		local appliedWarded = false
 		if b.BlockTurns and b.BlockTurns > 0 then
@@ -1140,8 +1177,8 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			local pctDamage = math.clamp(damage / (t.MaxHP or 1), 0, 1)
 
 			local shatterCount = CombatCore.CountTrait(attacker, "Shattering")
-			local baseExhaust = CombatCore.HasModifier(uniModStr, "Aggressive Attrition") and 3.5 or 1.5
-			local exhaustMult = baseExhaust + (1.5 * shatterCount)
+			local baseExhaust = CombatCore.HasModifier(uniModStr, "Aggressive Attrition") and 1.5 or 0.75
+			local exhaustMult = baseExhaust + (0.5 * shatterCount)
 
 			local stoicCount = CombatCore.CountTrait(t, "Stoic")
 			local stoicMult = 0.5 ^ stoicCount
