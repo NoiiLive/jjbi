@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -44,19 +43,24 @@ end
 
 local function GenerateDungeonEnemy(template, dungeonId)
 	local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
+
 	local pCapMult = 1 + (fixedPrestige * 0.10)
 
-	local scaleHP = pCapMult * 0.35
-	local scaleStr = pCapMult * 1.8
-	local scaleDef = pCapMult * 0.3
-	local scaleSpd = pCapMult * 0.6
-	local scaleWill = pCapMult * 0.6
+	local offCapMult = 1 + (fixedPrestige * 0.10)
+	local defCapMult = 1 + ((fixedPrestige ^ 0.9) * 0.10)
+
+	local scaleHP = defCapMult * 0.35
+	local scaleStr = offCapMult * 1.8
+	local scaleDef = defCapMult * 0.3
+	local scaleSpd = offCapMult * 0.6
+	local scaleWill = defCapMult * 0.6
 
 	local eHP = template.Health * scaleHP
 	local eStr = (template.Strength + (GameData.StandRanks[template.StandStats.Power] or 0)) * scaleStr
 	local eDef = (template.Defense + (GameData.StandRanks[template.StandStats.Durability] or 0)) * scaleDef
 	local eSpd = (template.Speed + (GameData.StandRanks[template.StandStats.Speed] or 0)) * scaleSpd
 	local eWill = (template.Willpower or 1) * scaleWill
+
 
 	local dYen = math.floor((template.Drops and template.Drops.Yen or 0) * pCapMult)
 	local dXP = math.floor((template.Drops and template.Drops.XP or 0) * pCapMult)
@@ -154,8 +158,10 @@ local function GenerateRandomEndlessEnemy(floor)
 	end
 
 	local eStyle = Styles[math.random(#Styles)]
-
 	local standardScale = (math.floor(1 + (floor/10))) * 0.3
+
+	local offStandardScale = (math.floor(1 + (floor/10))) * 0.3
+	local defStandardScale = (math.floor(1 + ((floor ^ 0.9)/10))) * 0.3
 	local utilityScale = (math.floor(1 + (floor/10))) * 0.05
 
 	local bHP, bStr, bDef, bSpd, bWill = math.random(250, 2000), math.random(15, 150), math.random(10, 100), math.random(15, 150), math.random(10, 100)
@@ -192,9 +198,9 @@ local function GenerateRandomEndlessEnemy(floor)
 	end
 
 	local bossMult = isBossFloor and 2 or 1
-	local eHP = math.floor(bHP + (bHP * standardScale * 0.35)) * bossMult
-	local eStr = math.floor(bStr + (bStr * standardScale * 1.8)) * bossMult
-	local eDef = math.floor(bDef + (bDef * standardScale * 0.3)) * bossMult
+	local eHP = math.floor(bHP + (bHP * defStandardScale * 0.35)) * bossMult
+	local eStr = math.floor(bStr + (bStr * offStandardScale * 1.8)) * bossMult
+	local eDef = math.floor(bDef + (bDef * defStandardScale * 0.3)) * bossMult
 	local eSpd = math.floor(bSpd + (bSpd * utilityScale * 0.6)) * bossMult
 	local finalWill = math.floor(bWill + (bWill * utilityScale * 0.6)) * bossMult
 
