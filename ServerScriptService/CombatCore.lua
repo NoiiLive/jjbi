@@ -291,8 +291,8 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 
 	local overCount = CombatCore.CountTrait(attacker, "Overwhelming")
 	local traitBypass = math.min(0.60, overCount * 0.30)
-	local rangeBypass = math.min(0.45, (attacker.TotalRange or 0) / 5000)
-	local totalBypass = math.min(0.90, traitBypass + rangeBypass)
+	local rangeBypass = math.min(0.40, (attacker.TotalRange or 0) / 5000)
+	local totalBypass = math.min(0.9, traitBypass + rangeBypass)
 
 	local effectiveArmor = ((defender.TotalDefense or 0) * defBuff * defDebuff) * (1 - totalBypass)
 
@@ -486,7 +486,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		opponent = (combatant == battle.Player) and battle.Enemy or battle.Player
 	end
 	local domCount = opponent and CombatCore.CountTrait(opponent, "Dominating") or 0
-	local armorIgnore = math.min(0.50, domCount * 0.25)
+	local armorIgnore = math.min(0.9, domCount * 0.5)
 
 	local defBuff = (combatant.Statuses and (combatant.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
 	local defDebuff = (combatant.Statuses and (combatant.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
