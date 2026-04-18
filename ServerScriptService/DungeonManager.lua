@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -36,26 +37,40 @@ for traitName, _ in pairs(StandData.Traits) do
 	end
 end
 
+local function ScaleResource(val)
+	if val <= 1000 then return val end
+	return 1000 + math.floor((val - 1000) ^ 0.65 * 3)
+end
+
 local function GenerateDungeonEnemy(template, dungeonId)
 	local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
-	local scaleMult = 1 + (fixedPrestige * 0.10)
-	local minorScaleMult = 1 + ((scaleMult - 1) * 0.33) 
+	local pCapMult = 1 + (fixedPrestige * 0.10)
 
-	local eHP = template.Health * scaleMult
-	local eStr = (template.Strength + (GameData.StandRanks[template.StandStats.Power] or 0)) * scaleMult
-	local eDef = (template.Defense + (GameData.StandRanks[template.StandStats.Durability] or 0)) * scaleMult
-	local eSpd = (template.Speed + (GameData.StandRanks[template.StandStats.Speed] or 0)) * minorScaleMult
+	local scaleHP = pCapMult * 0.35
+	local scaleStr = pCapMult * 1.8
+	local scaleDef = pCapMult * 0.3
+	local scaleSpd = pCapMult * 0.6
+	local scaleWill = pCapMult * 0.6
 
-	local dYen = math.floor((template.Drops and template.Drops.Yen or 0) * scaleMult)
-	local dXP = math.floor((template.Drops and template.Drops.XP or 0) * scaleMult)
+	local eHP = template.Health * scaleHP
+	local eStr = (template.Strength + (GameData.StandRanks[template.StandStats.Power] or 0)) * scaleStr
+	local eDef = (template.Defense + (GameData.StandRanks[template.StandStats.Durability] or 0)) * scaleDef
+	local eSpd = (template.Speed + (GameData.StandRanks[template.StandStats.Speed] or 0)) * scaleSpd
+	local eWill = (template.Willpower or 1) * scaleWill
+
+	local dYen = math.floor((template.Drops and template.Drops.Yen or 0) * pCapMult)
+	local dXP = math.floor((template.Drops and template.Drops.XP or 0) * pCapMult)
+
+	local calcStam = ScaleResource(150 + (eHP * 0.1))
+	local calcNrg = ScaleResource(150 + (eHP * 0.1))
 
 	return {
 		IsPlayer = false, Name = template.Name, Icon = template.Icon or "", Trait = "None",
 		IsBoss = template.IsBoss or false,
 		HP = eHP, MaxHP = eHP, TotalStrength = eStr, TotalDefense = eDef, TotalSpeed = eSpd,
-		TotalWillpower = (template.Willpower or 1) * minorScaleMult,
-		Stamina = 150 + (eHP * 0.1), MaxStamina = 150 + (eHP * 0.1),
-		StandEnergy = 150 + (eHP * 0.1), MaxStandEnergy = 150 + (eHP * 0.1),
+		TotalWillpower = eWill,
+		Stamina = calcStam, MaxStamina = calcStam,
+		StandEnergy = calcNrg, MaxStandEnergy = calcNrg,
 		TotalRange = (GameData.StandRanks[template.StandStats.Range] or 0),
 		TotalPrecision = (GameData.StandRanks[template.StandStats.Precision] or 0),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
@@ -177,11 +192,11 @@ local function GenerateRandomEndlessEnemy(floor)
 	end
 
 	local bossMult = isBossFloor and 2 or 1
-	local eHP = math.floor(bHP + (bHP * standardScale)) * bossMult
-	local eStr = math.floor(bStr + (bStr * standardScale)) * bossMult
-	local eDef = math.floor(bDef + (bDef * standardScale)) * bossMult
-	local eSpd = math.floor(bSpd + (bSpd * utilityScale)) * bossMult
-	local finalWill = math.floor(bWill + (bWill * utilityScale)) * bossMult
+	local eHP = math.floor(bHP + (bHP * standardScale * 0.35)) * bossMult
+	local eStr = math.floor(bStr + (bStr * standardScale * 1.8)) * bossMult
+	local eDef = math.floor(bDef + (bDef * standardScale * 0.3)) * bossMult
+	local eSpd = math.floor(bSpd + (bSpd * utilityScale * 0.6)) * bossMult
+	local finalWill = math.floor(bWill + (bWill * utilityScale * 0.6)) * bossMult
 
 	local dYen = math.floor((15 + (bHP * 0.1)) * (1 + standardScale)) * bossMult * 10
 	local dXP = math.floor((50 + (bHP * 0.4)) * (1 + standardScale)) * bossMult * 10
@@ -227,12 +242,15 @@ local function GenerateRandomEndlessEnemy(floor)
 		end
 	end
 
+	local calcStam = ScaleResource(150 + (eHP * 0.1))
+	local calcNrg = ScaleResource(150 + (eHP * 0.1))
+
 	return {
 		IsPlayer = false, Name = fullName, Icon = "", Trait = eTrait, Trait2 = eTrait2,
 		IsBoss = isBossFloor,
 		HP = eHP, MaxHP = eHP, TotalStrength = eStr, TotalDefense = eDef, TotalSpeed = eSpd, TotalWillpower = finalWill,
-		Stamina = 150 + (eHP * 0.1), MaxStamina = 150 + (eHP * 0.1),
-		StandEnergy = 150 + (eHP * 0.1), MaxStandEnergy = 150 + (eHP * 0.1),
+		Stamina = calcStam, MaxStamina = calcStam,
+		StandEnergy = calcNrg, MaxStandEnergy = calcNrg,
 		TotalRange = (GameData.StandRanks[standRan] or 0), TotalPrecision = (GameData.StandRanks[standPre] or 0),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
 		Statuses = { 
