@@ -51,6 +51,11 @@ local APRIL_FOOLS_BOSSES = {
 local BossCooldownsMap = MemoryStoreService:GetHashMap("WorldBossCooldowns")
 local LocalServerCooldowns = {}
 
+local function ScaleResource(val)
+	if val <= 1000 then return val end
+	return 1000 + math.floor((val - 1000) ^ 0.65 * 3)
+end
+
 local function IsBossActive()
 	local now = math.floor(workspace:GetServerTimeNow())
 	if now < AdminForcedEndTime then return true end
@@ -261,20 +266,28 @@ local function StartBossBattle(player)
 
 	local pData = CombatCore.BuildPlayerStruct(player, true)
 
-	local calcStamina = bossTemplate.Stamina or (150 + ((bossTemplate.Willpower or 1) * 2) + (bossTemplate.Health * 0.05))
-	local calcEnergy = bossTemplate.StandEnergy or (150 + ((GameData.StandRanks[bossTemplate.StandStats.Potential] or 0) * 10) + (bossTemplate.Health * 0.05))
+	local finalHP = bossTemplate.Health
+	local finalStr = bossTemplate.Strength + (GameData.StandRanks[bossTemplate.StandStats.Power] or 0)
+	local finalDef = bossTemplate.Defense + (GameData.StandRanks[bossTemplate.StandStats.Durability] or 0)
+	local finalSpd = bossTemplate.Speed + (GameData.StandRanks[bossTemplate.StandStats.Speed] or 0)
+	local finalWill = bossTemplate.Willpower or 1
+
+	local sStats = bossTemplate.StandStats or {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}
+
+	local calcStamina = ScaleResource(bossTemplate.Stamina or (150 + (finalWill * 2) + (finalHP * 0.05)))
+	local calcEnergy = ScaleResource(bossTemplate.StandEnergy or (150 + ((GameData.StandRanks[sStats.Potential] or 0) * 10) + (finalHP * 0.05)))
 
 	local bossEntity = {
 		IsPlayer = false, IsAlly = false, Name = bossTemplate.Name, Icon = bossTemplate.Icon or "", Trait = "None", IsBoss = true,
-		HP = bossTemplate.Health, MaxHP = bossTemplate.Health,
-		TotalStrength = bossTemplate.Strength + (GameData.StandRanks[bossTemplate.StandStats.Power] or 0),
-		TotalDefense = bossTemplate.Defense + (GameData.StandRanks[bossTemplate.StandStats.Durability] or 0),
-		TotalSpeed = bossTemplate.Speed + (GameData.StandRanks[bossTemplate.StandStats.Speed] or 0),
-		TotalWillpower = bossTemplate.Willpower,
+		HP = finalHP, MaxHP = finalHP,
+		TotalStrength = finalStr,
+		TotalDefense = finalDef,
+		TotalSpeed = finalSpd,
+		TotalWillpower = finalWill,
 		Stamina = calcStamina, MaxStamina = calcStamina,
 		StandEnergy = calcEnergy, MaxStandEnergy = calcEnergy,
-		TotalRange = (GameData.StandRanks[bossTemplate.StandStats.Range] or 0),
-		TotalPrecision = (GameData.StandRanks[bossTemplate.StandStats.Precision] or 0),
+		TotalRange = (GameData.StandRanks[sStats.Range] or 0),
+		TotalPrecision = (GameData.StandRanks[sStats.Precision] or 0),
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
 		Statuses = { 
 			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
@@ -414,11 +427,12 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	if battle.Player.HP < 1 or battle.Enemy.HP < 1 or battle.TurnCounter > 10 then
 		local isDeath = (battle.Player.HP < 1)
 		local damageDealt = math.max(0, battle.Enemy.MaxHP - battle.Enemy.HP)
+
 		local dmgBonusDropPercent = math.floor(damageDealt / 100000)
 
 		pcall(function()
 			player:SetAttribute("WorldBossParticipations", (player:GetAttribute("WorldBossParticipations") or 0) + 1)
-			if damageDealt >= 1000000 then
+			if battle.Enemy.HP < 1 then
 				player:SetAttribute("WorldBossKills", (player:GetAttribute("WorldBossKills") or 0) + 1)
 			end
 		end)
