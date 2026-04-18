@@ -134,6 +134,19 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		uiElements[rInfo.Id] = {Row = row, Status = status, Btn = playBtn, Stroke = pStroke, Info = rInfo}
 	end
 
+	-- Dynamically adjust the menuFrame CanvasSize so it scrolls correctly on all screen sizes
+	task.delay(0.1, function()
+		if menuFrame:IsA("ScrollingFrame") then
+			local layout = menuFrame:FindFirstChildOfClass("UIListLayout") or menuFrame:FindFirstChildOfClass("UIGridLayout")
+			if layout then
+				menuFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 25)
+				layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+					menuFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 25)
+				end)
+			end
+		end
+	end)
+
 	task.spawn(function()
 		local pObj = player:WaitForChild("leaderstats", 10)
 		if pObj then
