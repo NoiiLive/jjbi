@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -451,14 +450,17 @@ local function StartRaidMatch(hostId)
 
 	local avgPrestige = totalPrestige / #lobby.Queue
 	local prestigeMult = 1 + (avgPrestige * 0.10)
+
+	local offPrestigeMult = 1 + (avgPrestige * 0.10)
+	local defPrestigeMult = 1 + ((avgPrestige ^ 0.9) * 0.10)
 	local partyMult = #lobby.Queue * 0.2 
 
 	local bossTemplate = EnemyData.RaidBosses[lobby.RaidId]
-	local finalHP = math.floor(bossTemplate.Health * (prestigeMult * 0.35) * (1 + partyMult))
-	local finalStr = math.floor(bossTemplate.Strength * (prestigeMult * 1.8) * (1 + partyMult))
-	local finalDef = math.floor(bossTemplate.Defense * (prestigeMult * 0.3))
-	local finalSpd = math.floor(bossTemplate.Speed * (prestigeMult * 0.6))
-	local finalWill = math.floor(bossTemplate.Willpower * (prestigeMult * 0.6))
+	local finalHP = math.floor(bossTemplate.Health * (defPrestigeMult * 0.35) * (1 + partyMult))
+	local finalStr = math.floor(bossTemplate.Strength * (offPrestigeMult * 1.8) * (1 + partyMult))
+	local finalDef = math.floor(bossTemplate.Defense * (defPrestigeMult * 0.3))
+	local finalSpd = math.floor(bossTemplate.Speed * (offPrestigeMult * 0.6))
+	local finalWill = math.floor(bossTemplate.Willpower * (defPrestigeMult * 0.6))
 
 	local sStats = bossTemplate.StandStats or {Power="None", Speed="None", Range="None", Durability="None", Precision="None", Potential="None"}
 
