@@ -46,19 +46,19 @@ EnemyData.RaidBosses = {
 	},
 	["Raid_Part6"] = { 
 		IsBoss = true, Name = "Gravity Priest", Req = 1, Icon = "rbxassetid://80960379225409",
-		Health = 30000, Strength = 250, Defense = 200, Speed = 210, Willpower = 210, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, 
+		Health = 30000, Strength = 250, Defense = 180, Speed = 210, Willpower = 210, StandStats = {Power="B", Speed="A", Range="C", Durability="A", Precision="C", Potential="A"}, 
 		Skills = {"Time Acceleration", "Speed Slice", "Accelerated Knives", "Block", "Rest"}, 
 		Drops = { Yen = 20000, XP = 35000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 10, ["Heavenly Stand Disc"] = 5, ["DIO's Bone"] = 1, ["Priest's Rosary"] = 1, ["Green Baby"] = 10, ["Pucci's Disc"] = 25, ["Jolyne's String"] = 25, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part7"] = { 
 		IsBoss = true, Name = "23rd President", Req = 1, Icon = "",
-		Health = 35000, Strength = 300, Defense = 250, Speed = 260, Willpower = 260, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
+		Health = 35000, Strength = 300, Defense = 220, Speed = 260, Willpower = 260, StandStats = {Power="A", Speed="A", Range="C", Durability="A", Precision="A", Potential="A"}, 
 		Skills = {"Dimensional Strike", "Sponge Paradox", "Between Dimensions", "Heavy Strike", "Block", "Rest"}, 
 		Drops = { Yen = 30000, XP = 50000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 15, ["Steel Ball"] = 20, ["Saint's Corpse Part"] = 20, ["Saint's Left Arm"] = 10, ["Saint's Right Eye"] = 10, ["Saint's Heart"] = 1, ["Saint's Spine"] = 1, ["Saint's Pelvis"] = 1, ["Golden Spin Scroll"] = 1, ["Valentine's Revolver"] = 1, ["The First Napkin"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	},
 	["Raid_Part8"] = { 
 		IsBoss = true, Name = "The Head Doctor", Req = 1, Icon = "rbxassetid://107039057776207",
-		Health = 40000, Strength = 350, Defense = 300, Speed = 350, Willpower = 300, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
+		Health = 40000, Strength = 350, Defense = 260, Speed = 350, Willpower = 300, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"}, 
 		Skills = {"Cane Strike", "Flow of Calamity", "Rain of Debris", "Illusory Presence", "Heavy Strike", "Block", "Rest"}, 
 		Drops = { Yen = 40000, XP = 75000, ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 20, ["Saint's Corpse Part"] = 25, ["Wonder of U's Cane"] = 1, ["Rock Insect"] = 1, ["Rokakaka Branch"] = 1, ["Rokakaka Fruit"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } } 
 	}
