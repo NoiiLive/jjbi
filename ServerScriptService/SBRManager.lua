@@ -18,6 +18,11 @@ local function GetSBRTime()
 	return (math.floor(workspace:GetServerTimeNow()) + cycleOffset) % 3600
 end
 
+local function ScaleResource(val)
+	if val <= 1000 then return val end
+	return 1000 + math.floor((val - 1000) ^ 0.65 * 3)
+end
+
 local EventState = {
 	IsActive = false,
 	Queue = {},
@@ -310,17 +315,25 @@ local function GeneratePvEMob(player)
 	local template = pMobs[math.random(#pMobs)]
 
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
-	local scale = 1 + (prestige * 0.05)
+	local pCapMult = 1 + (prestige * 0.10)
 
-	local eHP = template.Health * scale
+	local scaleHP = pCapMult * 0.35
+	local scaleStr = pCapMult * 1.8
+	local scaleDef = pCapMult * 0.3
+	local scaleSpd = pCapMult * 0.6
+	local scaleWill = pCapMult * 0.6
+
+	local eHP = template.Health * scaleHP
+	local calcStam = ScaleResource(150 + (eHP * 0.1))
+	local calcNrg = ScaleResource(150 + (eHP * 0.1))
 
 	return {
 		IsPlayer = false, Name = template.Name, Trait = "None", IsBoss = false,
 		HP = eHP, MaxHP = eHP,
-		TotalStrength = template.Strength * scale, TotalDefense = template.Defense * scale,
-		TotalSpeed = template.Speed * (1 + (prestige * 0.05)), TotalWillpower = template.Willpower,
-		Stamina = 150 + (eHP * 0.1), MaxStamina = 150 + (eHP * 0.1),
-		StandEnergy = 150 + (eHP * 0.1), MaxStandEnergy = 150 + (eHP * 0.1),
+		TotalStrength = template.Strength * scaleStr, TotalDefense = template.Defense * scaleDef,
+		TotalSpeed = template.Speed * scaleSpd, TotalWillpower = template.Willpower * scaleWill,
+		Stamina = calcStam, MaxStamina = calcStam,
+		StandEnergy = calcNrg, MaxStandEnergy = calcNrg,
 		TotalRange = 0, TotalPrecision = 0, BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
 		Statuses = { 
 			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
@@ -364,7 +377,7 @@ function ExecuteCombatTurn(racer)
 	if b.OpponentRacer then b.OpponentRacer.Battle.IsProcessing = true end
 
 	local p1SkillName = b.PlayerSelectedSkill
-	local p2SkillName = b.OpponentRacer and b.OpponentRacer.Battle.PlayerSelectedSkill or CombatCore.ChooseAISkill(b.Opponent)
+	local p2SkillName = b.OpponentRacer and b.OpponentRacer.Battle.PlayerSelectedSkill or CombatCore.ChooseAISkill(b.Enemy)
 
 	local uniModStr = racer.Player:GetAttribute("UniverseModifier") or "None"
 
@@ -422,10 +435,10 @@ function ExecuteCombatTurn(racer)
 			local uniModStr2 = b.OpponentRacer.Player:GetAttribute("UniverseModifier") or "None"
 			if CombatCore.HasModifier(uniModStr2, "Speed of Light") then stamCost2 *= 1.5; nrgCost2 *= 1.5 end
 			if CombatCore.HasModifier(uniModStr2, "Endless Stamina") then stamCost2 *= 0.5; nrgCost2 *= 0.5 end
-			b.Opponent.Stamina = math.max(0, b.Opponent.Stamina - stamCost2)
-			b.Opponent.StandEnergy = math.max(0, b.Opponent.StandEnergy - nrgCost2)
+			b.Enemy.Stamina = math.max(0, b.Enemy.Stamina - stamCost2)
+			b.Enemy.StandEnergy = math.max(0, b.Enemy.StandEnergy - nrgCost2)
 		end
-		if b.Opponent.Cooldowns then b.Opponent.Cooldowns[p2SkillName] = p2Skill.Cooldown or 0 end
+		if b.Enemy.Cooldowns then b.Enemy.Cooldowns[p2SkillName] = p2Skill.Cooldown or 0 end
 	end
 
 	local waitMultiplier = 0.8
@@ -436,27 +449,27 @@ function ExecuteCombatTurn(racer)
 		end)
 
 		if s then
-			SBRUpdate:FireClient(racer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Player, P2 = b.Opponent, DidHit = hit, Deadline = b.TurnDeadline})
+			SBRUpdate:FireClient(racer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Player, P2 = b.Enemy, DidHit = hit, Deadline = b.TurnDeadline})
 			if b.OpponentRacer then 
-				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Opponent, P2 = b.Player, DidHit = hit, Deadline = b.TurnDeadline}) 
+				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Enemy, P2 = b.Player, DidHit = hit, Deadline = b.TurnDeadline}) 
 			end
 			task.wait(waitMultiplier)
 		else
 			warn("SBR Combat Error:", msg)
 			local errMsg = "<font color='#FF5555'>[Combat Error] " .. atk.Name .. "'s attack failed.</font>"
-			SBRUpdate:FireClient(racer.Player, "CombatTurn", {LogMsg = errMsg, ShakeType = "None", P1 = b.Player, P2 = b.Opponent, DidHit = false, Deadline = b.TurnDeadline})
+			SBRUpdate:FireClient(racer.Player, "CombatTurn", {LogMsg = errMsg, ShakeType = "None", P1 = b.Player, P2 = b.Enemy, DidHit = false, Deadline = b.TurnDeadline})
 			if b.OpponentRacer then 
-				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = errMsg, ShakeType = "None", P1 = b.Opponent, P2 = b.Player, DidHit = false, Deadline = b.TurnDeadline}) 
+				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = errMsg, ShakeType = "None", P1 = b.Enemy, P2 = b.Player, DidHit = false, Deadline = b.TurnDeadline}) 
 			end
 			task.wait(waitMultiplier)
 		end
 	end
 
-	local combatants = {b.Player, b.Opponent}
+	local combatants = {b.Player, b.Enemy}
 	table.sort(combatants, function(x, y) return (x.TotalSpeed or 1) > (y.TotalSpeed or 1) end)
 
 	for _, c in ipairs(combatants) do
-		if b.Player.HP < 1 or b.Opponent.HP < 1 then break end
+		if b.Player.HP < 1 or b.Enemy.HP < 1 then break end
 		if c.HP < 1 then continue end
 
 		if c.Cooldowns then for sName, cd in pairs(c.Cooldowns) do if cd > 0 then c.Cooldowns[sName] = cd - 1 end end end
@@ -471,13 +484,13 @@ function ExecuteCombatTurn(racer)
 		if c.CounterTurns then c.CounterTurns = math.max(0, c.CounterTurns - 1) end
 
 		local dummyRemote = { FireClient = function(_, plr, ev, data) 
-			SBRUpdate:FireClient(plr, "CombatTurn", {LogMsg = data.LogMsg, P1 = b.Player, P2 = b.Opponent, DidHit = data.DidHit, ShakeType = data.ShakeType, Deadline = b.TurnDeadline})
+			SBRUpdate:FireClient(plr, "CombatTurn", {LogMsg = data.LogMsg, P1 = b.Player, P2 = b.Enemy, DidHit = data.DidHit, ShakeType = data.ShakeType, Deadline = b.TurnDeadline})
 			if b.OpponentRacer then
-				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = data.LogMsg, P1 = b.Opponent, P2 = b.Player, DidHit = data.DidHit, ShakeType = data.ShakeType, Deadline = b.TurnDeadline})
+				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = data.LogMsg, P1 = b.Enemy, P2 = b.Player, DidHit = data.DidHit, ShakeType = data.ShakeType, Deadline = b.TurnDeadline})
 			end
 		end}
 
-		local fz = CombatCore.ApplyStatusDamage(c, "None", dummyRemote, racer.Player, nil, 0)
+		local fz = CombatCore.ApplyStatusDamage(c, "None", dummyRemote, racer.Player, b, 0)
 		if fz == "Frozen" then continue end
 		if c.HP < 1 then continue end
 
@@ -493,9 +506,9 @@ function ExecuteCombatTurn(racer)
 		end
 
 		if c == b.Player then 
-			Dispatch(b.Player, b.Opponent, p1SkillName)
+			Dispatch(b.Player, b.Enemy, p1SkillName)
 		else 
-			Dispatch(b.Opponent, b.Player, p2SkillName) 
+			Dispatch(b.Enemy, b.Player, p2SkillName) 
 		end
 	end
 
@@ -508,7 +521,7 @@ function ExecuteCombatTurn(racer)
 			SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatEnd", "You survived the ambush and eliminated your opponent! Pushing forward 1500m.")
 			CheckWinCondition(b.OpponentRacer)
 		end
-	elseif b.Opponent.HP < 1 then
+	elseif b.Enemy.HP < 1 then
 		local gain = b.OpponentRacer and 1500 or 800
 		racer.Distance += gain
 		racer.Battle = nil
@@ -529,10 +542,10 @@ function ExecuteCombatTurn(racer)
 
 		if b.OpponentRacer then
 			local uniModStr2 = b.OpponentRacer.Player:GetAttribute("UniverseModifier") or "None"
-			if p2Skill and (p2Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr2, "Endless Stamina") then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + 5) end
-			if p2Skill and (p2Skill.EnergyCost or 0) == 0 and not CombatCore.HasModifier(uniModStr2, "Endless Stamina") then b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + 5) end
-			local p2VigCount = CombatCore.CountTrait(b.Opponent, "Vigorous")
-			if p2VigCount > 0 then b.Opponent.Stamina = math.min(b.Opponent.MaxStamina, b.Opponent.Stamina + (10 * p2VigCount)); b.Opponent.StandEnergy = math.min(b.Opponent.MaxStandEnergy, b.Opponent.StandEnergy + (10 * p2VigCount)) end
+			if p2Skill and (p2Skill.StaminaCost or 0) == 0 and not CombatCore.HasModifier(uniModStr2, "Endless Stamina") then b.Enemy.Stamina = math.min(b.Enemy.MaxStamina, b.Enemy.Stamina + 5) end
+			if p2Skill and (p2Skill.EnergyCost or 0) == 0 and not CombatCore.HasModifier(uniModStr2, "Endless Stamina") then b.Enemy.StandEnergy = math.min(b.Enemy.MaxStandEnergy, b.Enemy.StandEnergy + 5) end
+			local p2VigCount = CombatCore.CountTrait(b.Enemy, "Vigorous")
+			if p2VigCount > 0 then b.Enemy.Stamina = math.min(b.Enemy.MaxStamina, b.Enemy.Stamina + (10 * p2VigCount)); b.Enemy.StandEnergy = math.min(b.Enemy.MaxStandEnergy, b.Enemy.StandEnergy + (10 * p2VigCount)) end
 
 			b.OpponentRacer.Battle.PlayerReady = false 
 			b.OpponentRacer.Battle.PlayerSelectedSkill = nil
@@ -540,8 +553,8 @@ function ExecuteCombatTurn(racer)
 			b.OpponentRacer.Battle.TurnDeadline = b.TurnDeadline
 		end
 
-		SBRUpdate:FireClient(racer.Player, "CombatUpdateState", {P1 = b.Player, P2 = b.Opponent, Deadline = b.TurnDeadline})
-		if b.OpponentRacer then SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatUpdateState", {P1 = b.Opponent, P2 = b.Player, Deadline = b.TurnDeadline}) end
+		SBRUpdate:FireClient(racer.Player, "CombatUpdateState", {P1 = b.Player, P2 = b.Enemy, Deadline = b.TurnDeadline})
+		if b.OpponentRacer then SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatUpdateState", {P1 = b.Enemy, P2 = b.Player, Deadline = b.TurnDeadline}) end
 	end
 end
 
@@ -684,12 +697,12 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				local p2 = FindPvPTarget(r)
 				if p2 then
 					r.Distance += distGained
-					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
-					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Enemy = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					p2.Battle = { Player = r.Battle.Enemy, Enemy = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 					player:SetAttribute("InCombat", true)
 					p2.Player:SetAttribute("InCombat", true)
-					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
-					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
+					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
+					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Enemy, Deadline = p2.Battle.TurnDeadline})
 					r.IsProcessing = false
 					return
 				else
@@ -712,12 +725,12 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			if math.random() <= 0.1 then
 				local p2 = FindPvPTarget(r)
 				if p2 then
-					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
-					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Enemy = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					p2.Battle = { Player = r.Battle.Enemy, Enemy = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 					player:SetAttribute("InCombat", true)
 					p2.Player:SetAttribute("InCombat", true)
-					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
-					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
+					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
+					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>YOU AMBUSHED " .. player.Name .. "!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Enemy, Deadline = p2.Battle.TurnDeadline})
 					r.IsProcessing = false
 					return
 				end
@@ -758,21 +771,21 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				logStr = "<font color='#55FFFF'>Rode hard for " .. distGained .. "m and found " .. (i or "something") .. "!</font>"
 			elseif rng <= 60 then
 				r.Distance += distGained
-				r.Battle = { Player = CombatCore.BuildPlayerStruct(player, true), Opponent = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+				r.Battle = { Player = CombatCore.BuildPlayerStruct(player, true), Enemy = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 				player:SetAttribute("InCombat", true)
-				SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>A bandit blocks the path!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
+				SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>A bandit blocks the path!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
 				r.IsProcessing = false
 				return
 			elseif rng <= 70 then
 				local p2 = FindPvPTarget(r)
 				if p2 then
 					r.Distance += distGained
-					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Opponent = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
-					p2.Battle = { Player = r.Battle.Opponent, Opponent = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Enemy = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					p2.Battle = { Player = r.Battle.Enemy, Enemy = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 					player:SetAttribute("InCombat", true)
 					p2.Player:SetAttribute("InCombat", true)
-					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>CROSSED PATHS WITH " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Opponent, Deadline = r.Battle.TurnDeadline})
-					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>" .. player.Name .. " ATTACKED YOU!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Opponent, Deadline = p2.Battle.TurnDeadline})
+					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>CROSSED PATHS WITH " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
+					SBRUpdate:FireClient(p2.Player, "CombatStart", {LogMsg = "<font color='#FF5555'>" .. player.Name .. " ATTACKED YOU!</font>", P1 = p2.Battle.Player, P2 = p2.Battle.Enemy, Deadline = p2.Battle.TurnDeadline})
 					r.IsProcessing = false
 					return
 				else
