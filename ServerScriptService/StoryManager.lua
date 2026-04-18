@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
@@ -55,13 +54,14 @@ local function GenerateNPCEntity(template, isAlly, prestige, uniModStr, currentP
 	local scaleHP, scaleStr, scaleDef, scaleSpd, scaleWill, xpScale = 1, 1, 1, 1, 1, 1
 
 	if prestige and prestige > 0 then
-		local pCapMult = 1 + (prestige * 0.1)
+		local offCapMult = 1 + (prestige * 0.1)
+		local defCapMult = 1 + ((prestige ^ 0.9) * 0.1)
 
-		local hpMult = pCapMult * 0.35
-		local strMult = pCapMult * 1.8
-		local defMult = pCapMult * 0.3
-		local spdMult = pCapMult * 0.6
-		local willMult = pCapMult * 0.6
+		local hpMult = defCapMult * 0.35
+		local strMult = offCapMult * 1.8
+		local defMult = defCapMult * 0.3
+		local spdMult = offCapMult * 0.6
+		local willMult = defCapMult * 0.6
 
 		if currentPart == 7 or currentPart == 8 then
 			hpMult = hpMult * 0.8
