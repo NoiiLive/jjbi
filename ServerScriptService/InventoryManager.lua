@@ -602,13 +602,14 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "Chiikawa Mascot" or itemName == "Kakyoin's Egg"
 				or itemName == "Scratch-Off Ticket" or itemName == "Inversion Medicine"
 				or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc")
-				or (string.find(itemName, "Stand ") and string.find(itemName, "Training Manual")))
+			)
 
 		local isStyleItem = 
 			(itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" 
 				or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" 
 				or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit" or itemName == "Limitless Manual" or itemName == "Cursed Finger"
-				or itemName == "Parasitic Egg")
+				or itemName == "Parasitic Egg"
+			)
 
 		if isStandItem and player:GetAttribute("StandLocked") then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Your Stand is locked! Unlock it to use this item.</font>")
