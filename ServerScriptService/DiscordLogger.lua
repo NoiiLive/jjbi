@@ -18,8 +18,11 @@ if not WorldBossLogEvent then
 	WorldBossLogEvent.Parent = Network
 end
 
-local ADMIN_WEBHOOK_URL = "https://discord.com/api/webhooks/1488980762165379213/yLjM6XIzDo0sSGiMOpFJQ8gYGs5hiDS-8bJoFzyrrh5Jw5e7EuNI2QdlzQimIZRnrpFW"
+local ADMIN_WEBHOOK_URL = "https://discord.com/api/webhooks/1495484990606147615/YAOqAfcyeMAjlFDYSYxTUkQiiKQE2uokIabS0UfkeTy6NuzpwO5mSfwzLnuZNYwlHeyu"
 local BOSS_WEBHOOK_URL = "https://discord.com/api/webhooks/1488994023652724736/szzJf00-CBHsvW0AIWqzy4N1P3QZaDr0SULPXcduiCLEwJ67Pju1DF7bcsxwhUhwvQwW"
+local TRADE_WEBHOOK_URL = "https://discord.com/api/webhooks/1495485368043049152/lsfuE4BzbcK3osiEWSl8VFbIdnDSo-7IftcmIRjb1ucRd6MZbzUEvlNVxwhf0dMncwLF"
+local PURCHASE_WEBHOOK_URL = "https://discord.com/api/webhooks/1495485510938919023/J6w5360H1ZsdSEQ3W3W0dCUkRXytt9nDs6DD39hHx3yhwOUu2qBXA0pylmU32zFhGl9j"
+local REPLACEMENT_WEBHOOK_URL = "https://discord.com/api/webhooks/1495485632515145940/h7UiNTf7H__QQaRxhTUQGPblcNciR3o6ni94s9DMN3x46A2AF70KO6FMgFUVDM4OdUB0"
 
 local logQueue = {}
 local isProcessingQueue = false
@@ -82,11 +85,14 @@ AdminLogger.Event:Connect(function(logType, logData)
 		["fields"] = {}
 	}
 
+	local targetWebhook = ADMIN_WEBHOOK_URL
+
 	if logType == "Command" then
 		embed.color = 0x3498DB
 		table.insert(embed.fields, {name = "Admin", value = tostring(logData.Player), inline = true})
 		table.insert(embed.fields, {name = "Command", value = tostring(logData.Command), inline = true})
 		table.insert(embed.fields, {name = "Full Text", value = tostring(logData.FullText), inline = false})
+		targetWebhook = ADMIN_WEBHOOK_URL
 
 	elseif logType == "Trade" then
 		embed.color = 0x2ECC71
@@ -94,21 +100,24 @@ AdminLogger.Event:Connect(function(logType, logData)
 		table.insert(embed.fields, {name = "Player 2", value = tostring(logData.Player2), inline = true})
 		table.insert(embed.fields, {name = tostring(logData.Player1) .. "'s Offer", value = tostring(logData.Offer1), inline = false})
 		table.insert(embed.fields, {name = tostring(logData.Player2) .. "'s Offer", value = tostring(logData.Offer2), inline = false})
+		targetWebhook = TRADE_WEBHOOK_URL
 
 	elseif logType == "Purchase" then
 		embed.color = 0xF1C40F
 		table.insert(embed.fields, {name = "Purchaser", value = tostring(logData.Player), inline = true})
 		table.insert(embed.fields, {name = "Target (Gifted To)", value = tostring(logData.Target), inline = true})
 		table.insert(embed.fields, {name = "Item Purchased", value = tostring(logData.Item), inline = false})
+		targetWebhook = PURCHASE_WEBHOOK_URL
 
 	elseif logType == "Replacement" then
 		embed.color = 0xE67E22
 		table.insert(embed.fields, {name = "Player", value = tostring(logData.Player), inline = true})
 		table.insert(embed.fields, {name = "Context", value = tostring(logData.Context), inline = true})
 		table.insert(embed.fields, {name = "Action", value = "Replaced **" .. tostring(logData.OldItem) .. "** with **" .. tostring(logData.NewItem) .. "** in slot: `" .. tostring(logData.Slot) .. "`", inline = false})
+		targetWebhook = REPLACEMENT_WEBHOOK_URL
 	end
 
-	SendToDiscord(ADMIN_WEBHOOK_URL, embed)
+	SendToDiscord(targetWebhook, embed)
 end)
 
 WorldBossLogEvent.Event:Connect(function(bossName)
