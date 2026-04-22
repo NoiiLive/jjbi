@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -312,13 +313,38 @@ local function ProcessTurn(match)
 			local lColor = attacker.IsBoss and "#FF5555" or "#55FF55"
 			local dColor = defender.IsBoss and "#FF5555" or "#55FF55"
 
-			local msg, hit, shake = CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, attacker.Name, defender.Name, lColor, dColor)
-			for _, p in ipairs(match.Party) do 
-				if ActiveRaids[p.Player] == match then
-					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = hit, ShakeType = shake, Deadline = match.TurnDeadline}) 
+			local s, msg, hit, shake, actualTarget = pcall(function() 
+				return CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, attacker.Name, defender.Name, lColor, dColor) 
+			end)
+
+			if s then
+				local hitTarget = actualTarget or defender
+				local defKey = hitTarget.IsPlayer and tostring(hitTarget.UserId) or ("Boss_" .. (hitTarget.Name or "Unknown"))
+
+				for _, p in ipairs(match.Party) do 
+					if ActiveRaids[p.Player] == match then
+						RaidUpdate:FireClient(p.Player, "TurnResult", {
+							LogMsg = msg, 
+							State = GetClientState(match, p.UserId), 
+							DidHit = hit, 
+							ShakeType = shake, 
+							Deadline = match.TurnDeadline,
+							SkillName = skillName,
+							Defender = defKey
+						}) 
+					end
 				end
+				task.wait(waitMultiplier)
+			else
+				warn("Raid Boss Combat Error:", msg)
+				local errMsg = "<font color='#FF5555'>[Combat Error] " .. attacker.Name .. "'s attack failed.</font>"
+				for _, p in ipairs(match.Party) do 
+					if ActiveRaids[p.Player] == match then
+						RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = errMsg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
+					end
+				end
+				task.wait(waitMultiplier)
 			end
-			task.wait(waitMultiplier)
 			if match.IsDead then return end
 		end
 
@@ -423,7 +449,9 @@ local function ProcessTurn(match)
 				table.insert(pDrops, "<font color='#55FF55'>+"..fXP.." XP, +¥"..fYen.."</font>")
 				if #droppedItems > 0 then table.insert(pDrops, "<font color='#FFFF55'>Loot: " .. table.concat(droppedItems, ", ") .. "</font>") end
 			end
-			RaidUpdate:FireClient(pData.Player, "MatchOver", {Result = isWin and "Win" or "Loss", LogMsg = endMsg .. "\n" .. table.concat(pDrops, "\n")})
+
+			local combinedLog = endMsg .. "\n" .. table.concat(pDrops, "\n")
+			RaidUpdate:FireClient(pData.Player, "MatchOver", {Result = isWin and "Win" or "Loss", LogMsg = combinedLog})
 			ActiveRaids[pData.Player] = nil
 			pData.Player:SetAttribute("InCombat", false)
 		end
@@ -452,7 +480,7 @@ local function StartRaidMatch(hostId)
 	local prestigeMult = 1 + (avgPrestige * 0.10)
 
 	local offPrestigeMult = 1 + (avgPrestige * 0.10)
-	local defPrestigeMult = 1 + ((avgPrestige ^ 0.9) * 0.10)
+	local defPrestigeMult = 1 + ((avgPrestige ^ 0.85) * 0.10)
 	local partyMult = #lobby.Queue * 0.2 
 
 	local bossTemplate = EnemyData.RaidBosses[lobby.RaidId]
