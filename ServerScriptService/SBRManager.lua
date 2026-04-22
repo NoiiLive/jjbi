@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -445,14 +446,17 @@ function ExecuteCombatTurn(racer)
 	local waitMultiplier = 0.8
 	local function Dispatch(atk, def, skName)
 		if atk.HP <= 0 or def.HP <= 0 then return end
-		local s, msg, hit, shake = pcall(function() 
+		local s, msg, hit, shake, actualTarget = pcall(function() 
 			return CombatCore.ExecuteStrike(atk, def, skName, "None", atk.Name, def.Name, atk.IsPlayer and "#FFFFFF" or "#FF5555", def.IsPlayer and "#FFFFFF" or "#FF5555") 
 		end)
 
 		if s then
-			SBRUpdate:FireClient(racer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Player, P2 = b.Enemy, DidHit = hit, Deadline = b.TurnDeadline})
+			local hitTarget = actualTarget or def
+			local defKey = hitTarget.IsPlayer and tostring(hitTarget.UserId) or tostring("Enemy_" .. hitTarget.Name)
+
+			SBRUpdate:FireClient(racer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Player, P2 = b.Enemy, DidHit = hit, Deadline = b.TurnDeadline, SkillName = skName, Defender = defKey})
 			if b.OpponentRacer then 
-				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Enemy, P2 = b.Player, DidHit = hit, Deadline = b.TurnDeadline}) 
+				SBRUpdate:FireClient(b.OpponentRacer.Player, "CombatTurn", {LogMsg = msg, ShakeType = shake, P1 = b.Enemy, P2 = b.Player, DidHit = hit, Deadline = b.TurnDeadline, SkillName = skName, Defender = defKey}) 
 			end
 			task.wait(waitMultiplier)
 		else
