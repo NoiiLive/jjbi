@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -360,7 +361,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 	local function DispatchStrike(attacker, defender, strikeSkill)
 		if not attacker or not defender or attacker.HP <= 0 or defender.HP <= 0 then return end
-		local success, msg, didHit, shakeType = pcall(function() 
+		local success, msg, didHit, shakeType, actualTarget = pcall(function() 
 			local lColor = attacker.IsPlayer and "#FFFFFF" or "#FF5555"
 			local dColor = defender.IsPlayer and "#FFFFFF" or "#FF5555"
 			local lName = attacker.IsPlayer and "You" or attacker.Name
@@ -368,7 +369,9 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			return CombatCore.ExecuteStrike(attacker, defender, strikeSkill, "None", lName, dName, lColor, dColor) 
 		end)
 		if success then
-			DungeonUpdate:FireClient(player, "TurnStrike", {Battle = dungeon, LogMsg = msg, DidHit = didHit, ShakeType = shakeType})
+			local hitTarget = actualTarget or defender
+			local defenderKey = hitTarget.IsPlayer and "Player" or "Enemy"
+			DungeonUpdate:FireClient(player, "TurnStrike", {Battle = dungeon, LogMsg = msg, DidHit = didHit, ShakeType = shakeType, SkillName = strikeSkill, Defender = defenderKey})
 			task.wait(waitMultiplier)
 		end
 	end
