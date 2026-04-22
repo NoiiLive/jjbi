@@ -121,6 +121,7 @@ local function ProcessTurn(match)
 	end)
 
 	local didHit, shakeType = false, "None"
+	local turnStrikes = {}
 
 	for _, attacker in ipairs(allCombatants) do
 		if IsTeamDead(match.Team1) or IsTeamDead(match.Team2) then break end
@@ -252,13 +253,16 @@ local function ProcessTurn(match)
 		if not defender then defender = GetAliveEnemy(enemyTeam) end
 
 		if skill and defender then
-			local s, msg, hit, shake = pcall(function()
+			local s, msg, hit, shake, actualTarget = pcall(function()
 				return CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, attacker.Name, defender.Name, "#55FF55", "#FF5555")
 			end)
 			if s then
 				table.insert(logMessages, msg)
 				if hit then didHit = true end
 				if shake == "Heavy" then shakeType = "Heavy" elseif shake == "Light" and shakeType == "None" then shakeType = "Light" end
+
+				local hitTarget = actualTarget or defender
+				table.insert(turnStrikes, {SkillName = skillName, Defender = tostring(hitTarget.UserId), DidHit = hit})
 			else
 				warn("CombatCore Arena Error:", msg)
 				table.insert(logMessages, "<font color='#FF5555'>[Combat Error] " .. attacker.Name .. "'s attack failed.</font>")
@@ -359,12 +363,12 @@ local function ProcessTurn(match)
 		match.TurnDeadline = math.floor(workspace:GetServerTimeNow()) + match.TurnTime
 
 		for _, pData in ipairs(allCombatants) do
-			ArenaUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = logStr, State = GetClientState(match, pData.Player, false), DidHit = didHit, ShakeType = shakeType, Deadline = match.TurnDeadline})
+			ArenaUpdate:FireClient(pData.Player, "TurnResult", {LogMsg = logStr, State = GetClientState(match, pData.Player, false), DidHit = didHit, ShakeType = shakeType, Deadline = match.TurnDeadline, Strikes = turnStrikes})
 			if pData.HP > 0 and (pData.Statuses.Stun or 0) > 0 then pData.SelectedSkill = "Stunned" end
 		end
 
 		for _, specPlayer in ipairs(match.Spectators) do
-			ArenaUpdate:FireClient(specPlayer, "TurnResult", {LogMsg = logStr, State = GetClientState(match, specPlayer, true), DidHit = didHit, ShakeType = shakeType, Deadline = match.TurnDeadline})
+			ArenaUpdate:FireClient(specPlayer, "TurnResult", {LogMsg = logStr, State = GetClientState(match, specPlayer, true), DidHit = didHit, ShakeType = shakeType, Deadline = match.TurnDeadline, Strikes = turnStrikes})
 		end
 
 		local allReady = true
