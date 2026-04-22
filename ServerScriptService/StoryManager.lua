@@ -229,7 +229,8 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 	local function DispatchStrike(attacker, defender, strikeSkill)
 		if not attacker or not defender or attacker.HP <= 0 or defender.HP <= 0 then return end
-		local success, msg, didHit, shakeType = pcall(function()
+
+		local success, msg, didHit, shakeType, actualTarget = pcall(function()
 			local lColor = attacker.IsPlayer and "#FFFFFF" or (attacker.IsAlly and "#55FFFF" or "#FF5555")
 			local dColor = defender.IsPlayer and "#FFFFFF" or "#FF5555"
 			local lName = attacker.IsPlayer and "You" or attacker.Name
@@ -238,7 +239,10 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		end)
 
 		if success then
-			CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = msg, DidHit = didHit, ShakeType = shakeType})
+			local hitTarget = actualTarget or defender
+			local defenderKey = hitTarget.IsPlayer and "Player" or (hitTarget.IsAlly and "Ally" or "Enemy")
+
+			CombatUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = msg, DidHit = didHit, ShakeType = shakeType, SkillName = strikeSkill, Defender = defenderKey})
 			task.wait(waitMultiplier)
 		else warn("Combat Strike Error: ", msg) end
 	end
