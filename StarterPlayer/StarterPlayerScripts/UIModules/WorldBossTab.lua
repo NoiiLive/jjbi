@@ -1,5 +1,6 @@
 -- @ScriptType: ModuleScript
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local WorldBossTab = {}
 
 local player = game.Players.LocalPlayer
@@ -367,6 +368,136 @@ function WorldBossTab.UpdateWorldBoss(status, data)
 					task.wait(0.04) 
 				end
 				combatUI.MainFrame.Position = UDim2.new(0, 0, 0, 0)
+			end)
+		end
+
+		local skillInfo = SkillData.Skills[data.SkillName]
+		local eff = skillInfo and skillInfo.Effect or ""
+		local isUtility = (eff == "Block" or eff == "Counter" or eff == "Heal" or eff == "Rest" or eff == "CleanseRest" or string.match(eff, "Buff_") or string.match(eff, "Debuff_") or eff == "TimeRewind" or eff == "TimeReset" or eff == "ReturnToZero")
+
+		if (data.DidHit or isUtility) and data.Defender and data.SkillName then
+			task.spawn(function()
+				local targetFighter = activeFighters[data.Defender]
+				if targetFighter and targetFighter.Frame then
+					local iconBox = targetFighter.Frame:FindFirstChild("IconBox")
+					if iconBox then
+						local displayTarget = iconBox:FindFirstChild("IconImage")
+						if displayTarget and not displayTarget.Visible then displayTarget = iconBox:FindFirstChild("IconText") end
+						if not displayTarget then displayTarget = iconBox end
+
+						local vfxName = (skillInfo and skillInfo.VFX) or "Punch"
+						if eff == "Block" or eff == "Counter" then vfxName = "Block"
+						elseif eff == "Heal" or eff == "Rest" or eff == "CleanseRest" or eff == "TimeRewind" or eff == "TimeReset" or eff == "ReturnToZero" then vfxName = "Heal"
+						elseif string.match(eff, "Buff_") then vfxName = "Buff"
+						elseif string.match(eff, "Debuff_") then vfxName = "Debuff"
+						end
+
+						local hits = (skillInfo and skillInfo.Hits) or 1
+						if vfxName == "Buff" or vfxName == "Debuff" or vfxName == "Heal" then hits = 5 end
+						if vfxName == "Block" then hits = 1 end
+
+						local templates = ReplicatedStorage:FindFirstChild("JJBITemplates")
+						local effectsFolder = templates and templates:FindFirstChild("CombatEffects")
+						local TweenService = game:GetService("TweenService")
+
+						for i = 1, hits do
+							task.spawn(function()
+								local vfxObj
+								if effectsFolder and effectsFolder:FindFirstChild(vfxName) then
+									vfxObj = effectsFolder[vfxName]:Clone()
+								elseif effectsFolder and effectsFolder:FindFirstChild("Punch") then
+									vfxObj = effectsFolder["Punch"]:Clone()
+								else
+									vfxObj = Instance.new("ImageLabel")
+									vfxObj.BackgroundTransparency = 1
+									vfxObj.Image = "rbxassetid://10849495111"
+									vfxObj.ImageColor3 = Color3.fromRGB(255, 200, 100)
+								end
+
+								vfxObj.ZIndex = displayTarget.ZIndex + 1 
+								vfxObj.Parent = displayTarget
+
+								if vfxName == "Buff" then
+									vfxObj.Position = UDim2.new(math.random(20, 80)/100, 0, 0.9, 0)
+									vfxObj.Size = UDim2.new(0.3, 0, 0.3, 0)
+
+									local tIn = TweenService:Create(vfxObj, TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+										Position = UDim2.new(vfxObj.Position.X.Scale, 0, 0.1, 0),
+										ImageTransparency = 1
+									})
+									tIn:Play(); tIn.Completed:Wait()
+
+								elseif vfxName == "Debuff" then
+									vfxObj.Position = UDim2.new(math.random(20, 80)/100, 0, 0.1, 0)
+									vfxObj.Rotation = 180
+									vfxObj.Size = UDim2.new(0.3, 0, 0.3, 0)
+
+									local tIn = TweenService:Create(vfxObj, TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+										Position = UDim2.new(vfxObj.Position.X.Scale, 0, 0.9, 0),
+										ImageTransparency = 1
+									})
+									tIn:Play(); tIn.Completed:Wait()
+
+								elseif vfxName == "Heal" then
+									vfxObj.Position = UDim2.new(math.random(30, 70)/100, 0, math.random(40, 80)/100, 0)
+									vfxObj.Size = UDim2.new(0, 0, 0, 0)
+
+									local tIn = TweenService:Create(vfxObj, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+										Size = UDim2.new(0.4, 0, 0.4, 0),
+										Position = UDim2.new(vfxObj.Position.X.Scale, 0, vfxObj.Position.Y.Scale - 0.2, 0)
+									})
+									tIn:Play(); tIn.Completed:Wait()
+
+									local tOut = TweenService:Create(vfxObj, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+										ImageTransparency = 1,
+										Position = UDim2.new(vfxObj.Position.X.Scale, 0, vfxObj.Position.Y.Scale - 0.1, 0)
+									})
+									tOut:Play(); tOut.Completed:Wait()
+
+								elseif vfxName == "Block" then
+									vfxObj.Position = UDim2.new(0.5, 0, 0.5, 0)
+									vfxObj.Size = UDim2.new(0, 0, 0, 0)
+
+									local tIn = TweenService:Create(vfxObj, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+										Size = UDim2.new(0.8, 0, 0.8, 0)
+									})
+									tIn:Play(); task.wait(0.5)
+
+									local tOut = TweenService:Create(vfxObj, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+										ImageTransparency = 1,
+										Size = UDim2.new(1, 0, 1, 0)
+									})
+									tOut:Play(); tOut.Completed:Wait()
+
+								else
+									vfxObj.Position = UDim2.new(math.random(20, 80)/100, 0, math.random(20, 80)/100, 0)
+									vfxObj.Rotation = math.random(0, 360)
+									vfxObj.Size = UDim2.new(0, 0, 0, 0)
+
+									local tIn = TweenService:Create(vfxObj, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+										Size = UDim2.new(0.8, 0, 0.8, 0),
+										ImageTransparency = 0
+									})
+									tIn:Play(); tIn.Completed:Wait()
+
+									local tOut = TweenService:Create(vfxObj, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+										Size = UDim2.new(1, 0, 1, 0),
+										ImageTransparency = 1
+									})
+									tOut:Play(); tOut.Completed:Wait()
+								end
+
+								vfxObj:Destroy()
+							end)
+
+							if vfxName == "Punch" or vfxName == "Slash" then
+								task.wait(0.15)
+							else
+								task.wait(0.05) 
+							end
+						end
+					end
+				end
 			end)
 		end
 
