@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -400,7 +399,20 @@ AutoRollRemote.OnServerEvent:Connect(function(player, rollType, targetStand, tar
 	player:SetAttribute("TraitPity", tPity)
 
 	if newStand ~= "None" and StandData.Stands[newStand] then
-		for statName, rank in pairs(StandData.Stands[newStand].Stats) do player:SetAttribute("Stand_"..statName, rank) end
+		if newStand ~= "None" and StandData.Stands[newStand] then
+			local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+			local prestige = prestigeObj and prestigeObj.Value or 0
+
+			for statName, rank in pairs(StandData.Stands[newStand].Stats) do 
+				player:SetAttribute("Stand_"..statName, rank) 
+
+				local rankBase = (GameData.StandRanks[rank] or 0) + (prestige * 5)
+				local currentVal = player:GetAttribute("Stand_"..statName.."_Val") or 0
+				if currentVal < rankBase then 
+					player:SetAttribute("Stand_"..statName.."_Val", rankBase) 
+				end
+			end
+		end
 	end
 
 	local traitTag = newTrait ~= "None" and " ("..newTrait..")" or ""
@@ -545,8 +557,14 @@ local function HandleRollResult(player, newStand, newTrait, rollType, itemReq, o
 			player:SetAttribute("Stand", newStand)
 			local stats = StandData.Stands[newStand] and StandData.Stands[newStand].Stats
 			if stats then
-				for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
-			end
+				local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+				local prestige = prestigeObj and prestigeObj.Value or 0
+				for statName, rank in pairs(stats) do 
+					player:SetAttribute("Stand_"..statName, rank) 
+					local rankBase = (GameData.StandRanks[rank] or 0) + (prestige * 5)
+					local currentVal = player:GetAttribute("Stand_"..statName.."_Val") or 0
+					if currentVal < rankBase then player:SetAttribute("Stand_"..statName.."_Val", rankBase) end
+				end			end
 		end
 
 		local traitTag = newTrait ~= "None" and (" ("..newTrait..")") or ""
@@ -585,6 +603,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		local statCap = GameData.GetStatCap(prestige)
 		local myStand = player:GetAttribute("Stand") or "None"
 		local myTrait = player:GetAttribute("StandTrait") or "None"
+		local oldStyle = player:GetAttribute("FightingStyle") or "None"
 		local itemConsumed = true
 
 		if ItemData.Equipment[itemName] then
@@ -655,8 +674,17 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 		local function EvolveStand(newStand)
 			player:SetAttribute("Stand", newStand)
 			local stats = StandData.Stands[newStand].Stats
+			local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+			local prestige = prestigeObj and prestigeObj.Value or 0
+
 			for statName, rank in pairs(stats) do
 				player:SetAttribute("Stand_"..statName, rank)
+				-- [CRITICAL SAFEGUARD FIX] Don't let high stats drop when switching/evolving stands!
+				local rankBase = (GameData.StandRanks[rank] or 0) + (prestige * 5)
+				local currentVal = player:GetAttribute("Stand_"..statName.."_Val") or 0
+				if currentVal < rankBase then
+					player:SetAttribute("Stand_"..statName.."_Val", rankBase)
+				end
 			end
 		end
 
@@ -1112,6 +1140,19 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			player:SetAttribute(attrName, itemCount - 1)
 			if message ~= "" then
 				NotificationEvent:FireClient(player, "<font color='#FF55FF'>" .. message .. "</font>")
+			end
+
+			if isStyleItem then
+				local newStyle = player:GetAttribute("FightingStyle") or "None"
+				if oldStyle ~= newStyle then
+					AdminLogger:Fire("Replacement", {
+						Player = player.Name,
+						Context = "Style Item: " .. itemName,
+						OldItem = oldStyle,
+						NewItem = newStyle,
+						Slot = "Active Style"
+					})
+				end
 			end
 		else
 			if message ~= "" then
