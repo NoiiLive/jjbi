@@ -1,5 +1,6 @@
 -- @ScriptType: Script
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local MemoryStoreService = game:GetService("MemoryStoreService")
@@ -227,7 +228,7 @@ local function StartBossBattle(player)
 	else
 		activeBossName = CurrentActiveBoss
 		if not activeBossName or not IsBossActive() then
-			Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>The World Boss is not currently active!</font>")
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>The World Boss is not currently active!</font>")
 			player:SetAttribute("IsEngagingBoss", false)
 			return
 		end
@@ -237,7 +238,7 @@ local function StartBossBattle(player)
 
 		if currentSession ~= "" and not isStudio then
 			if player:GetAttribute("LastBossSessionFought") == currentSession or LocalServerCooldowns[player.UserId] == currentSession then
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this session!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the World Boss this session!</font>")
 				player:SetAttribute("IsEngagingBoss", false)
 				return
 			end
@@ -251,7 +252,7 @@ local function StartBossBattle(player)
 				player:SetAttribute("LastBossSessionFought", currentSession)
 				LocalServerCooldowns[player.UserId] = currentSession
 
-				Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>You have already challenged the World Boss this session!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the World Boss this session!</font>")
 				player:SetAttribute("IsEngagingBoss", false)
 				return
 			end
@@ -354,7 +355,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 	local function DispatchStrike(attacker, defender, strikeSkill)
 		if not attacker or not defender or attacker.HP <= 0 or defender.HP <= 0 then return end
-		local success, msg, didHit, shakeType = pcall(function()
+		local success, msg, didHit, shakeType, actualTarget = pcall(function()
 			local lColor = attacker.IsPlayer and "#FFFFFF" or "#FF5555"
 			local dColor = defender.IsPlayer and "#FFFFFF" or "#FF5555"
 			local lName = attacker.IsPlayer and "You" or attacker.Name
@@ -363,7 +364,9 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		end)
 
 		if success then
-			WorldBossUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = msg, DidHit = didHit, ShakeType = shakeType})
+			local hitTarget = actualTarget or defender
+			local defenderKey = hitTarget.IsPlayer and "Player" or "Enemy"
+			WorldBossUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = msg, DidHit = didHit, ShakeType = shakeType, SkillName = strikeSkill, Defender = defenderKey})
 			task.wait(waitMultiplier)
 		end
 	end
@@ -487,7 +490,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 								table.insert(droppedItems, amount .. "x " .. itemName)
 								currentInv += amount 
 							else
-								Network.CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF5555'>Inventory Full! " .. itemName .. " was lost.</font>")
+								NotificationEvent:FireClient(player, "<font color='#FF5555'>Inventory Full! " .. itemName .. " was lost.</font>")
 							end
 						end
 					end
