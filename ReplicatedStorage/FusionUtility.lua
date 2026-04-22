@@ -4,6 +4,16 @@ local FusionUtility = {}
 function FusionUtility.CalculateFusedName(name1, name2)
 	if not name1 or not name2 or name1 == "None" or name2 == "None" then return "Unknown Fusion" end
 
+	if name1 == name2 then
+		local baseStr, numStr = string.match(name1, "^(.*%D)(%d+)$")
+		if baseStr and numStr then
+			local combinedNum = tonumber(numStr) * 2
+			return baseStr .. combinedNum
+		end
+
+		return "Dual " .. name1
+	end
+
 	local words1 = string.split(name1, " ")
 	local words2 = string.split(name2, " ")
 
