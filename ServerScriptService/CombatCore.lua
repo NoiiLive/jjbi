@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -897,10 +896,10 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	end
 
 	if skill.Effect == "Block" then
-		b.BlockTurns = 2; return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! " .. bName .. " reduces incoming damage.", false, "None"
+		b.BlockTurns = 2; return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! " .. bName .. " reduces incoming damage.", false, "None", b
 
 	elseif skill.Effect == "Counter" then
-		b.CounterTurns = 2; return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55AAFF'>" .. bName .. " readies a counter-stance.</font>", false, "None"
+		b.CounterTurns = 2; return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55AAFF'>" .. bName .. " readies a counter-stance.</font>", false, "None", b
 
 	elseif skill.Effect == "Rest" or skill.Effect == "CleanseRest" then
 		local clearedStatuses = false
@@ -939,19 +938,19 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		end
 
 		if clearedStatuses and appliedWarded then
-			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> behind their guard! <font color='#55FFFF'>" .. bName .. " restores resources, Cleanses ailments, and gains Warded!</font>", false, "None"
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> behind their guard! <font color='#55FFFF'>" .. bName .. " restores resources, Cleanses ailments, and gains Warded!</font>", false, "None", b
 		elseif clearedStatuses then
-			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FFFF'>" .. bName .. " takes a deep breath, restoring resources and Cleansing all ailments!</font>", false, "None"
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FFFF'>" .. bName .. " takes a deep breath, restoring resources and Cleansing all ailments!</font>", false, "None", b
 		elseif appliedWarded then
-			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> behind their guard! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy, and gains Warded!</font>", false, "None"
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> behind their guard! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy, and gains Warded!</font>", false, "None", b
 		else
-			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy.</font>", false, "None"
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#55FF55'>" .. bName .. " rests, recovering Stamina and Energy.</font>", false, "None", b
 		end
 
 	elseif skill.Effect == "Heal" then
 		local healAmount = (b.MaxHP or 100) * (skill.HealPercent or 0.25)
 		b.HP = math.min(b.MaxHP or b.HP, b.HP + healAmount)
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> and recovered <font color='#55FF55'>" .. math.floor(healAmount) .. " HP</font> for " .. bName .. "!", false, "None"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b> and recovered <font color='#55FF55'>" .. math.floor(healAmount) .. " HP</font> for " .. bName .. "!", false, "None", b
 	elseif skill.Effect == "TimeRewind" then
 		local lostHP = (b.MaxHP or b.HP) - b.HP
 		local healAmount = lostHP * 0.5 
@@ -961,7 +960,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
 			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0; b.Statuses.Warded = 0
 		end
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF55FF'>Bites the Dust activates! Rewinding time to restore " .. math.floor(healAmount) .. " HP and clear ailments for " .. bName .. "!</font>", false, "Heavy"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF55FF'>Bites the Dust activates! Rewinding time to restore " .. math.floor(healAmount) .. " HP and clear ailments for " .. bName .. "!</font>", false, "Heavy", b
 	elseif skill.Effect == "TimeReset" then
 		local lostHP = (b.MaxHP or b.HP) - b.HP
 		local healAmount = lostHP * 0.25 
@@ -975,7 +974,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		if t and t.Statuses then
 			ccMsg = ApplyCC("Confusion", 2, t, "#FF55FF", "Confused")
 		end
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF55FF'>Made in Heaven activates! The universe begins to restart... restoring " .. math.floor(healAmount) .. " HP for " .. bName .. " and disorienting " .. tName .. "!</font>" .. ccMsg, false, "Heavy"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF55FF'>Made in Heaven activates! The universe begins to restart... restoring " .. math.floor(healAmount) .. " HP for " .. bName .. " and disorienting " .. tName .. "!</font>" .. ccMsg, false, "Heavy", b
 	elseif skill.Effect == "ReturnToZero" then
 		b.HP = b.MaxHP or b.HP
 		if b.Statuses then
@@ -983,36 +982,36 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			b.Statuses.Acid = 0; b.Statuses.Infection = 0; b.Statuses.Rupture = 0; b.Statuses.Frostburn = 0; b.Statuses.Frostbite = 0; b.Statuses.Decay = 0
 			b.Statuses.Blight = 0; b.Statuses.Miasma = 0; b.Statuses.Necrosis = 0; b.Statuses.Plague = 0; b.Statuses.Calamity = 0; b.Statuses.Warded = 0
 		end
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFD700'>Return to Zero! Reality is reset, fully restoring " .. bName .. " and nullifying all negative effects.</font>", false, "Heavy"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFD700'>Return to Zero! Reality is reset, fully restoring " .. bName .. " and nullifying all negative effects.</font>", false, "Heavy", b
 	elseif skill.Effect == "TimeErase" then
 		b.Statuses.Buff_Speed = skill.Duration or 2
 		local ccMsg = ApplyCC("Stun", skill.Duration or 2, t, "#FF0000")
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF0000'>Time is erased, boosting Speed!</font>" .. ccMsg, false, "Light"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF0000'>Time is erased, boosting Speed!</font>" .. ccMsg, false, "Light", b
 	elseif skill.Effect == "TimeStop" then
 		local ccMsg = ApplyCC("Stun", skill.Duration or 2, t, "#FFFFFF", "Time Stopped")
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>Time comes to a halt...</font>" .. ccMsg, false, "Heavy"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>Time comes to a halt...</font>" .. ccMsg, false, "Heavy", b
 	elseif skill.Effect == "Buff_Random" then
 		local stats = {"Strength", "Defense", "Speed", "Willpower"}
 		local s = stats[math.random(1, 4)]
 		b.Statuses["Buff_"..s] = skill.Duration or 3
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFFF55'>" .. bName .. "'s " .. s .. " is boosted!</font>", false, "None"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFFF55'>" .. bName .. "'s " .. s .. " is boosted!</font>", false, "None", b
 	elseif skill.Effect and string.sub(skill.Effect, 1, 5) == "Buff_" then
 		local statName = string.sub(skill.Effect, 6); b.Statuses[skill.Effect] = skill.Duration or 3
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFFF55'>" .. bName .. "'s " .. statName .. " is boosted!</font>", false, "None"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FFFF55'>" .. bName .. "'s " .. statName .. " is boosted!</font>", false, "None", b
 	elseif skill.Effect == "Debuff_Random" then
 		if (t.Statuses.Warded or 0) > 0 then
-			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>But " .. tName .. " is Warded!</font>", false, "None"
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>But " .. tName .. " is Warded!</font>", false, "None", t
 		end
 		local stats = {"Strength", "Defense", "Speed", "Willpower"}
 		local s = stats[math.random(1, 4)]
 		t.Statuses["Debuff_"..s] = skill.Duration or 3
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF5555'>" .. tName .. "'s " .. s .. " is reduced!</font>", false, "None"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF5555'>" .. tName .. "'s " .. s .. " is reduced!</font>", false, "None", t
 	elseif skill.Effect and string.sub(skill.Effect, 1, 7) == "Debuff_" then
 		if (t.Statuses.Warded or 0) > 0 then
-			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>But " .. tName .. " is Warded!</font>", false, "None"
+			return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#AAAAAA'>But " .. tName .. " is Warded!</font>", false, "None", t
 		end
 		local statName = string.sub(skill.Effect, 8); t.Statuses[skill.Effect] = skill.Duration or 3
-		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF5555'>" .. tName .. "'s " .. statName .. " is reduced!</font>", false, "None"
+		return msgPrefix .. fLogName .. " used <b>" .. skillName .. "</b>! <font color='#FF5555'>" .. tName .. "'s " .. statName .. " is reduced!</font>", false, "None", t
 	end
 
 	local hitsToDo = skill.Hits or 1
@@ -1279,7 +1278,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		else msg = msg .. "\n" .. table.concat(hitLogs, "\n") end
 	end
 
-	return msg, didHitAtAll, overallShake
+	return msg, didHitAtAll, overallShake, t
 end
 
 return CombatCore
