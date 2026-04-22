@@ -1243,10 +1243,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 						return mutateData
 					end)
 				else
-					if gData.Members[pIdStr] then
-						local memData = gData.Members[pIdStr]
-						memData.PlayTime = player:GetAttribute("PlayTime") or memData.PlayTime or 0
-						memData.LastOnline = math.floor(workspace:GetServerTimeNow())
+					for uidString, mem in pairs(gData.Members) do
+						local pOnline = Players:GetPlayerByUserId(tonumber(uidString))
+						if pOnline then
+							mem.LastOnline = math.floor(workspace:GetServerTimeNow())
+							mem.PlayTime = pOnline:GetAttribute("PlayTime") or mem.PlayTime or 0
+						end
 					end
 					local hasBoss = false
 					for _, m in pairs(gData.Members) do if m.Role == "Boss" then hasBoss = true break end end
