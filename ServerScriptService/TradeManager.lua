@@ -589,8 +589,14 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 					end
 				else
 					local stats = StandData.Stands[pName] and StandData.Stands[pName].Stats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
-					for statName, rank in pairs(stats) do player:SetAttribute("Stand_"..statName, rank) end
-				end
+					local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+					local prestige = prestigeObj and prestigeObj.Value or 0
+					for statName, rank in pairs(stats) do 
+						player:SetAttribute("Stand_"..statName, rank) 
+						local rankBase = (GameData.StandRanks[rank] or 0) + (prestige * 5)
+						local currentVal = player:GetAttribute("Stand_"..statName.."_Val") or 0
+						if currentVal < rankBase then player:SetAttribute("Stand_"..statName.."_Val", rankBase) end
+					end				end
 			elseif slot == "Slot1" then applyStandToSlot("StoredStand1", "StoredStand1_Trait", "1")
 			elseif slot == "Slot2" then applyStandToSlot("StoredStand2", "StoredStand2_Trait", "2")
 			elseif slot == "Slot3" then applyStandToSlot("StoredStand3", "StoredStand3_Trait", "3")
@@ -917,6 +923,48 @@ Players.PlayerRemoving:Connect(function(player)
 	local match = ActiveTrades[player]
 	if match and not match.IsExecuting then
 		EndTrade(match, "<font color='#FF5555'>Trade cancelled: Partner disconnected.</font>")
+	end
+
+	local pStandName = player:GetAttribute("PendingStand_Name")
+	if pStandName and pStandName ~= "None" and pStandName ~= "" then
+		local saveSlot = "Active"
+		local ls = player:FindFirstChild("leaderstats")
+		local pres = ls and ls:FindFirstChild("Prestige") and ls.Prestige.Value or 0
+
+		if (player:GetAttribute("StoredStand1") or "None") == "None" then saveSlot = "StoredStand1"
+		elseif player:GetAttribute("HasStandSlot2") and (player:GetAttribute("StoredStand2") or "None") == "None" then saveSlot = "StoredStand2"
+		elseif player:GetAttribute("HasStandSlot3") and (player:GetAttribute("StoredStand3") or "None") == "None" then saveSlot = "StoredStand3"
+		elseif pres >= 15 and (player:GetAttribute("StoredStand4") or "None") == "None" then saveSlot = "StoredStand4"
+		elseif pres >= 30 and (player:GetAttribute("StoredStand5") or "None") == "None" then saveSlot = "StoredStand5"
+		elseif player:GetAttribute("IsVIP") and (player:GetAttribute("StoredStandVIP") or "None") == "None" then saveSlot = "StoredStandVIP" end
+
+		local traitSuffix = saveSlot == "Active" and "StandTrait" or saveSlot .. "_Trait"
+
+		player:SetAttribute(saveSlot, pStandName)
+		player:SetAttribute(traitSuffix, player:GetAttribute("PendingStand_Trait") or "None")
+
+		if pStandName == "Fused Stand" then
+			local tFix = saveSlot == "Active" and "Active_" or saveSlot .. "_"
+			player:SetAttribute(tFix.."FusedStand1", player:GetAttribute("PendingStand_FusedS1") or "None")
+			player:SetAttribute(tFix.."FusedStand2", player:GetAttribute("PendingStand_FusedS2") or "None")
+			player:SetAttribute(tFix.."FusedTrait1", player:GetAttribute("PendingStand_FusedT1") or "None")
+			player:SetAttribute(tFix.."FusedTrait2", player:GetAttribute("PendingStand_FusedT2") or "None")
+		end
+
+		player:SetAttribute("PendingStand_Name", "None")
+		player:SetAttribute("PendingStand_Trait", "None")
+	end
+
+	local pStyleName = player:GetAttribute("PendingStyle_Name")
+	if pStyleName and pStyleName ~= "None" and pStyleName ~= "" then
+		local sSaveSlot = "FightingStyle"
+		if (player:GetAttribute("StoredStyle1") or "None") == "None" then sSaveSlot = "StoredStyle1"
+		elseif player:GetAttribute("HasStyleSlot2") and (player:GetAttribute("StoredStyle2") or "None") == "None" then sSaveSlot = "StoredStyle2"
+		elseif player:GetAttribute("HasStyleSlot3") and (player:GetAttribute("StoredStyle3") or "None") == "None" then sSaveSlot = "StoredStyle3"
+		elseif player:GetAttribute("IsVIP") and (player:GetAttribute("StoredStyleVIP") or "None") == "None" then sSaveSlot = "StoredStyleVIP" end
+
+		player:SetAttribute(sSaveSlot, pStyleName)
+		player:SetAttribute("PendingStyle_Name", "None")
 	end
 
 	UpdateAllBrowsers()
