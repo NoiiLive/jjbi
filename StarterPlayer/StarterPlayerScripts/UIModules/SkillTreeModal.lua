@@ -4,6 +4,7 @@ local SkillTreeModal = {}
 local player = game.Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
@@ -17,6 +18,7 @@ local modalBg
 local mainView
 local treeNodeContainer
 local treePointsLabel
+local treeTitleLabel
 local cachedTooltipMgr
 
 local Templates = ReplicatedStorage:WaitForChild("JJBITemplates")
@@ -40,13 +42,18 @@ local function GetDamageMultiplier(power, upgrades)
 	return math.floor(mult * 100 + 0.5) / 100
 end
 
-local function RefreshSkillTreeList()
+local function RefreshSkillTreeList(forcedStandName)
 	if not treeNodeContainer then return end
 	for _, child in pairs(treeNodeContainer:GetChildren()) do
 		if child:IsA("Frame") or child:IsA("TextLabel") or child:IsA("TextButton") then child:Destroy() end
 	end
 
-	local sName = player:GetAttribute("Stand") or "None"
+	local sName = forcedStandName or player:GetAttribute("Stand") or "None"
+
+	if treeTitleLabel then
+		treeTitleLabel.Text = "SKILL TREE - " .. string.upper(sName)
+	end
+
 	local progressStr = player:GetAttribute("SkillTreeProgress") or "{}"
 	local success, progressData = pcall(function() return HttpService:JSONDecode(progressStr) end)
 	if not success then progressData = {} end
@@ -213,8 +220,12 @@ function SkillTreeModal.Init(parentGui, tooltipMgr)
 	modalBg = modals:WaitForChild("SkillTreeModalBg")
 
 	local skillTreeCard = modalBg:WaitForChild("SkillTreeCard")
+	treeTitleLabel = skillTreeCard:FindFirstChild("TextLabel") or skillTreeCard:FindFirstChildWhichIsA("TextLabel") 
 	local closeBtn = skillTreeCard:WaitForChild("CloseBtn")
 	closeBtn.MouseButton1Click:Connect(function() SFXManager.Play("Click"); modalBg.Visible = false end)
+
+	local refundRobuxBtn = skillTreeCard:WaitForChild("RefundRobuxBtn")
+	local refundYenBtn = skillTreeCard:WaitForChild("RefundYenBtn")
 
 	mainView = skillTreeCard:WaitForChild("MainView")
 	treeNodeContainer = mainView:WaitForChild("NodeContainer")
@@ -227,17 +238,55 @@ function SkillTreeModal.Init(parentGui, tooltipMgr)
 		openTreeEvent.Parent = ReplicatedStorage
 	end
 
-	openTreeEvent.Event:Connect(function()
-		RefreshSkillTreeList()
+	local currentViewingStand = nil
+	local isConfirmingYen = false
+	local originalYenText = refundYenBtn.Text
+	local originalYenColor = refundYenBtn.BackgroundColor3
+
+	refundYenBtn.MouseButton1Click:Connect(function()
+		if not currentViewingStand or currentViewingStand == "None" then return end
+
+		if not isConfirmingYen then
+			isConfirmingYen = true
+			refundYenBtn.Text = "Sure?"
+			refundYenBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+			task.delay(3, function()
+				if isConfirmingYen and refundYenBtn.Parent then
+					isConfirmingYen = false
+					refundYenBtn.Text = originalYenText
+					refundYenBtn.BackgroundColor3 = originalYenColor
+				end
+			end)
+			return
+		end
+
+		isConfirmingYen = false
+		SFXManager.Play("Click")
+		refundYenBtn.Text = originalYenText
+		refundYenBtn.BackgroundColor3 = originalYenColor
+
+		Network.TreeAction:FireServer("RefundTreeYen", currentViewingStand)
+	end)
+
+	refundRobuxBtn.MouseButton1Click:Connect(function()
+		if not currentViewingStand or currentViewingStand == "None" then return end
+		SFXManager.Play("Click")
+		player:SetAttribute("PendingTreeRefund", currentViewingStand)
+		MarketplaceService:PromptProductPurchase(player, 3581500709)
+	end)
+
+	openTreeEvent.Event:Connect(function(standName)
+		currentViewingStand = standName or player:GetAttribute("Stand") or "None"
+		RefreshSkillTreeList(currentViewingStand)
 		modalBg.Visible = true
 	end)
 
 	player:GetAttributeChangedSignal("SkillTreeProgress"):Connect(function()
-		if modalBg.Visible then RefreshSkillTreeList() end
+		if modalBg.Visible then RefreshSkillTreeList(currentViewingStand) end
 	end)
 
 	player:GetAttributeChangedSignal("PrestigePoints"):Connect(function()
-		if modalBg.Visible then RefreshSkillTreeList() end
+		if modalBg.Visible then RefreshSkillTreeList(currentViewingStand) end
 	end)
 end
 
