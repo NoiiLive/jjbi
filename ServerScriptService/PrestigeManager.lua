@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -18,6 +19,10 @@ PrestigeEvent.OnServerEvent:Connect(function(player)
 
 		player.leaderstats.Prestige.Value = newPrestige
 
+		-- Give Prestige Point
+		local currentPrestigePoints = player:GetAttribute("PrestigePoints") or 0
+		player:SetAttribute("PrestigePoints", currentPrestigePoints + 1)
+
 		player:SetAttribute("CurrentPart", 1)
 		player:SetAttribute("CurrentMission", 1) 
 		player:SetAttribute("XP", 0)
@@ -36,7 +41,7 @@ PrestigeEvent.OnServerEvent:Connect(function(player)
 
 		local rokaCount = player:GetAttribute("RokakakaCount") or 0
 		player:SetAttribute("RokakakaCount", rokaCount + 1)
-		
+
 		local discCount = player:GetAttribute("HeavenlyStandDiscCount") or 0
 		player:SetAttribute("HeavenlyStandDiscCount", discCount + 1)
 
@@ -56,7 +61,7 @@ PrestigeEvent.OnServerEvent:Connect(function(player)
 		player:SetAttribute("UniverseModifier", rolledModStr)
 
 		CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF55FF'>Universe Reset! Reached Prestige " .. newPrestige .. "!</font>")
-		CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF55FF'>You were rewarded with 1x Rokakaka, and 1x Heavenly Stand Disc!</font>")
+		CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FF55FF'>You were rewarded with 1x Rokakaka, 1x Heavenly Stand Disc, and 1x Tree Point!</font>")
 		CombatUpdate:FireClient(player, "SystemMessage", "<font color='#FFFF55'>Modifiers applied: " .. rolledModStr .. "!</font>")
 	else
 		print("[DEBUG] Prestige rejected. CurrentPart is only: " .. currentPart)
