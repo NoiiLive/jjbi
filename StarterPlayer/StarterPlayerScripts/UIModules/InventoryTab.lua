@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local InventoryTab = {}
 
 local player = game.Players.LocalPlayer
@@ -22,7 +23,7 @@ local statLabels = {}
 
 local standLabel, styleLabel, weaponLabel, accLabel, xpLabelP, xpLabelS, yenLabel
 local standBox, styleBox, weaponBox, accBox
-local standLockBtn, styleLockBtn
+local standLockBtn, styleLockBtn, openTreeBtn
 
 local currentlyHoveredStat = nil
 local currentlyHoveredUpgrade = false
@@ -904,20 +905,54 @@ local function RefreshIndexList()
 					local item = Templates:WaitForChild("IndexItemTemplate"):Clone()
 					item.Parent = container
 
+					local btnOverlay = item:FindFirstChild("ButtonOverlay")
+					if btnOverlay then
+						btnOverlay.Visible = false
+					end
+
 					if ab.Type == "Stand" then
-						local lastClickTime = 0
-						item.InputBegan:Connect(function(input)
-							if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-								local currentTime = tick()
-								if currentTime - lastClickTime < 0.4 then
+						if btnOverlay then
+							local standTreeBtn = btnOverlay:FindFirstChild("StandTreeBtn")
+							local fusionsBtn = btnOverlay:FindFirstChild("FusionsBtn")
+							local closeBtn = btnOverlay:FindFirstChild("CloseBtn")
+
+							item.InputBegan:Connect(function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									if not btnOverlay.Visible then
+										SFXManager.Play("Click")
+										btnOverlay.Visible = true
+									end
+								end
+							end)
+
+							if closeBtn then
+								closeBtn.MouseButton1Click:Connect(function()
+									SFXManager.Play("Click")
+									btnOverlay.Visible = false
+								end)
+							end
+
+							if fusionsBtn then
+								fusionsBtn.MouseButton1Click:Connect(function()
 									SFXManager.Play("Click")
 									cachedTooltipMgr.Hide()
 									ShowFusionsList(ab.Name)
-								else
-									lastClickTime = currentTime
-								end
+								end)
 							end
-						end)
+
+							if standTreeBtn then
+								standTreeBtn.MouseButton1Click:Connect(function()
+									SFXManager.Play("Click")
+									local ev = ReplicatedStorage:FindFirstChild("OpenSkillTreeModal")
+									if not ev then
+										ev = Instance.new("BindableEvent")
+										ev.Name = "OpenSkillTreeModal"
+										ev.Parent = ReplicatedStorage
+									end
+									ev:Fire(ab.Name)
+								end)
+							end
+						end
 					end
 
 					local iconLabel = item:FindFirstChild("Icon")
@@ -1004,7 +1039,9 @@ local function RefreshIndexList()
 						end
 
 						item.MouseEnter:Connect(function()
-							cachedTooltipMgr.Show(cachedTooltipMgr.GetIndexTooltip(ab.Name, ab.Type, ab.Rarity))
+							if not (btnOverlay and btnOverlay.Visible) then
+								cachedTooltipMgr.Show(cachedTooltipMgr.GetIndexTooltip(ab.Name, ab.Type, ab.Rarity))
+							end
 						end)
 						item.MouseLeave:Connect(function()
 							cachedTooltipMgr.Hide()
@@ -1259,11 +1296,16 @@ ShowFusionsList = function(standName)
 end
 
 local function UpdateTopDisplays()
-	local sName = player:GetAttribute("Stand") or "None"
+	local realStandName = player:GetAttribute("Stand") or "None"
+	local sName = realStandName
 	local sTrait = player:GetAttribute("StandTrait") or "None"
 	local style = player:GetAttribute("FightingStyle") or "None"
 	local wpn = player:GetAttribute("EquippedWeapon") or "None"
 	local acc = player:GetAttribute("EquippedAccessory") or "None"
+
+	if openTreeBtn then
+		openTreeBtn.Visible = (realStandName ~= "Fused Stand" and realStandName ~= "None")
+	end
 
 	local traitDisplay = ""
 
@@ -1356,7 +1398,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local playerInfoCard = playerTabContent:WaitForChild("PlayerInfoCard")
 	styleBox = playerInfoCard:WaitForChild("StyleRow")
 	styleLabel = styleBox:WaitForChild("Label")
-	styleLockBtn = styleBox:WaitForChild("ActionBtn")
+	styleLockBtn = playerInfoCard:WaitForChild("StyleRow"):WaitForChild("ActionBtn")
 	local xpBoxP = playerInfoCard:WaitForChild("XPRow")
 	xpLabelP = xpBoxP:WaitForChild("Label")
 
@@ -1391,7 +1433,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	sStatsContainer = sStatsCard:WaitForChild("StatsContainer")
 	local standStorageCard = standMidRow:WaitForChild("StandStorageCard")
 	standStorageContainer = standStorageCard:WaitForChild("StorageContainer")
-	local openTreeBtn = standBox:WaitForChild("OpenTreeBtn")
+	openTreeBtn = standBox:WaitForChild("OpenTreeBtn")
 
 	local standBotRow = standTabContent:WaitForChild("StandBotRow")
 	local standConsCard = standBotRow:WaitForChild("StandConsCard")
