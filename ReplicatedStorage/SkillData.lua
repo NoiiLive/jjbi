@@ -8,6 +8,7 @@ SkillData.Skills = {
 	["Rest"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "CleanseRest", Cooldown = 3, Order = 4, Description = "Catch your breath to wipe away all negative status conditions and recover 20% Stamina & Energy." },
 	["Flee"] = { Requirement = "None", Type = "Basic", Mult = 0, StaminaCost = 0, EnergyCost = 0, Effect = "Flee", Order = 5, Description = "Escape from the current battle." },
 
+	-- Style Skills
 	["Haymaker"] = { Requirement = "Boxing", Type = "Style", Mult = 1.6, StaminaCost = 6, EnergyCost = 0, Order = 6, VFX = "Punch", Description = "A devastating boxing punch." },
 	["Liver Blow"] = { Requirement = "Boxing", Type = "Style", Mult = 1.3, StaminaCost = 8, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 4, Order = 7, VFX = "Punch", Description = "A precise hook that stuns the enemy for 2 turns." },
 	["Footwork"] = { Requirement = "Boxing", Type = "Style", Mult = 0, StaminaCost = 5, EnergyCost = 0, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 8, Description = "Increases evasion and Speed for 3 turns." },
@@ -66,6 +67,7 @@ SkillData.Skills = {
 	["Shooting-Bees Stinger"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 8, Description = "Shoots out hardened hair, instantly combusting upon contact, burning the enemy." },
 	["Break Dark Thunder"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.7, StaminaCost = 12, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 9, Description = "Discharges high-voltage bio-electricity, stunning the enemy." },
 
+	-- Stand Skills
 	["Stand Barrage"] = { Requirement = "AnyStand", Type = "Stand", Mult = 0.4, Hits = 3, StaminaCost = 0, EnergyCost = 10, Cooldown = 3, Order = 10, VFX = "Punch", Description = "A rapid flurry of 3 Stand punches." },
 
 	["Spirit Photo"] = { Requirement = "Hermit Purple", Type = "Stand", Mult = 1.4, StaminaCost = 0, EnergyCost = 3, Order = 11, Description = "Uses the environment to strike with spirit vines." },
@@ -522,14 +524,6 @@ SkillData.Skills = {
 	["Urya Urya Rush"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 0.7, Hits = 4, StaminaCost = 0, EnergyCost = 7, Order = 11, VFX = "Punch", Description = "A ruthless, high-speed barrage of punches." },
 	["Emerald Star Finger"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 12, VFX = "Slash", Description = "A concentrated piercing strike combining Star Platinum and Hierophant Green." },
 	["Green Trap"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Effect = "Stun", Duration = 2, Cooldown = 5, Order = 12, Description = "Triggers a sudden emerald bind that strikes and immobilizes the enemy for 2 turns." },
-}
-
-SkillData.Trees = {
-	["Emperor"] = {
-		Nodes = {
-			{ Type = "Passive", Key = "Passive_SteelyResolve", Name = "Steely Resolve", Cost = 2, Desc = "Grants increased resistance to incoming stun-based combat effects." }
-		}
-	}
 }
 
 return SkillData
