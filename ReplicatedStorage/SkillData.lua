@@ -527,15 +527,9 @@ SkillData.Skills = {
 SkillData.Trees = {
 	["Emperor"] = {
 		Nodes = {
-			{ Type = "Damage", Key = "DamageNode", Name = "Destructive Growth", Cost = 1, Desc = "Upgrade the base combat damage rating." },
-
-			{ Type = "Skill", Key = "Skill_Time Stop", Name = "Awaken: The World", Cost = 5, Desc = "Unlocks the 'Time Stop' ability natively." },
 			{ Type = "Passive", Key = "Passive_SteelyResolve", Name = "Steely Resolve", Cost = 2, Desc = "Grants increased resistance to incoming stun-based combat effects." }
 		}
 	}
-	-- goodluck adding the next 116 or whatever... from nas!
-	-- also btw make sure u give any ability that should be locked the parameter RequiresTreeUnlock = true
-	-- i did this for time stop so u can see <3
 }
 
 return SkillData
