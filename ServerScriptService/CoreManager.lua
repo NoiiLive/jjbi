@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
@@ -8,6 +7,9 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local PolicyService = game:GetService("PolicyService")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
+local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
+local PassiveSkillData = require(ReplicatedStorage:WaitForChild("PassiveSkillData"))
 
 local GameDataStore = DataStoreService:GetDataStore("JojoRPG_Alpha_V8")
 
@@ -448,7 +450,6 @@ Players.PlayerAdded:Connect(function(player)
 
 	player:SetAttribute("DataLoaded", true)
 
-	-- Retroactive Skill Tree Prestige Points Fix
 	if not player:GetAttribute("SkillTreeUpdateJoined") then
 		local currentPrestige = player.leaderstats.Prestige.Value
 		if currentPrestige > 0 then
@@ -540,11 +541,28 @@ task.spawn(function()
 	end
 end)
 
-NetworkFolder:WaitForChild("TreeAction").OnServerEvent:Connect(function(player, action, targetStandName, upgradeKey, pointCost)
-	local validCost = tonumber(pointCost)
-	if not targetStandName or not upgradeKey or not validCost then return end
+NetworkFolder:WaitForChild("TreeAction").OnServerEvent:Connect(function(player, action, targetStandName, upgradeKey)
+	if not targetStandName or not upgradeKey then return end
 
 	if action == "BuyUpgrade" then
+		local treeDef = PassiveSkillData.Trees and PassiveSkillData.Trees[targetStandName]
+		local targetNode = nil
+		local isDamageNode = (upgradeKey == "DamageNode")
+
+		if isDamageNode then
+			targetNode = { Type = "Stat", Cost = 1 }
+		elseif treeDef and treeDef.Nodes then
+			for _, n in ipairs(treeDef.Nodes) do
+				if n.Key == upgradeKey then
+					targetNode = n
+					break
+				end
+			end
+		end
+
+		if not targetNode then return end
+
+		local validCost = targetNode.Cost
 		local currentPP = player:GetAttribute("PrestigePoints") or 0
 		if currentPP < validCost then
 			local notif = NetworkFolder:FindFirstChild("NotificationEvent")
@@ -560,12 +578,28 @@ NetworkFolder:WaitForChild("TreeAction").OnServerEvent:Connect(function(player, 
 			treeTable[targetStandName] = { DamageUpgrades = 0, Passives = {}, UnlockedSkills = {} } 
 		end
 
-		if upgradeKey == "DamageNode" then
+		if isDamageNode then
+			local powerRank = (StandData.Stands[targetStandName] and StandData.Stands[targetStandName].Stats and StandData.Stands[targetStandName].Stats.Power) or "E"
+			local powerStarts = { E = 1.0, D = 1.1, C = 1.2, B = 1.3, A = 1.4, S = 1.5 }
+			local base = powerStarts[powerRank] or 1.0
+			local phase1 = math.floor((2.0 - base) / 0.1 + 0.5)
+			local maxDmgUpgrades = phase1 + 7
+
+			if treeTable[targetStandName].DamageUpgrades >= maxDmgUpgrades then
+				local notif = NetworkFolder:FindFirstChild("NotificationEvent")
+				if notif then notif:FireClient(player, "<font color='#FF5555'>Max Damage Upgrades Reached!</font>") end
+				return
+			end
+
 			treeTable[targetStandName].DamageUpgrades += 1
-		elseif string.sub(upgradeKey, 1, 8) == "Passive_" then
-			treeTable[targetStandName].Passives[upgradeKey] = true
-		elseif string.sub(upgradeKey, 1, 6) == "Skill_" then
-			treeTable[targetStandName].UnlockedSkills[upgradeKey] = true
+		else
+			if targetNode.Type == "Passive" then
+				if treeTable[targetStandName].Passives["Passive_" .. upgradeKey] then return end
+				treeTable[targetStandName].Passives["Passive_" .. upgradeKey] = true
+			elseif targetNode.Type == "Skill" then
+				if treeTable[targetStandName].UnlockedSkills["Skill_" .. upgradeKey] then return end
+				treeTable[targetStandName].UnlockedSkills["Skill_" .. upgradeKey] = true
+			end
 		end
 
 		player:SetAttribute("PrestigePoints", currentPP - validCost)
