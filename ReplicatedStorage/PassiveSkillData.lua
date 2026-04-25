@@ -22,54 +22,54 @@ end
 AddPassives("Purple Haze", {
 	{Key="DeadlyVirus", Name="Deadly Virus", Desc="Upgrades Sick effects to Poison.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Sick", To = "Poison"}}},
 	{Key="FleshEating", Name="Flesh Eating", Desc="Upgrades Poison effects to Plague.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Poison", To = "Plague"}}},
-	{Key="CorrosiveMist", Name="Corrosive Mist", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="CorrosiveMist", Name="Corrosive Mist", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="Hazmat", Name="Hazmat Shield", Desc="Reduces incoming damage by 15%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"All"}}}}
 })
 AddPassives("Green Day", {
 	{Key="MoldSpores", Name="Mold Spores", Desc="Upgrades Sick effects to Poison.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Sick", To = "Poison"}}},
 	{Key="DownwardDecay", Name="Downward Decay", Desc="Upgrades Poison effects to Decay.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Poison", To = "Decay"}}},
-	{Key="FleshRot", Name="Flesh Rot", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="FleshRot", Name="Flesh Rot", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="HighAltitude", Name="High Altitude", Desc="Reduces incoming negative status durations by 1 turn.", Cost=3, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"All"}}}}
 })
 AddPassives("Brain Storm", {
 	{Key="ToxinTouch", Name="Toxin Touch", Desc="Upgrades Sick effects to Poison.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Sick", To = "Poison"}}},
 	{Key="CellularRuin", Name="Cellular Ruin", Desc="Upgrades Poison effects to Necrosis.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Poison", To = "Necrosis"}}},
-	{Key="InternalDecay", Name="Internal Decay", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}}
+	{Key="InternalDecay", Name="Internal Decay", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}}
 })
 
 AddPassives("Magician's Red", {
 	{Key="IntenseHeat", Name="Intense Heat", Desc="Upgrades Burn effects to Scorch.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Burn", To = "Scorch"}}},
 	{Key="WhiteHot", Name="White Hot", Desc="Upgrades Scorch effects to Rupture.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Scorch", To = "Rupture"}}},
-	{Key="PiercingFlames", Name="Piercing Flames", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}}
+	{Key="PiercingFlames", Name="Piercing Flames", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}}
 })
 AddPassives("The Sun", {
 	{Key="SolarHeat", Name="Solar Heat", Desc="Upgrades Burn effects to Scorch.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Burn", To = "Scorch"}}},
 	{Key="Supernova", Name="Supernova", Desc="Upgrades Scorch effects to Rupture.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Scorch", To = "Rupture"}}},
-	{Key="UnbearableRays", Name="Unbearable Rays", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}}
+	{Key="UnbearableRays", Name="Unbearable Rays", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}}
 })
 AddPassives("Speed King", {
 	{Key="LocalizedHeat", Name="Localized Heat", Desc="Upgrades Burn effects to Scorch.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Burn", To = "Scorch"}}},
 	{Key="MeltingPoint", Name="Melting Point", Desc="Upgrades Scorch effects to Rupture.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Scorch", To = "Rupture"}}},
-	{Key="ArmorMelt", Name="Armor Melt", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="ArmorMelt", Name="Armor Melt", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="HeatResistance", Name="Heat Resistance", Desc="Reduces incoming fire and explosive damage by 15%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"Fire", "Explosive"}}}}
 })
 
 AddPassives("White Album", {
 	{Key="FlashFreeze", Name="Flash Freeze", Desc="Upgrades Chill effects to Frost.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Chill", To = "Frost"}}},
 	{Key="AbsoluteZero", Name="Absolute Zero", Desc="Upgrades Frost effects to Frostbite.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Frost", To = "Frostbite"}}},
-	{Key="BitingCold", Name="Biting Cold", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="BitingCold", Name="Biting Cold", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="IceArmor", Name="Ice Armor", Desc="Reduces incoming physical damage by 15%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"Physical"}}}}
 })
 AddPassives("Horus", {
 	{Key="ColdSnap", Name="Cold Snap", Desc="Upgrades Chill effects to Frost.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Chill", To = "Frost"}}},
 	{Key="SubZero", Name="Sub-Zero", Desc="Upgrades Frost effects to Frostbite.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Frost", To = "Frostbite"}}},
-	{Key="PiercingIce", Name="Piercing Ice", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="PiercingIce", Name="Piercing Ice", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="ColdBlooded", Name="Cold Blooded", Desc="Reduces incoming freeze and stun durations by 1 turn.", Cost=3, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"Freeze", "Stun"}}}}
 })
 AddPassives("Born This Way", {
 	{Key="ChillingWind", Name="Chilling Wind", Desc="Upgrades Chill effects to Frost.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Chill", To = "Frost"}}},
 	{Key="DeepFreeze", Name="Deep Freeze", Desc="Upgrades Frost effects to Frostbite.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Frost", To = "Frostbite"}}},
-	{Key="FreezingGale", Name="Freezing Gale", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="FreezingGale", Name="Freezing Gale", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="WinterJacket", Name="Winter Jacket", Desc="Reduces incoming damage by 15%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"All"}}}},
 	{Key="Unstoppable", Name="Unstoppable", Desc="Reduces incoming speed debuff durations by 1 turn.", Cost=3, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"SpeedDebuff"}}}}
 })
@@ -77,34 +77,34 @@ AddPassives("Born This Way", {
 AddPassives("Metallica", {
 	{Key="IronSands", Name="Iron Sands", Desc="Upgrades Bleed effects to Hemorrhage.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Bleed", To = "Hemorrhage"}}},
 	{Key="RazorEdge", Name="Razor Edge", Desc="Upgrades Hemorrhage effects to Rupture.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Hemorrhage", To = "Rupture"}}},
-	{Key="InternalBleeding", Name="Internal Bleeding", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="InternalBleeding", Name="Internal Bleeding", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="IronBlood", Name="Iron Blood", Desc="Reduces incoming damage by 15%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"All"}}}},
 	{Key="MagneticPull", Name="Magnetic Pull", Desc="Increases the duration of bleed effects by 1 turn.", Cost=3, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Bleed", "Hemorrhage"}}}}
 })
 AddPassives("King Crimson", {
 	{Key="DeepCut", Name="Deep Cut", Desc="Upgrades Bleed effects to Hemorrhage.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Bleed", To = "Hemorrhage"}}},
 	{Key="FatedWound", Name="Fated Wound", Desc="Upgrades Hemorrhage effects to Rupture.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Hemorrhage", To = "Rupture"}}},
-	{Key="PiercingStrike", Name="Piercing Strike", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="PiercingStrike", Name="Piercing Strike", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="TimeShield", Name="Time's Shield", Desc="Reduces incoming damage by 15%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"All"}}}},
 	{Key="EpitaphInsight", Name="Epitaph Insight", Desc="Reduces incoming negative status durations by 1 turn.", Cost=3, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"All"}}}}
 })
 AddPassives("Silver Chariot", {
 	{Key="SharpBlade", Name="Sharp Blade", Desc="Upgrades Bleed effects to Hemorrhage.", Cost=2, Effects = {{Type = "StatusUpgrade", From = "Bleed", To = "Hemorrhage"}}},
 	{Key="MasterSwordsman", Name="Master Swordsman", Desc="Upgrades Hemorrhage effects to Rupture.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Hemorrhage", To = "Rupture"}}},
-	{Key="ArmorPiercing", Name="Armor Piercing", Desc="Your status effects bypass 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="ArmorPiercing", Name="Armor Piercing", Desc="Your status effects bypass 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="ChobhamArmor", Name="Chobham Armor", Desc="Reduces incoming damage by 15%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"All"}}}}
 })
 
 AddPassives("Wonder of U", {
-	{Key="InevitableCalamity", Name="Inevitable Calamity", Desc="Upgrades Status_Random to Calamity.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Status_Random", To = "Calamity"}}},
-	{Key="LogicDefying", Name="Logic Defying", Desc="Calamity bypasses 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="InevitableCalamity", Name="Inevitable Calamity", Desc="Upgrades Status Random to Calamity.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Status_Random", To = "Calamity"}}},
+	{Key="LogicDefying", Name="Logic Defying", Desc="Calamity bypasses 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="Misfortune", Name="Misfortune", Desc="Increases the duration of status effects you inflict by 1 turn.", Cost=3, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"All"}}}},
 	{Key="SafeDistance", Name="Safe Distance", Desc="Reduces incoming damage by 20%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 20, Elements = {"All"}}}},
 	{Key="Untouchable", Name="Untouchable", Desc="Reduces incoming negative status durations by 1 turn.", Cost=3, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"All"}}}}
 })
 AddPassives("D4C Love Train", {
-	{Key="HolyMisfortune", Name="Holy Misfortune", Desc="Upgrades Status_Random to Calamity.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Status_Random", To = "Calamity"}}},
-	{Key="PiercingLight", Name="Piercing Light", Desc="Calamity bypasses 50% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 50}}},
+	{Key="HolyMisfortune", Name="Holy Misfortune", Desc="Upgrades Status Random to Calamity.", Cost=3, Effects = {{Type = "StatusUpgrade", From = "Status_Random", To = "Calamity"}}},
+	{Key="PiercingLight", Name="Piercing Light", Desc="Calamity bypasses 100% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 100}}},
 	{Key="DimensionalWall", Name="Dimensional Wall", Desc="Reduces incoming damage by 20%.", Cost=3, Effects = {{Type = "DamageReduction", Value = 20, Elements = {"All"}}}},
 	{Key="LuckRedirection", Name="Luck Redirection", Desc="Reduces incoming negative status durations by 1 turn.", Cost=3, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"All"}}}},
 	{Key="ParallelResilience", Name="Parallel Resilience", Desc="Increases the duration of status effects you inflict by 1 turn.", Cost=3, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"All"}}}}
