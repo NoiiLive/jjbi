@@ -135,7 +135,6 @@ local function ProcessTurn(match)
 		if not attacker or attacker.HP < 1 then continue end
 
 		local uniModStr = "None" 
-		if attacker.IsPlayer then uniModStr = attacker.PlayerObj and attacker.PlayerObj:GetAttribute("UniverseModifier") or "None" end
 
 		if attacker.StunImmunity and attacker.StunImmunity > 0 then attacker.StunImmunity -= 1 end
 		if attacker.ConfusionImmunity and attacker.ConfusionImmunity > 0 then attacker.ConfusionImmunity -= 1 end
@@ -166,12 +165,11 @@ local function ProcessTurn(match)
 		local dummyRemote = { FireClient = function(_, plr, ev, data)
 			for _, p in ipairs(match.Party) do 
 				if ActiveRaids[p.Player] == match then
-					RaidUpdate:FireClient(p.Player, "TurnResult", {
+					RaidUpdate:FireClient(p.Player, "TurnStrike", {
+						Battle = dummyBattle,
 						LogMsg = data.LogMsg, 
-						State = GetClientState(match, p.UserId), 
 						DidHit = data.DidHit, 
-						ShakeType = data.ShakeType, 
-						Deadline = match.TurnDeadline
+						ShakeType = data.ShakeType
 					}) 
 				end
 			end
