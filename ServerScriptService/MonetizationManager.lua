@@ -2,8 +2,10 @@
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PolicyService = game:GetService("PolicyService")
+local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local PassiveSkillData = require(ReplicatedStorage:WaitForChild("PassiveSkillData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
 
 local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
@@ -129,6 +131,41 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 	end
 
 	local productId = receiptInfo.ProductId
+
+	if productId == 3581500709 then
+		local standToRefund = receiver:GetAttribute("PendingTreeRefund")
+		if standToRefund and standToRefund ~= "" then
+			local progressStr = receiver:GetAttribute("SkillTreeProgress") or "{}"
+			local success, progressData = pcall(function() return HttpService:JSONDecode(progressStr) end)
+
+			if success and progressData and progressData[standToRefund] then
+				local myData = progressData[standToRefund]
+				local pointsToRefund = 0
+
+				pointsToRefund += (myData.DamageUpgrades or 0)
+
+				if PassiveSkillData.Trees and PassiveSkillData.Trees[standToRefund] then
+					local pNodes = PassiveSkillData.Trees[standToRefund].Nodes or PassiveSkillData.Trees[standToRefund]
+					for _, n in ipairs(pNodes) do
+						if n.Type == "Passive" and myData.Passives["Passive_" .. n.Key] then
+							pointsToRefund += (n.Cost or 1)
+						elseif n.Type == "Skill" and myData.UnlockedSkills["Skill_" .. n.Key] then
+							pointsToRefund += (n.Cost or 1)
+						end
+					end
+				end
+
+				progressData[standToRefund] = { DamageUpgrades = 0, Passives = {}, UnlockedSkills = {} }
+				receiver:SetAttribute("SkillTreeProgress", HttpService:JSONEncode(progressData))
+				receiver:SetAttribute("PrestigePoints", (receiver:GetAttribute("PrestigePoints") or 0) + pointsToRefund)
+
+				SendPurchaseMsg("Skill Tree Refund (" .. standToRefund .. ")")
+			end
+			receiver:SetAttribute("PendingTreeRefund", "")
+		end
+		purchaser:SetAttribute("GiftTarget", nil)
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
 
 	if productId == 3567043458 then
 		local rerollEvent = Network:FindFirstChild("RerollWorldBoss")
@@ -384,7 +421,7 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		end
 		purchaser:SetAttribute("GiftTarget", nil); return Enum.ProductPurchaseDecision.PurchaseGranted
 	end
-	
+
 	if productId == 3564614326 then
 		if buyAsItem then 
 			GrantItem(receiver, "Auto-Stat Invest"); SendPurchaseMsg("Auto-Stat Invest Gift (Item)")
