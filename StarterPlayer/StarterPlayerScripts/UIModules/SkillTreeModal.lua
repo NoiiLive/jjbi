@@ -158,7 +158,7 @@ local function RefreshSkillTreeList()
 				buyBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 				if nodeStrk then nodeStrk.Color = Color3.fromRGB(255, 215, 0) end
 			else
-				descLabel.Text = string.format("Increase base damage multiplier.\nCurrent: %.2fx ➔ Next: %.2fx", curMult, nextMult)
+				descLabel.Text = string.format("Increase base damage multiplier.\nCurrent: %.2fx - Next: %.2fx", curMult, nextMult)
 				buyBtn.Text = "UPG (" .. currentDmgInvest .. "/" .. damageMaxCap .. ") — " .. node.Cost .. " Pts"
 				buyBtn.BackgroundColor3 = Color3.fromRGB(20, 120, 20)
 				if nodeStrk then nodeStrk.Color = Color3.fromRGB(120, 60, 180) end
