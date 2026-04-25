@@ -7,6 +7,8 @@ local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
 local FusionUtility = require(ReplicatedStorage:WaitForChild("FusionUtility"))
+local SkillTreeHandler = require(ReplicatedStorage:WaitForChild("SkillTreeHandler"))
+local PassiveSkillData = require(ReplicatedStorage:WaitForChild("PassiveSkillData"))
 
 local TotalValidFusions = nil
 local ValidStandsForFusion = nil
@@ -105,28 +107,34 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 
 	local playerTrait = player:GetAttribute("StandTrait") or "None"
 	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
-
 	local sName = player:GetAttribute("Stand") or "None"
 
-	local baseNativeVal = 5 
-	if hasStand and StandData.Stands[sName] and StandData.Stands[sName].Stats then
-		local defaultRankStr = StandData.Stands[sName].Stats.Power or "E"
-		baseNativeVal = GameData.StandRanks[defaultRankStr] or 5
+	local treeDamageMult = 1.0
+	if hasStand and player and player:IsA("Player") then
+		treeDamageMult = SkillTreeHandler.GetDamageMultiplier(player, sName)
 	end
 
-	local treeStr = player:GetAttribute("SkillTreeProgress") or "{}"
-	local success, skillDict = pcall(function() return game:GetService("HttpService"):JSONDecode(treeStr) end)
-	local myDamageNodes = (success and skillDict and skillDict[sName] and skillDict[sName].DamageUpgrades) or 0
-
-	local nodePowerBonus = (myDamageNodes * 5)
-
-	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) + nodePowerBonus or 0
-
+	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) or 0
 	local sDur = hasStand and (player:GetAttribute("Stand_Durability_Val") or 0) or 0
 	local sSpd = hasStand and (player:GetAttribute("Stand_Speed_Val") or 0) or 0
 	local sPot = hasStand and (player:GetAttribute("Stand_Potential_Val") or 0) or 0
 	local sRan = hasStand and (player:GetAttribute("Stand_Range_Val") or 0) or 0
 	local sPre = hasStand and (player:GetAttribute("Stand_Precision_Val") or 0) or 0
+
+	local activeTraits = {playerTrait}
+	if sName == "Fused Stand" then
+		activeTraits = {}
+		local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
+		local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
+		if t1 ~= "None" then table.insert(activeTraits, t1) end
+		if t2 ~= "None" then table.insert(activeTraits, t2) end
+	end
+
+	local function cT(tName)
+		local c = 0
+		for _, t in ipairs(activeTraits) do if t == tName then c += 1 end end
+		return c
+	end
 
 	local pHP, pStyleStr, pStandStr, pDef, pSpd, pWill, pStamina, pStandEnergy
 
@@ -153,24 +161,8 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		sPre = 500
 	end
 
-	local sName = player:GetAttribute("Stand") or "None"
 	local fStyle = player:GetAttribute("FightingStyle") or "None"
 	local sType = (StandData.Stands[sName] and StandData.Stands[sName].Type) or "None"
-
-	local activeTraits = {playerTrait}
-	if sName == "Fused Stand" then
-		activeTraits = {}
-		local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
-		local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
-		if t1 ~= "None" then table.insert(activeTraits, t1) end
-		if t2 ~= "None" then table.insert(activeTraits, t2) end
-	end
-
-	local function cT(tName)
-		local c = 0
-		for _, t in ipairs(activeTraits) do if t == tName then c += 1 end end
-		return c
-	end
 
 	local toughCount, fierceCount, persCount = cT("Tough"), cT("Fierce"), cT("Perseverance")
 	if toughCount > 0 then pHP *= (1.1 ^ toughCount) end
@@ -252,7 +244,7 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	return {
 		Player = player, UserId = player.UserId, Name = player.Name, IsPlayer = true, PlayerObj = player,
 		Trait = playerTrait, Traits = activeTraits, GlobalDmgBoost = activeBoosts.Damage, Boosts = activeBoosts,
-		Stand = sName, Style = fStyle, StandType = sType, FusionDamageBonus = fusionBonusMult,
+		Stand = sName, Style = fStyle, StandType = sType, FusionDamageBonus = fusionBonusMult, TreeDamageMult = treeDamageMult,
 		HP = pHP * 20, MaxHP = pHP * 20, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
 
 		StyleStrength = pStyleStr, StandStrength = pStandStr, 
@@ -275,6 +267,13 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 end
 
 function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlocking, uniModStr, skillType)
+	local offensiveStat = attacker.TotalStrength or 1
+	if skillType == "Stand" then
+		offensiveStat = attacker.StandStrength or (attacker.TotalStrength or 1)
+	elseif skillType == "Style" then
+		offensiveStat = attacker.StyleStrength or (attacker.TotalStrength or 1)
+	end
+
 	local junkieCount = CombatCore.CountTrait(attacker, "Junkie")
 	if junkieCount > 0 and attacker.Statuses then
 		local debuffCount = 0
@@ -1117,7 +1116,9 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local isCrit = math.random(1, 100) <= critChance
 		local critMult = 1.5 + (1.5 * CombatCore.CountTrait(attacker, "Lethal"))
 
-		local mult = skill.Mult * (isCrit and critMult or 1.0)
+		local treeMult = attacker.TreeDamageMult or 1.0
+		local mult = skill.Mult * treeMult * (isCrit and critMult or 1.0)
+
 		local relCount = CombatCore.CountTrait(attacker, "Relentless")
 		if relCount > 0 then mult *= (1.15 ^ relCount) end
 
