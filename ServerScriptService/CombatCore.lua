@@ -590,8 +590,24 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if battle then
 		opponent = (combatant == battle.Player) and battle.Enemy or battle.Player
 	end
+	
 	local domCount = opponent and CombatCore.CountTrait(opponent, "Dominating") or 0
-	local armorIgnore = math.min(0.9, domCount * 0.5)
+	local traitArmorIgnore = domCount * 0.5
+
+	local passiveArmorIgnore = 0
+	if opponent and opponent.ActivePassives then
+		for _, p in ipairs(opponent.ActivePassives) do
+			if p.Effects then
+				for _, eff in ipairs(p.Effects) do
+					if eff.Type == "ArmorBypass" then
+						passiveArmorIgnore += (eff.Value / 100)
+					end
+				end
+			end
+		end
+	end
+
+	local armorIgnore = math.min(0.9, traitArmorIgnore + passiveArmorIgnore)
 
 	local defBuff = (combatant.Statuses and (combatant.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
 	local defDebuff = (combatant.Statuses and (combatant.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
@@ -807,13 +823,22 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 
 		local originAttacker = b
 		if originAttacker and originAttacker.ActivePassives then
-			for _, p in ipairs(originAttacker.ActivePassives) do
-				if p.Effects then
-					for _, effData in ipairs(p.Effects) do
-						if effData.Type == "StatusUpgrade" and effData.From == effectName then
-							effectName = effData.To
+			local changed = true
+			local safetyCount = 0
+			while changed and safetyCount < 5 do
+				changed = false
+				for _, p in ipairs(originAttacker.ActivePassives) do
+					if p.Effects then
+						for _, effData in ipairs(p.Effects) do
+							if effData.Type == "StatusUpgrade" and effData.From == effectName then
+								effectName = effData.To
+								changed = true
+								safetyCount += 1
+								break
+							end
 						end
 					end
+					if changed then break end
 				end
 			end
 
@@ -1340,13 +1365,22 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			local duration = skill.Duration or 2
 
 			if eff and attacker.ActivePassives then
-				for _, p in ipairs(attacker.ActivePassives) do
-					if p.Effects then
-						for _, effData in ipairs(p.Effects) do
-							if effData.Type == "StatusUpgrade" and effData.From == eff then
-								eff = effData.To
+				local changed = true
+				local safetyCount = 0
+				while changed and safetyCount < 5 do
+					changed = false
+					for _, p in ipairs(attacker.ActivePassives) do
+						if p.Effects then
+							for _, effData in ipairs(p.Effects) do
+								if effData.Type == "StatusUpgrade" and effData.From == eff then
+									eff = effData.To
+									changed = true
+									safetyCount += 1
+									break
+								end
 							end
 						end
+						if changed then break end
 					end
 				end
 			end
@@ -1382,6 +1416,29 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	end
 
 	return msg, didHitAtAll, overallShake, t
+	
+	function CombatCore.GetNPCSkills(standName, styleName)
+		local SkillData = require(game:GetService("ReplicatedStorage"):WaitForChild("SkillData"))
+		local skills = {"Basic Attack", "Heavy Strike", "Block", "Rest"}
+
+		if standName and standName ~= "None" then
+			for sName, sData in pairs(SkillData.Skills) do
+				if sData.Requirement == standName or sData.Requirement == "AnyStand" then
+					if not table.find(skills, sName) then table.insert(skills, sName) end
+				end
+			end
+		end
+
+		if styleName and styleName ~= "None" then
+			for sName, sData in pairs(SkillData.Skills) do
+				if sData.Requirement == styleName then
+					if not table.find(skills, sName) then table.insert(skills, sName) end
+				end
+			end
+		end
+
+		return skills
+	end
 end
 
 return CombatCore
