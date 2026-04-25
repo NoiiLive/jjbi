@@ -333,14 +333,14 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 		local dType = defender.StandType
 
 		if aType == "Power" then
-			if dType == "Automatic" then baseDmg *= 1.25
-			elseif dType == "Ranged" then baseDmg *= 0.80 end
+			if dType == "Automatic" then baseDmg *= 1.5
+			elseif dType == "Ranged" then baseDmg *= 0.8 end
 		elseif aType == "Automatic" then
-			if dType == "Ranged" then baseDmg *= 1.25
-			elseif dType == "Power" then baseDmg *= 0.80 end
+			if dType == "Ranged" then baseDmg *= 1.5
+			elseif dType == "Power" then baseDmg *= 0.8 end
 		elseif aType == "Ranged" then
-			if dType == "Power" then baseDmg *= 1.25
-			elseif dType == "Automatic" then baseDmg *= 0.80 end
+			if dType == "Power" then baseDmg *= 1.5
+			elseif dType == "Automatic" then baseDmg *= 0.8 end
 		end
 	end
 
