@@ -128,7 +128,6 @@ local function ProcessTurn(match)
 		if attacker.HP < 1 then continue end
 
 		local uniModStr = "None" 
-		if attacker.IsPlayer and attacker.PlayerObj then uniModStr = attacker.PlayerObj:GetAttribute("UniverseModifier") or "None" end
 
 		if attacker.StunImmunity and attacker.StunImmunity > 0 then attacker.StunImmunity -= 1 end
 		if attacker.ConfusionImmunity and attacker.ConfusionImmunity > 0 then attacker.ConfusionImmunity -= 1 end
