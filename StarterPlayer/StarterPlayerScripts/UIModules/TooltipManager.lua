@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local TooltipManager = {}
 
 local player = game.Players.LocalPlayer
@@ -8,8 +7,72 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
+local SkillTreeHandler = require(ReplicatedStorage:WaitForChild("SkillTreeHandler"))
 
 local tooltip, tooltipText, sizeConstraint
+
+local function CalculateTrueMultiplier(abilityName, skillData)
+	local baseMult = skillData.Mult or 0
+	if baseMult <= 0 then return 0 end
+
+	local treeMult = 1.0
+	if abilityName and StandData.Stands[abilityName] then
+		treeMult = SkillTreeHandler.GetDamageMultiplier(player, abilityName)
+	end
+
+	local fusionBonusMult = 0
+	if abilityName and StandData.Stands[abilityName] then
+		local totalValidFusions = 0
+		local validStands = {}
+		for sName, sData in pairs(StandData.Stands) do
+			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
+				validStands[sName] = true
+				totalValidFusions += 1
+			end
+		end
+
+		local collectedFusions = 0
+		local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+		local seenFusions = {}
+
+		if unlockedFusionsStr ~= "" then
+			for _, fStr in ipairs(string.split(unlockedFusionsStr, ",")) do
+				local parts = string.split(fStr, "|")
+				if parts[1] == abilityName and validStands[parts[2]] then
+					if not seenFusions[parts[2]] then
+						seenFusions[parts[2]] = true
+						collectedFusions += 1
+					end
+				end
+			end
+		end
+
+		if totalValidFusions > 0 then
+			local completionRatio = math.clamp(collectedFusions / totalValidFusions, 0, 1)
+			fusionBonusMult += (completionRatio * 0.01)
+			if collectedFusions >= totalValidFusions then
+				fusionBonusMult += 0.25
+			end
+		end
+	end
+
+	local globalDamage = 1.0
+	local eloObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Elo")
+	if eloObj and eloObj.Value >= 5000 then globalDamage *= 1.05 end
+
+	globalDamage *= (player:GetAttribute("GangDmgBoost") or 1.0)
+
+	local indexBoosts = GameData.GetIndexBoosts(player)
+	if indexBoosts and indexBoosts.GlobalDamage then
+		globalDamage *= indexBoosts.GlobalDamage
+	end
+
+	local hitsToDo = skillData.Hits or 1
+	local finalMult = ((baseMult * treeMult) + (fusionBonusMult / hitsToDo)) * globalDamage
+
+	return string.format("%.2f", finalMult)
+end
 
 function TooltipManager.Init(screenGui)
 	tooltip = screenGui:WaitForChild("TooltipFrame")
@@ -79,7 +142,15 @@ function TooltipManager.GetSkillTooltip(skillName)
 	if skill then
 		local text = "<b><font color='#FFD700'>" .. skillName .. "</font></b> (" .. skill.Type .. ")\n"
 		text = text .. "" .. (skill.Description or "No description.") .. "\n\n"
-		if skill.Mult > 0 then text = text .. "Multiplier: " .. skill.Mult .. "x\n" end
+
+		if skill.Mult > 0 then 
+			local abilityName = skill.Requirement
+			if abilityName == "None" or abilityName == "AnyStand" then
+				abilityName = player:GetAttribute(skill.Type == "Stand" and "Stand" or "FightingStyle") or "None"
+			end
+			local trueMult = CalculateTrueMultiplier(abilityName, skill)
+			text = text .. "Multiplier: " .. trueMult .. "x <font color='#AAAAAA'>(Base: " .. skill.Mult .. "x)</font>\n" 
+		end
 
 		text = text .. "Cost: "
 		if skill.StaminaCost == 0 and skill.EnergyCost == 0 then
@@ -121,7 +192,8 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 
 			local details = {}
 			if sData.Mult and sData.Mult > 0 then 
-				table.insert(details, "DMG: <font color='#FFFFFF'>" .. sData.Mult .. "x</font>") 
+				local trueMult = CalculateTrueMultiplier(abilityName, sData)
+				table.insert(details, "DMG: <font color='#FFFFFF'>" .. trueMult .. "x</font> <font color='#AAAAAA'>(Base: " .. sData.Mult .. "x)</font>") 
 			end
 			if sData.Cooldown and sData.Cooldown > 0 then 
 				table.insert(details, "CD: <font color='#FFFFFF'>" .. sData.Cooldown .. " turns</font>") 
@@ -177,6 +249,11 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 		if totalValidFusions > 0 then
 			local completionRatio = math.clamp(collectedFusions / totalValidFusions, 0, 1)
 			local currentDamageBonus = completionRatio * 0.01
+
+			if collectedFusions >= totalValidFusions then
+				currentDamageBonus += 0.25
+			end
+
 			local formattedBonus = string.format("+%.3fx", currentDamageBonus)
 
 			if collectedFusions >= totalValidFusions then
