@@ -230,11 +230,28 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	local treeStrProg = player:GetAttribute("SkillTreeProgress") or "{}"
 	local _, tDict = pcall(function() return HttpService:JSONDecode(treeStrProg) end)
 
-	if tDict and tDict[sName] and tDict[sName].UnlockedSkills then
-		if PassiveSkillData.Passives[sName] then
-			for pKey, pData in pairs(PassiveSkillData.Passives[sName]) do
-				if tDict[sName].UnlockedSkills[pKey] or tDict[sName].UnlockedSkills["Passive_" .. pKey] then
-					table.insert(activePassives, pData)
+	local standsToCheck = { sName }
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+		standsToCheck = { fs1, fs2 }
+	end
+
+	for _, checkStand in ipairs(standsToCheck) do
+		if tDict and tDict[checkStand] then
+			if PassiveSkillData.Passives[checkStand] then
+				for pKey, pData in pairs(PassiveSkillData.Passives[checkStand]) do
+					local hasPassive = false
+
+					if tDict[checkStand].Passives and (tDict[checkStand].Passives[pKey] or tDict[checkStand].Passives["Passive_" .. pKey]) then
+						hasPassive = true
+					elseif tDict[checkStand].UnlockedSkills and (tDict[checkStand].UnlockedSkills[pKey] or tDict[checkStand].UnlockedSkills["Passive_" .. pKey]) then
+						hasPassive = true
+					end
+
+					if hasPassive then
+						table.insert(activePassives, pData)
+					end
 				end
 			end
 		end
