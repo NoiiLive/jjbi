@@ -178,6 +178,7 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 
 	local activeBoosts = CombatCore.GetPlayerBoosts(player)
 	local validSkills = {}
+	local activePassives = {}
 
 	local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
 	local fusionBonusMult = 0
@@ -229,6 +230,16 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	local treeStrProg = player:GetAttribute("SkillTreeProgress") or "{}"
 	local _, tDict = pcall(function() return HttpService:JSONDecode(treeStrProg) end)
 
+	if tDict and tDict[sName] and tDict[sName].UnlockedSkills then
+		if PassiveSkillData.Passives[sName] then
+			for pKey, pData in pairs(PassiveSkillData.Passives[sName]) do
+				if tDict[sName].UnlockedSkills[pKey] or tDict[sName].UnlockedSkills["Passive_" .. pKey] then
+					table.insert(activePassives, pData)
+				end
+			end
+		end
+	end
+
 	for n, s in pairs(SkillData.Skills) do
 		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
 
@@ -265,11 +276,12 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0, 
 			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0
 		}, 
-		Cooldowns = {}, SelectedSkill = nil, Skills = validSkills
+		Cooldowns = {}, SelectedSkill = nil, Skills = validSkills, ActivePassives = activePassives
 	}
 end
 
-function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlocking, uniModStr, skillType)
+function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlocking, uniModStr, skill)
+	local skillType = skill and skill.Type or "Basic"
 	local offensiveStat = attacker.TotalStrength or 1
 	if skillType == "Stand" then
 		offensiveStat = attacker.StandStrength or (attacker.TotalStrength or 1)
@@ -328,8 +340,21 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	local overCount = CombatCore.CountTrait(attacker, "Overwhelming")
 	local traitBypass = math.min(0.60, overCount * 0.30)
 	local rangeBypass = math.min(0.40, (attacker.TotalRange or 0) / 5000)
-	local totalBypass = math.min(0.9, traitBypass + rangeBypass)
 
+	local passiveBypass = 0
+	if attacker.ActivePassives then
+		for _, p in ipairs(attacker.ActivePassives) do
+			if p.Effects then
+				for _, eff in ipairs(p.Effects) do
+					if eff.Type == "ArmorBypass" then
+						passiveBypass += (eff.Value / 100)
+					end
+				end
+			end
+		end
+	end
+
+	local totalBypass = math.min(0.9, traitBypass + rangeBypass + passiveBypass)
 	local effectiveArmor = ((defender.TotalDefense or 0) * defBuff * defDebuff) * (1 - totalBypass)
 
 	local scaledDef = math.max(0, effectiveArmor)
@@ -343,6 +368,30 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	if (defender.Statuses.StaminaExhausted or 0) > 0 then exhaustVuln += 0.25 end
 	if (defender.Statuses.EnergyExhausted or 0) > 0 then exhaustVuln += 0.25 end
 
+	local passiveReduction = 0
+	if defender.ActivePassives then
+		for _, p in ipairs(defender.ActivePassives) do
+			if p.Effects then
+				for _, eff in ipairs(p.Effects) do
+					if eff.Type == "DamageReduction" then
+						local applies = false
+						if eff.Elements then
+							if table.find(eff.Elements, "All") then applies = true end
+							if skill then
+								if table.find(eff.Elements, "Physical") and (skillType == "Basic" or skillType == "Style" or not skill.Effect) then applies = true end
+								if table.find(eff.Elements, "Fire") and (skill.Effect == "Burn" or skill.Effect == "Scorch") then applies = true end
+								if table.find(eff.Elements, "Explosive") and (string.match(string.lower(skill.Description or ""), "explod") or string.match(string.lower(skill.Description or ""), "bomb")) then applies = true end
+							end
+						end
+						if applies then
+							passiveReduction += (eff.Value / 100)
+						end
+					end
+				end
+			end
+		end
+	end
+
 	local finalDmg = baseDmg * defenseMultiplier * (1 + exhaustVuln)
 
 	local armCount = CombatCore.CountTrait(defender, "Armored")
@@ -355,6 +404,9 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	if CombatCore.HasModifier(uniModStr, "Iron Skin") then finalDmg *= 0.75 end
 
 	if isDefenderBlocking then finalDmg *= 0.5 end
+
+	finalDmg = finalDmg * (1 - math.min(0.8, passiveReduction))
+
 	if attacker.GlobalDmgBoost then finalDmg *= attacker.GlobalDmgBoost end
 
 	return math.max(1, finalDmg)
@@ -724,8 +776,54 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		Burn = "#FF8844", Sick = "#CC55CC", Bleed = "#FF5555", Chill = "#99DDFF"
 	}
 
+	local function CheckElementMatch(elements, eName)
+		if not elements or type(elements) ~= "table" then return false end
+		if table.find(elements, "All") then return true end
+		if table.find(elements, eName) then return true end
+		if table.find(elements, "Debuffs") and string.match(eName, "Debuff_") then return true end
+		if table.find(elements, "SpeedDebuff") and eName == "Debuff_Speed" then return true end
+		return false
+	end
+
 	local function ApplyCC(effectName, duration, tgt, colorHex, overrideMsg)
 		if effectName == "Chilly" then effectName = "Chill" end
+
+		local originAttacker = b
+		if originAttacker and originAttacker.ActivePassives then
+			for _, p in ipairs(originAttacker.ActivePassives) do
+				if p.Effects then
+					for _, effData in ipairs(p.Effects) do
+						if effData.Type == "StatusUpgrade" and effData.From == effectName then
+							effectName = effData.To
+						end
+					end
+				end
+			end
+
+			for _, p in ipairs(originAttacker.ActivePassives) do
+				if p.Effects then
+					for _, effData in ipairs(p.Effects) do
+						if effData.Type == "OutgoingStatusDuration" and CheckElementMatch(effData.Elements, effectName) then
+							duration += effData.Value
+						end
+					end
+				end
+			end
+		end
+
+		if tgt and tgt.ActivePassives then
+			for _, p in ipairs(tgt.ActivePassives) do
+				if p.Effects then
+					for _, effData in ipairs(p.Effects) do
+						if effData.Type == "IncomingStatusDuration" and CheckElementMatch(effData.Elements, effectName) then
+							duration += effData.Value
+						end
+					end
+				end
+			end
+		end
+
+		duration = math.max(1, duration)
 
 		if (tgt.Statuses.Warded or 0) > 0 then
 			return " <font color='#AAAAAA'>(Warded! Status Blocked!)</font>"
@@ -748,7 +846,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			if (tgt.StunImmunity and tgt.StunImmunity > 0) or (tgt.Statuses.Freeze and tgt.Statuses.Freeze > 0) then
 				return ApplyCC("Frost", duration, tgt, "#66CCFF", "Frost")
 			else
-				local active_mask = 8 -- Freeze masks as Frost for combining
+				local active_mask = 8
 				local maxDuration = duration
 				local willMerge = false
 
@@ -760,7 +858,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 					end
 				end
 
-				if active_mask > 8 then -- It successfully merged into a higher tier
+				if active_mask > 8 then
 					for dot, mask in pairs(DOT_MASKS) do
 						if (tgt.Statuses[dot] or 0) > 0 then tgt.Statuses[dot] = 0 end
 					end
@@ -1085,7 +1183,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local isBlocking = (t.BlockTurns or 0) > 0
 		local isCountering = (t.CounterTurns or 0) > 0
 
-		local damage = CombatCore.CalculateDamage(attacker, t, mult, isBlocking, uniModStr, skill.Type)
+		local damage = CombatCore.CalculateDamage(attacker, t, mult, isBlocking, uniModStr, skill)
 
 		if isCountering and damage > 0 then
 			t.CounterTurns = 0
@@ -1222,6 +1320,20 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 
 		if not effectApplied then
 			local eff = skill.Effect
+			local duration = skill.Duration or 2
+
+			if eff and attacker.ActivePassives then
+				for _, p in ipairs(attacker.ActivePassives) do
+					if p.Effects then
+						for _, effData in ipairs(p.Effects) do
+							if effData.Type == "StatusUpgrade" and effData.From == eff then
+								eff = effData.To
+							end
+						end
+					end
+				end
+			end
+
 			local statColors = { 
 				Stun = "#FFFF55", Freeze = "#00FFFF", Confusion = "#FF55FF",
 				Burn = "#FF8844", Sick = "#CC55CC", Bleed = "#FF5555", Chill = "#99DDFF",
@@ -1231,12 +1343,12 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 			}
 
 			if statColors[eff] then
-				postMsg = postMsg .. ApplyCC(eff, skill.Duration or 2, t, statColors[eff])
+				postMsg = postMsg .. ApplyCC(eff, duration, t, statColors[eff])
 				effectApplied = true
 			elseif eff == "Status_Random" then
 				local effs = { {"Hemorrhage", "#FF0000"}, {"Poison", "#AA00AA"}, {"Scorch", "#FF5500"}, {"Confusion", "#FF55FF"}, {"Stun", "#FFFF55"}, {"Freeze", "#00FFFF"} }
 				local pick = effs[math.random(1, #effs)]
-				postMsg = postMsg .. ApplyCC(pick[1], skill.Duration or 2, t, pick[2])
+				postMsg = postMsg .. ApplyCC(pick[1], duration, t, pick[2])
 				effectApplied = true
 			end
 		end
