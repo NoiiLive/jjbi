@@ -212,7 +212,7 @@ SkillData.Skills = {
 
 	["ORA ORA ORA!"] = { Requirement = "Star Platinum: The World", Type = "Stand", Mult = 0.8, Hits = 3, StaminaCost = 0, EnergyCost = 8, Order = 11, VFX = "Punch", Description = "The ultimate barrage of strength." },
 	["Bearing Shot"] = { Requirement = "Star Platinum: The World", Type = "Stand", Mult = 2.8, StaminaCost = 0, EnergyCost = 12, Effect = "Bleed", Duration = 3, Cooldown = 4, Order = 12, Description = "A high speed projectile that causes extreme bleeding." },
-	["Time Stop"] = { Requirement = "Star Platinum: The World", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "TimeStop", Duration = 2, Cooldown = 6, Order = 13, Description = "Stops time, completely freezing the enemy in place." },
+	["Time Stop"] = { Requirement = "Star Platinum: The World", RequiresTreeUnlock = true, Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "TimeStop", Duration = 2, Cooldown = 6, Order = 13, Description = "Stops time, completely freezing the enemy in place." },
 
 	["MUDA MUDA MUDA!"] = { Requirement = "The World", Type = "Stand", Mult = 0.8, Hits = 3, StaminaCost = 0, EnergyCost = 7, Order = 11, VFX = "Punch", Description = "A merciless barrage of golden punches." },
 	["Road Roller"] = { Requirement = "The World", Type = "Stand", Mult = 3.0, StaminaCost = 0, EnergyCost = 12, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 12, Description = "Drops a massive steamroller, causing crushing Bleed damage." },
@@ -522,6 +522,20 @@ SkillData.Skills = {
 	["Urya Urya Rush"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 0.7, Hits = 4, StaminaCost = 0, EnergyCost = 7, Order = 11, VFX = "Punch", Description = "A ruthless, high-speed barrage of punches." },
 	["Emerald Star Finger"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.9, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 12, VFX = "Slash", Description = "A concentrated piercing strike combining Star Platinum and Hierophant Green." },
 	["Green Trap"] = { Requirement = "Charmy Green", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 8, Effect = "Stun", Duration = 2, Cooldown = 5, Order = 12, Description = "Triggers a sudden emerald bind that strikes and immobilizes the enemy for 2 turns." },
+}
+
+SkillData.Trees = {
+	["Emperor"] = {
+		Nodes = {
+			{ Type = "Damage", Key = "DamageNode", Name = "Destructive Growth", Cost = 1, Desc = "Upgrade the base combat damage rating." },
+
+			{ Type = "Skill", Key = "Skill_Time Stop", Name = "Awaken: The World", Cost = 5, Desc = "Unlocks the 'Time Stop' ability natively." },
+			{ Type = "Passive", Key = "Passive_SteelyResolve", Name = "Steely Resolve", Cost = 2, Desc = "Grants increased resistance to incoming stun-based combat effects." }
+		}
+	}
+	-- goodluck adding the next 116 or whatever... from nas!
+	-- also btw make sure u give any ability that should be locked the parameter RequiresTreeUnlock = true
+	-- i did this for time stop so u can see <3
 }
 
 return SkillData
