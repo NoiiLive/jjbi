@@ -1,6 +1,7 @@
 -- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
 local PolicyService = game:GetService("PolicyService")
@@ -22,6 +23,7 @@ if not RemotesFolder then
 	RemotesFolder.Name = "Network"
 	RemotesFolder.Parent = ReplicatedStorage
 end
+local NetworkFolder = RemotesFolder
 
 local requiredRemotes = {
 	"ToggleMute",
@@ -56,7 +58,8 @@ local requiredRemotes = {
 	"ExecuteFusion",
 	"PackAction",
 	"ToggleAutoStat",
-	"AdminLogsUI"
+	"AdminLogsUI",
+	"TreeAction",
 }
 
 for _, remoteName in ipairs(requiredRemotes) do
@@ -97,7 +100,7 @@ RemotesFolder:WaitForChild("PackAction").OnServerEvent:Connect(function(player, 
 end)
 
 local DefaultData = {
-	Prestige = 0, CurrentPart = 1, CurrentMission = 1, XP = 0, Yen = 0, Elo = 1000, TutorialStep = 0, PlayTime = 0,
+	Prestige = 0, PrestigePoints = 0, SkillTreeProgress = "{}", CurrentPart = 1, CurrentMission = 1, XP = 0, Yen = 0, Elo = 1000, TutorialStep = 0, PlayTime = 0,
 	EndlessHighScore = 0, EndlessMaxMilestone = 0, RaidWins = 0, 
 	DungeonClear_Part1 = false, DungeonClear_Part2 = false, DungeonClear_Part3 = false,
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
@@ -223,6 +226,8 @@ local function SavePlayerData(player)
 
 	local dataToSave = {
 		Prestige = player.leaderstats.Prestige.Value, CurrentPart = player:GetAttribute("CurrentPart"),
+		PrestigePoints = player:GetAttribute("PrestigePoints") or 0, 
+		SkillTreeProgress = player:GetAttribute("SkillTreeProgress") or "{}",
 		CurrentMission = player:GetAttribute("CurrentMission"), XP = player:GetAttribute("XP"), 
 		Yen = player.leaderstats.Yen.Value, Elo = player.leaderstats.Elo.Value,
 		TutorialStep = player:GetAttribute("TutorialStep"), PlayTime = player:GetAttribute("PlayTime") or 0,
@@ -518,6 +523,42 @@ task.spawn(function()
 
 			task.wait(0.5)
 		end
+	end
+end)
+
+NetworkFolder:WaitForChild("TreeAction").OnServerEvent:Connect(function(player, action, targetStandName, upgradeKey, pointCost)
+	local validCost = tonumber(pointCost)
+	if not targetStandName or not upgradeKey or not validCost then return end
+
+	if action == "BuyUpgrade" then
+		local currentPP = player:GetAttribute("PrestigePoints") or 0
+		if currentPP < validCost then
+			local notif = NetworkFolder:FindFirstChild("NotificationEvent")
+			if notif then notif:FireClient(player, "<font color='#FF5555'>You do not have enough Prestige Points!</font>") end
+			return
+		end
+
+		local progressJSON = player:GetAttribute("SkillTreeProgress") or "{}"
+		local success, treeTable = pcall(function() return HttpService:JSONDecode(progressJSON) end)
+		if not success then treeTable = {} end
+
+		if not treeTable[targetStandName] then 
+			treeTable[targetStandName] = { DamageUpgrades = 0, Passives = {}, UnlockedSkills = {} } 
+		end
+
+		if upgradeKey == "DamageNode" then
+			treeTable[targetStandName].DamageUpgrades += 1
+		elseif string.sub(upgradeKey, 1, 8) == "Passive_" then
+			treeTable[targetStandName].Passives[upgradeKey] = true
+		elseif string.sub(upgradeKey, 1, 6) == "Skill_" then
+			treeTable[targetStandName].UnlockedSkills[upgradeKey] = true
+		end
+
+		player:SetAttribute("PrestigePoints", currentPP - validCost)
+		player:SetAttribute("SkillTreeProgress", HttpService:JSONEncode(treeTable))
+
+		local notif = NetworkFolder:FindFirstChild("NotificationEvent")
+		if notif then notif:FireClient(player, "<font color='#55FF55'>Successfully Upgraded " .. targetStandName .. "!</font>") end
 	end
 end)
 
