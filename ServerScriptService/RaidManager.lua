@@ -419,14 +419,19 @@ local function StartRaidMatch(hostId)
 		TotalDefense = finalDef, TotalSpeed = finalSpd, TotalWillpower = finalWill,
 		Stamina = calcStamina, MaxStamina = calcStamina, StandEnergy = calcEnergy, MaxStandEnergy = calcEnergy,
 		Statuses = { 
-			Stun = 0, Poison = 0, Burn = 0, Bleed = 0, Freeze = 0, Confusion = 0, 
+			Stun = 0, Freeze = 0, Confusion = 0, Dizzy = 0, Warded = 0,
 			Buff_Strength = 0, Buff_Defense = 0, Buff_Speed = 0, Buff_Willpower = 0, 
-			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0,
-			StaminaExhausted = 0, EnergyExhausted = 0, Dizzy = 0, Chilly = 0,
-			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0,
-			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0, Warded = 0 
+			Debuff_Strength = 0, Debuff_Defense = 0, Debuff_Speed = 0, Debuff_Willpower = 0, 
+			StaminaExhausted = 0, EnergyExhausted = 0, 
+			Burn = 0, Sick = 0, Bleed = 0, Chill = 0,
+			Scorch = 0, Poison = 0, Hemorrhage = 0, Frost = 0,
+			Acid = 0, Infection = 0, Rupture = 0, Frostburn = 0, Frostbite = 0, Decay = 0, 
+			Blight = 0, Miasma = 0, Necrosis = 0, Plague = 0, Calamity = 0
 		},
-		BlockTurns = 0, CounterTurns = 0, Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, Skills = bossTemplate.Skills
+		BlockTurns = 0, CounterTurns = 0, Cooldowns = {}, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0, 
+		Stand = bossTemplate.Stand or "None",
+		Style = bossTemplate.Style or "None",
+		Skills = CombatCore.GetNPCSkills(bossTemplate.Stand, bossTemplate.Style)
 	}
 
 	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, IsDead = false, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
