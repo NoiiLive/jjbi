@@ -171,7 +171,13 @@ end
 
 function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 	local rarityDisplay = (rarity and rarity ~= "None") and rarity or abilityType
-	local text = "<b><font color='#FFD700'>" .. abilityName .. "</font></b>\n<i>" .. abilityType .. "</i> | <font color='#AAAAAA'>" .. rarityDisplay .. "</font>\n____________________\n\n"
+
+	local typeStr = ""
+	if abilityType == "Stand" and StandData.Stands[abilityName] and StandData.Stands[abilityName].Type then
+		typeStr = " | <font color='#55FFFF'>" .. StandData.Stands[abilityName].Type .. " Type</font>"
+	end
+
+	local text = "<b><font color='#FFD700'>" .. abilityName .. "</font></b>\n<i>" .. abilityType .. "</i>" .. typeStr .. " | <font color='#AAAAAA'>" .. rarityDisplay .. "</font>\n____________________\n\n"
 
 	local skills = {}
 	for sName, sData in pairs(SkillData.Skills) do
