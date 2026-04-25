@@ -137,7 +137,7 @@ ItemData.Consumables = {
 	-- Advanced Training Manuals
 	["Advanced Style Training Manual"] = { Category = "Player", Description = "A mythical manual containing the pinnacle of physical arts. Grants all Player Stats.", Rarity = "Mythical", Cost = 1000000 },
 	["Advanced Stand Training Manual"] = { Category = "Stand", Description = "A mythical manual detailing the apex of spiritual manifestation. Grants all Stand Stats.", Rarity = "Mythical", Cost = 1000000 },
-	["Master Training Manual"] = { Category = "Player", Description = "A mythical manual that unifies the body and spirit perfectly. Grants all Player and Stand Stats.", Rarity = "Mythical", Cost = 1500000 },
+	["Master Training Manual"] = { Category = "Stand", Description = "A mythical manual that unifies the body and spirit perfectly. Grants all Player and Stand Stats.", Rarity = "Mythical", Cost = 1500000 },
 	
 	-- Stand Discs
 	["Weather Report Disc"] = { Category = "Stand", Description = "This disc hums with a menacing power. Awakens the stand, Weather Report.", Rarity = "Unique", Cost = 300000},
