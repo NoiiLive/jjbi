@@ -17,9 +17,11 @@ local rootFrame, forceTabFocus, cachedTooltipMgr
 local resourceLabel, waveLabel
 
 local StatusIcons = {
-	Stun = "STN", Poison = "PSN", Burn = "BRN", Bleed = "BLD", Freeze = "FRZ", Confusion = "CNF", Dizzy = "DZY", Chilly = "CLD",
+	Stun = "STN", Freeze = "FRZ", Confusion = "CNF", Dizzy = "DZY", Warded = "WRD",
+	Burn = "BRN", Sick = "SCK", Bleed = "BLD", Chill = "CHL",
+	Scorch = "SCH", Poison = "PSN", Hemorrhage = "HEM", Frost = "FST",
 	Acid = "ACD", Infection = "INF", Rupture = "RPT", Frostburn = "FBN", Frostbite = "FBT", Decay = "DCY",
-	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM", Warded = "WRD",
+	Blight = "BLT", Miasma = "MSM", Necrosis = "NCR", Plague = "PLG", Calamity = "CLM",
 	Buff_Strength = "STR+", Buff_Defense = "DEF+", Buff_Speed = "SPD+", Buff_Willpower = "WIL+",
 	Debuff_Strength = "STR-", Debuff_Defense = "DEF-", Debuff_Speed = "SPD-", Debuff_Willpower = "WIL-",
 	EnergyExhausted = "ENG-", StaminaExhausted = "STM-"
@@ -27,13 +29,17 @@ local StatusIcons = {
 
 local StatusDescs = {
 	Stun = "Cannot move or act.",
-	Poison = "Takes damage every turn.",
-	Burn = "Takes damage every turn.",
-	Bleed = "Takes damage every turn.",
 	Freeze = "Frozen solid. Cannot move, takes damage.",
 	Confusion = "May attack allies or self.",
-	Dizzy = "May miss or attack self",
-	Chilly = "Takes damage every turn.",
+	Dizzy = "May miss or attack self.",
+	Burn = "Takes minor damage every turn.",
+	Sick = "Takes minor damage every turn.",
+	Bleed = "Takes minor damage every turn.",
+	Chill = "Takes minor damage every turn.",
+	Scorch = "Takes damage every turn.",
+	Poison = "Takes damage every turn.",
+	Hemorrhage = "Takes damage every turn.",
+	Frost = "Takes damage every turn.",
 	Acid = "Takes synergized damage every turn.",
 	Infection = "Takes synergized damage every turn.",
 	Rupture = "Takes synergized damage every turn.",
