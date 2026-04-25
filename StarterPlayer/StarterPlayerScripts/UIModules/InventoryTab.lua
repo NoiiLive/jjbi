@@ -16,7 +16,7 @@ local NotificationManager = require(UIModules:WaitForChild("NotificationManager"
 
 local pStatsContainer, sStatsContainer, equipContainer, playerConsContainer, standConsContainer
 local standStorageContainer, styleStorageContainer, autoSellContainer
-local titlesTabContent, indexTabContent
+local titlesTabContent, indexTabContent, treeTabContent, treeNodeContainer, treePointsLabel
 local capacityLabel, playerConsCapacityLabel
 local statLabels = {}
 
@@ -1289,7 +1289,15 @@ local function UpdateTopDisplays()
 		end
 	end
 
-	standLabel.Text = "<b>STAND:</b> <font color='#A020F0'>" .. sName:upper() .. "</font>" .. traitDisplay
+	local sType = (StandData.Stands[sName] and StandData.Stands[sName].Type) or "Unknown"
+	local typeStr = (sType ~= "Unknown" and sType ~= "None") and " <font color='#55FFFF'>(" .. sType .. " Type)</font>" or ""
+
+	standLabel.Text = "<b>STAND:</b> <font color='#A020F0'>" .. sName:upper() .. "</font>" .. traitDisplay .. typeStr
+
+	local xpVal = player:GetAttribute("XP") or 0
+	local preP = player:GetAttribute("PrestigePoints") or 0
+
+	if xpLabelP then xpLabelP.Text = "<b>XP:</b> <font color='#55FFFF'>" .. xpVal .. "</font>   |   <font color='#FF55FF'>Tree Pts: " .. preP .. "</font>" end
 	styleLabel.Text = "<b>STYLE:</b> <font color='#FF8C00'>" .. style:upper() .. "</font>"
 	weaponLabel.Text = "<b>WEAPON:</b> <font color='#55FF55'>" .. wpn:upper() .. "</font>"
 	accLabel.Text = "<b>ACCESSORY:</b> <font color='#55FFFF'>" .. acc:upper() .. "</font>"
@@ -1331,6 +1339,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local standTabContent = tabContainer:WaitForChild("StandTabContent")
 	titlesTabContent = tabContainer:WaitForChild("TitlesTabContent")
 	indexTabContent = tabContainer:WaitForChild("IndexTabContent")
+	treeTabContent = tabContainer:WaitForChild("TreeTabContent")
+	treeNodeContainer = treeTabContent:WaitForChild("NodeContainer")
+	treePointsLabel = treeTabContent:FindFirstChild("PointsLabel")
 
 	local invInfoCard = invTabContent:WaitForChild("InvInfoCard")
 	weaponBox = invInfoCard:WaitForChild("WepRow")
@@ -1383,6 +1394,9 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	local sAllBtn = sStatsTopControls:WaitForChild("AllBtn")
 	local sAutoBtn = sStatsTopControls:WaitForChild("AutoBtn")
 	sStatsContainer = sStatsCard:WaitForChild("StatsContainer")
+	local standStorageCard = standMidRow:WaitForChild("StandStorageCard")
+	standStorageContainer = standStorageCard:WaitForChild("StorageContainer")
+	local openTreeBtn = standBox:WaitForChild("OpenTreeBtn")
 
 	local standStorageCard = standMidRow:WaitForChild("StandStorageCard")
 	standStorageContainer = standStorageCard:WaitForChild("StorageContainer")
@@ -1490,6 +1504,102 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateLayoutForScreen)
 	UpdateLayoutForScreen()
 
+	local HttpService = game:GetService("HttpService")
+
+	local function RefreshSkillTreeList()
+		if not treeNodeContainer then return end
+		for _, child in pairs(treeNodeContainer:GetChildren()) do
+			if child:IsA("Frame") or child:IsA("TextButton") then child:Destroy() end
+		end
+
+		local sName = player:GetAttribute("Stand") or "None"
+		local progressStr = player:GetAttribute("SkillTreeProgress") or "{}"
+		local success, progressData = pcall(function() return HttpService:JSONDecode(progressStr) end)
+		if not success then progressData = {} end
+		local myData = progressData[sName] or { DamageUpgrades = 0, Passives = {}, UnlockedSkills = {} }
+
+		local treeDef = SkillData.Trees and SkillData.Trees[sName]
+		if not treeDef or not treeDef.Nodes or #treeDef.Nodes == 0 then
+			local noNode = Instance.new("TextLabel", treeNodeContainer)
+			noNode.Size = UDim2.new(1,0,1,0)
+			noNode.BackgroundTransparency = 1
+			noNode.Text = "No Skill Tree available for this Stand!"
+			noNode.TextColor3 = Color3.fromRGB(150, 150, 150)
+			noNode.Font = Enum.Font.GothamMedium
+			return
+		end
+
+		local prestigeObj = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Prestige")
+		local currentPrestige = prestigeObj and prestigeObj.Value or 0
+
+		for i, node in ipairs(treeDef.Nodes) do
+			local isDamageNode = (node.Key == "DamageNode")
+			local maxRankStr = (StandData.Stands[sName] and StandData.Stands[sName].Stats and StandData.Stands[sName].Stats.Power) or "E"
+			local basePowInt = GameData.StandRanks[maxRankStr] or 5
+			local A_RankVal = GameData.StandRanks["A"] or 25
+
+			local damageMaxCap = math.max(0, math.floor((A_RankVal - basePowInt) / 5))
+			if isDamageNode and basePowInt >= A_RankVal then continue end
+
+			local currentDmgInvest = myData.DamageUpgrades or 0
+
+			local nodeCard = Templates:WaitForChild("TreeNodeTemplate"):Clone()
+			nodeCard.LayoutOrder = i
+			nodeCard.Parent = treeNodeContainer
+
+			local nodeStrk = nodeCard:FindFirstChildOfClass("UIStroke")
+			local titleLabel = nodeCard:WaitForChild("TitleLabel")
+			local descLabel = nodeCard:WaitForChild("DescLabel")
+			local buyBtn = nodeCard:WaitForChild("BuyBtn")
+
+			titleLabel.Text = "<b>" .. node.Name .. "</b>"
+			descLabel.Text = node.Desc
+
+			local hasBought = false
+			if isDamageNode then
+				hasBought = (currentDmgInvest >= damageMaxCap)
+				if hasBought then
+					buyBtn.Text = "MAX (" .. currentDmgInvest .. "/" .. damageMaxCap .. ")"
+					buyBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+					if nodeStrk then nodeStrk.Color = Color3.fromRGB(255, 215, 0) end
+				else
+					buyBtn.Text = "UPG (" .. currentDmgInvest .. "/" .. damageMaxCap .. ") — " .. node.Cost .. " Pts"
+					buyBtn.BackgroundColor3 = Color3.fromRGB(20, 120, 20)
+					if nodeStrk then nodeStrk.Color = Color3.fromRGB(120, 60, 180) end
+				end
+			else
+				hasBought = (node.Type == "Passive" and myData.Passives["Passive_" .. node.Key]) 
+					or (node.Type == "Skill" and myData.UnlockedSkills["Skill_" .. node.Key])
+				if hasBought then
+					buyBtn.Text = "OWNED"
+					buyBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+					if nodeStrk then nodeStrk.Color = Color3.fromRGB(80, 200, 80) end
+				else
+					buyBtn.Text = node.Cost .. " Pts"
+					buyBtn.BackgroundColor3 = Color3.fromRGB(20, 120, 20)
+					if nodeStrk then nodeStrk.Color = Color3.fromRGB(120, 60, 180) end
+				end
+			end
+
+			buyBtn.MouseButton1Click:Connect(function()
+				if not hasBought then
+					SFXManager.Play("Click")
+					Network.TreeAction:FireServer("BuyUpgrade", sName, node.Key, node.Cost)
+				end
+			end)
+
+			nodeCard.MouseEnter:Connect(function() 
+				cachedTooltipMgr.Show("<b>" .. node.Name .. "</b>\n" .. node.Desc) 
+			end)
+			nodeCard.MouseLeave:Connect(function() cachedTooltipMgr.Hide() end)
+		end
+
+		local g = treeNodeContainer:FindFirstChildWhichIsA("UIGridLayout")
+		if g then
+			task.delay(0.05, function() treeNodeContainer.CanvasSize = UDim2.new(0, 0, 0, g.AbsoluteContentSize.Y + 20) end)
+		end
+	end
+
 	local function SetActiveTab(target)
 		SFXManager.Play("Click")
 		currentActiveTab = target
@@ -1499,6 +1609,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 		standTabContent.Visible = (target == "STAND")
 		titlesTabContent.Visible = (target == "TITLE")
 		indexTabContent.Visible = (target == "INDEX")
+		treeTabContent.Visible = (target == "TREE")
 
 		local function ToggleNav(btn, str, isActive)
 			btn.BackgroundColor3 = isActive and Color3.fromRGB(70, 30, 100) or Color3.fromRGB(30, 20, 50)
@@ -1517,6 +1628,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 
 		if target == "TITLE" then RefreshTitlesList()
 		elseif target == "INDEX" then RefreshIndexList()
+		elseif target == "TREE" then RefreshSkillTreeList()
 		elseif target == "INV" then RefreshInventoryList() end
 	end
 
@@ -1525,6 +1637,7 @@ function InventoryTab.Init(parentFrame, tooltipMgr)
 	standTabBtn.MouseButton1Click:Connect(function() SetActiveTab("STAND") end)
 	titlesTabBtn.MouseButton1Click:Connect(function() SetActiveTab("TITLE") end)
 	indexTabBtn.MouseButton1Click:Connect(function() SetActiveTab("INDEX") end)
+	openTreeBtn.MouseButton1Click:Connect(function() SetActiveTab("TREE") end)
 	SetActiveTab("INV")
 
 	BuildDropdownList(sDrop, sDrop:WaitForChild("List"), StandData.Stands, true)
