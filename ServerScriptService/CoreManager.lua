@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
@@ -542,9 +543,10 @@ task.spawn(function()
 end)
 
 NetworkFolder:WaitForChild("TreeAction").OnServerEvent:Connect(function(player, action, targetStandName, upgradeKey)
-	if not targetStandName or not upgradeKey then return end
+	if not targetStandName then return end
 
 	if action == "BuyUpgrade" then
+		if not upgradeKey then return end
 		local treeDef = PassiveSkillData.Trees and PassiveSkillData.Trees[targetStandName]
 		local targetNode = nil
 		local isDamageNode = (upgradeKey == "DamageNode")
@@ -607,6 +609,59 @@ NetworkFolder:WaitForChild("TreeAction").OnServerEvent:Connect(function(player, 
 
 		local notif = NetworkFolder:FindFirstChild("NotificationEvent")
 		if notif then notif:FireClient(player, "<font color='#55FF55'>Successfully Upgraded " .. targetStandName .. "!</font>") end
+
+	elseif action == "RefundTreeYen" then
+		local standToRefund = targetStandName 
+
+		if not standToRefund or standToRefund == "" or standToRefund == "None" then return end
+
+		local yenCost = 1000000
+		local ls = player:FindFirstChild("leaderstats")
+		if not ls or not ls:FindFirstChild("Yen") or ls.Yen.Value < yenCost then
+			local NotificationEvent = NetworkFolder:FindFirstChild("NotificationEvent")
+			if NotificationEvent then
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You need ¥1,000,000 to refund this tree!</font>")
+			end
+			return
+		end
+
+		local progressStr = player:GetAttribute("SkillTreeProgress") or "{}"
+		local success, progressData = pcall(function() return HttpService:JSONDecode(progressStr) end)
+
+		if success and progressData and progressData[standToRefund] then
+			ls.Yen.Value -= yenCost
+
+			local myData = progressData[standToRefund]
+			local pointsToRefund = 0
+
+			pointsToRefund += (myData.DamageUpgrades or 0)
+
+			if PassiveSkillData.Trees and PassiveSkillData.Trees[standToRefund] then
+				local pNodes = PassiveSkillData.Trees[standToRefund].Nodes or PassiveSkillData.Trees[standToRefund]
+				for _, n in ipairs(pNodes) do
+					if n.Type == "Passive" and myData.Passives["Passive_" .. n.Key] then
+						pointsToRefund += (n.Cost or 1)
+					elseif n.Type == "Skill" and myData.UnlockedSkills["Skill_" .. n.Key] then
+						pointsToRefund += (n.Cost or 1)
+					end
+				end
+			end
+
+			progressData[standToRefund] = { DamageUpgrades = 0, Passives = {}, UnlockedSkills = {} }
+			player:SetAttribute("SkillTreeProgress", HttpService:JSONEncode(progressData))
+			player:SetAttribute("PrestigePoints", (player:GetAttribute("PrestigePoints") or 0) + pointsToRefund)
+
+			local NotificationEvent = NetworkFolder:FindFirstChild("NotificationEvent")
+			if NotificationEvent then
+				NotificationEvent:FireClient(player, "<font color='#55FF55'>Skill Tree Refunded for " .. standToRefund .. "!</font>")
+			end
+		end
+	elseif action == "PromptRobuxRefund" then
+		local standToRefund = targetStandName 
+		if not standToRefund or standToRefund == "" or standToRefund == "None" then return end
+
+		player:SetAttribute("PendingTreeRefund", standToRefund)
+		MarketplaceService:PromptProductPurchase(player, 3581500709)	
 	end
 end)
 
