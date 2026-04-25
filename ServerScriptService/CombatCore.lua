@@ -1416,29 +1416,29 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 	end
 
 	return msg, didHitAtAll, overallShake, t
-	
-	function CombatCore.GetNPCSkills(standName, styleName)
-		local SkillData = require(game:GetService("ReplicatedStorage"):WaitForChild("SkillData"))
-		local skills = {"Basic Attack", "Heavy Strike", "Block", "Rest"}
+end
 
-		if standName and standName ~= "None" then
-			for sName, sData in pairs(SkillData.Skills) do
-				if sData.Requirement == standName or sData.Requirement == "AnyStand" then
-					if not table.find(skills, sName) then table.insert(skills, sName) end
-				end
+function CombatCore.GetNPCSkills(standName, styleName)
+	local SkillData = require(game:GetService("ReplicatedStorage"):WaitForChild("SkillData"))
+	local skills = {"Basic Attack", "Heavy Strike", "Block", "Rest"}
+
+	if standName and standName ~= "None" then
+		for sName, sData in pairs(SkillData.Skills) do
+			if sData.Requirement == standName or sData.Requirement == "AnyStand" then
+				if not table.find(skills, sName) then table.insert(skills, sName) end
 			end
 		end
-
-		if styleName and styleName ~= "None" then
-			for sName, sData in pairs(SkillData.Skills) do
-				if sData.Requirement == styleName then
-					if not table.find(skills, sName) then table.insert(skills, sName) end
-				end
-			end
-		end
-
-		return skills
 	end
+
+	if styleName and styleName ~= "None" then
+		for sName, sData in pairs(SkillData.Skills) do
+			if sData.Requirement == styleName then
+				if not table.find(skills, sName) then table.insert(skills, sName) end
+			end
+		end
+	end
+
+	return skills
 end
 
 return CombatCore
