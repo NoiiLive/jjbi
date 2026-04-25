@@ -1289,10 +1289,8 @@ local function UpdateTopDisplays()
 		end
 	end
 
-	local sType = (StandData.Stands[sName] and StandData.Stands[sName].Type) or "Unknown"
-	local typeStr = (sType ~= "Unknown" and sType ~= "None") and " <font color='#55FFFF'>(" .. sType .. " Type)</font>" or ""
 
-	standLabel.Text = "<b>STAND:</b> <font color='#A020F0'>" .. sName:upper() .. "</font>" .. traitDisplay .. typeStr
+	standLabel.Text = "<b>STAND:</b> <font color='#A020F0'>" .. sName:upper() .. "</font>" .. traitDisplay
 
 	local xpVal = player:GetAttribute("XP") or 0
 	local preP = player:GetAttribute("PrestigePoints") or 0
