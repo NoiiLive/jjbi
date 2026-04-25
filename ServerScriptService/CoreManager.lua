@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
@@ -100,7 +101,8 @@ RemotesFolder:WaitForChild("PackAction").OnServerEvent:Connect(function(player, 
 end)
 
 local DefaultData = {
-	Prestige = 0, PrestigePoints = 0, SkillTreeProgress = "{}", CurrentPart = 1, CurrentMission = 1, XP = 0, Yen = 0, Elo = 1000, TutorialStep = 0, PlayTime = 0,
+	Prestige = 0, PrestigePoints = 0, SkillTreeProgress = "{}", SkillTreeUpdateJoined = false,
+	CurrentPart = 1, CurrentMission = 1, XP = 0, Yen = 0, Elo = 1000, TutorialStep = 0, PlayTime = 0,
 	EndlessHighScore = 0, EndlessMaxMilestone = 0, RaidWins = 0, 
 	DungeonClear_Part1 = false, DungeonClear_Part2 = false, DungeonClear_Part3 = false,
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
@@ -228,6 +230,7 @@ local function SavePlayerData(player)
 		Prestige = player.leaderstats.Prestige.Value, CurrentPart = player:GetAttribute("CurrentPart"),
 		PrestigePoints = player:GetAttribute("PrestigePoints") or 0, 
 		SkillTreeProgress = player:GetAttribute("SkillTreeProgress") or "{}",
+		SkillTreeUpdateJoined = player:GetAttribute("SkillTreeUpdateJoined") or false,
 		CurrentMission = player:GetAttribute("CurrentMission"), XP = player:GetAttribute("XP"), 
 		Yen = player.leaderstats.Yen.Value, Elo = player.leaderstats.Elo.Value,
 		TutorialStep = player:GetAttribute("TutorialStep"), PlayTime = player:GetAttribute("PlayTime") or 0,
@@ -444,6 +447,17 @@ Players.PlayerAdded:Connect(function(player)
 	end
 
 	player:SetAttribute("DataLoaded", true)
+
+	-- Retroactive Skill Tree Prestige Points Fix
+	if not player:GetAttribute("SkillTreeUpdateJoined") then
+		local currentPrestige = player.leaderstats.Prestige.Value
+		if currentPrestige > 0 then
+			local currentPoints = player:GetAttribute("PrestigePoints") or 0
+			player:SetAttribute("PrestigePoints", currentPoints + currentPrestige)
+			print("[DEBUG] Retroactively awarded " .. currentPrestige .. " Prestige Points to " .. player.Name)
+		end
+		player:SetAttribute("SkillTreeUpdateJoined", true)
+	end
 
 	checkPlayerCompliance(player)
 
