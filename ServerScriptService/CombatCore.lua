@@ -106,7 +106,22 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	local playerTrait = player:GetAttribute("StandTrait") or "None"
 	local hasStand = (player:GetAttribute("Stand") or "None") ~= "None"
 
-	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) or 0
+	local sName = player:GetAttribute("Stand") or "None"
+
+	local baseNativeVal = 5 
+	if hasStand and StandData.Stands[sName] and StandData.Stands[sName].Stats then
+		local defaultRankStr = StandData.Stands[sName].Stats.Power or "E"
+		baseNativeVal = GameData.StandRanks[defaultRankStr] or 5
+	end
+
+	local treeStr = player:GetAttribute("SkillTreeProgress") or "{}"
+	local success, skillDict = pcall(function() return game:GetService("HttpService"):JSONDecode(treeStr) end)
+	local myDamageNodes = (success and skillDict and skillDict[sName] and skillDict[sName].DamageUpgrades) or 0
+
+	local nodePowerBonus = (myDamageNodes * 5)
+
+	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) + nodePowerBonus or 0
+
 	local sDur = hasStand and (player:GetAttribute("Stand_Durability_Val") or 0) or 0
 	local sSpd = hasStand and (player:GetAttribute("Stand_Speed_Val") or 0) or 0
 	local sPot = hasStand and (player:GetAttribute("Stand_Potential_Val") or 0) or 0
@@ -140,6 +155,7 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 
 	local sName = player:GetAttribute("Stand") or "None"
 	local fStyle = player:GetAttribute("FightingStyle") or "None"
+	local sType = (StandData.Stands[sName] and StandData.Stands[sName].Type) or "None"
 
 	local activeTraits = {playerTrait}
 	if sName == "Fused Stand" then
@@ -216,8 +232,18 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 		for _, sk in ipairs(fusedSkills) do table.insert(validSkills, sk.Name) end
 	end
 
+	local HttpService = game:GetService("HttpService")
+	local treeStrProg = player:GetAttribute("SkillTreeProgress") or "{}"
+	local _, tDict = pcall(function() return HttpService:JSONDecode(treeStrProg) end)
+
 	for n, s in pairs(SkillData.Skills) do
 		local isStandReq = (s.Requirement == sName and sName ~= "Fused Stand")
+
+		if s.RequiresTreeUnlock then
+			local hasBoughtSkill = tDict and tDict[sName] and tDict[sName].UnlockedSkills["Skill_" .. n]
+			if not hasBoughtSkill then continue end
+		end
+
 		if s.Requirement == "None" or isStandReq or s.Requirement == fStyle or (s.Requirement == "AnyStand" and sName ~= "None") then
 			table.insert(validSkills, n)
 		end
@@ -226,7 +252,7 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	return {
 		Player = player, UserId = player.UserId, Name = player.Name, IsPlayer = true, PlayerObj = player,
 		Trait = playerTrait, Traits = activeTraits, GlobalDmgBoost = activeBoosts.Damage, Boosts = activeBoosts,
-		Stand = sName, Style = fStyle, FusionDamageBonus = fusionBonusMult,
+		Stand = sName, Style = fStyle, StandType = sType, FusionDamageBonus = fusionBonusMult,
 		HP = pHP * 20, MaxHP = pHP * 20, Stamina = pStamina, MaxStamina = pStamina, StandEnergy = pStandEnergy, MaxStandEnergy = pStandEnergy,
 
 		StyleStrength = pStyleStr, StandStrength = pStandStr, 
@@ -269,14 +295,23 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	local defBuff = (defender.Statuses and (defender.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
 	local defDebuff = (defender.Statuses and (defender.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
 
-	local offensiveStat = attacker.TotalStrength or 1
-	if skillType == "Stand" and attacker.StandStrength then
-		offensiveStat = attacker.StandStrength * 2
-	elseif skillType == "Style" and attacker.StyleStrength then
-		offensiveStat = attacker.StyleStrength * 2
-	end
-
 	local baseDmg = offensiveStat * atkBuff * atkDebuff * skillMult
+
+	if skillType == "Stand" and attacker.StandType and defender.StandType then
+		local aType = attacker.StandType
+		local dType = defender.StandType
+
+		if aType == "Power" then
+			if dType == "Automatic" then baseDmg *= 1.25
+			elseif dType == "Ranged" then baseDmg *= 0.80 end
+		elseif aType == "Automatic" then
+			if dType == "Ranged" then baseDmg *= 1.25
+			elseif dType == "Power" then baseDmg *= 0.80 end
+		elseif aType == "Ranged" then
+			if dType == "Power" then baseDmg *= 1.25
+			elseif dType == "Automatic" then baseDmg *= 0.80 end
+		end
+	end
 
 	if attacker.IsPlayer then
 		if CombatCore.HasModifier(uniModStr, "Heavy Gravity") then baseDmg *= 1.25 end
