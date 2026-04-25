@@ -271,8 +271,7 @@ function SkillTreeModal.Init(parentGui, tooltipMgr)
 	refundRobuxBtn.MouseButton1Click:Connect(function()
 		if not currentViewingStand or currentViewingStand == "None" then return end
 		SFXManager.Play("Click")
-		player:SetAttribute("PendingTreeRefund", currentViewingStand)
-		MarketplaceService:PromptProductPurchase(player, 3581500709)
+		Network.TreeAction:FireServer("PromptRobuxRefund", currentViewingStand)
 	end)
 
 	openTreeEvent.Event:Connect(function(standName)
