@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local ArenaTab = {}
 
 local player = game.Players.LocalPlayer
