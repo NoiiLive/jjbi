@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -112,7 +111,15 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 
 	local treeDamageMult = 1.0
 	if hasStand and player and player:IsA("Player") then
-		treeDamageMult = SkillTreeHandler.GetDamageMultiplier(player, sName)
+		if sName == "Fused Stand" then
+			local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+			local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+			local mult1 = SkillTreeHandler.GetDamageMultiplier(player, fs1)
+			local mult2 = SkillTreeHandler.GetDamageMultiplier(player, fs2)
+			treeDamageMult = math.max(mult1, mult2)
+		else
+			treeDamageMult = SkillTreeHandler.GetDamageMultiplier(player, sName)
+		end
 	end
 
 	local sPow = hasStand and (player:GetAttribute("Stand_Power_Val") or 0) or 0
@@ -164,6 +171,10 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 
 	local fStyle = player:GetAttribute("FightingStyle") or "None"
 	local sType = (StandData.Stands[sName] and StandData.Stands[sName].Type) or "None"
+	if sName == "Fused Stand" then
+		local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+		sType = (StandData.Stands[fs1] and StandData.Stands[fs1].Type) or "None"
+	end
 
 	local toughCount, fierceCount, persCount = cT("Tough"), cT("Fierce"), cT("Perseverance")
 	if toughCount > 0 then pHP *= (1.1 ^ toughCount) end
@@ -243,9 +254,9 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 				for pKey, pData in pairs(PassiveSkillData.Passives[checkStand]) do
 					local hasPassive = false
 
-					if tDict[checkStand].Passives and (tDict[checkStand].Passives[pKey] or tDict[checkStand].Passives["Passive_" .. pKey]) then
+					if tDict[checkStand].Passives and (tDict[checkStand].Passives[pKey] or tDict[checkStand].Passives["Passive_" .. pKey] or tDict[checkStand].Passives["Skill_" .. pKey]) then
 						hasPassive = true
-					elseif tDict[checkStand].UnlockedSkills and (tDict[checkStand].UnlockedSkills[pKey] or tDict[checkStand].UnlockedSkills["Passive_" .. pKey]) then
+					elseif tDict[checkStand].UnlockedSkills and (tDict[checkStand].UnlockedSkills[pKey] or tDict[checkStand].UnlockedSkills["Passive_" .. pKey] or tDict[checkStand].UnlockedSkills["Skill_" .. pKey]) then
 						hasPassive = true
 					end
 
@@ -302,7 +313,7 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	local offensiveStat = attacker.TotalStrength or 1
 	if skillType == "Stand" then
 		offensiveStat = attacker.StandStrength or (attacker.TotalStrength or 1)
-	elseif skillType == "Style" then
+	elseif skillType == "Style" or skillType == "Basic" then
 		offensiveStat = attacker.StyleStrength or (attacker.TotalStrength or 1)
 	end
 
@@ -333,14 +344,14 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 		local dType = defender.StandType
 
 		if aType == "Power" then
-			if dType == "Automatic" then baseDmg *= 1.5
-			elseif dType == "Ranged" then baseDmg *= 0.8 end
+			if dType == "Automatic" then baseDmg *= 1.25
+			elseif dType == "Ranged" then baseDmg *= 0.80 end
 		elseif aType == "Automatic" then
-			if dType == "Ranged" then baseDmg *= 1.5
-			elseif dType == "Power" then baseDmg *= 0.8 end
+			if dType == "Ranged" then baseDmg *= 1.25
+			elseif dType == "Power" then baseDmg *= 0.80 end
 		elseif aType == "Ranged" then
-			if dType == "Power" then baseDmg *= 1.5
-			elseif dType == "Automatic" then baseDmg *= 0.8 end
+			if dType == "Power" then baseDmg *= 1.25
+			elseif dType == "Automatic" then baseDmg *= 0.80 end
 		end
 	end
 
@@ -590,7 +601,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if battle then
 		opponent = (combatant == battle.Player) and battle.Enemy or battle.Player
 	end
-	
+
 	local domCount = opponent and CombatCore.CountTrait(opponent, "Dominating") or 0
 	local traitArmorIgnore = domCount * 0.5
 
@@ -1192,8 +1203,9 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local isCrit = math.random(1, 100) <= critChance
 		local critMult = 1.5 + (1.5 * CombatCore.CountTrait(attacker, "Lethal"))
 
-		local treeMult = attacker.TreeDamageMult or 1.0
-		local mult = skill.Mult * treeMult * (isCrit and critMult or 1.0)
+		local isStandSkill = skill and skill.Type == "Stand"
+		local treeMult = isStandSkill and (attacker.TreeDamageMult or 1.0) or 1.0
+		local mult = (skill.Mult or 1) * treeMult * (isCrit and critMult or 1.0)
 
 		local relCount = CombatCore.CountTrait(attacker, "Relentless")
 		if relCount > 0 then mult *= (1.15 ^ relCount) end
@@ -1204,7 +1216,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		local reqCount = CombatCore.CountTrait(attacker, "Requiem")
 		if reqCount > 0 then mult *= (1.50 ^ reqCount) end
 
-		if attacker.FusionDamageBonus and attacker.FusionDamageBonus > 0 then
+		if isStandSkill and attacker.FusionDamageBonus and attacker.FusionDamageBonus > 0 then
 			mult += (attacker.FusionDamageBonus / hitsToDo)
 		end
 
