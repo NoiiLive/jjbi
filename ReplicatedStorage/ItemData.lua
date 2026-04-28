@@ -80,6 +80,10 @@ ItemData.Equipment = {
 
 	["Shoshinsha Mark"] = { Slot = "Accessory", Bonus = { Stand_Power = 120, Health = 30, Strength = 70 }, Rarity = "Unique", Cost = 2000000 },
 	["Ikuro's Jacket"] = { Slot = "Accessory", Bonus = { Strength = 180, Defense = 150, Health = 50 }, Rarity = "Unique", Cost = 2000000 },
+	
+	-- Crossover
+	["ODM Blades"] = { Slot = "Weapon", Bonus = { Strength = 200, Speed = 200, Stamina = 150 }, Rarity = "Special", Cost = 0 },
+	["Scout Uniform"] = { Slot = "Accessory", Bonus = { Speed = 150, Stamina = 200, Defense = 200 }, Rarity = "Special", Cost = 0 },
 }
 
 ItemData.Consumables = {
@@ -163,9 +167,9 @@ ItemData.Consumables = {
 	["Custom Horse Name"] = { Category = "Player", Description = "Consumable gamepass. Unlocks the Custom Horse Name feature.", Rarity = "Special", Cost = 0 },
 	
 	-- Rewards
-	["Legendary Giftbox"] = { Category = "Player", Description = "Supplies you with a random Legendary-tier item!", Rarity = "Special", Cost = 30000 },
-	["Mythical Giftbox"] = { Category = "Player", Description = "Supplies you with a random Mythical-tier item!", Rarity = "Special", Cost = 50000 },
-	["Unique Giftbox"] = { Category = "Player", Description = "Supplies you with a random Unique-tier item!", Rarity = "Special", Cost = 100000 },
+	["Legendary Giftbox"] = { Category = "Player", Description = "Supplies you with a random Legendary-tier item!", Rarity = "Special", Cost = 0 },
+	["Mythical Giftbox"] = { Category = "Player", Description = "Supplies you with a random Mythical-tier item!", Rarity = "Special", Cost = 0 },
+	["Unique Giftbox"] = { Category = "Player", Description = "Supplies you with a random Unique-tier item!", Rarity = "Special", Cost = 0 },
 
 	-- April Fools
 	["Chiikawa Mascot"] = { Category = "Stand", Description = "A strange little creature. Awakens the stand, Chiikawa.", Rarity = "Unique", Cost = 500000 },
@@ -178,6 +182,11 @@ ItemData.Consumables = {
 	["Lucky Egg"] = { Category = "Player", Description = "A shiny egg, opening it provides a random amount of Easter Eggs, or even a Limited item!", Rarity = "Unique", Cost = 0 },
 	["Kakyoin's Egg"] = { Category = "Stand", Description = "A mysterious egg, presumably laid by Kakyoin. Awakens the stand, Charmy Green.", Rarity = "Unique", Cost = 500000 },
 	["Parasitic Egg"] = { Category = "Player", Description = "A mysterious egg containing a bio-engineered parasite. Grants the Baoh fighting style.", Rarity = "Unique", Cost = 500000 },	
+	
+	-- Crossover
+	["ODM Gear Blueprints"] = { Category = "Player", Description = "Schematics for 3D maneuvering. Grants the ODM Gear fighting style.", Rarity = "Special", Cost = 0 },
+	["Titan Spinal Fluid"] = { Category = "Stand", Description = "A mysterious glowing fluid. Awakens the stand, Attack Titan.", Rarity = "Special", Cost = 0 },
+	["Source of All Living Matter"] = { Category = "Stand", Description = "A mysterious source of life from another world. Used to evolve the Attack Titan.", Rarity = "Special", Cost = 0 },
 }
 
 return ItemData
