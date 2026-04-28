@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local SBREventTab = {}
 
 local player = game.Players.LocalPlayer
