@@ -22,10 +22,12 @@ GameData.StyleBonuses = {
 	["Golden Spin"] = { Strength = 85, Willpower = 55 },
 	["Rock Human"] = { Strength = 65, Defense = 40 },
 
-	["Man of Steel"] = { Defense = 50, Health = 50 },
 	["Limitless"] = { Strength = 75, Defense = 75 },
 	["Shrine"] = { Strength = 75, Defense = 75 },
 	["Baoh Armed Phenomenon"] = { Defense = 75, Strength = 75, Speed = 25 },
+	["ODM Gear"] = { Speed = 85, Stamina = 75, Strength = 25 },
+	
+	["Man of Steel"] = { Defense = 50, Health = 50 }
 }
 
 GameData.StyleIcons = {
@@ -38,9 +40,12 @@ GameData.StyleIcons = {
 	["Spin"] = "",
 	["Golden Spin"] = "",
 	["Rock Human"] = "",
+	
 	["Limitless"] = "",
 	["Shrine"] = "",
 	["Baoh Armed Phenomenon"] = "",
+	["ODM Gear"] = "",
+	
 	["Man of Steel"] = ""
 }
 
@@ -107,9 +112,12 @@ GameData.StyleParts = {
 	["Spin"] = "Part 7",
 	["Golden Spin"] = "Part 7",
 	["Rock Human"] = "Part 8",
+	
 	["Limitless"] = "Event",
 	["Shrine"] = "Event",
 	["Baoh Armed Phenomenon"] = "Event",
+	["ODM Gear"] = "Event",
+	
 	["Man of Steel"] = ""
 }
 
