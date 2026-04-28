@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local EnemyData = {}
 
 local emptyStands = {Power="None", Speed="None", Range="None",
