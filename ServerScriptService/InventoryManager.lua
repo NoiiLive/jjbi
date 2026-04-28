@@ -1129,9 +1129,12 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				player:SetAttribute(attr, (player:GetAttribute(attr) or 0) + 1)
 				message = "You cracked open the Lucky Egg and found a rare " .. reward .. "!"
 			else
-				local amount = math.random(50, 250)
-				player:SetAttribute("EasterEggCount", (player:GetAttribute("EasterEggCount") or 0) + amount)
-				message = "You cracked open the Lucky Egg and got " .. amount .. " Easter Eggs!"
+				local amount = math.random(500000, 2500000)
+				local leaderstats = player:FindFirstChild("leaderstats")
+				if leaderstats and leaderstats:FindFirstChild("Yen") then
+					leaderstats.Yen.Value += amount
+				end
+				message = "You cracked open the Lucky Egg and got ¥" .. amount .. "!"
 			end
 			
 			-- Crossover
