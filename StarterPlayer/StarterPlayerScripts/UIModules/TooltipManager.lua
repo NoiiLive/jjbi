@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local TooltipManager = {}
 
 local player = game.Players.LocalPlayer
@@ -22,37 +23,53 @@ local function CalculateTrueMultiplier(abilityName, skillData)
 	end
 
 	local fusionBonusMult = 0
-	if abilityName and StandData.Stands[abilityName] then
+	if abilityName and StandData.Stands[abilityName] or abilityName == "Fused Stand" then
 		local totalValidFusions = 0
 		local validStands = {}
+		local requiredStands = {}
 		for sName, sData in pairs(StandData.Stands) do
 			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
 				validStands[sName] = true
-				totalValidFusions += 1
-			end
-		end
-
-		local collectedFusions = 0
-		local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
-		local seenFusions = {}
-
-		if unlockedFusionsStr ~= "" then
-			for _, fStr in ipairs(string.split(unlockedFusionsStr, ",")) do
-				local parts = string.split(fStr, "|")
-				if parts[1] == abilityName and validStands[parts[2]] then
-					if not seenFusions[parts[2]] then
-						seenFusions[parts[2]] = true
-						collectedFusions += 1
-					end
+				if sData.Rarity ~= "Unique" then
+					requiredStands[sName] = true
+					totalValidFusions += 1
 				end
 			end
 		end
 
-		if totalValidFusions > 0 then
-			local completionRatio = math.clamp(collectedFusions / totalValidFusions, 0, 1)
-			fusionBonusMult += (completionRatio * 0.01)
-			if collectedFusions >= totalValidFusions then
-				fusionBonusMult += 0.25
+		local unlockedFusionsStr = player:GetAttribute("UnlockedFusions") or ""
+
+		if totalValidFusions > 0 and unlockedFusionsStr ~= "" then
+			local fusionCounts = {}
+			for _, fStr in ipairs(string.split(unlockedFusionsStr, ",")) do
+				local parts = string.split(fStr, "|")
+				local s1, s2 = parts[1], parts[2]
+				if s1 and s2 and validStands[s1] and requiredStands[s2] then
+					fusionCounts[s1] = fusionCounts[s1] or { Count = 0 }
+					if not fusionCounts[s1][s2] then
+						fusionCounts[s1][s2] = true
+						fusionCounts[s1].Count += 1
+					end
+				end
+			end
+
+			local completedStandsSet = {}
+			for s1, data in pairs(fusionCounts) do
+				local completionRatio = math.clamp(data.Count / totalValidFusions, 0, 1)
+				fusionBonusMult += (completionRatio * 0.01)
+
+				if data.Count >= totalValidFusions then
+					completedStandsSet[s1] = true
+				end
+			end
+
+			if abilityName == "Fused Stand" then
+				local fs1 = player:GetAttribute("Active_FusedStand1") or "None"
+				local fs2 = player:GetAttribute("Active_FusedStand2") or "None"
+				if completedStandsSet[fs1] then fusionBonusMult += 0.25 end
+				if completedStandsSet[fs2] then fusionBonusMult += 0.25 end
+			else
+				if completedStandsSet[abilityName] then fusionBonusMult += 0.25 end
 			end
 		end
 	end
@@ -228,11 +245,15 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 	if abilityType == "Stand" then
 		local totalValidFusions = 0
 		local validStands = {}
+		local requiredStands = {}
 
 		for sName, sData in pairs(StandData.Stands) do
 			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
 				validStands[sName] = true
-				totalValidFusions = totalValidFusions + 1
+				if sData.Rarity ~= "Unique" then
+					requiredStands[sName] = true
+					totalValidFusions = totalValidFusions + 1
+				end
 			end
 		end
 
@@ -243,7 +264,7 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 		if unlockedFusionsStr ~= "" then
 			for _, fStr in ipairs(string.split(unlockedFusionsStr, ",")) do
 				local parts = string.split(fStr, "|")
-				if parts[1] == abilityName and validStands[parts[2]] then
+				if parts[1] == abilityName and requiredStands[parts[2]] then
 					if not seenFusions[parts[2]] then
 						seenFusions[parts[2]] = true
 						collectedFusions = collectedFusions + 1
@@ -256,14 +277,10 @@ function TooltipManager.GetIndexTooltip(abilityName, abilityType, rarity)
 			local completionRatio = math.clamp(collectedFusions / totalValidFusions, 0, 1)
 			local currentDamageBonus = completionRatio * 0.01
 
-			if collectedFusions >= totalValidFusions then
-				currentDamageBonus += 0.25
-			end
-
 			local formattedBonus = string.format("+%.3fx", currentDamageBonus)
 
 			if collectedFusions >= totalValidFusions then
-				text = text .. "\n\n<font color='#55FF55'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (" .. formattedBonus .. " Global DMG)</font>"
+				text = text .. "\n\n<font color='#55FF55'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (" .. formattedBonus .. " Global DMG | +0.25x Stand Bonus)</font>"
 			else
 				text = text .. "\n\n<font color='#AAAAAA'>Fusions Collected: " .. collectedFusions .. " / " .. totalValidFusions .. " (" .. formattedBonus .. " Global DMG)</font>"
 			end
