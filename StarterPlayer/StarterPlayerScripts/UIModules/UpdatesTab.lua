@@ -2,8 +2,20 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
-	[[<b><font color='#FFD700'>v2.7 - Stand Overhaul Update (April 25th)</font></b>
+	[[<b><font color='#FFD700'>v2.8 - AOT: Incremental Crossover Event (April 28th)</font></b>
 
+<font color='#55FF55'>[+]</font> <b>New World Boss:</b> Added Eren Jaeger World Boss
+<font color='#55FF55'>[+]</font> <b>New Equipment:</b> Added ODM Blades Weapon and Scout Uniform Accessory
+<font color='#55FF55'>[+]</font> <b>New Abilities:</b> Added ODM Gear Fighting Style and Attack Titan Stand
+<font color='#55FF55'>[+]</font> <b>Special Rewards:</b> Defeat the Female Titan Raid in AOT: Incremental to receive the special "Source of All Living Matter" item; Used to evolve the Attack Titan into the limited Founding Titan Stand
+<font color='#55FF55'>[+]</font> <b>New Badge:</b> Defeat the Part 1 Raid for Rewards in AOT: Incremental
+<font color='#55FFFF'>[*]</font> <b>Fusion Name Additions:</b> Added and adjusted some more fusion names
+<font color='#55FFFF'>[*]</font> <b>Fusion Index Changes:</b> You no longer need event stands for the fusion index
+<font color='#55FFFF'>[*]</font> <b>Easter Egg Conversion:</b> Easter Eggs will automatically convert into Yen (10,000 per) when joining, Lucky Eggs will now give Yen instead of Easter Eggs (500k-2.5m)
+<font color='#55FFFF'>[*]</font> <b>Rarity Changes:</b> Non-JoJo items are now 'Special' rarity (April Fools), to feel truly limited.]],
+
+	[[<b><font color='#FFD700'>v2.7 - Stand Overhaul Update (April 25th)</font></b>
+	
 <font color='#D745FF'>[+]</font> <b>Stand Types:</b> Stands now have a 'Type' (Power > Automatic > Ranged > Power) that influences battle strengths and weaknesses!
 <font color='#D745FF'>[+]</font> <b>Skill Tree & Prestige Points:</b> Earn Prestige Points upon prestiging to fuel your skill tree! Enhance abilities, unlock passives, and boost damage.
 <font color='#D745FF'>[+]</font> <b>Persistent Upgrades:</b> Abilities can be upgraded to apply new status effects or function differently in combat. Upgrades save to the specific stand!
