@@ -1,6 +1,8 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
+local BadgeService = game:GetService("BadgeService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
@@ -334,6 +336,12 @@ local function ProcessTurn(match)
 
 			local pDrops = {}
 			if isWin then
+				if match.RaidId == "Raid_Part1" then
+					pcall(function()
+						BadgeService:AwardBadge(pData.Player.UserId, 4194606710515423)
+					end)
+				end
+
 				local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
 				if gangEvent then gangEvent:Fire(pData.Player:GetAttribute("Gang"), "Raids", 1) end
 
