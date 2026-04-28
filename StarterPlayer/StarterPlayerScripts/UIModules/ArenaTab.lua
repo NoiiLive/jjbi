@@ -635,12 +635,7 @@ function ArenaTab.HandleUpdate(action, data)
 
 												vfxObj:Destroy()
 											end)
-
-											if vfxName == "Punch" or vfxName == "Slash" then
-												task.wait(0.15)
-											else
-												task.wait(0.05) 
-											end
+												task.wait(0.1)
 										end
 									end
 								end
