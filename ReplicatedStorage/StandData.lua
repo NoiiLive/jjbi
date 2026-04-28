@@ -189,6 +189,9 @@ StandData.Stands = {
 	["Chiikawa"] = { Rarity = "Unique", Part = "Event", Icon = "", Type = "Power", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Charmy Green"] = { Rarity = "Unique", Part = "Event", Icon = "", Type = "Power", Stats = {Power="A", Speed="A", Range="C", Durability="B", Precision="A", Potential="B"} },
 
+	["Attack Titan"] = { Rarity = "Unique", Part = "Event", Icon = "", Type = "Power", Stats = {Power="A", Speed="B", Range="D", Durability="A", Precision="B", Potential="A"} },
+	["Founding Titan"] = { Rarity = "Unique", Part = "Event", Icon = "", Type = "Automatic", Stats = {Power="S", Speed="C", Range="S", Durability="S", Precision="A", Potential="S"} },
+
 	["Steel Platinum"] = { Rarity = "Unique", Part = "", Type = "Power", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Fused Stand"] = { Rarity = "Unique", Part = "", Type = "Power", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 }
