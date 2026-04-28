@@ -1,6 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local WorldBossTab = {}
 
 local player = game.Players.LocalPlayer
