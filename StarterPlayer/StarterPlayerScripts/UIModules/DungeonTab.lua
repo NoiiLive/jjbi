@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local DungeonTab = {}
 
 local player = game.Players.LocalPlayer
