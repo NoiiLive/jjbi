@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -165,11 +164,14 @@ local function ProcessTurn(match)
 		local dummyRemote = { FireClient = function(_, plr, ev, data)
 			for _, p in ipairs(match.Party) do 
 				if ActiveRaids[p.Player] == match then
-					RaidUpdate:FireClient(p.Player, "TurnStrike", {
-						Battle = dummyBattle,
+					RaidUpdate:FireClient(p.Player, "TurnResult", {
 						LogMsg = data.LogMsg, 
+						State = GetClientState(match, p.UserId),
 						DidHit = data.DidHit, 
-						ShakeType = data.ShakeType
+						ShakeType = data.ShakeType,
+						Deadline = match.TurnDeadline,
+						SkillName = "Status Effect",
+						Defender = attacker.IsBoss and ("Boss_" .. (attacker.Name or "Unknown")) or tostring(attacker.UserId)
 					}) 
 				end
 			end
@@ -195,7 +197,15 @@ local function ProcessTurn(match)
 			local msg = "<font color='#AAAAAA'>"..attacker.Name.." is Stunned!</font>"
 			for _, p in ipairs(match.Party) do 
 				if ActiveRaids[p.Player] == match then
-					RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
+					RaidUpdate:FireClient(p.Player, "TurnResult", {
+						LogMsg = msg, 
+						State = GetClientState(match, p.UserId), 
+						DidHit = false, 
+						ShakeType = "None", 
+						Deadline = match.TurnDeadline,
+						SkillName = "Stun",
+						Defender = attacker.IsBoss and ("Boss_" .. (attacker.Name or "Unknown")) or tostring(attacker.UserId)
+					}) 
 				end
 			end
 			task.wait(waitMultiplier)
@@ -216,7 +226,15 @@ local function ProcessTurn(match)
 				local msg = "<font color='#AAAAAA'>"..attacker.Name.." fled the raid!</font>"
 				for _, p in ipairs(match.Party) do 
 					if ActiveRaids[p.Player] == match then
-						RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = msg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
+						RaidUpdate:FireClient(p.Player, "TurnResult", {
+							LogMsg = msg, 
+							State = GetClientState(match, p.UserId), 
+							DidHit = false, 
+							ShakeType = "None", 
+							Deadline = match.TurnDeadline,
+							SkillName = "Flee",
+							Defender = attacker.IsBoss and ("Boss_" .. (attacker.Name or "Unknown")) or tostring(attacker.UserId)
+						}) 
 					end
 				end
 				task.wait(waitMultiplier)
@@ -255,9 +273,18 @@ local function ProcessTurn(match)
 			else
 				warn("Raid Boss Combat Error:", msg)
 				local errMsg = "<font color='#FF5555'>[Combat Error] " .. attacker.Name .. "'s attack failed.</font>"
+				local errorDefKey = attacker.IsBoss and ("Boss_" .. (attacker.Name or "Unknown")) or tostring(attacker.UserId)
 				for _, p in ipairs(match.Party) do 
 					if ActiveRaids[p.Player] == match then
-						RaidUpdate:FireClient(p.Player, "TurnResult", {LogMsg = errMsg, State = GetClientState(match, p.UserId), DidHit = false, ShakeType = "None", Deadline = match.TurnDeadline}) 
+						RaidUpdate:FireClient(p.Player, "TurnResult", {
+							LogMsg = errMsg, 
+							State = GetClientState(match, p.UserId), 
+							DidHit = false, 
+							ShakeType = "None", 
+							Deadline = match.TurnDeadline,
+							SkillName = "Error",
+							Defender = errorDefKey
+						}) 
 					end
 				end
 				task.wait(waitMultiplier)
