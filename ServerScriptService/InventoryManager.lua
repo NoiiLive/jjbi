@@ -679,7 +679,6 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 
 			for statName, rank in pairs(stats) do
 				player:SetAttribute("Stand_"..statName, rank)
-				-- [CRITICAL SAFEGUARD FIX] Don't let high stats drop when switching/evolving stands!
 				local rankBase = (GameData.StandRanks[rank] or 0) + (prestige * 5)
 				local currentVal = player:GetAttribute("Stand_"..statName.."_Val") or 0
 				if currentVal < rankBase then
