@@ -130,6 +130,7 @@ local function GetProperStatName(inputStr)
 	local search = CleanStr(inputStr)
 	local validStats = {
 		yen = "Yen", prestige = "Prestige", elo = "Elo", xp = "XP",
+		prestigepoints = "PrestigePoints", pp = "PrestigePoints",
 		health = "Health", strength = "Strength", defense = "Defense", speed = "Speed", stamina = "Stamina", willpower = "Willpower",
 		standpower = "Stand_Power_Val", standspeed = "Stand_Speed_Val", standrange = "Stand_Range_Val",
 		standdurability = "Stand_Durability_Val", standprecision = "Stand_Precision_Val", standpotential = "Stand_Potential_Val"
