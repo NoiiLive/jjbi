@@ -1,10 +1,12 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MarketplaceService = game:GetService("MarketplaceService")
 local PolicyService = game:GetService("PolicyService")
+local BadgeService = game:GetService("BadgeService")
 local ItemData = require(ReplicatedStorage:WaitForChild("ItemData"))
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
@@ -118,6 +120,7 @@ local DefaultData = {
 	AutoStatPlayer = false, AutoStatStand = false, AutoStatAmount = 1, HasAutoStatPass = false,
 
 	UniverseModifier = "None", StandPity = 0, TraitPity = 0, ShopPity = 0, ClaimedSupporterReward = false,
+	ClaimedCrossoverItem = false,
 
 	EquippedTitle = "None", UnlockedTitles = "", UnlockedIndex = "", ClaimedIndexBonuses = "", UnlockedFusions = "",
 
@@ -270,6 +273,7 @@ local function SavePlayerData(player)
 		TraitPity = player:GetAttribute("TraitPity") or 0,
 		ShopPity = player:GetAttribute("ShopPity") or 0,
 		ClaimedSupporterReward = player:GetAttribute("ClaimedSupporterReward") or false,
+		ClaimedCrossoverItem = player:GetAttribute("ClaimedCrossoverItem") or false,
 
 		EquippedTitle = player:GetAttribute("EquippedTitle") or "None",
 		UnlockedTitles = player:GetAttribute("UnlockedTitles") or "",
@@ -502,6 +506,22 @@ Players.PlayerAdded:Connect(function(player)
 		while player and player.Parent do
 			task.wait(60)
 			player:SetAttribute("PlayTime", (player:GetAttribute("PlayTime") or 0) + 60)
+		end
+	end)
+
+	task.spawn(function()
+		if not player:GetAttribute("ClaimedCrossoverItem") then
+			local success, hasBadge = pcall(function()
+				return BadgeService:UserHasBadgeAsync(player.UserId, 1866183828416372)
+			end)
+			if success and hasBadge then
+				player:SetAttribute("ClaimedCrossoverItem", true)
+				player:SetAttribute("SourceofAllLivingMatterCount", (player:GetAttribute("SourceofAllLivingMatterCount") or 0) + 1)
+				local notifUpdate = RemotesFolder:FindFirstChild("NotificationEvent")
+				if notifUpdate then
+					notifUpdate:FireClient(player, "<font color='#FFFF55'>You received 'Source of All Living Matter' for playing the crossover event!</font>")
+				end
+			end
 		end
 	end)
 end)
