@@ -62,22 +62,20 @@ ItemData.Equipment = {
 
 	-- Special 
 	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Special", Cost = 0 },
-	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 99 }, Rarity = "Special", Cost = 0 },
+	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 9999 }, Rarity = "Special", Cost = 0 },
 	["Obliterator"] = { Slot = "Weapon", Bonus = { Strength = 99999, Stand_Power = 99999, Speed = 99999 }, Rarity = "Special", Cost = 0 },
 
 	-- April Fools Equipment
-	["Pink Sasumata"] = { Slot = "Weapon", Bonus = { Strength = 120, Speed = 120, Defense = 80 }, Rarity = "Unique", Cost = 2000000 },
-	["Playful Cloud"] = { Slot = "Weapon", Bonus = { Strength = 180, Speed = 80, Stand_Power = 80 }, Rarity = "Unique", Cost = 2000000 },
-	["Kamutoke"] = { Slot = "Weapon", Bonus = { Strength = 150, Stand_Power = 150, Stand_Range = 50 }, Rarity = "Unique", Cost = 2000000 },
-
-	["Pochette's Armor"] = { Slot = "Accessory", Bonus = { Strength = 150, Defense = 150, Willpower = 100 }, Rarity = "Unique", Cost = 2000000 },
-	["Gojo's Blindfold"] = { Slot = "Accessory", Bonus = { Stand_Power = 200, Speed = 100, Willpower = 80 }, Rarity = "Unique", Cost = 2000000 },
-	["Heian Era Robes"] = { Slot = "Accessory", Bonus = { Health = 100, Defense = 100, Stand_Power = 150 }, Rarity = "Unique", Cost = 2000000 },
+	["Pink Sasumata"] = { Slot = "Weapon", Bonus = { Strength = 120, Speed = 120, Defense = 80 }, Rarity = "Special", Cost = 2000000 },
+	["Playful Cloud"] = { Slot = "Weapon", Bonus = { Strength = 180, Speed = 80, Stand_Power = 80 }, Rarity = "Special", Cost = 2000000 },
+	["Kamutoke"] = { Slot = "Weapon", Bonus = { Strength = 150, Stand_Power = 150, Stand_Range = 50 }, Rarity = "Special", Cost = 2000000 },
+	["Pochette's Armor"] = { Slot = "Accessory", Bonus = { Strength = 150, Defense = 150, Willpower = 100 }, Rarity = "Special", Cost = 2000000 },
+	["Gojo's Blindfold"] = { Slot = "Accessory", Bonus = { Stand_Power = 200, Speed = 100, Willpower = 80 }, Rarity = "Special", Cost = 2000000 },
+	["Heian Era Robes"] = { Slot = "Accessory", Bonus = { Health = 100, Defense = 100, Stand_Power = 150 }, Rarity = "Special", Cost = 2000000 },
 
 	-- Easter Equipment
 	["Kakyoin's Paintbrush"] = { Slot = "Weapon", Bonus = { Stand_Power = 120, Stand_Precision = 100, Stand_Range = 80 }, Rarity = "Unique", Cost = 2000000 },
 	["Baoh Arm Blade"] = { Slot = "Weapon", Bonus = { Strength = 200, Speed = 120, Willpower = 80 }, Rarity = "Unique", Cost = 2000000 },
-
 	["Shoshinsha Mark"] = { Slot = "Accessory", Bonus = { Stand_Power = 120, Health = 30, Strength = 70 }, Rarity = "Unique", Cost = 2000000 },
 	["Ikuro's Jacket"] = { Slot = "Accessory", Bonus = { Strength = 180, Defense = 150, Health = 50 }, Rarity = "Unique", Cost = 2000000 },
 	
@@ -172,14 +170,14 @@ ItemData.Consumables = {
 	["Unique Giftbox"] = { Category = "Player", Description = "Supplies you with a random Unique-tier item!", Rarity = "Special", Cost = 0 },
 
 	-- April Fools
-	["Chiikawa Mascot"] = { Category = "Stand", Description = "A strange little creature. Awakens the stand, Chiikawa.", Rarity = "Unique", Cost = 500000 },
-	["Limitless Manual"] = { Category = "Player", Description = "Learn the concept of infinity. Grants the Limitless style.", Rarity = "Unique", Cost = 500000 },
-	["Cursed Finger"] = { Category = "Player", Description = "A mummified finger radiating evil. Grants the Shrine style.", Rarity = "Unique", Cost = 500000 },
+	["Chiikawa Mascot"] = { Category = "Stand", Description = "A strange little creature. Awakens the stand, Chiikawa.", Rarity = "Special", Cost = 500000 },
+	["Limitless Manual"] = { Category = "Player", Description = "Learn the concept of infinity. Grants the Limitless style.", Rarity = "Special", Cost = 500000 },
+	["Cursed Finger"] = { Category = "Player", Description = "A mummified finger radiating evil. Grants the Shrine style.", Rarity = "Special", Cost = 500000 },
 	["Scratch-Off Ticket"] = { Category = "Stand", Description = "99% of gamblers quit right before they hit the jackpot. (Replaces your Stand's Trait)", Rarity = "Unique", Cost = 777777 },
 
 	-- Easter
 	["Easter Egg"] = { Category = "Player", Description = "A decorative egg dropped from battles. Currency for the Easter Shop.", Rarity = "Special", Cost = 0 },
-	["Lucky Egg"] = { Category = "Player", Description = "A shiny egg, opening it provides a random amount of Easter Eggs, or even a Limited item!", Rarity = "Unique", Cost = 0 },
+	["Lucky Egg"] = { Category = "Player", Description = "A shiny egg, opening it provides a random amount of Easter Eggs, or even a Limited item!", Rarity = "Unique", Cost = 300000 },
 	["Kakyoin's Egg"] = { Category = "Stand", Description = "A mysterious egg, presumably laid by Kakyoin. Awakens the stand, Charmy Green.", Rarity = "Unique", Cost = 500000 },
 	["Parasitic Egg"] = { Category = "Player", Description = "A mysterious egg containing a bio-engineered parasite. Grants the Baoh fighting style.", Rarity = "Unique", Cost = 500000 },	
 	
