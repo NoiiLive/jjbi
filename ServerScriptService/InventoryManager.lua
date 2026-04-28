@@ -619,7 +619,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				or itemName == "Dio's Diary" or itemName == "Saint's Left Arm" or itemName == "Saint's Right Eye" or itemName == "Saint's Pelvis" 
 				or itemName == "Saint's Heart" or itemName == "Saint's Spine" or itemName == "Strange Arrow" or itemName == "Green Baby" 
 				or itemName == "Rokakaka" or itemName == "Rokakaka Branch" or itemName == "Chiikawa Mascot" or itemName == "Kakyoin's Egg"
-				or itemName == "Scratch-Off Ticket" or itemName == "Inversion Medicine"
+				or itemName == "Scratch-Off Ticket" or itemName == "Inversion Medicine" or itemName == "Titan Spinal Fluid" or itemName == "Source of All Living Matter"
 				or (string.find(itemName, "Disc") and itemName ~= "Memory Disc" and itemName ~= "Heavenly Stand Disc")
 			)
 
@@ -627,7 +627,7 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 			(itemName == "Memory Disc" or itemName == "Boxing Manual" or itemName == "Vampire Mask" or itemName == "Hamon Manual" 
 				or itemName == "Cyborg Blueprints" or itemName == "Ancient Mask" or itemName == "Steel Ball" or itemName == "Perfect Aja Mask" 
 				or itemName == "Golden Spin Scroll" or itemName == "Rokakaka Fruit" or itemName == "Limitless Manual" or itemName == "Cursed Finger"
-				or itemName == "Parasitic Egg"
+				or itemName == "Parasitic Egg" or itemName == "ODM Gear Blueprints"
 			)
 
 		if isStandItem and player:GetAttribute("StandLocked") then
@@ -1132,6 +1132,31 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				local amount = math.random(50, 250)
 				player:SetAttribute("EasterEggCount", (player:GetAttribute("EasterEggCount") or 0) + amount)
 				message = "You cracked open the Lucky Egg and got " .. amount .. " Easter Eggs!"
+			end
+			
+			-- Crossover
+		elseif itemName == "ODM Gear Blueprints" then
+			player:SetAttribute("FightingStyle", "ODM Gear")
+			message = "You studied the schematics! Gained ODM Gear Style."
+
+		elseif itemName == "Titan Spinal Fluid" then
+			player:SetAttribute("Stand", "Attack Titan")
+			player:SetAttribute("StandTrait", "None")
+			local stats = StandData.Stands["Attack Titan"].Stats
+			if stats then
+				for statName, rank in pairs(stats) do
+					player:SetAttribute("Stand_"..statName, rank)
+				end
+			end
+			message = "You injected the mysterious fluid! Awakened Stand: Attack Titan!"
+
+		elseif itemName == "Source of All Living Matter" then
+			if myStand == "Attack Titan" then 
+				EvolveStand("Founding Titan") 
+				message = "You made contact with the source of all living matter! Your Stand evolved into the Founding Titan!"
+			else 
+				message = "The mysterious entity has no reaction to this stand."
+				itemConsumed = false 
 			end
 		end
 
