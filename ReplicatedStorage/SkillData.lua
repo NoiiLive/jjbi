@@ -66,6 +66,12 @@ SkillData.Skills = {
 	["Shooting-Bees Stinger"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.5, StaminaCost = 15, EnergyCost = 0, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 8, Description = "Shoots out hardened hair, instantly combusting upon contact, burning the enemy." },
 	["Break Dark Thunder"] = { Requirement = "Baoh Armed Phenomenon", Type = "Style", Mult = 2.7, StaminaCost = 12, EnergyCost = 0, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 9, Description = "Discharges high-voltage bio-electricity, stunning the enemy." },
 
+	["Grapple Strike"] = { Requirement = "ODM Gear", Type = "Style", Mult = 2.5, StaminaCost = 8, EnergyCost = 0, Order = 6, VFX = "Slash", Description = "Uses the ODM gear to quickly close the distance and strike." },
+	["Spinning Slash"] = { Requirement = "ODM Gear", Type = "Style", Mult = 0.6, Hits = 5, StaminaCost = 15, EnergyCost = 0, Effect = "Bleed", Duration = 2, Cooldown = 4, Order = 7, VFX = "Slash", Description = "Spins rapidly with blades extended, slicing the target multiple times." },
+	["Evasive Maneuver"] = { Requirement = "ODM Gear", Type = "Style", Mult = 0, StaminaCost = 10, EnergyCost = 0, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 8, Description = "Uses the grappling hooks to swiftly swing out of harm's way, boosting Speed." },
+	["Nape Cut"] = { Requirement = "ODM Gear", Type = "Style", Mult = 3.0, StaminaCost = 20, EnergyCost = 0, Effect = "Bleed", Duration = 3, Cooldown = 6, Order = 9, VFX = "Slash", Description = "A precise, devastating slash aimed perfectly at the enemy's nape." },
+
+	-- Stand Abilities
 	["Stand Barrage"] = { Requirement = "AnyStand", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 10, Cooldown = 3, Order = 10, VFX = "Punch", Description = "A rapid flurry of 3 Stand punches." },
 
 	["Spirit Photo"] = { Requirement = "Hermit Purple", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 3, Order = 11, Description = "Uses the environment to strike with spirit vines." },
@@ -584,6 +590,17 @@ SkillData.Skills = {
 	["Defense Breaker"] = { Requirement = "Steel Platinum", Type = "Stand", Mult = 0,  Hits = 3, StaminaCost = 0, EnergyCost = 12, Effect = "Debuff_Defense", Duration = 3, Cooldown = 4, Order = 12, VFX = "Punch", Description = "Destroy the defense of those who oppose you." },
 	["Iron Jail"] = { Requirement = "Steel Platinum", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 15, Effect = "Stun", Duration = 3, Cooldown = 6, Order = 13, Description = "Lock the weak-willed behind bars of steel." },
 	["Steel Rush"] = { Requirement = "Steel Platinum", Type = "Stand", Mult = 0.25, Hits = 4, StaminaCost = 0, EnergyCost = 15, Cooldown = 5, Order = 14, VFX = "Punch", Description = "An unrelenting, crushing barrage of steel punches." },
+	
+	-- Crossover
+	["Titan Strike"] = { Requirement = "Attack Titan", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 10, Order = 11, VFX = "Punch", Description = "A brutal, overwhelming punch with the strength of a Titan." },
+	["Hardening"] = { Requirement = "Attack Titan", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Buff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Hardens your skin into indestructible crystal, massively boosting Defense." },
+	["Berserk Roar"] = { Requirement = "Attack Titan", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 13, Description = "Unleashes a terrifying, ear-piercing roar that Stuns the enemy." },
+	["Future Memories"] = { Requirement = "Attack Titan", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Counter", Cooldown = 6, Order = 14, Description = "Glimpses into the future memories of your successors to perfectly counter incoming attacks." },
+
+	["Colossal Trample"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 1, StaminaCost = 0, EnergyCost = 15, Order = 11, VFX = "Punch", Description = "Crushes the opponent under the massive foot of a Colossal Titan." },
+	["Coordinate Command"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Confusion", Duration = 3, Cooldown = 6, Order = 12, Description = "Uses the power of the Coordinate to completely rewrite the enemy's mind." },
+	["Pure Titan Summon"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 25, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 13, VFX = "Slash", Description = "Summons mindless Titans to mercilessly tear at the enemy." },
+	["The Rumbling"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 40, Effect = "Burn", Duration = 4, Cooldown = 10, Order = 14, Description = "Unleashes the Wall Titans to trample the earth, leaving only scorched ruin." },	
 }
 
 return SkillData
