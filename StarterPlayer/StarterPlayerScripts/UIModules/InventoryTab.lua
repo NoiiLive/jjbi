@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local InventoryTab = {}
 
 local player = game.Players.LocalPlayer
