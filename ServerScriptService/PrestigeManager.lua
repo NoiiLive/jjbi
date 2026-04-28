@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -19,7 +18,6 @@ PrestigeEvent.OnServerEvent:Connect(function(player)
 
 		player.leaderstats.Prestige.Value = newPrestige
 
-		-- Give Prestige Point
 		local currentPrestigePoints = player:GetAttribute("PrestigePoints") or 0
 		player:SetAttribute("PrestigePoints", currentPrestigePoints + 1)
 
