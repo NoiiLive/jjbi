@@ -173,6 +173,15 @@ EnemyData.WorldBosses = {
 			ItemChance = { ["Cursed Finger"] = 1, ["Kamutoke"] = 1, ["Heian Era Robes"] = 1, ["Scratch-Off Ticket"] = 1, ["Mythical Giftbox"] = 20, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 }
 		}
 	},
+	["Eren Jaeger"] = {
+		Name = "Eren Jaeger", IsBoss = true, Icon = "", 
+		Health = 1000000, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="B", Range="D", Durability="A", Precision="B", Potential="A"},
+		Stand = "Attack Titan", Style = "ODM Gear",
+		Drops = {
+			XP = 35000, Yen = 15000, 
+			ItemChance = { ["Titan Spinal Fluid"] = 1, ["ODM Gear Blueprints"] = 1, ["ODM Blades"] = 5, ["Scout Uniform"] = 5, ["Mythical Giftbox"] = 20, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 }
+		}
+	},
 }
 
 EnemyData.Parts = {
