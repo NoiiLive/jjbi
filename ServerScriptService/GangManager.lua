@@ -1,5 +1,4 @@
 -- @ScriptType: Script
--- @ScriptType: Script
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -51,7 +50,6 @@ if not GangRepEvent then
 	GangRepEvent.Parent = ReplicatedStorage
 end
 
--- Checks if text passes Roblox filtering without being altered
 local function CheckTextFilter(text, userId)
 	local success, filterResult = pcall(function()
 		return TextService:FilterStringAsync(text, userId)
