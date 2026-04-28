@@ -2,6 +2,17 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v2.7 - Stand Overhaul Update (April 25th)</font></b>
+
+<font color='#D745FF'>[+]</font> <b>Stand Types:</b> Stands now have a 'Type' (Power > Automatic > Ranged > Power) that influences battle strengths and weaknesses!
+<font color='#D745FF'>[+]</font> <b>Skill Tree & Prestige Points:</b> Earn Prestige Points upon prestiging to fuel your skill tree! Enhance abilities, unlock passives, and boost damage.
+<font color='#D745FF'>[+]</font> <b>Persistent Upgrades:</b> Abilities can be upgraded to apply new status effects or function differently in combat. Upgrades save to the specific stand!
+<font color='#D745FF'>[+]</font> <b>Stat Scaling:</b> Base damage multipliers have been replaced with stat upgrades in the skill tree. Weaker stands can now become viable through enough upgrading!
+<font color='#EFFF3E'>[+]</font> <b>Ability Expansion:</b> Common, Uncommon, and Rare stands now have 3 skills, while Legendary+ stands feature 4 abilities!
+<font color='#EFFF3E'>[+]</font> <b>Skill Tree Access:</b> Access the skill tree via the button next to the stand name in your inventory or directly through the Stand Index!
+
+Use codes <b><font color='#FF55FF'>DELAYED</font></b> and <b><font color='#FF55FF'>SKILLTREES</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.6 - Combat Overhaul Update (April 17th)</font></b>
 
 <font color='#D745FF'>[+]</font> <b>Synergized Statuses:</b> DoT effects (Burn, Bleed, Poison, Chilly) now merge into powerful Tier 2 and Tier 3 synergies when combined!
@@ -31,9 +42,7 @@ Use codes <b><font color='#FF55FF'>12KFAVS</font></b> and <b><font color='#FF55F
 <font color='#55FFFF'>[*]</font> <b>Sell All:</b> Event queue issues have been fixed - players will now correctly join/leave queues and rejoin without desync
 <font color='#55FFFF'>[*]</font> <b>Gang QoL:</b> Gang members are now sorted by Prestige and Power, Gang leaderboards now display the Boss of each gang when hovered, Gang donations now properly contribute to personal rep/contribution
 <font color='#55FF55'>[*]</font> <b>Fixes:</b> Fixed the "Gambling Addict" trait self-killing when confused
-<font color='#55FF55'>[*]</font> <b>Fixes:</b> Re-enabled the Equip button for locked items
-
-Use code <b><font color='#FF55FF'>GOTTACOLLECTEMALL</font></b> for free rewards!]],
+<font color='#55FF55'>[*]</font> <b>Fixes:</b> Re-enabled the Equip button for locked items]],
 
 	[[<b><font color='#FFD700'>v2.4 - Endless Overhaul (April 6th)</font></b>
 
