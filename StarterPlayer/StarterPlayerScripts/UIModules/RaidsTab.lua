@@ -1,5 +1,4 @@
 -- @ScriptType: ModuleScript
--- @ScriptType: ModuleScript
 local RaidsTab = {}
 
 local player = game.Players.LocalPlayer
@@ -140,7 +139,6 @@ function RaidsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		uiElements[rInfo.Id] = {Row = row, Status = status, Btn = playBtn, Stroke = pStroke, Info = rInfo}
 	end
 
-	-- Dynamically adjust the menuFrame CanvasSize so it scrolls correctly on all screen sizes
 	task.delay(0.1, function()
 		if menuFrame:IsA("ScrollingFrame") then
 			local layout = menuFrame:FindFirstChildOfClass("UIListLayout") or menuFrame:FindFirstChildOfClass("UIGridLayout")
@@ -566,7 +564,6 @@ function RaidsTab.HandleUpdate(action, data)
 	elseif action == "TurnResult" then
 		currentDeadline = data.Deadline or 0
 
-		-- HIDE THE ABILITY BAR IMMEDIATELY UPON RECEIVING A COMBAT TURN
 		combatUI.AbilitiesArea.Visible = false
 		if data.LogMsg ~= "" then
 			waitingLabel.Text = "Combat is playing out..."
