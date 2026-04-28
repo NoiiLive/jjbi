@@ -437,6 +437,11 @@ SkillData.Skills = {
 	["Fossilization"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 13, Description = "Hardens your dinosaur scales into a fossilized armor, boosting Defense." },
 	["Predator's Agility"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 14, Description = "Taps into primal instincts to drastically increase Speed." },
 
+	["MUDA MUDA MUDA! (High Voltage)"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 8, Order = 11, VFX = "Punch", Description = "A ruthless barrage of punches from the alternate universe." },
+	["Checkmate"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 12, Effect = "Bleed", Duration = 2, Cooldown = 6, Order = 12, VFX = "Slash", Description = "Throws a flurry of knives in stopped time, causing severe Bleeding." },
+	["Gasoline Ignition"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Burn", Duration = 2, Cooldown = 6, Order = 13, Description = "Douses the enemy in gasoline and throws a match, inflicting heavy Burn damage." },
+	["ZA WARUDO! (High Voltage)"] = { Requirement = "The World: High Voltage", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 10, Effect = "TimeStop", Duration = 2, Cooldown = 6, Order = 14, Description = "Stops time completely, freezing the enemy in place to set up a lethal trap." },
+
 	["Nail Bullet"] = { Requirement = "Tusk Act 1", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 8, Order = 11, Description = "Fires a rapidly spinning fingernail." },
 	["Spinning Nail"] = { Requirement = "Tusk Act 1", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 11, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 12, Description = "Fires a sharp nail that burrows into the target, causing Bleed." },
 	["Golden Rectangle"] = { Requirement = "Tusk Act 1", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Strength", Duration = 4, Cooldown = 6, Order = 13, Description = "Visualizes the golden ratio, greatly enhancing your Strength." },
