@@ -219,4 +219,20 @@ AddPassives("Chiikawa", { {Key="UsagiArmor", Name="Usagi's Armor", Desc="Reduces
 AddPassives("Charmy Green", { {Key="EmeraldArmor", Name="Emerald Armor", Desc="Reduces incoming damage by 20%.", Cost=5, Effects = {{Type = "DamageReduction", Value = 20, Elements = {"All"}}}}, {Key="EmeraldFinger", Name="Emerald Finger", Desc="Upgrades Bleed to Hemorrhage.", Cost=5, Effects = {{Type = "StatusUpgrade", From = "Bleed", To = "Hemorrhage"}}}, {Key="GreenTrap", Name="Green Trap", Desc="Increases stun duration by 1.", Cost=5, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Stun"}}}}, {Key="Unbreakable", Name="Unbreakable", Desc="Reduces incoming negative status durations by 1.", Cost=5, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"All"}}}}, {Key="CharmyStrike", Name="Charmy Strike", Desc="Bypasses 25% of enemy armor.", Cost=5, Effects = {{Type = "ArmorBypass", Value = 25}}} })
 AddPassives("Steel Platinum", { {Key="SteelArmor", Name="Steel Armor", Desc="Reduces incoming damage by 20%.", Cost=5, Effects = {{Type = "DamageReduction", Value = 20, Elements = {"All"}}}}, {Key="DefenseBreaker", Name="Defense Breaker", Desc="Increases debuff durations by 1.", Cost=5, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Debuffs"}}}}, {Key="IronJail", Name="Iron Jail", Desc="Increases stun duration by 1.", Cost=5, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Stun"}}}}, {Key="Unbreakable", Name="Unbreakable", Desc="Reduces incoming negative status durations by 1.", Cost=5, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"All"}}}}, {Key="ShatteringFist", Name="Shattering Fist", Desc="Bypasses 25% of enemy armor.", Cost=5, Effects = {{Type = "ArmorBypass", Value = 25}}} })
 
+AddPassives("Attack Titan", { 
+	{Key="TitanArmor", Name="Titan Armor", Desc="Reduces incoming damage by 20%.", Cost=5, Effects = {{Type = "DamageReduction", Value = 20, Elements = {"All"}}}}, 
+	{Key="HardenedFists", Name="Hardened Fists", Desc="Bypasses 50% of enemy armor.", Cost=5, Effects = {{Type = "ArmorBypass", Value = 50}}}, 
+	{Key="TitanRoar", Name="Titan Roar", Desc="Increases stun duration by 1.", Cost=5, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Stun"}}}}, 
+	{Key="BrutalForce", Name="Brutal Force", Desc="Upgrades Bleed to Hemorrhage.", Cost=5, Effects = {{Type = "StatusUpgrade", From = "Bleed", To = "Hemorrhage"}}}, 
+	{Key="FutureSight", Name="Future Sight", Desc="Reduces incoming negative status durations by 1.", Cost=5, Effects = {{Type = "IncomingStatusDuration", Value = -1, Elements = {"All"}}}} 
+})
+
+AddPassives("Founding Titan", { 
+	{Key="RoyalBlood", Name="Royal Blood", Desc="Reduces incoming damage by 25%.", Cost=5, Effects = {{Type = "DamageReduction", Value = 25, Elements = {"All"}}}}, 
+	{Key="Coordinate", Name="Coordinate", Desc="Bypasses 75% of enemy armor.", Cost=5, Effects = {{Type = "ArmorBypass", Value = 75}}}, 
+	{Key="AbsoluteCommand", Name="Absolute Command", Desc="Increases confusion duration by 1.", Cost=5, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Confusion"}}}}, 
+	{Key="ScorchedEarth", Name="Scorched Earth", Desc="Upgrades Burn to Scorch.", Cost=5, Effects = {{Type = "StatusUpgrade", From = "Burn", To = "Scorch"}}}, 
+	{Key="FoundingPower", Name="Founding Power", Desc="Reduces incoming negative status durations by 2.", Cost=5, Effects = {{Type = "IncomingStatusDuration", Value = -2, Elements = {"All"}}}} 
+})
+
 return PassiveSkillData
