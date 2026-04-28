@@ -97,10 +97,14 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 	if not TotalValidFusions then
 		TotalValidFusions = 0
 		ValidStandsForFusion = {}
+		RequiredStandsForFusion = {}
 		for sName, sData in pairs(StandData.Stands) do
 			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
 				ValidStandsForFusion[sName] = true
-				TotalValidFusions += 1
+				if sData.Rarity ~= "Unique" then
+					RequiredStandsForFusion[sName] = true
+					TotalValidFusions += 1
+				end
 			end
 		end
 	end
@@ -200,7 +204,7 @@ function CombatCore.BuildPlayerStruct(player, isRawStats)
 			if fStr ~= "" then
 				local parts = string.split(fStr, "|")
 				local s1, s2 = parts[1], parts[2]
-				if s1 and s2 and ValidStandsForFusion[s1] and ValidStandsForFusion[s2] then
+				if s1 and s2 and ValidStandsForFusion[s1] and RequiredStandsForFusion[s2] then
 					fusionCounts[s1] = fusionCounts[s1] or { Count = 0 }
 					if not fusionCounts[s1][s2] then
 						fusionCounts[s1][s2] = true
