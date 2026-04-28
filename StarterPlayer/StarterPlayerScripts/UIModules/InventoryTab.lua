@@ -799,10 +799,14 @@ local function RefreshIndexList()
 
 		local totalValidFusions = 0
 		local validStands = {}
+		local requiredStands = {}
 		for sName, sData in pairs(StandData.Stands) do
 			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
 				validStands[sName] = true
-				totalValidFusions += 1
+				if sData.Rarity ~= "Unique" then
+					requiredStands[sName] = true
+					totalValidFusions += 1
+				end
 			end
 		end
 
@@ -991,7 +995,7 @@ local function RefreshIndexList()
 							for _, fStr in ipairs(unlockedFusionsList) do
 								if fStr ~= "" then
 									local parts = string.split(fStr, "|")
-									if parts[1] == ab.Name and validStands[parts[2]] then
+									if parts[1] == ab.Name and requiredStands[parts[2]] then
 										if not seenFusions[parts[2]] then
 											seenFusions[parts[2]] = true
 											collectedFusions += 1
@@ -1138,7 +1142,14 @@ ShowFusionsList = function(standName)
 		local validStands = {}
 		for sName, sData in pairs(StandData.Stands) do
 			if sData.Part and sData.Part ~= "" and sData.Part ~= "None" then
-				table.insert(validStands, {Name = sName, Part = sData.Part})
+				if sData.Rarity ~= "Unique" then
+					table.insert(validStands, {Name = sName, Part = sData.Part})
+				else
+					local fusionString = standName .. "|" .. sName
+					if table.find(unlockedFusionsList, fusionString) then
+						table.insert(validStands, {Name = sName, Part = sData.Part})
+					end
+				end
 			end
 		end
 
