@@ -166,7 +166,7 @@ SkillData.Skills = {
 	["Zero Gravity"] = { Requirement = "Jumping Jack Flash", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 8, Effect = "Confusion", Duration = 1, Cooldown = 5, Order = 12, Description = "Removes gravity, Confusing the enemy's spatial awareness." },
 	["Vacuum Vacuum"] = { Requirement = "Jumping Jack Flash", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 10, Effect = "Chill", Duration = 3, Cooldown = 5, Order = 13, Description = "Forces the air out of the room, freezing the enemy with a Chill debuff." },
 
-	["Invisible Bite"] = { Requirement = "Limp Bizkit", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 5, Order = 11, Description = "An invisible jaw bites the target." },
+	["Invisible Bite"] = { Requirement = "Limp Bizkit", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 5, Order = 11, VFX = "Bite", Description = "An invisible jaw bites the target." },
 	["Zombie Swarm"] = { Requirement = "Limp Bizkit", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 8, Effect = "Bleed", Duration = 3, Cooldown = 4, Order = 12, Description = "A horde of invisible animals causes ongoing Bleed damage." },
 	["Flocking Dead"] = { Requirement = "Limp Bizkit", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 10, Effect = "Stun", Duration = 2, Cooldown = 6, Order = 13, Description = "An invisible corpse pins the enemy to the ground, Stunning them." },
 
@@ -439,7 +439,7 @@ SkillData.Skills = {
 	["Between Dimensions"] = { Requirement = "Dirty Deeds Done Dirt Cheap", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 12, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 14, Description = "Hides between two objects, vastly increasing Defense against attacks." },
 
 	["Raptor Claw"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 8, Order = 11, VFX = "Slash", Description = "A vicious slash from dinosaur claws." },
-	["Dinosaur Virus"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 12, Effect = "Sick", Duration = 4, Cooldown = 6, Order = 12, Description = "Bites the target to infect them with the dinosaur Sickness." },
+	["Dinosaur Virus"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 12, Effect = "Sick", Duration = 4, Cooldown = 6, Order = 12, VFX = "Bite", Description = "Bites the target to infect them with the dinosaur Sickness." },
 	["Fossilization"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Defense", Duration = 4, Cooldown = 6, Order = 13, Description = "Hardens your dinosaur scales into a fossilized armor, boosting Defense." },
 	["Predator's Agility"] = { Requirement = "Scary Monsters", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 10, Effect = "Buff_Speed", Duration = 4, Cooldown = 5, Order = 14, Description = "Taps into primal instincts to drastically increase Speed." },
 
@@ -486,7 +486,7 @@ SkillData.Skills = {
 
 	["Origami Strike"] = { Requirement = "Paper Moon King", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, VFX = "Slash", Description = "Slashes the enemy with an impossibly sharp folded paper." },
 	["Sensory Illusion"] = { Requirement = "Paper Moon King", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Confusion", Duration = 2, Cooldown = 5, Order = 12, Description = "Alters the target's facial recognition, deeply confusing them." },
-	["Swarm"] = { Requirement = "Paper Moon King", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 20, Cooldown = 4, Order = 13, Description = "Sends a swarm of origami frogs to bite the target." },
+	["Swarm"] = { Requirement = "Paper Moon King", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 20, Cooldown = 4, Order = 13, VFX = "Bite", Description = "Sends a swarm of origami frogs to bite the target." },
 
 	["Card Conceal"] = { Requirement = "Space Trucking", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 15, Cooldown = 0, Order = 11, VFX = "Slash", Description = "Slices the enemy with a rigid playing card." },
 	["Store Away"] = { Requirement = "Space Trucking", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 25, Effect = "Buff_Defense", Duration = 3, Cooldown = 5, Order = 12, Description = "Hides yourself between playing cards, increasing Defense." },
@@ -599,8 +599,8 @@ SkillData.Skills = {
 
 	["Colossal Trample"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 1, StaminaCost = 0, EnergyCost = 15, Order = 11, VFX = "Punch", Description = "Crushes the opponent under the massive foot of a Colossal Titan." },
 	["Coordinate Command"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 20, Effect = "Confusion", Duration = 3, Cooldown = 6, Order = 12, Description = "Uses the power of the Coordinate to completely rewrite the enemy's mind." },
-	["Pure Titan Summon"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 25, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 13, VFX = "Slash", Description = "Summons mindless Titans to mercilessly tear at the enemy." },
-	["The Rumbling"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 40, Effect = "Burn", Duration = 4, Cooldown = 10, Order = 14, Description = "Unleashes the Wall Titans to trample the earth, leaving only scorched ruin." },	
+	["Pure Titan Summon"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 25, Effect = "Bleed", Duration = 3, Cooldown = 5, Order = 13, VFX = "Bite", Description = "Summons mindless Titans to mercilessly tear at the enemy." },
+	["The Rumbling"] = { Requirement = "Founding Titan", Type = "Stand", Mult = 0.2, Hits = 5, StaminaCost = 0, EnergyCost = 40, Effect = "Burn", Duration = 4, Cooldown = 10, Order = 14, Description = "Unleashes the Wall Titans to trample the earth, leaving only scorched ruin." },	
 }
 
 return SkillData
