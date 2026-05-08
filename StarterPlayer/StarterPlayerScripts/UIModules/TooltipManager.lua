@@ -141,9 +141,46 @@ function TooltipManager.GetItemTooltip(itemName)
 		local eq = ItemData.Equipment[itemName]
 		local text = "<b><font color='#FFD700'>" .. itemName .. "</font></b>\n<i>" .. eq.Slot .. "</i> | <font color='#AAAAAA'>" .. (eq.Rarity or "Common") .. "</font>\n"
 		text ..= "____________________\n\n"
-		for stat, val in pairs(eq.Bonus) do
+
+		local hasStats = false
+		for stat, val in pairs(eq.Bonus or {}) do
 			text ..= "<font color='#55FF55'>+" .. val .. " " .. stat:gsub("_", " ") .. "</font>\n"
+			hasStats = true
 		end
+
+		if eq.CombatPassives then
+			if hasStats then text ..= "\n" end
+
+			local passives = eq.CombatPassives
+
+			if passives.PlayerBuffs then
+				for buffName, duration in pairs(passives.PlayerBuffs) do
+					local isStatBuff = string.match(buffName, "Buff_")
+					local cleanName = buffName:gsub("Buff_", "")
+					if cleanName == "Warded" then cleanName = "Total Debuff Immunity" end
+
+					local effectStr = isStatBuff and (cleanName .. " buff") or cleanName
+					text ..= "<b><font color='#55FFFF'>[Passive]</font></b> <font color='#AAAAAA'>Grants a " .. effectStr .. " buff at the start of battle (" .. duration .. " turns)</font>\n"
+				end
+			end
+
+			if passives.EnemyDebuffs then
+				for debuffName, duration in pairs(passives.EnemyDebuffs) do
+					local isStatDebuff = string.match(debuffName, "Debuff_")
+					local cleanName = debuffName:gsub("Debuff_", "")
+
+					local effectStr = isStatDebuff and (cleanName .. " debuff") or cleanName
+					text ..= "<b><font color='#FF5555'>[Passive]</font></b> <font color='#AAAAAA'>Grants a " .. effectStr .. " debuff to enemy at the start of battle (" .. duration .. " turns)</font>\n"
+				end
+			end
+
+			if passives.Immunities then
+				for immName, _ in pairs(passives.Immunities) do
+					text ..= "<b><font color='#FFD700'>[Passive]</font></b> <font color='#AAAAAA'>Grants immunity to " .. immName .. " effects</font>\n"
+				end
+			end
+		end
+
 		return text
 	elseif ItemData.Consumables[itemName] then
 		local cons = ItemData.Consumables[itemName]
