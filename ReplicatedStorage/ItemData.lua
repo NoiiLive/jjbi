@@ -2,84 +2,119 @@
 local ItemData = {}
 
 ItemData.Equipment = {
+	-- Common
 	["Brass Knuckles"] = { Slot = "Weapon", Bonus = { Strength = 5, Stamina = 5 }, Rarity = "Common", Cost = 100 },
 	["Wooden Bat"] = { Slot = "Weapon", Bonus = { Strength = 8, Speed = -2 }, Rarity = "Common", Cost = 150 },
 	["Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 12, Defense = 2 }, Rarity = "Common", Cost = 200 },
-	["Combat Knife"] = { Slot = "Weapon", Bonus = { Strength = 10, Speed = 5 }, Rarity = "Uncommon", Cost = 1500 },
-	["Hamon Clackers"] = { Slot = "Weapon", Bonus = { Strength = 8, Stamina = 10, Speed = 5 }, Rarity = "Uncommon", Cost = 2000 },
-	["Heavy Revolver"] = { Slot = "Weapon", Bonus = { Strength = 15, Stand_Precision = 10 }, Rarity = "Uncommon", Cost = 3500 },
-	["Luck Sword"] = { Slot = "Weapon", Bonus = { Strength = 15, Speed = 10 }, Rarity = "Rare", Cost = 15000 },
-	["Tommy Gun"] = { Slot = "Weapon", Bonus = { Strength = 20, Speed = 15 }, Rarity = "Rare", Cost = 25000 },
-	["Road Roller"] = { Slot = "Weapon", Bonus = { Strength = 80, Defense = 20, Speed = -10 }, Rarity = "Legendary", Cost = 120000 },
-
-	["Dio's Throwing Knives"] = { Slot = "Weapon", Bonus = { Strength = 15, Stand_Speed = 20 }, Rarity = "Uncommon", Cost = 4000 },
-	["Jolyne's String"] = { Slot = "Weapon", Bonus = { Stand_Range = 25, Stand_Speed = 15 }, Rarity = "Rare", Cost = 28000 },
-	["Mista's Pistol"] = { Slot = "Weapon", Bonus = { Stand_Precision = 35, Stand_Speed = 15 }, Rarity = "Rare", Cost = 28000 },
-	["Anubis Sword"] = { Slot = "Weapon", Bonus = { Stand_Power = 30, Stand_Speed = 20 }, Rarity = "Rare", Cost = 30000 },
-	["Emperor Gun"] = { Slot = "Weapon", Bonus = { Stand_Precision = 40, Stand_Range = 20 }, Rarity = "Rare", Cost = 30000 },
-	["Bite the Dust Detonator"] = { Slot = "Weapon", Bonus = { Stand_Power = 60, Defense = 10 }, Rarity = "Legendary", Cost = 100000 },
-
 	["Tinted Sunglasses"] = { Slot = "Accessory", Bonus = { Willpower = 10, Defense = 2 }, Rarity = "Common", Cost = 100 },
 	["Heart Memento"] = { Slot = "Accessory", Bonus = { Health = 8, Defense = 10 }, Rarity = "Common", Cost = 100 },
 	["Leather Jacket"] = { Slot = "Accessory", Bonus = { Defense = 8, Health = 5 }, Rarity = "Common", Cost = 150 },
 	["Breathing Mask"] = { Slot = "Accessory", Bonus = { Health = 5, Defense = 12, Stamina = 15 }, Rarity = "Common", Cost = 150 },
 	["Running Shoes"] = { Slot = "Accessory", Bonus = { Speed = 10, Stamina = 15 }, Rarity = "Common", Cost = 200 },
+
+	-- Uncommon
+	["Combat Knife"] = { Slot = "Weapon", Bonus = { Strength = 10, Speed = 5 }, Rarity = "Uncommon", Cost = 1500 },
+	["Hamon Clackers"] = { Slot = "Weapon", Bonus = { Strength = 8, Stamina = 10, Speed = 5 }, Rarity = "Uncommon", Cost = 2000 },
+	["Heavy Revolver"] = { Slot = "Weapon", Bonus = { Strength = 15, Stand_Precision = 10 }, Rarity = "Uncommon", Cost = 3500 },
+	["Dio's Throwing Knives"] = { Slot = "Weapon", Bonus = { Strength = 15, Stand_Speed = 20 }, Rarity = "Uncommon", Cost = 4000,
+		CombatPassives = { EnemyDebuffs = { Bleed = 3 } } 
+	},
 	["Iggy's Coffee Gum"] = { Slot = "Accessory", Bonus = { Stamina = 25, Speed = 10 }, Rarity = "Uncommon", Cost = 1500 },
 	["Aja Stone Amulet"] = { Slot = "Accessory", Bonus = { Health = 2, Defense = 5 }, Rarity = "Uncommon", Cost = 1800 },
 	["Iron Ring"] = { Slot = "Accessory", Bonus = { Defense = 12, Strength = 5 }, Rarity = "Uncommon", Cost = 2000 },
 	["Zeppeli's Scarf"] = { Slot = "Accessory", Bonus = { Stamina = 25, Health = 5 }, Rarity = "Uncommon", Cost = 2500 },
-	["Vampire Cape"] = { Slot = "Accessory", Bonus = { Strength = 40, Health = 20, Speed = 20 }, Rarity = "Rare", Cost = 35000 },
-	["Red Stone of Aja"] = { Slot = "Accessory", Bonus = { Health = 10, Stamina = 20, Strength = 15 }, Rarity = "Legendary", Cost = 125000 },
-
-	["Kakyoin's Sunglasses"] = { Slot = "Accessory", Bonus = { Stand_Precision = 15, Defense = 8 }, Rarity = "Uncommon", Cost = 2500 },
+	["Kakyoin's Sunglasses"] = { Slot = "Accessory", Bonus = { Stand_Precision = 15, Defense = 8 }, Rarity = "Uncommon", Cost = 2500,
+		CombatPassives = { Immunities = { Dizzy = true, Confusion = true } }
+	},
 	["Polnareff's Earrings"] = { Slot = "Accessory", Bonus = { Stand_Speed = 15, Defense = 5 }, Rarity = "Uncommon", Cost = 3000 },
 	["Arrow Shard"] = { Slot = "Accessory", Bonus = { Stand_Potential = 15, Stand_Power = 10 }, Rarity = "Uncommon", Cost = 3500 },
+
+	-- Rare
+	["Luck Sword"] = { Slot = "Weapon", Bonus = { Strength = 15, Speed = 10, Willpower = 20 }, Rarity = "Rare", Cost = 15000,
+		CombatPassives = { PlayerBuffs = { Buff_Willpower = 3 } }
+	},
+	["Tommy Gun"] = { Slot = "Weapon", Bonus = { Strength = 20, Speed = 15 }, Rarity = "Rare", Cost = 25000 },
+	["Jolyne's String"] = { Slot = "Weapon", Bonus = { Stand_Range = 25, Stand_Speed = 15 }, Rarity = "Rare", Cost = 28000 },
+	["Mista's Pistol"] = { Slot = "Weapon", Bonus = { Stand_Precision = 35, Stand_Speed = 15 }, Rarity = "Rare", Cost = 28000 },
+	["Anubis Sword"] = { Slot = "Weapon", Bonus = { Stand_Power = 30, Stand_Speed = 20 }, Rarity = "Rare", Cost = 30000 },
+	["Emperor Gun"] = { Slot = "Weapon", Bonus = { Stand_Precision = 40, Stand_Range = 20 }, Rarity = "Rare", Cost = 30000 },
+	["Vampire Cape"] = { Slot = "Accessory", Bonus = { Strength = 40, Health = 20, Speed = 20 }, Rarity = "Rare", Cost = 35000 },
 	["Rohan's Headband"] = { Slot = "Accessory", Bonus = { Stand_Precision = 20, Stand_Potential = 15 }, Rarity = "Rare", Cost = 28000 },
 	["Jotaro's Hat"] = { Slot = "Accessory", Bonus = { Stand_Durability = 20, Stand_Power = 15 }, Rarity = "Rare", Cost = 30000 },
 	["Kira's Tie"] = { Slot = "Accessory", Bonus = { Stand_Speed = 30, Stand_Power = 15 }, Rarity = "Rare", Cost = 32000 },
 	["Josuke's Peace Badge"] = { Slot = "Accessory", Bonus = { Stand_Durability = 25, Health = 15 }, Rarity = "Rare", Cost = 32000 },
 	["Giorno's Ladybug Brooch"] = { Slot = "Accessory", Bonus = { Stand_Potential = 30, Health = 20 }, Rarity = "Rare", Cost = 35000 },
-	["Pucci's Disc"] = { Slot = "Accessory", Bonus = { Stand_Speed = 50, Stand_Potential = 40 }, Rarity = "Legendary", Cost = 150000 },
 
-	-- Raid Equipment
-	["Luck and Pluck"] = { Slot = "Weapon", Bonus = { Strength = 35, Willpower = 40, Health = 25 }, Rarity = "Mythical", Cost = 500000 },
-	["Kars' Arm Blade"] = { Slot = "Weapon", Bonus = { Strength = 45, Speed = 45, Stand_Range = 15 }, Rarity = "Mythical", Cost = 550000 },
-	["DIO's Road Sign"] = { Slot = "Weapon", Bonus = { Strength = 100, Defense = 30, Stand_Power = 20 }, Rarity = "Mythical", Cost = 750000 },
-	["Stray Cat"] = { Slot = "Weapon", Bonus = { Stand_Speed = 80, Speed = 40 }, Rarity = "Mythical", Cost = 800000 },
-	["Doppio's Phone"] = { Slot = "Weapon", Bonus = { Stand_Precision = 100, Stand_Potential = 50 }, Rarity = "Mythical", Cost = 900000 },
-	["DIO's Bone"] = { Slot = "Weapon", Bonus = { Stand_Potential = 150, Willpower = 100 }, Rarity = "Mythical", Cost = 1250000 },
-	["Valentine's Revolver"] = { Slot = "Weapon", Bonus = { Stand_Precision = 150, Stand_Power = 100, Speed = 80 }, Rarity = "Mythical", Cost = 1500000 },
-	["Wonder of U's Cane"] = { Slot = "Weapon", Bonus = { Stand_Speed = 150, Stand_Power = 120, Defense = 80 }, Rarity = "Mythical", Cost = 1750000 },
+	-- Legendary
+	["Road Roller"] = { Slot = "Weapon", Bonus = { Strength = 100, Health = 100, Defense = 50, Speed = -10 }, Rarity = "Legendary", Cost = 120000 },
+	["Bite the Dust Detonator"] = { Slot = "Weapon", Bonus = { Stand_Power = 60, Stand_Range = 500, Defense = 10 }, Rarity = "Legendary", Cost = 100000 },
+	["Red Stone of Aja"] = { Slot = "Accessory", Bonus = { Health = 10, Stamina = 300, StandEnergy = 300, Strength = 15 }, Rarity = "Legendary", Cost = 125000,
+		CombatPassives = { PlayerBuffs = { Warded = 3 } }
+	},
+	["Pucci's Disc"] = { Slot = "Accessory", Bonus = { Stand_Speed = 50, Stand_Potential = 100 }, Rarity = "Legendary", Cost = 150000,
+		CombatPassives = { EnemyDebuffs = { Debuff_Willpower = 3 } }
+	},
 
-	["Dio's Head Jar"] = { Slot = "Accessory", Bonus = { Defense = 60, Willpower = 40 }, Rarity = "Mythical", Cost = 500000 },
-	["Kars' Horn"] = { Slot = "Accessory", Bonus = { Stand_Range = 60, Stand_Precision = 40, Speed = 20 }, Rarity = "Mythical", Cost = 550000 },
-	["DIO's Headband"] = { Slot = "Accessory", Bonus = { Stand_Power = 60, Strength = 40, Willpower = 20 }, Rarity = "Mythical", Cost = 750000 },
-	["Kira's Wristwatch"] = { Slot = "Accessory", Bonus = { Stand_Durability = 50, Defense = 50, Willpower = 40 }, Rarity = "Mythical", Cost = 800000 },
-	["Passione Badge"] = { Slot = "Accessory", Bonus = { Stand_Power = 50, Stand_Potential = 50, Health = 40 }, Rarity = "Mythical", Cost = 900000 },
-	["Priest's Rosary"] = { Slot = "Accessory", Bonus = { Stand_Durability = 100, Willpower = 50, Defense = 30 }, Rarity = "Mythical", Cost = 1250000 },
-	["The First Napkin"] = { Slot = "Accessory", Bonus = { Stand_Power = 100, Stand_Durability = 100, Defense = 80 }, Rarity = "Mythical", Cost = 1500000 },
-	["Rock Insect"] = { Slot = "Accessory", Bonus = { Stand_Durability = 150, Defense = 100, Strength = 80 }, Rarity = "Mythical", Cost = 1750000 },
+	-- Mythical
+	["Luck and Pluck"] = { Slot = "Weapon", Bonus = { Strength = 120, Willpower = 40, Health = 25 }, Rarity = "Mythical", Cost = 500000,
+		CombatPassives = { EnemyDebuffs = { Dizzy = 3 } } -- Luck Penalty
+	},
+	["Kars' Arm Blade"] = { Slot = "Weapon", Bonus = { Strength = 150, Speed = 45, Stand_Range = 15 }, Rarity = "Mythical", Cost = 550000,
+		CombatPassives = { EnemyDebuffs = { Hemorrhage = 3 } }
+	},
+	["DIO's Road Sign"] = { Slot = "Weapon", Bonus = { Strength = 200, Defense = 30, Stand_Power = 50 }, Rarity = "Mythical", Cost = 750000,
+		CombatPassives = { EnemyDebuffs = { Stun = 1 } }
+	},
+	["Stray Cat"] = { Slot = "Weapon", Bonus = { Stand_Speed = 80, Stand_Range = 200, Speed = 40 }, Rarity = "Mythical", Cost = 800000,
+		CombatPassives = { PlayerBuffs = { Warded = 3 } } -- Resist to Freeze
+	},
+	["Doppio's Phone"] = { Slot = "Weapon", Bonus = { Stand_Precision = 100, Stand_Potential = 50, Speed = 100 }, Rarity = "Mythical", Cost = 900000,
+		CombatPassives = { PlayerBuffs = { Buff_Speed = 3 } }
+	},
+	["DIO's Bone"] = { Slot = "Weapon", Bonus = { Stand_Potential = 150, Stand_Power = 100, Willpower = 100 }, Rarity = "Mythical", Cost = 1250000,
+		CombatPassives = { EnemyDebuffs = { Confusion = 3 } }
+	},
+	["Valentine's Revolver"] = { Slot = "Weapon", Bonus = { Stand_Precision = 150, Stand_Power = 150, Speed = 80 }, Rarity = "Mythical", Cost = 1500000 },
+	["Wonder of U's Cane"] = { Slot = "Weapon", Bonus = { Stand_Speed = 150, Stand_Power = 120, Defense = 80 }, Rarity = "Mythical", Cost = 1750000,
+		CombatPassives = { EnemyDebuffs = { Confusion = 2 } }
+	},
+	["Dio's Head Jar"] = { Slot = "Accessory", Bonus = { Defense = 60, Willpower = 150 }, Rarity = "Mythical", Cost = 500000,
+		CombatPassives = { EnemyDebuffs = { Debuff_Willpower = 3 } }
+	},
+	["Kars' Horn"] = { Slot = "Accessory", Bonus = { Stand_Range = 60, Stand_Power = 150, Stand_Precision = 40, Speed = 20 }, Rarity = "Mythical", Cost = 550000 },
+	["DIO's Headband"] = { Slot = "Accessory", Bonus = { Stand_Power = 60, Strength = 150, Willpower = 20 }, Rarity = "Mythical", Cost = 750000 },
+	["Kira's Wristwatch"] = { Slot = "Accessory", Bonus = { Stand_Durability = 50, Defense = 50, Speed = 150, Willpower = 40 }, Rarity = "Mythical", Cost = 800000,
+		CombatPassives = { PlayerBuffs = { Buff_Speed = 3 } }
+	},
+	["Passione Badge"] = { Slot = "Accessory", Bonus = { Stand_Power = 50, Stand_Potential = 50, Health = 40, Defense = 100 }, Rarity = "Mythical", Cost = 900000,
+		CombatPassives = { PlayerBuffs = { Buff_Defense = 3 } }
+	},
+	["Priest's Rosary"] = { Slot = "Accessory", Bonus = { Stand_Durability = 100, Willpower = 200, Defense = 30 }, Rarity = "Mythical", Cost = 1250000,
+		CombatPassives = { PlayerBuffs = { Buff_Willpower = 3 } }
+	},
+	["The First Napkin"] = { Slot = "Accessory", Bonus = { Stand_Power = 100, Stand_Durability = 100, Strength = 100, Defense = 80 }, Rarity = "Mythical", Cost = 1500000,
+		CombatPassives = { EnemyDebuffs = { Stun = 1 } }
+	},
+	["Rock Insect"] = { Slot = "Accessory", Bonus = { Stand_Durability = 150, Stand_Speed = 100, Defense = 100, Strength = 80 }, Rarity = "Mythical", Cost = 1750000,
+		CombatPassives = { EnemyDebuffs = { Debuff_Speed = 3 } }
+	},
 
-	-- Special 
+	-- Special & Admin
 	["Steel Pipe (x400)"] = { Slot = "Weapon", Bonus = { Strength = -9999 }, Rarity = "Special", Cost = 0 },
 	["Trusty Steel Pipe"] = { Slot = "Weapon", Bonus = { Strength = 9999 }, Rarity = "Special", Cost = 0 },
 	["Obliterator"] = { Slot = "Weapon", Bonus = { Strength = 99999, Stand_Power = 99999, Speed = 99999 }, Rarity = "Special", Cost = 0 },
 
-	-- April Fools Equipment
+	-- Event Items
 	["Pink Sasumata"] = { Slot = "Weapon", Bonus = { Strength = 120, Speed = 120, Defense = 80 }, Rarity = "Special", Cost = 2000000 },
 	["Playful Cloud"] = { Slot = "Weapon", Bonus = { Strength = 180, Speed = 80, Stand_Power = 80 }, Rarity = "Special", Cost = 2000000 },
 	["Kamutoke"] = { Slot = "Weapon", Bonus = { Strength = 150, Stand_Power = 150, Stand_Range = 50 }, Rarity = "Special", Cost = 2000000 },
 	["Pochette's Armor"] = { Slot = "Accessory", Bonus = { Strength = 150, Defense = 150, Willpower = 100 }, Rarity = "Special", Cost = 2000000 },
 	["Gojo's Blindfold"] = { Slot = "Accessory", Bonus = { Stand_Power = 200, Speed = 100, Willpower = 80 }, Rarity = "Special", Cost = 2000000 },
 	["Heian Era Robes"] = { Slot = "Accessory", Bonus = { Health = 100, Defense = 100, Stand_Power = 150 }, Rarity = "Special", Cost = 2000000 },
-
-	-- Easter Equipment
 	["Kakyoin's Paintbrush"] = { Slot = "Weapon", Bonus = { Stand_Power = 120, Stand_Precision = 100, Stand_Range = 80 }, Rarity = "Unique", Cost = 2000000 },
 	["Baoh Arm Blade"] = { Slot = "Weapon", Bonus = { Strength = 200, Speed = 120, Willpower = 80 }, Rarity = "Unique", Cost = 2000000 },
 	["Shoshinsha Mark"] = { Slot = "Accessory", Bonus = { Stand_Power = 120, Health = 30, Strength = 70 }, Rarity = "Unique", Cost = 2000000 },
 	["Ikuro's Jacket"] = { Slot = "Accessory", Bonus = { Strength = 180, Defense = 150, Health = 50 }, Rarity = "Unique", Cost = 2000000 },
-	
-	-- Crossover
 	["ODM Blades"] = { Slot = "Weapon", Bonus = { Strength = 200, Speed = 200, Stamina = 150 }, Rarity = "Special", Cost = 0 },
 	["Scout Uniform"] = { Slot = "Accessory", Bonus = { Speed = 150, Stamina = 200, Defense = 200 }, Rarity = "Special", Cost = 0 },
 }
