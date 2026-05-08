@@ -395,6 +395,21 @@ ArenaAction.OnServerEvent:Connect(function(player, action, data)
 			if lobby.Capacity == 4 then turnTime = 30 elseif lobby.Capacity == 8 then turnTime = 45 end
 
 			local matchId = HttpService:GenerateGUID(false)
+			
+			for _, p1Data in ipairs(t1) do
+				CombatCore.ApplyPreCombatPassives(p1Data.Player, p1Data, nil)
+				for _, p2Data in ipairs(t2) do
+					CombatCore.ApplyPreCombatPassives(p1Data.Player, nil, p2Data)
+				end
+			end
+
+			for _, p2Data in ipairs(t2) do
+				CombatCore.ApplyPreCombatPassives(p2Data.Player, p2Data, nil)
+				for _, p1Data in ipairs(t1) do
+					CombatCore.ApplyPreCombatPassives(p2Data.Player, nil, p1Data)
+				end
+			end
+			
 			local match = { 
 				Id = matchId, HostName = lobby.Host.Name, Capacity = lobby.Capacity, Team1 = t1, Team2 = t2, Spectators = {}, Bets = {}, Pool1 = 0, Pool2 = 0,
 				IsProcessing = false, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + turnTime, IsCasual = lobby.Casual, TurnTime = turnTime 
