@@ -199,6 +199,7 @@ local function StartBattle(player, encounterType)
 		Ally = allyTemplate and GenerateNPCEntity(allyTemplate, true, prestige, uniModStr, currentPart) or nil,
 		Drops = generatedEnemy.ScaledDrops, TurnCounter = 1
 	}
+	CombatCore.ApplyPreCombatPassives(player, pData, generatedEnemy)
 
 	player:SetAttribute("InCombat", true)
 	CombatUpdate:FireClient(player, "Start", { Battle = ActiveBattles[player.UserId], LogMsg = initialLogMsg })
@@ -380,6 +381,8 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				if nextAllyTemplate then battle.Ally = GenerateNPCEntity(nextAllyTemplate, true, prestige, uniModStr, currentPart) end
 				battle.Drops = newEnemy.ScaledDrops; battle.TurnCounter = 1; battle.IsProcessing = false
 				CombatCore.ApplyInfectiousCarryover(player, newEnemy)
+				
+				CombatCore.ApplyPreCombatPassives(player, battle.Player, newEnemy)
 
 				local waveMsg = "<font color='#FFD700'>[Wave " .. battle.Context.CurrentWave .. "]</font>\n" .. nextWaveData.Flavor
 				CombatUpdate:FireClient(player, "WaveComplete", { Battle = battle, LogMsg = waveMsg, XP = fXP, Yen = fYen, Items = droppedItems })
