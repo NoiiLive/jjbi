@@ -84,11 +84,38 @@ local function GetCombinedBonus(statName)
 	local style = player:GetAttribute("FightingStyle") or "None"
 	local bonus = 0
 
-	if ItemData.Equipment[wpn] and ItemData.Equipment[wpn].Bonus[statName] then bonus += ItemData.Equipment[wpn].Bonus[statName] end
-	if ItemData.Equipment[acc] and ItemData.Equipment[acc].Bonus[statName] then bonus += ItemData.Equipment[acc].Bonus[statName] end
-	if GameData.StyleBonuses and GameData.StyleBonuses[style] and GameData.StyleBonuses[style][statName] then bonus += GameData.StyleBonuses[style][statName] end
+	local prestige = 0
+	local ls = player:FindFirstChild("leaderstats")
+	if ls and ls:FindFirstChild("Prestige") then
+		prestige = ls.Prestige.Value
+	end
 
-	return bonus
+	local scalableStats = {
+		["Health"] = true, ["Strength"] = true, ["Defense"] = true,
+		["Speed"] = true, ["Stamina"] = true, ["Willpower"] = true,
+		["Stand_Power"] = true, ["Stand_Durability"] = true,
+		["Stand_Speed"] = true, ["Stand_Potential"] = true
+	}
+	local multiplier = 1 + (prestige * .1)
+
+	if ItemData.Equipment[wpn] and ItemData.Equipment[wpn].Bonus[statName] then 
+		bonus += (ItemData.Equipment[wpn].Bonus[statName] * multiplier)
+	end
+
+	if ItemData.Equipment[acc] and ItemData.Equipment[acc].Bonus[statName] then
+		local baseValue = ItemData.Equipment[acc].Bonus[statName]
+		if scalableStats[statName] then
+			bonus += (baseValue * multiplier)
+		else
+			bonus += baseValue
+		end
+	end
+
+	if GameData.StyleBonuses and GameData.StyleBonuses[style] and GameData.StyleBonuses[style][statName] then 
+		bonus += GameData.StyleBonuses[style][statName] 
+	end
+
+	return math.floor(bonus+.5)
 end
 
 local function GetUpgradeCostForAmount(currentStat, baseVal, prestige, maxCap, amount)
