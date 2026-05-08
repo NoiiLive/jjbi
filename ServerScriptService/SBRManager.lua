@@ -708,6 +708,10 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 					r.Distance += distGained
 					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Enemy = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 					p2.Battle = { Player = r.Battle.Enemy, Enemy = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					
+					CombatCore.ApplyPreCombatPassives(player, r.Battle.Player, r.Battle.Enemy)
+					CombatCore.ApplyPreCombatPassives(p2.Player, p2.Battle.Player, p2.Battle.Enemy)
+					
 					player:SetAttribute("InCombat", true)
 					p2.Player:SetAttribute("InCombat", true)
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
@@ -736,6 +740,11 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 				if p2 then
 					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Enemy = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 					p2.Battle = { Player = r.Battle.Enemy, Enemy = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					
+
+					CombatCore.ApplyPreCombatPassives(player, r.Battle.Player, r.Battle.Enemy)
+					CombatCore.ApplyPreCombatPassives(p2.Player, p2.Battle.Player, p2.Battle.Enemy)
+					
 					player:SetAttribute("InCombat", true)
 					p2.Player:SetAttribute("InCombat", true)
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>AMBUSHED BY " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
@@ -781,6 +790,10 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 			elseif rng <= 60 then
 				r.Distance += distGained
 				r.Battle = { Player = CombatCore.BuildPlayerStruct(player, true), Enemy = GeneratePvEMob(player), OpponentRacer = nil, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+				
+
+				CombatCore.ApplyPreCombatPassives(player, r.Battle.Player, r.Battle.Enemy)
+				
 				player:SetAttribute("InCombat", true)
 				SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>A bandit blocks the path!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
 				r.IsProcessing = false
@@ -791,6 +804,10 @@ SBRAction.OnServerEvent:Connect(function(player, action, data)
 					r.Distance += distGained
 					r.Battle = { Player = CombatCore.BuildPlayerStruct(player, false), Enemy = CombatCore.BuildPlayerStruct(p2.Player, false), OpponentRacer = p2, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 					p2.Battle = { Player = r.Battle.Enemy, Enemy = r.Battle.Player, OpponentRacer = r, PlayerReady = false, IsProcessing = false, PlayerSelectedSkill = nil, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
+					
+					CombatCore.ApplyPreCombatPassives(player, r.Battle.Player, r.Battle.Enemy)
+					CombatCore.ApplyPreCombatPassives(p2.Player, p2.Battle.Player, p2.Battle.Enemy)
+					
 					player:SetAttribute("InCombat", true)
 					p2.Player:SetAttribute("InCombat", true)
 					SBRUpdate:FireClient(player, "CombatStart", {LogMsg = "<font color='#FF5555'>CROSSED PATHS WITH " .. p2.Player.Name .. "!</font>", P1 = r.Battle.Player, P2 = r.Battle.Enemy, Deadline = r.Battle.TurnDeadline})
