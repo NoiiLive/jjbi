@@ -29,6 +29,13 @@ local RolePower = { ["Grunt"] = 1, ["Caporegime"] = 2, ["Consigliere"] = 3, ["Bo
 
 local GANG_TOPIC = "JJBI_Gang_Sync_V1"
 
+local GangTreasuryEvent = Network:FindFirstChild("AddGangTreasury")
+if not GangTreasuryEvent then
+	GangTreasuryEvent = Instance.new("BindableEvent")
+	GangTreasuryEvent.Name = "AddGangTreasury"
+	GangTreasuryEvent.Parent = Network
+end
+
 local AdminWipeEvent = ReplicatedStorage:FindFirstChild("AdminForceWipeGang")
 if not AdminWipeEvent then
 	AdminWipeEvent = Instance.new("BindableEvent")
@@ -1267,4 +1274,12 @@ GangAction.OnServerEvent:Connect(function(player, action, value, extraValue)
 			SyncPlayer(player) 
 		end
 	end
+end)
+
+GangTreasuryEvent.Event:Connect(function(gangKey, treasuryAmount, repAmount)
+	AddPendingUpdate(gangKey, "Treasury", treasuryAmount)
+	if repAmount and repAmount > 0 then
+		AddPendingUpdate(gangKey, "Rep", repAmount)
+	end
+	SyncGangToMembers(gangKey)
 end)
