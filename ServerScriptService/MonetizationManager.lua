@@ -276,6 +276,17 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 		receiver:SetAttribute("PendingRestockType", "Normal")
 		purchaser:SetAttribute("GiftTarget", nil)
 		return Enum.ProductPurchaseDecision.PurchaseGranted
+	elseif productId == 3588089796 then
+
+	
+		receiver:SetAttribute("GangShopPity", 10)
+		receiver:SetAttribute("GangShopRefreshTime", 0) 
+		SendPurchaseMsg("Premium Shop Restock")
+
+		receiver:SetAttribute("PendinGangRestockType", "Normal")
+		purchaser:SetAttribute("GiftTarget", nil)
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	
 	end
 
 	if productId == 3548207626 then
