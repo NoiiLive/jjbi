@@ -184,6 +184,17 @@ EnemyData.WorldBosses = {
 	},
 }
 
+EnemyData.GangBosses = {
+	["Za Warudo Mirage"] = {
+		Name = "DIO Mirage", IsBoss = true, Icon = "rbxassetid://79515623952621", 
+		Health = 1e10, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Stand = "The World", Style = "Vampirism",
+		Drops = { 
+			XP = 25000, Yen = 10000, 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
+		}
+	},
+}
 EnemyData.Parts = {
 	[1] = {
 		Boss = { IsBoss = true, Name = "Dio Brando (Vampire)", Icon = "rbxassetid://86531285156337", Health = 150, Strength = 15, Defense = 8, Speed = 10, Willpower = 12, StandStats = emptyStands, Stand = "None", Style = "Vampirism", Drops = { Yen = 80, XP = 150, ItemChance={["Vampire Mask"]=10, ["Dio's Throwing Knives"]=15, ["Strength Training Manual"]=5} } },
