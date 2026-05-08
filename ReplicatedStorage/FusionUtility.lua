@@ -13,7 +13,7 @@ function FusionUtility.CalculateFusedName(name1, name2)
 	end
 
 	if name1 == name2 then
-		return "Dual " .. name1
+		return name1 .. ": Ultimate" 
 	end
 
 	if name2 == "The World" then
