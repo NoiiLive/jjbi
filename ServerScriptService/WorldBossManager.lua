@@ -310,6 +310,8 @@ local function StartBossBattle(player)
 		Enemy = bossEntity,
 		IsInstanced = hasInstanced
 	}
+	
+	CombatCore.ApplyPreCombatPassives(player, pData, bossEntity)
 
 	if not hasInstanced then
 		local sessionStr = ReplicatedStorage:GetAttribute("CurrentBossSession") or ""
