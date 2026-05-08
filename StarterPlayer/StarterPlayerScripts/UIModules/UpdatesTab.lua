@@ -2,6 +2,17 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+[[<b><font color='#FFD700'>v2.9 - Gang Bosses & Item Scaling Update (May 8th)</font></b>
+
+<font color='#55FF55'>[+]</font> <b>Gang Bosses:</b> Gang bosses have been introduced and can be defeated once a day!
+<font color='#55FF55'>[+]</font> <b>Gang Shop:</b> Added the Gang Shop! You can earn a new currency from Gang Bosses to spend here on Mythic items.
+<font color='#55FF55'>[+]</font> <b>Gang Boss Drops:</b> Gang bosses now drop Yen for gangs to help new players level up faster.
+<font color='#D745FF'>[+]</font> <b>Item Scaling:</b> All items now scale based on your prestige level, granting a 10% bonus per level!
+<font color='#D745FF'>[+]</font> <b>Mythic Passives:</b> Most Mythic items now feature light passive bonuses. These have been carefully balanced to maintain fair gameplay.
+<font color='#55FFFF'>[*]</font> <b>Future Plans:</b> Gang Bosses will rotate on a weekly basis, with structured seasons lasting two weeks. The overarching gang system, alongside territory battles, will be finalized next week. Reward structures, including exclusive items for the inaugural season of gang battles, will be announced at that time.
+
+Use codes <b><font color='#FF55FF'>GANGBOSSES</font></b> and <b><font color='#FF55FF'>DELAYS</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v2.8 - AOT: Incremental Crossover Event (April 28th)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>New World Boss:</b> Added Eren Jaeger World Boss
@@ -38,9 +49,7 @@ Use codes <b><font color='#FF55FF'>DELAYED</font></b> and <b><font color='#FF55F
 <font color='#EFFF3E'>[+]</font> <b>Training Manuals & Stat Rework:</b> Added 15 new Legendary and Mythical Training Manuals to boost your stats! To balance this, items like Stand Arrows and the Green Baby no longer grant bonus stats upon use.
 <font color='#EFFF3E'>[+]</font> <b>AI Improvements:</b> Enemies are now much smarter! They manage resources, rest when heavily debuffed, and adapt their strategy based on their HP.
 <font color='#EFFF3E'>[+]</font> <b>8 New Traits:</b> Added Siphoning, Shattering, Dominating, Infectious, Junkie (Mythics), Purifying, Opportunistic, and Stoic (Legendaries).
-<font color='#EFFF3E'>[+]</font> <b>3 New Modifiers:</b> Resource Drought, Aggressive Attrition, and Unstable added to the Prestige pool.
-
-Use codes <b><font color='#FF55FF'>12KFAVS</font></b> and <b><font color='#FF55FF'>COMBATREWORK</font></b> for free rewards!]],
+<font color='#EFFF3E'>[+]</font> <b>3 New Modifiers:</b> Resource Drought, Aggressive Attrition, and Unstable added to the Prestige pool.]],
 
 	[[<b><font color='#FFD700'>v2.5 - Collection Update (April 10th)</font></b>
 
