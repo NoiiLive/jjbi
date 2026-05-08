@@ -310,6 +310,8 @@ local function StartDungeon(player, dungeonId)
 		Player = pData,
 		Enemy = firstEnemy
 	}
+	
+	CombatCore.ApplyPreCombatPassives(player, pData, firstEnemy)
 
 	if not isEndless then
 		local fixedPrestige = tonumber(dungeonId) and (tonumber(dungeonId) + 9) or 10
@@ -537,6 +539,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			dungeon.CurrentWave += 1
 			dungeon.Enemy = GenerateRandomEndlessEnemy(dungeon.CurrentWave)
 			CombatCore.ApplyInfectiousCarryover(player, dungeon.Enemy)
+			CombatCore.ApplyPreCombatPassives(player, dungeon.Player, dungeon.Enemy)
 			dungeon.IsProcessing = false
 
 			local descendMsg = "<font color='#FFD700'>Descending to Floor " .. dungeon.CurrentWave .. "...</font>\n<font color='#55FF55'>Gained " .. fXP .. " XP and ¥" .. fYen .. "!</font>"
@@ -549,6 +552,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 				local nextTemplate = dungeon.Waves[dungeon.CurrentWave]
 				dungeon.Enemy = GenerateDungeonEnemy(nextTemplate, dungeon.DungeonId)
 				CombatCore.ApplyInfectiousCarryover(player, dungeon.Enemy)
+				CombatCore.ApplyPreCombatPassives(player, dungeon.Player, dungeon.Enemy)
 				dungeon.IsProcessing = false
 				DungeonUpdate:FireClient(player, "WaveComplete", { Battle = dungeon, LogMsg = "<font color='#FFD700'>A new enemy approaches!</font>", WaveStr = "Wave " .. dungeon.CurrentWave .. "/" .. dungeon.TotalWaves })
 				return
