@@ -45,6 +45,8 @@ local requiredRemotes = {
 	"TradeUpdate",
 	"ShopAction",
 	"ShopUpdate",
+	"GangShopAction",
+	"GangShopUpdate",
 	"BoostAction",
 	"GangAction",
 	"GangUpdate",
@@ -56,6 +58,7 @@ local requiredRemotes = {
 	"PrestigeEvent",
 	"LeaderboardAction",
 	"LeaderboardUpdate",
+	"GangLeaderboardAction",
 	"RaidAction",
 	"RaidUpdate",
 	"SBRAction",
@@ -65,7 +68,15 @@ local requiredRemotes = {
 	"ToggleAutoStat",
 	"AdminLogsUI",
 	"TreeAction",
+	"GangBossAction",
+	"GangBossUpdate",
 }
+
+if not RemotesFolder:FindFirstChild("GangLeaderboardUpdate") then
+	local re = Instance.new("BindableEvent")
+	re.Name = "GangLeaderboardUpdate"
+	re.Parent = RemotesFolder
+end
 
 for _, remoteName in ipairs(requiredRemotes) do
 	if not RemotesFolder:FindFirstChild(remoteName) then
@@ -112,6 +123,8 @@ local DefaultData = {
 	DungeonClear_Part4 = false, DungeonClear_Part5 = false, DungeonClear_Part6 = false,
 
 	DailyEndlessFloor = 0, DailyEndlessDate = "",
+	
+	GangTokens = 0,
 
 	ArenaWins = 0, SBRWins = 0, WorldBossParticipations = 0, WorldBossKills = 0,
 
@@ -156,6 +169,7 @@ local DefaultData = {
 	StandStatsVal = {Power=0, Speed=0, Range=0, Durability=0, Precision=0, Potential=0},
 
 	ShopStock = "", ShopRefreshTime = 0, RedeemedCodes = "",
+	GangShopStock = "", GangShopRefreshTime = 0, 
 	EasterShopStock = "", EasterShopRefreshTime = 0, EasterEggCount = 0,
 
 	StoredStand1 = "None", StoredStand1_Trait = "None",
@@ -199,7 +213,25 @@ local function SetupLeaderstats(player, savedData)
 	elo.Name = "Elo"
 	elo.Value = savedData.Elo or DefaultData.Elo
 	elo.Parent = leaderstats
+	
+	local gangTokens = Instance.new("IntValue")
+	gangTokens.Name = "GangTokens"
+	gangTokens.Value = savedData.GangTokens or DefaultData.GangTokens
+	gangTokens.Parent = leaderstats
 
+	player:GetAttributeChangedSignal("GangTokens"):Connect(function()
+		local newVal = player:GetAttribute("GangTokens") or 0
+		if gangTokens.Value ~= newVal then
+			gangTokens.Value = newVal
+		end
+	end)
+	
+	gangTokens.Changed:Connect(function(newVal)
+		if player:GetAttribute("GangTokens") ~= newVal then
+			player:SetAttribute("GangTokens", newVal)
+		end
+	end)
+	
 	player:SetAttribute("ShopStock", savedData.ShopStock or DefaultData.ShopStock)
 	player:SetAttribute("ShopRefreshTime", savedData.ShopRefreshTime or DefaultData.ShopRefreshTime)
 	player:SetAttribute("EasterShopStock", savedData.EasterShopStock or DefaultData.EasterShopStock)
@@ -249,7 +281,9 @@ local function SavePlayerData(player)
 		DungeonClear_Part4 = player:GetAttribute("DungeonClear_Part4") or false,
 		DungeonClear_Part5 = player:GetAttribute("DungeonClear_Part5") or false,
 		DungeonClear_Part6 = player:GetAttribute("DungeonClear_Part6") or false,
-
+		
+		GangTokens = player:GetAttribute("GangTokens") or 0,
+		
 		DailyEndlessFloor = player:GetAttribute("DailyEndlessFloor") or 0,
 		DailyEndlessDate = player:GetAttribute("DailyEndlessDate") or "",
 
@@ -477,8 +511,23 @@ Players.PlayerAdded:Connect(function(player)
 		end
 	end
 
+	local leftoverEggs = player:GetAttribute("EasterEggCount") or 0
+	if leftoverEggs > 0 then
+		local yenConversion = leftoverEggs * 10000
+		player.leaderstats.Yen.Value += yenConversion
+		player:SetAttribute("EasterEggCount", 0)
+
+		task.spawn(function()
+			task.wait(3)
+			local notifUpdate = RemotesFolder:FindFirstChild("NotificationEvent")
+			if notifUpdate then
+				notifUpdate:FireClient(player, "<font color='#55FF55'>Event Over! " .. leftoverEggs .. " Easter Eggs were converted into ¥" .. yenConversion .. "!</font>")
+			end
+		end)
+	end
+
 	local function VerifyPass(id, attr)
-		local ownsFromGift = player:GetAttribute(attr) or false 
+		local ownsFromGift = player:GetAttribute(attr) or false
 
 		if not ownsFromGift then
 			local ownsFromWeb = false
