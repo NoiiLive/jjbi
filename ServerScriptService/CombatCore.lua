@@ -49,10 +49,45 @@ function CombatCore.GetEquipBonus(player, statName)
 	local acc = player:GetAttribute("EquippedAccessory") or "None"
 	local style = player:GetAttribute("FightingStyle") or "None"
 	local bonus = 0
+	
+	local prestige = 0
+	local ls = player:FindFirstChild("leaderstats")
+	if ls and ls:FindFirstChild("Prestige") then
+		prestige = ls.Prestige.Value
+	end
+	
+	local scalableStats = {
+		["Health"] = true,
+		["Strength"] = true,
+		["Defense"] = true,
+		["Speed"] = true,
+		["Stamina"] = true,
+		["Willpower"] = true,
+		["Stand_Power"] = true,
+		["Stand_Durability"] = true,
+		["Stand_Speed"] = true,
+		["Stand_Potential"] = true
+	}
+	
+	local multiplier = 1 + (prestige * .1)
+	
+	if ItemData.Equipment[wpn] and ItemData.Equipment[wpn].Bonus[statName] then 
+		bonus += (ItemData.Equipment[wpn].Bonus[statName] * multiplier)
+	end
+	
+	if ItemData.Equipment[acc] and ItemData.Equipment[acc].Bonus[statName] then
+		local baseValue = ItemData.Equipment[acc].Bonus[statName]
 
-	if ItemData.Equipment[wpn] and ItemData.Equipment[wpn].Bonus[statName] then bonus += ItemData.Equipment[wpn].Bonus[statName] end
-	if ItemData.Equipment[acc] and ItemData.Equipment[acc].Bonus[statName] then bonus += ItemData.Equipment[acc].Bonus[statName] end
-	if GameData.StyleBonuses and GameData.StyleBonuses[style] and GameData.StyleBonuses[style][statName] then bonus += GameData.StyleBonuses[style][statName] end
+		if scalableStats[statName] then
+			bonus += (baseValue * multiplier)
+		else
+			bonus += baseValue
+		end
+	end
+	
+	if GameData.StyleBonuses and GameData.StyleBonuses[style] and GameData.StyleBonuses[style][statName] then 
+		bonus += GameData.StyleBonuses[style][statName] 
+	end
 
 	return bonus
 end
@@ -1455,6 +1490,42 @@ function CombatCore.GetNPCSkills(standName, styleName)
 	end
 
 	return skills
+end
+
+function CombatCore.ApplyPreCombatPassives(playerObj, playerStruct, enemyStruct)
+	if not playerObj then return end
+	
+	local wpn = playerObj:GetAttribute("EquippedWeapon") or "None"
+	local acc = playerObj:GetAttribute("EquippedAccessory") or "None"
+
+	local itemsToCheck = {wpn, acc}
+
+	for _, itemName in ipairs(itemsToCheck) do
+		local itemData = ItemData.Equipment[itemName]
+		if itemData and itemData.CombatPassives then
+			if itemData.CombatPassives.PlayerBuffs then
+				for buffName, duration in pairs(itemData.CombatPassives.PlayerBuffs) do
+					playerStruct.Statuses[buffName] = math.max(playerStruct.Statuses[buffName] or 0, duration)
+				end
+			end
+			
+			if enemyStruct and itemData.CombatPassives.EnemyDebuffs then
+				for debuffName, duration in pairs(itemData.CombatPassives.EnemyDebuffs) do
+					enemyStruct.Statuses[debuffName] = math.max(enemyStruct.Statuses[debuffName] or 0, duration)
+				end
+			end
+			
+			if itemData.CombatPassives.Immunities then
+				for immName, hasImmunity in pairs(itemData.CombatPassives.Immunities) do
+					if hasImmunity then
+						if immName == "Stun" then playerStruct.StunImmunity = 9999 end
+						if immName == "Confusion" then playerStruct.ConfusionImmunity = 9999 end
+						if immName == "Dizzy" then playerStruct.Statuses.Warded = 9999 end 
+					end
+				end
+			end
+		end
+	end
 end
 
 return CombatCore
