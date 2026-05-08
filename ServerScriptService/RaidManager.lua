@@ -338,7 +338,7 @@ local function ProcessTurn(match)
 			if isWin then
 				if match.RaidId == "Raid_Part1" then
 					pcall(function()
-						BadgeService:AwardBadge(pData.Player.UserId, 4194606710515423)
+						BadgeService:AwardBadgeAsync(pData.Player.UserId, 4194606710515423)
 					end)
 				end
 
@@ -469,9 +469,16 @@ local function StartRaidMatch(hostId)
 
 	local match = { Id = HttpService:GenerateGUID(false), Party = party, Boss = raidBoss, ScaledDrops = { XP = math.floor(bossTemplate.Drops.XP * prestigeMult), Yen = math.floor(bossTemplate.Drops.Yen * prestigeMult), ItemChance = bossTemplate.Drops.ItemChance }, RaidId = lobby.RaidId, IsProcessing = false, IsDead = false, TurnDeadline = math.floor(workspace:GetServerTimeNow()) + 15 }
 
+	for _, pData in ipairs(party) do
+		CombatCore.ApplyPreCombatPassives(pData.Player, pData, raidBoss)
+	end
+	
 	for _, pData in ipairs(party) do 
+		
+		
+		
 		pData.Cooldowns = {}
-
+		
 		if ActiveRaids[pData.Player] then
 			ActiveRaids[pData.Player].IsDead = true 
 		end
