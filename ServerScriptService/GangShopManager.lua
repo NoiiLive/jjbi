@@ -1,0 +1,359 @@
+-- @ScriptType: Script
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Network = ReplicatedStorage:WaitForChild("Network")
+local ItemData = require(ReplicatedStorage:WaitForChild("GangItemData"))
+local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
+local StandData = require(ReplicatedStorage:WaitForChild("StandData"))
+local DataStoreService = game:GetService("DataStoreService")
+
+local ShopAction = Network:WaitForChild("GangShopAction")
+local ShopUpdate = Network:WaitForChild("GangShopUpdate")
+
+local NotificationEvent = Network:FindFirstChild("NotificationEvent") or Instance.new("RemoteEvent", Network)
+NotificationEvent.Name = "NotificationEvent"
+
+local AdminLogger = Network:FindFirstChild("AdminLogger")
+if not AdminLogger then
+	AdminLogger = Instance.new("BindableEvent")
+	AdminLogger.Name = "AdminLogger"
+	AdminLogger.Parent = Network
+end
+
+local function RollItem(forcedRarity)
+	local targetRarity = "Common"
+	if forcedRarity then
+		targetRarity = forcedRarity
+	else
+		local rng = math.random(1, 100)
+		if rng <= 10 then targetRarity = "Legendary"
+		elseif rng <= 20 then targetRarity = "Rare"
+		elseif rng <= 50 then targetRarity = "Uncommon"
+		end
+	end
+
+	local validItems = {}
+	for itemName, itemInfo in pairs(ItemData.Equipment) do
+		if (itemInfo.Rarity or "Common") == targetRarity then table.insert(validItems, itemName) end
+	end
+	for itemName, itemInfo in pairs(ItemData.Consumables) do
+		if (itemInfo.Rarity or "Common") == targetRarity then table.insert(validItems, itemName) end
+	end
+
+	if #validItems > 0 then return validItems[math.random(1, #validItems)] end
+	return "Wooden Bat"
+end
+
+local function GenerateShopStock(player)
+	local newStock = {}
+
+	for i = 1, 6 do
+		local item = RollItem("Mythical")
+		local itemInfo = ItemData.Equipment[item] or ItemData.Consumables[item]
+		table.insert(newStock, item)
+	end
+
+	player:SetAttribute("GangShopStock", table.concat(newStock, ","))
+	player:SetAttribute("GangShopRefreshTime", math.floor(workspace:GetServerTimeNow()) + 900) 
+	ShopUpdate:FireClient(player, "Refresh", newStock)
+end
+
+local PlayerJoinTimes = {}
+
+task.spawn(function()
+	while task.wait(1) do
+		for _, player in ipairs(game.Players:GetPlayers()) do
+			local joinTime = PlayerJoinTimes[player]
+			if not joinTime then
+				PlayerJoinTimes[player] = math.floor(workspace:GetServerTimeNow())
+				joinTime = math.floor(workspace:GetServerTimeNow())
+			end
+
+			if (math.floor(workspace:GetServerTimeNow()) - joinTime) > 10 then
+				local refreshTime = player:GetAttribute("GangShopRefreshTime")
+				if not refreshTime or math.floor(workspace:GetServerTimeNow()) >= refreshTime then 
+					GenerateShopStock(player) 
+				end
+			end
+		end
+	end
+end)
+
+game.Players.PlayerAdded:Connect(function(player)
+	PlayerJoinTimes[player] = math.floor(workspace:GetServerTimeNow())
+
+	player:GetAttributeChangedSignal("GangShopRefreshTime"):Connect(function()
+		local rt = player:GetAttribute("GangShopRefreshTime")
+		if rt and rt < math.floor(workspace:GetServerTimeNow()) then GenerateShopStock(player) end
+	end)
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+	PlayerJoinTimes[player] = nil
+end)
+
+ShopAction.OnServerEvent:Connect(function(player, action, data)
+	if action == "SetGiftTarget" then
+		local targetId = tonumber(data)
+		if targetId and targetId ~= 0 then 
+			player:SetAttribute("GiftTarget", targetId)
+		else
+			player:SetAttribute("GiftTarget", nil)
+		end
+		return
+	end
+
+	if action == "SetRestockType" then
+		if data == "Normal" then
+			player:SetAttribute("PendingGangRestockType", data)
+		end
+		return
+	end
+
+	if action == "ClaimShopStand" then
+		local pendingStand = player:GetAttribute("PendingShopStand")
+		local pendingTrait = player:GetAttribute("PendingShopTrait") or "None"
+		if not pendingStand or pendingStand == "" then return end
+
+		player:SetAttribute("PendingShopStand", nil)
+		player:SetAttribute("PendingShopTrait", nil)
+
+		if data == "Deny" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You declined the gifted Stand.</font>")
+			return
+		end
+
+		local oldStand = "None"
+		if data == "Active" then
+			oldStand = player:GetAttribute("Stand") or "None"
+			if oldStand == "Fused Stand" then
+				local f1 = player:GetAttribute("Active_FusedStand1") or "None"
+				local f2 = player:GetAttribute("Active_FusedStand2") or "None"
+				local t1 = player:GetAttribute("Active_FusedTrait1") or "None"
+				local t2 = player:GetAttribute("Active_FusedTrait2") or "None"
+				local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+				local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+				oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+			elseif oldStand ~= "None" then
+				local tr = player:GetAttribute("StandTrait") or "None"
+				oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
+			end
+		else
+			local num = data:gsub("Slot", "")
+			oldStand = player:GetAttribute("StoredStand"..num) or "None"
+			if oldStand == "Fused Stand" then
+				local f1 = player:GetAttribute("StoredStand"..num.."_FusedStand1") or "None"
+				local f2 = player:GetAttribute("StoredStand"..num.."_FusedStand2") or "None"
+				local t1 = player:GetAttribute("StoredStand"..num.."_FusedTrait1") or "None"
+				local t2 = player:GetAttribute("StoredStand"..num.."_FusedTrait2") or "None"
+				local t1Str = (t1 ~= "None") and (" ["..t1.."]") or ""
+				local t2Str = (t2 ~= "None") and (" ["..t2.."]") or ""
+				oldStand = "Fused Stand (" .. tostring(f1) .. t1Str .. " + " .. tostring(f2) .. t2Str .. ")"
+			elseif oldStand ~= "None" then
+				local tr = player:GetAttribute("StoredStand"..num.."_Trait") or "None"
+				oldStand = oldStand .. ((tr ~= "None") and (" ["..tr.."]") or "")
+			end
+		end
+
+		local pendingFormatted = pendingStand .. ((pendingTrait ~= "None") and (" ["..pendingTrait.."]") or "")
+
+		AdminLogger:Fire("Replacement", {
+			Player = player.Name, Context = "Shop/Gift", OldItem = oldStand, NewItem = pendingFormatted, Slot = data
+		})
+
+		local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
+		local stats = StandData.Stands[pendingStand] and StandData.Stands[pendingStand].Stats
+
+		if data == "Active" then
+			player:SetAttribute("Stand", pendingStand)
+			player:SetAttribute("StandTrait", pendingTrait)
+			if stats then
+				for sName, sRank in pairs(stats) do
+					local rankVal = GameData.StandRanks[sRank] or 0
+					player:SetAttribute("Stand_" .. sName .. "_Val", rankVal + (prestige * 5))
+				end
+			end
+		elseif data == "Slot1" then
+			player:SetAttribute("StoredStand1", pendingStand)
+			player:SetAttribute("StoredStand1_Trait", pendingTrait)
+		elseif data == "Slot2" and player:GetAttribute("HasStandSlot2") then
+			player:SetAttribute("StoredStand2", pendingStand)
+			player:SetAttribute("StoredStand2_Trait", pendingTrait)
+		elseif data == "Slot3" and player:GetAttribute("HasStandSlot3") then
+			player:SetAttribute("StoredStand3", pendingStand)
+			player:SetAttribute("StoredStand3_Trait", pendingTrait)
+		elseif data == "Slot4" and prestige >= 15 then
+			player:SetAttribute("StoredStand4", pendingStand)
+			player:SetAttribute("StoredStand4_Trait", pendingTrait)
+		elseif data == "Slot5" and prestige >= 30 then
+			player:SetAttribute("StoredStand5", pendingStand)
+			player:SetAttribute("StoredStand5_Trait", pendingTrait)
+		elseif data == "SlotVIP" and player:GetAttribute("IsVIP") then
+			player:SetAttribute("StoredStandVIP", pendingStand)
+			player:SetAttribute("StoredStandVIP_Trait", pendingTrait)
+		end
+
+		NotificationEvent:FireClient(player, "<font color='#55FF55'>Successfully claimed " .. pendingStand .. " to " .. data .. "!</font>")
+		return
+	end
+
+	if action == "ClaimShopStyle" then
+		local pendingStyle = player:GetAttribute("PendingShopStyle")
+		if not pendingStyle or pendingStyle == "" then return end
+
+		player:SetAttribute("PendingShopStyle", nil)
+
+		if data == "Deny" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You declined the gifted Style.</font>")
+			return
+		end
+
+		local oldStyle = "None"
+		if data == "Active" then oldStyle = player:GetAttribute("FightingStyle") or "None"
+		elseif data == "Slot1" then oldStyle = player:GetAttribute("StoredStyle1") or "None"
+		elseif data == "Slot2" then oldStyle = player:GetAttribute("StoredStyle2") or "None"
+		elseif data == "Slot3" then oldStyle = player:GetAttribute("StoredStyle3") or "None"
+		elseif data == "SlotVIP" then oldStyle = player:GetAttribute("StoredStyleVIP") or "None" end
+
+		AdminLogger:Fire("Replacement", {
+			Player = player.Name, Context = "Shop/Gift", OldItem = oldStyle, NewItem = pendingStyle, Slot = data
+		})
+
+		if data == "Active" then
+			player:SetAttribute("FightingStyle", pendingStyle)
+		elseif data == "Slot1" then
+			player:SetAttribute("StoredStyle1", pendingStyle)
+		elseif data == "Slot2" and player:GetAttribute("HasStyleSlot2") then
+			player:SetAttribute("StoredStyle2", pendingStyle)
+		elseif data == "Slot3" and player:GetAttribute("HasStyleSlot3") then
+			player:SetAttribute("StoredStyle3", pendingStyle)
+		elseif data == "SlotVIP" and player:GetAttribute("IsVIP") then
+			player:SetAttribute("StoredStyleVIP", pendingStyle)
+		end
+
+		NotificationEvent:FireClient(player, "<font color='#FF8C00'>Successfully claimed " .. pendingStyle .. " to " .. data .. "!</font>")
+		return
+	end
+
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if not leaderstats then return end
+	local yen = leaderstats:FindFirstChild("GangTokens")
+	if not yen then return end
+
+	if action == "Buy" then
+		local itemName = data
+		local stockStr = player:GetAttribute("GangShopStock") or ""
+		local stockList = string.split(stockStr, ",")
+		local itemIndex = table.find(stockList, itemName)
+		if not itemIndex then warn("No itemIndex in gang shop") return end
+
+		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+		if not itemData then warn("No item data for gang shop") return end
+
+		local isIgnored = (itemName == "Stand Arrow" or itemName == "Rokakaka" or itemName == "Heavenly Stand Disc")
+		if not isIgnored and GameData.GetInventoryCount(player) >= GameData.GetMaxInventory(player) then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Inventory Full!</font>")
+			return
+		end
+
+		local cost = itemData.Cost or 0
+		if yen.Value >= cost then
+			yen.Value -= cost
+			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
+			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Yen", cost) end
+
+			local attrName = itemName:gsub("[^%w]", "") .. "Count"
+			player:SetAttribute(attrName, (player:GetAttribute(attrName) or 0) + 1)
+			table.remove(stockList, itemIndex)
+			player:SetAttribute("GangShopStock", table.concat(stockList, ","))
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Purchased " .. itemName .. "!</font>")
+		else
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Gang Tokens!</font>")
+		end
+
+	elseif action == "RestockYen" then
+		local cost = 100000
+		if yen.Value >= cost then
+			yen.Value -= cost
+			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
+			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Yen", cost) end
+
+			player:SetAttribute("GangShopRefreshTime", 0) 
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Restocked Shop for 100k Gang Tokens!</font>")
+		else
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Gang Tokens to restock!</font>")
+		end
+
+	elseif action == "Sell" then
+		local itemName = data
+
+		local lockedItems = player:GetAttribute("LockedItems") or ""
+		local isLocked = table.find(string.split(lockedItems, ","), itemName) ~= nil
+		if isLocked then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell a locked item!</font>")
+			return
+		end
+
+		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+		if not itemData then return end
+
+		if itemData.Rarity == "Special" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell Special rarity items!</font>")
+			return
+		end
+
+		local attrName = itemName:gsub("[^%w]", "") .. "Count"
+		local count = player:GetAttribute(attrName) or 0
+		if count > 0 then
+			local sellPrice = math.floor((itemData.Cost or 50) * 0.5)
+			player:SetAttribute(attrName, count - 1)
+
+			if count - 1 == 0 and itemData.Slot then
+				if player:GetAttribute("Equipped" .. itemData.Slot) == itemName then
+					player:SetAttribute("Equipped" .. itemData.Slot, "None")
+				end
+			end
+			yen.Value += sellPrice
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Sold 1x " .. itemName .. " for " .. sellPrice .. " Gang Tokens!</font>")
+		end
+
+	elseif action == "SellAll" then
+		local itemName = data
+
+		local lockedItems = player:GetAttribute("LockedItems") or ""
+		local isLocked = table.find(string.split(lockedItems, ","), itemName) ~= nil
+		if isLocked then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell a locked item!</font>")
+			return
+		end
+
+		local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
+		if not itemData then return end
+
+		if itemData.Rarity == "Special" then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell Special rarity items!</font>")
+			return
+		end
+
+		local attrName = itemName:gsub("[^%w]", "") .. "Count"
+		local count = player:GetAttribute(attrName) or 0
+
+		if count > 0 then
+			local sellPrice = math.floor((itemData.Cost or 50) * 0.5)
+			local amountToSell = count
+
+			if itemData.Slot and player:GetAttribute("Equipped" .. itemData.Slot) == itemName then
+				amountToSell = count - 1
+			end
+
+			if amountToSell <= 0 then
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>Cannot sell equipped item!</font>")
+				return 
+			end
+
+			player:SetAttribute(attrName, count - amountToSell)
+			local totalYen = sellPrice * amountToSell
+			yen.Value += totalYen
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Sold " .. amountToSell .. "x " .. itemName .. " for " .. totalYen .. " Gang Tokens!</font>")
+		end
+	end
+end)
