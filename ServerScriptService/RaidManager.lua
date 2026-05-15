@@ -336,6 +336,12 @@ local function ProcessTurn(match)
 
 			local pDrops = {}
 			if isWin then
+				if match.RaidId == "Raid_Part1" then
+					pcall(function()
+						BadgeService:AwardBadgeAsync(pData.Player.UserId, 4194606710515423)
+					end)
+				end
+
 				local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
 				if gangEvent then gangEvent:Fire(pData.Player:GetAttribute("Gang"), "Raids", 1) end
 
