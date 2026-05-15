@@ -355,8 +355,10 @@ local function SavePlayerData(player)
 
 		ShopStock = player:GetAttribute("ShopStock"), ShopRefreshTime = player:GetAttribute("ShopRefreshTime"),
 		EasterShopStock = player:GetAttribute("EasterShopStock") or "", EasterShopRefreshTime = player:GetAttribute("EasterShopRefreshTime") or 0, EasterEggCount = player:GetAttribute("EasterEggCount") or 0,
+		GangShopStock = player:GetAttribute("GangShopStock") or "", GangShopRefreshTime = player:GetAttribute("GangShopRefreshTime") or 0,
+		
 		RedeemedCodes = player:GetAttribute("RedeemedCodes") or "",
-
+		
 		StoredStand1 = player:GetAttribute("StoredStand1") or "None",
 		StoredStand1_Trait = player:GetAttribute("StoredStand1_Trait") or "None",
 		StoredStand2 = player:GetAttribute("StoredStand2") or "None",
