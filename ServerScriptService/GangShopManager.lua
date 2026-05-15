@@ -271,7 +271,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 		end
 
 	elseif action == "RestockYen" then
-		local cost = 100000
+		local cost = 5000
 		if yen.Value >= cost then
 			yen.Value -= cost
 			local gangEvent = Network:FindFirstChild("AddGangOrderProgress")
