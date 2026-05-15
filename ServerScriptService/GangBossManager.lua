@@ -62,7 +62,7 @@ local function StartGangBossBattle(player)
 
 	player:SetAttribute("IsEngagingGangBoss", true)
 
-	local bossName = "Za Warudo Mirage"
+	local bossName = "Jotaro"
 	local bossTemplate = EnemyData.GangBosses[bossName]
 	if not bossTemplate then 
 		player:SetAttribute("IsEngagingGangBoss", false)
@@ -156,7 +156,10 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	for _, combatant in ipairs(combatants) do
 		if battle.Player.HP < 1 or battle.Enemy.HP < 1 then break end
 		if combatant.HP < 1 then continue end
-
+		
+		if combatant.BlockTurns and combatant.BlockTurns > 0 then combatant.BlockTurns -= 1 end
+		if combatant.CounterTurns and combatant.CounterTurns > 0 then combatant.CounterTurns -= 1 end
+		
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
 			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy" or sName == "Warded") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
