@@ -70,7 +70,6 @@ local function GetAvailableBosses()
 
 	for bossName, _ in pairs(EnemyData.WorldBosses or {}) do
 		if bossName == "Easter Bunny" then continue end
-		if bossName== "Eren Jaeger" then continue end
 
 		if table.find(APRIL_FOOLS_BOSSES, bossName) then
 			if isAprilFools then 
