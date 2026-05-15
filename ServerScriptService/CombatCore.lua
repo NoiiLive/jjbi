@@ -69,7 +69,7 @@ function CombatCore.GetEquipBonus(player, statName)
 		["Stand_Potential"] = true
 	}
 	
-	local multiplier = 1 + (prestige * .1)
+	local multiplier = 1 + (prestige * .01)
 	
 	if ItemData.Equipment[wpn] and ItemData.Equipment[wpn].Bonus[statName] then 
 		bonus += (ItemData.Equipment[wpn].Bonus[statName] * multiplier)
@@ -422,12 +422,14 @@ function CombatCore.CalculateDamage(attacker, defender, skillMult, isDefenderBlo
 	end
 
 	local totalBypass = math.min(0.9, traitBypass + rangeBypass + passiveBypass)
-	local effectiveArmor = ((defender.TotalDefense or 0) * defBuff * defDebuff) * (1 - totalBypass)
+	local effectiveArmor = ((defender.TotalDefense or 0) * defBuff * defDebuff)
 
 	local scaledDef = math.max(0, effectiveArmor)
 	if scaledDef > 250 then
 		scaledDef = 250 + ((scaledDef - 250) ^ 0.8)
 	end
+
+	scaledDef = scaledDef * (1 - totalBypass)
 
 	local defenseMultiplier = 100 / (100 + scaledDef)
 
@@ -661,12 +663,14 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 
 	local defBuff = (combatant.Statuses and (combatant.Statuses.Buff_Defense or 0) > 0) and 1.5 or 1.0
 	local defDebuff = (combatant.Statuses and (combatant.Statuses.Debuff_Defense or 0) > 0) and 0.5 or 1.0
-	local effectiveArmor = ((combatant.TotalDefense or 0) * defBuff * defDebuff) * (1 - armorIgnore)
+	local effectiveArmor = ((combatant.TotalDefense or 0) * defBuff * defDebuff)
 
 	local scaledDef = effectiveArmor
 	if scaledDef > 250 then
 		scaledDef = 250 + ((scaledDef - 250) ^ 0.8)
 	end
+	
+	scaledDef = scaledDef * (1 - armorIgnore)
 
 	local defMult = 100 / (100 + math.max(0, scaledDef))
 	local persCount = CombatCore.CountTrait(combatant, "Perseverance")
@@ -693,6 +697,10 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 
 			local cappedStatDmg = math.min(pctDmg, statCap)
 			local rawDmg = math.max(minPctDmg, cappedStatDmg)
+			
+			if combatant.IsBoss then
+				rawDmg = cappedStatDmg
+			end
 
 			local dmg = math.max(1, rawDmg * defMult) * unstableMult * statusBlockMult
 			local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
@@ -752,8 +760,13 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		local pctDmg = combatant.MaxHP * statusDmgMod
 		local statCap = attackerOffense * 2.5
 		local minPctDmg = combatant.MaxHP * (combatant.IsBoss and 0.025 or 0.05)
+		
 		local cappedStatDmg = math.min(pctDmg, statCap)
 		local rawDmg = math.max(minPctDmg, cappedStatDmg)
+		
+		if combatant.IsBoss then
+			rawDmg = cappedStatDmg
+		end
 
 		local dmg = math.max(1, rawDmg * defMult * blockMult)
 		local survived = CombatCore.TakeDamageWithWillpower(combatant, dmg)
