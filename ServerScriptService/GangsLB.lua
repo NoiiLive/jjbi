@@ -7,20 +7,15 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 local LeaderboardAction = Network:WaitForChild("GangLeaderboardAction")
 local LeaderboardUpdate = Network:WaitForChild("GangLeaderboardUpdate")
 
-local WeeklyGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Weekly")
+local WeeklyGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Weekly_W2")
 local SeasonalGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Season_V1")
 
-local WeeklyMetaStore = DataStoreService:GetDataStore("GangTokens_Weekly_Meta")
+local WeeklyMetaStore = DataStoreService:GetDataStore("GangTokens_Weekly_Meta_W2")
 
 local WEEK_DURATION = 7 * 24 * 60 * 60
 local SAVE_INTERVAL = 300
 
 local Cache = {
-	Weekly = {},
-	Season = {}
-}
-
-local RuntimeTokens = {
 	Weekly = {},
 	Season = {}
 }
@@ -38,11 +33,9 @@ local function GetWeekStart()
 	end
 
 	local now = os.time()
-
 	pcall(function()
 		WeeklyMetaStore:SetAsync("WeekStart", now)
 	end)
-
 	return now
 end
 
@@ -53,10 +46,6 @@ local function SetWeekStart(timestamp)
 end
 
 local function ClearWeeklyLeaderboard()
-	for k in pairs(RuntimeTokens.Weekly) do
-		RuntimeTokens.Weekly[k] = nil
-	end
-
 	for k in pairs(DirtyWeekly) do
 		DirtyWeekly[k] = nil
 	end
@@ -66,12 +55,17 @@ local function ClearWeeklyLeaderboard()
 	end)
 
 	if success and pages then
-		local data = pages:GetCurrentPage()
-		for _, entry in ipairs(data) do
-			pcall(function()
-				WeeklyGangTokensStore:RemoveAsync(entry.key)
-			end)
-			task.wait(0.05)
+		while true do
+			local data = pages:GetCurrentPage()
+			for _, entry in ipairs(data) do
+				pcall(function()
+					WeeklyGangTokensStore:RemoveAsync(entry.key)
+				end)
+				task.wait(0.05)
+			end
+			if pages.IsFinished then break end
+			local advSuccess = pcall(function() pages:AdvanceToNextPageAsync() end)
+			if not advSuccess then break end
 		end
 	end
 
@@ -84,25 +78,6 @@ local function CheckWeeklyReset()
 		ClearWeeklyLeaderboard()
 	end
 end
-
-local function LoadStore(store, target)
-	local success, pages = pcall(function()
-		return store:GetSortedAsync(false, 100)
-	end)
-
-	if not success or not pages then
-		return
-	end
-
-	local data = pages:GetCurrentPage()
-
-	for _, entry in ipairs(data) do
-		target[entry.key] = entry.value
-	end
-end
-
-LoadStore(WeeklyGangTokensStore, RuntimeTokens.Weekly)
-LoadStore(SeasonalGangTokensStore, RuntimeTokens.Season)
 
 local function SaveDirty()
 	for gangKey, amount in pairs(DirtyWeekly) do
@@ -126,47 +101,36 @@ local function SaveDirty()
 	end
 end
 
-local function BuildCache(runtime)
-	local temp = {}
-
-	for gangKey, tokens in pairs(runtime) do
-		table.insert(temp, {
-			GangKey = gangKey,
-			Tokens = tokens
-		})
-	end
-
-	table.sort(temp, function(a, b)
-		return a.Tokens > b.Tokens
+local function FetchLeaderboard(store, oldCache)
+	local success, pages = pcall(function()
+		return store:GetSortedAsync(false, 100)
 	end)
 
-	local result = {}
-
-	for i = 1, math.min(100, #temp) do
-		local e = temp[i]
-		result[i] = {
-			Rank = i,
-			GangKey = e.GangKey,
-			Tokens = e.Tokens
-		}
+	if success and pages then
+		local result = {}
+		local data = pages:GetCurrentPage()
+		for i, entry in ipairs(data) do
+			table.insert(result, {
+				Rank = i,
+				GangKey = entry.key,
+				Tokens = entry.value
+			})
+		end
+		return result
 	end
-
-	return result
+	return oldCache
 end
 
 local function RefreshAll()
 	CheckWeeklyReset()
 
-	Cache.Weekly = BuildCache(RuntimeTokens.Weekly)
-	Cache.Season = BuildCache(RuntimeTokens.Season)
+	Cache.Weekly = FetchLeaderboard(WeeklyGangTokensStore, Cache.Weekly)
+	Cache.Season = FetchLeaderboard(SeasonalGangTokensStore, Cache.Season)
 end
 
 local function AddTokens(gangKey, amount)
 	if typeof(gangKey) ~= "string" then return end
 	if typeof(amount) ~= "number" then return end
-
-	RuntimeTokens.Weekly[gangKey] = (RuntimeTokens.Weekly[gangKey] or 0) + amount
-	RuntimeTokens.Season[gangKey] = (RuntimeTokens.Season[gangKey] or 0) + amount
 
 	DirtyWeekly[gangKey] = (DirtyWeekly[gangKey] or 0) + amount
 	DirtySeason[gangKey] = (DirtySeason[gangKey] or 0) + amount
@@ -196,6 +160,5 @@ LeaderboardAction.OnServerEvent:Connect(function(player, category)
 end)
 
 LeaderboardUpdate.Event:Connect(function(gangKey, amount)
-
 	AddTokens(gangKey, amount)
 end)
