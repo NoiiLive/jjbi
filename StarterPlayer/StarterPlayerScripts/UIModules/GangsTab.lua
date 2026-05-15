@@ -21,7 +21,7 @@ local ShopModule = require(script.Parent:WaitForChild("GangShopTab"))
 local GangUpdate = Network:WaitForChild("GangUpdate")
 
 local mainContainer, noGangContainer, hasGangContainer, pagesContainer, tabContainer
-local infoPage, upgPage, ordPage, settingsPage, shopPage, bossPage
+local infoPage, upgPage, ordPage, settingsPage, shopPage, bossPage, terrWarPage
 local titleLabel, mottoLabel, emblemImage, repLabel, infoTreasuryLabel, upgTreasuryLabel, levelLabel, joinModeBtn
 local membersList, browserList, requestsList, buildingList, ordersList
 local membersCard, requestsCard, settingsCard
@@ -54,6 +54,7 @@ local RolePower = { ["Grunt"] = 1, ["Caporegime"] = 2, ["Consigliere"] = 3, ["Bo
 local RoleColors = { ["Grunt"] = "#AAAAAA", ["Caporegime"] = "#55FF55", ["Consigliere"] = "#FF55FF", ["Boss"] = "#FFD700" }
 
 local memTemplate, reqTemplate, buildTpl, ordTpl, brTemplate
+local currentBattleRemote = "GangBossAction"
 
 local function GetGangLevel(rep)
 	if rep >= 100000 then return 5 end
@@ -135,10 +136,11 @@ local function SelectTab(tabName)
 	if settingsPage then settingsPage.Visible = (tabName == "Settings") end
 	if shopPage then shopPage.Visible = (tabName == "GangShop") end
 	if bossPage then bossPage.Visible = (tabName == "Boss") end
+	if terrWarPage then terrWarPage.Visible = (tabName == "TerrWar") end
 	if tabContainer then
 		for _, btn in ipairs(tabContainer:GetChildren()) do
 			if btn:IsA("TextButton") then
-				local isSel = (btn.Name == "Btn" .. tabName) or (tabName == "GangShop" and btn.Name == "BtnShop")
+				local isSel = (btn.Name == "Btn" .. tabName) or (tabName == "GangShop" and btn.Name == "BtnShop") or (tabName == "TerrWar" and btn.Name == "BtnTerrWar")
 				btn.BackgroundColor3 = isSel and Color3.fromRGB(90, 40, 140) or Color3.fromRGB(35, 25, 45)
 				btn.TextColor3 = isSel and Color3.fromRGB(255, 215, 0) or Color3.new(1,1,1)
 				local str = btn:FindFirstChildOfClass("UIStroke")
@@ -194,6 +196,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local btnSet = tabContainer:WaitForChild("BtnSettings")
 	local btnShop = tabContainer:WaitForChild("BtnShop")
 	local btnBoss = tabContainer:WaitForChild("BtnBoss")
+	local btnTerrWar = tabContainer:WaitForChild("BtnTerrWar")
 
 
 	btnInfo.MouseButton1Click:Connect(function() SelectTab("Info") end)
@@ -202,6 +205,10 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	btnOrd.MouseButton1Click:Connect(function() SelectTab("Orders") end)
 	btnSet.MouseButton1Click:Connect(function() SelectTab("Settings") end)
 	btnShop.MouseButton1Click:Connect(function() SelectTab("GangShop") end)
+	btnTerrWar.MouseButton1Click:Connect(function() 
+		SelectTab("TerrWar") 
+		Network:WaitForChild("TerritoryAction"):FireServer("GetMap")
+	end)
 
 	pagesContainer = hasGangContainer:WaitForChild("PagesContainer")
 	
@@ -218,13 +225,24 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	repLabel = repBg:WaitForChild("RepLabel")
 	infoTreasuryLabel = infoBox:WaitForChild("TreasuryLabel")
 	leaveBtn = infoBox:WaitForChild("LeaveBtn")
-	engageBossBtn = bossHeaderCard:WaitForChild("EngageGangBoss") 
+	engageBossBtn = bossHeaderCard:WaitForChild("EngageGangBoss")
 	
 	local dualBossContainer = bossPage:WaitForChild("DualContainer")
 
 	local seasonCard = dualBossContainer:WaitForChild("SeasonCard")
 	local weeklyCard = dualBossContainer:WaitForChild("WeeklyCard")
-
+	
+	terrWarPage = pagesContainer:WaitForChild("TerrWarPage")
+	local warZoneFrame = terrWarPage:WaitForChild("MainPanel"):WaitForChild("WarZoneFrame")
+	local rowTemplate = warZoneFrame:WaitForChild("RowTemplate")
+	local cellTemplate = rowTemplate:WaitForChild("CellTemplate")
+	local btnTerrWar = tabContainer:WaitForChild("BtnTerrWar") 
+	
+	rowTemplate.Visible = false
+	cellTemplate.Visible = false
+	
+	local generatedTiles = {}
+	
 	seasonList = seasonCard:WaitForChild("MembersList")
 	weeklyList = weeklyCard:WaitForChild("MembersList")
 	
@@ -374,6 +392,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	end
 
 	gangBossUpdate.OnClientEvent:Connect(function(action, data)
+		currentBattleRemote = "GangBossAction"
 		GangsTab.UpdateGangBoss(action, data)
 	end)
 	
@@ -538,6 +557,87 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	LeaderBoardAction:FireServer("Weekly")
 	LeaderBoardAction:FireServer("Season")
+	
+	local currentRow = nil
+	for i = 1, 99 do
+		if i % 9 == 1 then
+			currentRow = rowTemplate:Clone()
+			currentRow.Name = "Row_" .. math.ceil(i/9)
+			currentRow.Visible = true
+			currentRow.Parent = warZoneFrame
+		end
+
+		local cell = cellTemplate:Clone()
+		cell.Name = "Tile_" .. i
+		cell.Visible = true
+		cell.Parent = currentRow
+		generatedTiles[i] = cell
+		
+		local textLabel = cell:FindFirstChild("TextLabel")
+		local capturedText = cell:FindFirstChild("CapturedText")
+		local btn = cell:FindFirstChildWhichIsA("ImageButton")
+		
+		if textLabel then
+			textLabel.Text = i .. "\nSector"
+		end
+		
+		if btn then
+			btn.MouseButton1Click:Connect(function()
+				SFXManager.Play("Click")
+				if btn.ImageColor3 == Color3.fromRGB(50, 50, 50) then return end
+
+				Network:WaitForChild("TerritoryAction"):FireServer("Engage", {TileId = i})
+			end)
+		else
+			warn("No button found for terr war tile ")
+		end
+	end
+	
+	local TILE_MAX_HP = 5e6
+
+	local territoryUpdate = Network:FindFirstChild("TerritoryUpdate")
+	if not territoryUpdate then
+		territoryUpdate = Instance.new("RemoteEvent")
+		territoryUpdate.Name = "TerritoryUpdate"
+		territoryUpdate.Parent = Network
+	end
+
+	territoryUpdate.OnClientEvent:Connect(function(action, data)
+		if action == "MapData" then
+			for i = 1, 99 do
+				local isCaptured = (data[tostring(i)] == 1)
+
+				local cell = generatedTiles[i]
+				if cell then
+					local btn = cell:FindFirstChildWhichIsA("ImageButton")
+					local capturedText = cell:FindFirstChild("CapturedText")
+					local textLabel = cell:FindFirstChild("TextLabel")
+
+					if isCaptured then
+						if btn then
+							btn.Image = "rbxassetid://92826339442700" 
+							btn.ImageColor3 = Color3.fromRGB(150, 150, 150)
+						end
+						if capturedText then capturedText.Text = "[CAPTURED]" 
+							capturedText.TextColor3 = Color3.fromRGB(255, 215, 50) 
+						end
+					else
+						if btn then
+							btn.Image = "rbxassetid://134848417948106"
+							btn.ImageColor3 = Color3.fromRGB(255, 255, 255) 
+						end
+						if capturedText then 
+							capturedText.Text = "[FIGHT]" 
+							capturedText.TextColor3 = Color3.fromRGB(255, 0, 4) 
+						end
+					end
+				end
+			end
+		else
+			currentBattleRemote = "TerritoryAction"
+			GangsTab.UpdateGangBoss(action, data)
+		end
+	end)
 end
 
 function GangsTab.HandleUpdate(action, data)
@@ -881,7 +981,7 @@ function GangsTab.RenderSkills(battleData)
 			if disabled then return end
 			SFXManager.Play("Click")
 			if cachedTooltipMgr then cachedTooltipMgr.Hide() end
-			Network:WaitForChild("GangBossAction"):FireServer("Attack", {SkillName = sk.Name})
+			Network:WaitForChild(currentBattleRemote):FireServer("Attack", {SkillName = sk.Name})
 		end
 
 		if sk.Name == "Flee" then cb = nil end
@@ -906,7 +1006,7 @@ function GangsTab.RenderSkills(battleData)
 							end)
 						else
 							if cachedTooltipMgr then cachedTooltipMgr.Hide() end
-							Network:WaitForChild("GangBossAction"):FireServer("Attack", {SkillName = sk.Name}) 
+							Network:WaitForChild(currentBattleRemote):FireServer("Attack", {SkillName = sk.Name})
 						end
 					end
 				end)
