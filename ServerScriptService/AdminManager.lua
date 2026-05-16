@@ -64,6 +64,12 @@ local ANNOUNCER_RANKS = {
 	[6] = true
 }
 
+task.spawn(function()
+	local GlobalDataStore = DataStoreService:GetDataStore("GlobalAdminData_V1")
+	local success, epoch = pcall(function() return GlobalDataStore:GetAsync("BossResetEpoch") end)
+	ReplicatedStorage:SetAttribute("BossResetEpoch", epoch or 0)
+end)
+
 local function GetDictSize(d)
 	local c = 0
 	if d then for _ in pairs(d) do c += 1 end end
@@ -398,7 +404,7 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 	local displayTarget = ""
 	local actualSenderName = senderName or (adminPlayer and adminPlayer.Name) or "System"
 
-	if cmd ~= "!deletegang" and cmd ~= "!announcement" and cmd ~= "!addrep" and cmd ~= "!spawnwb" then
+	if cmd ~= "!deletegang" and cmd ~= "!announcement" and cmd ~= "!addrep" and cmd ~= "!spawnwb" and cmd ~= "!resetbosscd" then
 		if targetStr == "@all" then
 			targets = Players:GetPlayers()
 			displayTarget = "everyone in the game"
@@ -446,6 +452,18 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 			SendAdminNotice(p, "\n<font color='#FF55FF' size='16'><b>[GLOBAL ANNOUNCEMENT - " .. actualSenderName .. "]</b></font>\n<font color='#FFFFFF'>" .. announcementText .. "</font>\n")
 		end
 		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Global announcement broadcasted!</font>") end
+
+	elseif cmd == "!resetbosscd" then
+		local newEpoch = math.floor(workspace:GetServerTimeNow())
+		pcall(function() DataStoreService:GetDataStore("GlobalAdminData_V1"):SetAsync("BossResetEpoch", newEpoch) end)
+
+		pcall(function()
+			MessagingService:PublishAsync(GLOBAL_TOPIC, {
+				Cmd = "!resetbosscd_sync",
+				Epoch = newEpoch
+			})
+		end)
+		if adminPlayer then SendAdminNotice(adminPlayer, "<font color='#55FF55'>System: Boss cooldowns reset for ALL players (Online & Offline)!</font>") end
 
 	elseif cmd == "!spawnwb" then
 		local forceEvent = Network:FindFirstChild("AdminForceSpawnWB")
@@ -893,7 +911,20 @@ pcall(function()
 	MessagingService:SubscribeAsync(GLOBAL_TOPIC, function(message)
 		local data = message.Data
 
-		if data.Cmd == "!bring_req" then
+		if data.Cmd == "!resetbosscd_sync" then
+			ReplicatedStorage:SetAttribute("BossResetEpoch", data.Epoch)
+			local activeBoss = ReplicatedStorage:GetAttribute("CurrentBossSession") or ""
+			if activeBoss ~= "" then
+				ReplicatedStorage:SetAttribute("CurrentBossSession", activeBoss .. "_Reset" .. data.Epoch)
+			end
+
+			for _, p in ipairs(Players:GetPlayers()) do
+				p:SetAttribute("LastGangBossFight", "")
+				p:SetAttribute("LastBossSessionFought", "")
+				SendAdminNotice(p, "<font color='#55FF55'><b>[SYSTEM] Boss cooldowns have been globally reset! You can fight them again!</b></font>")
+			end
+			return
+		elseif data.Cmd == "!bring_req" then
 			local t = FindPlayer(data.TargetName)
 			if t then
 				SendAdminNotice(t, "<font color='#FF5555'>System " .. tostring(data.SenderName) .. " is forcing you to their server...</font>")
@@ -948,7 +979,7 @@ end)
 local validCmds = {
 	["!additem"] = true, ["!setstand"] = true, ["!setstyle"] = true, ["!addstat"] = true,
 	["!joingang"] = true, ["!promote"] = true, ["!deletegang"] = true, ["!spawnwb"] = true,
-	["!kickgang"] = true, ["!settrait"] = true, ["!announcement"] = true,
+	["!kickgang"] = true, ["!settrait"] = true, ["!announcement"] = true, ["!resetbosscd"] = true,
 	["!addpass"] = true, ["!addrep"] = true, ["!setfusedstand"] = true, ["!setfusedtrait"] = true,
 	["!goto"] = true, ["!bring"] = true, ["!teleport"] = true, ["!edit"] = true,
 	["!addindex"] = true, ["!addfusionindex"] = true
@@ -957,7 +988,7 @@ local validCmds = {
 local modAllowedCmds = {
 	["!additem"] = true, ["!setstand"] = true, ["!setstyle"] = true, ["!settrait"] = true,
 	["!setfusedstand"] = true, ["!setfusedtrait"] = true, ["!goto"] = true, ["!bring"] = true,
-	["!teleport"] = true, ["!addstat"] = true, ["!addpass"] = true, 
+	["!teleport"] = true, ["!addstat"] = true, ["!addpass"] = true, ["!resetbosscd"] = true,
 	["!deletegang"] = true, ["!promote"] = true, ["!announcement"] = true, ["!edit"] = true,
 	["!addindex"] = true, ["!addfusionindex"] = true
 }
@@ -991,7 +1022,7 @@ local function OnPlayerAdded(player)
 			return
 		end
 
-		if #parts < 2 and cmd ~= "!spawnwb" and cmd ~= "!edit" then return end
+		if #parts < 2 and cmd ~= "!spawnwb" and cmd ~= "!edit" and cmd ~= "!resetbosscd" then return end
 
 		local targetStr = parts[2] and string.lower(parts[2]) or ""
 
@@ -1022,17 +1053,19 @@ local function OnPlayerAdded(player)
 			return
 		end
 
-		local isGlobal = (targetStr == "@all") or (cmd == "!announcement") or (cmd == "!spawnwb") or (cmd == "!deletegang")
+		local isGlobal = (targetStr == "@all") or (cmd == "!announcement") or (cmd == "!spawnwb") or (cmd == "!deletegang") or (cmd == "!resetbosscd")
 
 		if isGlobal then
-			pcall(function()
-				MessagingService:PublishAsync(GLOBAL_TOPIC, {
-					Cmd = cmd,
-					Parts = parts,
-					ServerId = game.JobId,
-					SenderName = player.Name
-				})
-			end)
+			if cmd ~= "!resetbosscd" then 
+				pcall(function()
+					MessagingService:PublishAsync(GLOBAL_TOPIC, {
+						Cmd = cmd,
+						Parts = parts,
+						ServerId = game.JobId,
+						SenderName = player.Name
+					})
+				end)
+			end
 		end
 
 		ExecuteCommandLocally(cmd, parts, player, false, player.Name)
