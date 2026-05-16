@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local CombatCore = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameData = require(ReplicatedStorage:WaitForChild("GameData"))
@@ -49,13 +50,13 @@ function CombatCore.GetEquipBonus(player, statName)
 	local acc = player:GetAttribute("EquippedAccessory") or "None"
 	local style = player:GetAttribute("FightingStyle") or "None"
 	local bonus = 0
-	
+
 	local prestige = 0
 	local ls = player:FindFirstChild("leaderstats")
 	if ls and ls:FindFirstChild("Prestige") then
 		prestige = ls.Prestige.Value
 	end
-	
+
 	local scalableStats = {
 		["Health"] = true,
 		["Strength"] = true,
@@ -68,13 +69,13 @@ function CombatCore.GetEquipBonus(player, statName)
 		["Stand_Speed"] = true,
 		["Stand_Potential"] = true
 	}
-	
-	local multiplier = 1 + (prestige * .01)
-	
+
+	local multiplier = 1 + (prestige * .05)
+
 	if ItemData.Equipment[wpn] and ItemData.Equipment[wpn].Bonus[statName] then 
 		bonus += (ItemData.Equipment[wpn].Bonus[statName] * multiplier)
 	end
-	
+
 	if ItemData.Equipment[acc] and ItemData.Equipment[acc].Bonus[statName] then
 		local baseValue = ItemData.Equipment[acc].Bonus[statName]
 
@@ -84,7 +85,7 @@ function CombatCore.GetEquipBonus(player, statName)
 			bonus += baseValue
 		end
 	end
-	
+
 	if GameData.StyleBonuses and GameData.StyleBonuses[style] and GameData.StyleBonuses[style][statName] then 
 		bonus += GameData.StyleBonuses[style][statName] 
 	end
@@ -669,7 +670,7 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if scaledDef > 250 then
 		scaledDef = 250 + ((scaledDef - 250) ^ 0.8)
 	end
-	
+
 	scaledDef = scaledDef * (1 - armorIgnore)
 
 	local defMult = 100 / (100 + math.max(0, scaledDef))
@@ -692,12 +693,16 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 		if (combatant.Statuses[statusName] or 0) > 0 then
 			local attackerOffense = opponent and (math.max(opponent.TotalStrength or 0, opponent.StyleStrength or 0, opponent.StandStrength or 0)) or 1
 			local pctDmg = combatant.MaxHP * statusDmgMod * mult
-			local statCap = (attackerOffense * 2.5) * mult
+
+			local capMod = 2.5
+			if combatant.IsGangBoss then capMod = 25.0 end
+			local statCap = (attackerOffense * capMod) * mult
+
 			local minPctDmg = combatant.MaxHP * (combatant.IsBoss and 0.025 or 0.05) * mult
 
 			local cappedStatDmg = math.min(pctDmg, statCap)
 			local rawDmg = math.max(minPctDmg, cappedStatDmg)
-			
+
 			if combatant.IsBoss then
 				rawDmg = cappedStatDmg
 			end
@@ -758,12 +763,16 @@ function CombatCore.ApplyStatusDamage(combatant, uniModStr, CombatUpdate, player
 	if combatant.Statuses.Freeze > 0 then
 		local attackerOffense = opponent and (math.max(opponent.TotalStrength or 0, opponent.StyleStrength or 0, opponent.StandStrength or 0)) or 1
 		local pctDmg = combatant.MaxHP * statusDmgMod
-		local statCap = attackerOffense * 2.5
+
+		local capMod = 2.5
+		if combatant.IsGangBoss then capMod = 25.0 end
+		local statCap = attackerOffense * capMod
+
 		local minPctDmg = combatant.MaxHP * (combatant.IsBoss and 0.025 or 0.05)
-		
+
 		local cappedStatDmg = math.min(pctDmg, statCap)
 		local rawDmg = math.max(minPctDmg, cappedStatDmg)
-		
+
 		if combatant.IsBoss then
 			rawDmg = cappedStatDmg
 		end
@@ -860,7 +869,7 @@ function CombatCore.ExecuteStrike(attacker, defender, skillName, uniModStr, logN
 		[1] = {"Scorch", "#FF5500"}, [2] = {"Poison", "#AA00AA"}, [3] = {"Acid", "#80FF00"},
 		[4] = {"Hemorrhage", "#FF0000"}, [5] = {"Rupture", "#FF4400"}, [6] = {"Infection", "#800000"},
 		[7] = {"Blight", "#4B0082"}, [8] = {"Frost", "#66CCFF"}, [9] = {"Frostburn", "#55AAFF"},
-		[10] = {"Decay", "#00AA55"}, [11] = {"Miasma", "#2E8B57"}, [12] = {"Frostbite", "#0055FF"},
+		[10] = {"Decay", "#00AA55"}, [11] = {"Miasma", "#2E8B57"}, [12] = {"Frostbite", "#005500"},
 		[13] = {"Necrosis", "#8B4513"}, [14] = {"Plague", "#556B2F"}, [15] = {"Calamity", "#CC00FF"}
 	}
 
@@ -1507,7 +1516,7 @@ end
 
 function CombatCore.ApplyPreCombatPassives(playerObj, playerStruct, enemyStruct)
 	if not playerObj then return end
-	
+
 	local wpn = playerObj:GetAttribute("EquippedWeapon") or "None"
 	local acc = playerObj:GetAttribute("EquippedAccessory") or "None"
 
@@ -1521,13 +1530,13 @@ function CombatCore.ApplyPreCombatPassives(playerObj, playerStruct, enemyStruct)
 					playerStruct.Statuses[buffName] = math.max(playerStruct.Statuses[buffName] or 0, duration)
 				end
 			end
-			
+
 			if enemyStruct and itemData.CombatPassives.EnemyDebuffs then
 				for debuffName, duration in pairs(itemData.CombatPassives.EnemyDebuffs) do
 					enemyStruct.Statuses[debuffName] = math.max(enemyStruct.Statuses[debuffName] or 0, duration)
 				end
 			end
-			
+
 			if itemData.CombatPassives.Immunities then
 				for immName, hasImmunity in pairs(itemData.CombatPassives.Immunities) do
 					if hasImmunity then
