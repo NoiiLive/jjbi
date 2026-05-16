@@ -2,6 +2,16 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+	[[<b><font color='#FFD700'>v3.0 - Gang Wars Update (May 15th)</font></b>
+
+<font color='#D745FF'>[+]</font> <b>Gang Territories:</b> The Gang War has begun! 99 Sectors are now available to conquer on the new interactive map in the Gangs tab.
+<font color='#55FF55'>[+]</font> <b>Sector Guards:</b> Challenge dynamic Sector Guards in turn-based combat. Defeat them within 15 turns to claim the territory for your gang!
+<font color='#55FF55'>[+]</font> <b>Passive Income:</b> Captured sectors now provide your entire gang with passive Treasury funds and Reputation payouts every 5 minutes.
+<font color='#D745FF'>[+]</font> <b>Daily Gang Boss:</b> Face off against the new Gang Boss, Jotaro once a day! Deal as much damage as possible within the 15-turn limit to earn massive Yen, Gang Tokens, and Treasury payouts based on your performance.
+<font color='#EFFF3E'>[+]</font> <b>Gang Leaderboards:</b> Compete on the new Seasonal and Weekly Gang Leaderboards! Climb the ranks by collecting Gang Tokens from conquered sectors and Gang Boss raids.
+
+Use code <b><font color='#FF55FF'>GANGWAR</font></b> for free rewards!]],
+	
 	[[<b><font color='#FFD700'>v2.8 - AOT: Incremental Crossover Event (April 28th)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>New World Boss:</b> Added Eren Jaeger World Boss
