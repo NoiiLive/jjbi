@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MemoryStoreService = game:GetService("MemoryStoreService")
 local Players = game:GetService("Players")
@@ -52,7 +53,7 @@ local function StartGangBossBattle(player)
 		NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the Gang Boss today!</font>")
 		return
 	end
-	
+
 	local hasFought = false
 	pcall(function() hasFought = GangBossCooldowns:GetAsync(tostring(player.UserId)) end)
 	if hasFought then
@@ -75,8 +76,8 @@ local function StartGangBossBattle(player)
 	local bossEntity = {
 		IsPlayer = false, IsAlly = false, Name = bossTemplate.Name, Icon = bossTemplate.Icon or "", Trait = "None", IsBoss = true,
 		HP = bossTemplate.Health, MaxHP = bossTemplate.Health,
-		TotalStrength = bossTemplate.Strength, TotalDefense = bossTemplate.Defense,
-		TotalSpeed = bossTemplate.Speed, TotalWillpower = bossTemplate.Willpower,
+		TotalStrength = bossTemplate.Strength, TotalDefense = math.floor(bossTemplate.Defense * 0.3),
+		TotalSpeed = bossTemplate.Speed, TotalWillpower = math.floor(bossTemplate.Willpower * 0.3),
 		Stamina = 99999, MaxStamina = 99999, StandEnergy = 99999, MaxStandEnergy = 99999,
 		TotalRange = (GameData.StandRanks[sStats.Range] or 0),
 		TotalPrecision = (GameData.StandRanks[sStats.Precision] or 0),
@@ -99,9 +100,9 @@ local function StartGangBossBattle(player)
 		IsProcessing = false, TurnCounter = 1, Boosts = pData.Boosts, 
 		Player = pData, Enemy = bossEntity
 	}
-	
+
 	CombatCore.ApplyPreCombatPassives(player, pData, bossEntity)
-	
+
 	player:SetAttribute("LastGangBossFight", todayDate)
 	player:SetAttribute("InCombat", true)
 	player:SetAttribute("IsEngagingGangBoss", false)
@@ -136,7 +137,7 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			local dColor = defender.IsPlayer and "#FFFFFF" or "#FF5555"
 			local lName = attacker.IsPlayer and "You" or attacker.Name
 			local dName = defender.IsPlayer and "you" or defender.Name
-			return CombatCore.ExecuteStrike(attacker, defender, strikeSkill, "None", lName, dName, lColor, dColor)
+			return CombatCore.ExecuteStrike(attacker, attacker.HP > 0 and defender or nil, strikeSkill, "None", lName, dName, lColor, dColor)
 		end)
 		if success then
 			local hitTarget = actualTarget or defender
@@ -156,10 +157,10 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	for _, combatant in ipairs(combatants) do
 		if battle.Player.HP < 1 or battle.Enemy.HP < 1 then break end
 		if combatant.HP < 1 then continue end
-		
+
 		if combatant.BlockTurns and combatant.BlockTurns > 0 then combatant.BlockTurns -= 1 end
 		if combatant.CounterTurns and combatant.CounterTurns > 0 then combatant.CounterTurns -= 1 end
-		
+
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
 			if (string.sub(sName, 1, 5) == "Buff_" or string.sub(sName, 1, 7) == "Debuff_" or string.find(sName, "Exhausted") or sName == "Dizzy" or sName == "Warded") and sVal > 0 then combatant.Statuses[sName] = sVal - 1 end 
@@ -203,25 +204,25 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		if gangTokens > 0 then
 			local currentTokens = player:GetAttribute("GangTokens") or 0
 			player:SetAttribute("GangTokens", currentTokens + gangTokens)
-			
+
 		end
-		
+
 		pcall(function()
 			player.leaderstats.Yen.Value += pYen
 		end)
-		
-		
+
+
 		pcall(function()
 			GangBossCooldowns:SetAsync(tostring(player.UserId), true, 86400)
 		end)
 
-	
+
 
 		local resultLog = "<font color='#FFAA00'><b>Raid Finished!</b></font>\n"
 		resultLog = resultLog .. "<font color='#FF5555'>Total Damage Dealt: " .. math.floor(damageDealt) .. "</font>\n"
 		resultLog = resultLog .. "<font color='#55FF55'>Gang Treasury Earned: ¥" .. gangTreasuryGain .. "</font>\n"
 		resultLog = resultLog .. "<font color='#55FF55'>Gang Tokens Earned: " .. gangTokens .. "</font>"
-		
+
 		local finalPack = { XP = 0, Yen = pYen, Items = {} }
 
 		GangBossUpdate:FireClient(player, "Defeat", {Battle = battle, Drops = finalPack, CustomLog = resultLog})
