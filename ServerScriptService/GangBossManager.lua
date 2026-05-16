@@ -48,8 +48,9 @@ local function StartGangBossBattle(player)
 		return
 	end
 
+	local epoch = ReplicatedStorage:GetAttribute("BossResetEpoch") or 0
 	local lastFought = player:GetAttribute("LastGangBossFight") or ""
-	local todayDate = os.date("!%Y_%j")
+	local todayDate = os.date("!%Y_%j") .. "_" .. epoch
 
 	if not RunService:IsStudio() then
 		if lastFought == todayDate then
@@ -58,7 +59,7 @@ local function StartGangBossBattle(player)
 		end
 
 		local hasFought = false
-		pcall(function() hasFought = GangBossCooldowns:GetAsync(tostring(player.UserId)) end)
+		pcall(function() hasFought = GangBossCooldowns:GetAsync(tostring(player.UserId) .. "_" .. epoch) end)
 		if hasFought then
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the Gang Boss today!</font>")
 			return
@@ -221,8 +222,9 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		end)
 
 		if not RunService:IsStudio() then
+			local epoch = ReplicatedStorage:GetAttribute("BossResetEpoch") or 0
 			pcall(function()
-				GangBossCooldowns:SetAsync(tostring(player.UserId), true, 86400)
+				GangBossCooldowns:SetAsync(tostring(player.UserId) .. "_" .. epoch, true, 86400)
 			end)
 		end
 
