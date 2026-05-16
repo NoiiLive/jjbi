@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local DataStoreService = game:GetService("DataStoreService")
@@ -133,7 +134,8 @@ local function GetProperStatName(inputStr)
 		prestigepoints = "PrestigePoints", pp = "PrestigePoints",
 		health = "Health", strength = "Strength", defense = "Defense", speed = "Speed", stamina = "Stamina", willpower = "Willpower",
 		standpower = "Stand_Power_Val", standspeed = "Stand_Speed_Val", standrange = "Stand_Range_Val",
-		standdurability = "Stand_Durability_Val", standprecision = "Stand_Precision_Val", standpotential = "Stand_Potential_Val"
+		standdurability = "Stand_Durability_Val", standprecision = "Stand_Precision_Val", standpotential = "Stand_Potential_Val",
+		gangtokens = "GangTokens", tokens = "GangTokens", gtokens = "GangTokens"
 	}
 
 	return validStats[search]
@@ -720,6 +722,16 @@ local function ExecuteCommandLocally(cmd, parts, adminPlayer, isFromCrossServer,
 				else
 					local current = target:GetAttribute(properStat) or 0
 					target:SetAttribute(properStat, current + amount)
+
+					if properStat == "GangTokens" then
+						local gangName = target:GetAttribute("Gang")
+						if gangName and gangName ~= "None" then
+							local glUpdate = Network:FindFirstChild("GangLeaderboardUpdate")
+							if glUpdate and glUpdate:IsA("BindableEvent") then
+								glUpdate:Fire(gangName, amount)
+							end
+						end
+					end
 				end
 
 				if isMassEvent and target ~= adminPlayer then
