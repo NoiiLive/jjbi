@@ -138,13 +138,13 @@ local function StartTerritoryBattle(player, tileId)
 	local prestige = player:FindFirstChild("leaderstats") and player.leaderstats.Prestige.Value or 0
 	local pData = CombatCore.BuildPlayerStruct(player, true)
 
-	local bHp = 5000 + (prestige * 10000) + (tileId * 5000)
-	local bStat = 500 + (prestige * 50)
+	local bHp = 5000 + (prestige * 6000) + (tileId * 3500)
+	local bStat = 500 + (prestige * 30)
 
 	local enemyEntity = {
-		IsPlayer = false, IsAlly = false, Name = "Sector " .. tileId .. " Guard", Icon = "rbxassetid://595029582", Trait = "Tough", IsBoss = true,
+		IsPlayer = false, IsAlly = false, Name = "Sector " .. tileId .. " Guard", Icon = "rbxassetid://595029582", Trait = "None", IsBoss = true,
 		HP = bHp, MaxHP = bHp,
-		TotalStrength = bStat, TotalDefense = bStat, TotalSpeed = bStat, TotalWillpower = bStat,
+		TotalStrength = bStat, TotalDefense = math.floor(bStat * 0.3), TotalSpeed = bStat, TotalWillpower = math.floor(bStat * 0.3),
 		Stamina = 9999, MaxStamina = 9999, StandEnergy = 9999, MaxStandEnergy = 9999,
 		TotalRange = 500, TotalPrecision = 500,
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
