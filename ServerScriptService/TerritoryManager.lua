@@ -35,8 +35,10 @@ local MapCache = {}
 
 local AddGangTreasury = GetOrCreateEvent("AddGangTreasury", true)
 local INCOME_INTERVAL = 300 
-local TREASURY_PER_TILE = 5000
-local REP_PER_TILE = 2
+local TREASURY_PER_TILE = 25000
+local REP_PER_TILE = 10
+local BASE_YEN_PER_TILE = 15000
+local BASE_XP_PER_TILE = 7500
 
 task.spawn(function()
 	while true do
@@ -59,7 +61,21 @@ task.spawn(function()
 
 				for _, plr in ipairs(game.Players:GetPlayers()) do
 					if plr:GetAttribute("Gang") == gangName then
-						NotificationEvent:FireClient(plr, "<font color='#55FF55'>[Territories] Your gang recieved ¥" .. totalTreasury .. " for controlling " .. capturedCount .. " sectors!</font>")
+						local prestige = 0
+						if plr:FindFirstChild("leaderstats") and plr.leaderstats:FindFirstChild("Prestige") then
+							prestige = plr.leaderstats.Prestige.Value
+						end
+
+						local prestigeMult = 1 + (prestige * 0.1)
+						local pYen = math.floor(capturedCount * BASE_YEN_PER_TILE * prestigeMult)
+						local pXP = math.floor(capturedCount * BASE_XP_PER_TILE * prestigeMult)
+
+						pcall(function()
+							if plr.leaderstats:FindFirstChild("Yen") then plr.leaderstats.Yen.Value += pYen end
+							if plr.leaderstats:FindFirstChild("XP") then plr.leaderstats.XP.Value += pXP end
+						end)
+
+						NotificationEvent:FireClient(plr, "<font color='#55FF55'>[Territories] Your gang recieved ¥" .. totalTreasury .. " for controlling " .. capturedCount .. " sectors! You personally received ¥" .. pYen .. " and " .. pXP .. " XP!</font>")
 					end
 				end
 			end
