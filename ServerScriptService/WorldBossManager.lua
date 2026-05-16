@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local MemoryStoreService = game:GetService("MemoryStoreService")
@@ -90,7 +91,8 @@ pcall(function()
 
 		if #bossList > 0 then
 			local now = math.floor(workspace:GetServerTimeNow())
-			local sessionID = "Admin_" .. now
+			local epoch = ReplicatedStorage:GetAttribute("BossResetEpoch") or 0
+			local sessionID = "Admin_" .. now .. "_" .. epoch
 			ReplicatedStorage:SetAttribute("CurrentBossSession", sessionID)
 
 			if specificBossName and EnemyData.WorldBosses[specificBossName] then
@@ -162,7 +164,8 @@ task.spawn(function()
 			if now > AdminForcedEndTime and LastSpawnHour ~= utc.hour then
 				LastSpawnHour = utc.hour
 
-				local sessionID = "Hourly_" .. utc.year .. "_" .. utc.yday .. "_" .. utc.hour
+				local epoch = ReplicatedStorage:GetAttribute("BossResetEpoch") or 0
+				local sessionID = "Hourly_" .. utc.year .. "_" .. utc.yday .. "_" .. utc.hour .. "_" .. epoch
 				ReplicatedStorage:SetAttribute("CurrentBossSession", sessionID)
 
 				local bossList = GetAvailableBosses()
@@ -311,7 +314,7 @@ local function StartBossBattle(player)
 		Enemy = bossEntity,
 		IsInstanced = hasInstanced
 	}
-	
+
 	CombatCore.ApplyPreCombatPassives(player, pData, bossEntity)
 
 	if not hasInstanced then
