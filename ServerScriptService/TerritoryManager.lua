@@ -1,4 +1,5 @@
 -- @ScriptType: Script
+-- @ScriptType: Script
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
 local Network = ReplicatedStorage:WaitForChild("Network")
@@ -235,6 +236,8 @@ TerritoryAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		if combatant.BlockTurns and combatant.BlockTurns > 0 then combatant.BlockTurns -= 1 end
 		if combatant.CounterTurns and combatant.CounterTurns > 0 then combatant.CounterTurns -= 1 end
+		if combatant.StunImmunity and combatant.StunImmunity > 0 then combatant.StunImmunity -= 1 end
+		if combatant.ConfusionImmunity and combatant.ConfusionImmunity > 0 then combatant.ConfusionImmunity -= 1 end
 
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
