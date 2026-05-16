@@ -196,7 +196,7 @@ EnemyData.GangBosses = {
 	},
 	["Jotaro"] = {
 		Name = "Jotaro", IsBoss = true, Icon = "rbxassetid://96302738595637", 
-		Health = 1e10, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Health = 1e10, Strength = 500, Defense = 0, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
 		Stand = "Star Platinum", Style = "None",
 		Drops = { 
 			XP = 25000, Yen = 10000, 
