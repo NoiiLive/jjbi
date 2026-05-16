@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MemoryStoreService = game:GetService("MemoryStoreService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local EnemyData = require(ReplicatedStorage:WaitForChild("EnemyData"))
 local SkillData = require(ReplicatedStorage:WaitForChild("SkillData"))
@@ -49,16 +50,19 @@ local function StartGangBossBattle(player)
 
 	local lastFought = player:GetAttribute("LastGangBossFight") or ""
 	local todayDate = os.date("!%Y_%j")
-	if lastFought == todayDate then
-		NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the Gang Boss today!</font>")
-		return
-	end
 
-	local hasFought = false
-	pcall(function() hasFought = GangBossCooldowns:GetAsync(tostring(player.UserId)) end)
-	if hasFought then
-		NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the Gang Boss today!</font>")
-		return
+	if not RunService:IsStudio() then
+		if lastFought == todayDate then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the Gang Boss today!</font>")
+			return
+		end
+
+		local hasFought = false
+		pcall(function() hasFought = GangBossCooldowns:GetAsync(tostring(player.UserId)) end)
+		if hasFought then
+			NotificationEvent:FireClient(player, "<font color='#FF5555'>You have already challenged the Gang Boss today!</font>")
+			return
+		end
 	end
 
 	player:SetAttribute("IsEngagingGangBoss", true)
@@ -74,7 +78,7 @@ local function StartGangBossBattle(player)
 	local sStats = bossTemplate.StandStats or {Power="E", Speed="E", Range="E", Durability="E", Precision="E", Potential="E"}
 
 	local bossEntity = {
-		IsPlayer = false, IsAlly = false, Name = bossTemplate.Name, Icon = bossTemplate.Icon or "", Trait = "None", IsBoss = true,
+		IsPlayer = false, IsAlly = false, Name = bossTemplate.Name, Icon = bossTemplate.Icon or "", Trait = "None", IsBoss = true, IsGangBoss = true,
 		HP = bossTemplate.Health, MaxHP = bossTemplate.Health,
 		TotalStrength = bossTemplate.Strength, TotalDefense = math.floor(bossTemplate.Defense * 0.3),
 		TotalSpeed = bossTemplate.Speed, TotalWillpower = math.floor(bossTemplate.Willpower * 0.3),
@@ -103,7 +107,10 @@ local function StartGangBossBattle(player)
 
 	CombatCore.ApplyPreCombatPassives(player, pData, bossEntity)
 
-	player:SetAttribute("LastGangBossFight", todayDate)
+	if not RunService:IsStudio() then
+		player:SetAttribute("LastGangBossFight", todayDate)
+	end
+
 	player:SetAttribute("InCombat", true)
 	player:SetAttribute("IsEngagingGangBoss", false)
 
@@ -160,6 +167,8 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 
 		if combatant.BlockTurns and combatant.BlockTurns > 0 then combatant.BlockTurns -= 1 end
 		if combatant.CounterTurns and combatant.CounterTurns > 0 then combatant.CounterTurns -= 1 end
+		if combatant.StunImmunity and combatant.StunImmunity > 0 then combatant.StunImmunity -= 1 end
+		if combatant.ConfusionImmunity and combatant.ConfusionImmunity > 0 then combatant.ConfusionImmunity -= 1 end
 
 		if combatant.Cooldowns then for sName, cd in pairs(combatant.Cooldowns) do if cd > 0 then combatant.Cooldowns[sName] = cd - 1 end end end
 		for sName, sVal in pairs(combatant.Statuses) do 
@@ -193,7 +202,7 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		local pYen = math.floor((damageDealt * 0.1) * battle.Boosts.Yen)
 		local gangTreasuryGain = math.floor(damageDealt * 0.01)
 		local gangRepGain = math.floor(damageDealt / 50000)
-		local gangTokens = math.floor(damageDealt / 100000)
+		local gangTokens = math.floor(damageDealt / 5000)
 		local gangName = player:GetAttribute("Gang")
 		if gangName and gangName ~= "None" then
 			AddGangTreasury:Fire(gangName, gangTreasuryGain, gangRepGain)
@@ -211,12 +220,11 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			player.leaderstats.Yen.Value += pYen
 		end)
 
-
-		pcall(function()
-			GangBossCooldowns:SetAsync(tostring(player.UserId), true, 86400)
-		end)
-
-
+		if not RunService:IsStudio() then
+			pcall(function()
+				GangBossCooldowns:SetAsync(tostring(player.UserId), true, 86400)
+			end)
+		end
 
 		local resultLog = "<font color='#FFAA00'><b>Raid Finished!</b></font>\n"
 		resultLog = resultLog .. "<font color='#FF5555'>Total Damage Dealt: " .. math.floor(damageDealt) .. "</font>\n"
