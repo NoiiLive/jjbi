@@ -203,6 +203,15 @@ EnemyData.GangBosses = {
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["Star Platinum Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
+	["The World Over Heaven"] = {
+		Name = "The World Over Heaven", IsBoss = true, Icon = "rbxassetid://131641720971165", 
+		Health = 1e10, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"},
+		Stand = "The World", Style = "Vampirism",
+		Drops = { 
+			XP = 25000, Yen = 10000, 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
+		}
+	},
 }
 EnemyData.Parts = {
 	[1] = {
