@@ -96,7 +96,7 @@ local function GetCombinedBonus(statName)
 		["Stand_Power"] = true, ["Stand_Durability"] = true,
 		["Stand_Speed"] = true, ["Stand_Potential"] = true
 	}
-	local multiplier = 1 + (prestige * .1)
+	local multiplier = 1 + (prestige * .01)
 
 	if ItemData.Equipment[wpn] and ItemData.Equipment[wpn].Bonus[statName] then 
 		bonus += (ItemData.Equipment[wpn].Bonus[statName] * multiplier)
