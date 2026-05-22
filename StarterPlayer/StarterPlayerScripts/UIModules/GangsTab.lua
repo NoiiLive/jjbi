@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 
 local LeaderBoardAction: RemoteEvent = Network:WaitForChild("GangLeaderboardAction")
+local SeasonRewardAction: RemoteEvent = Network:WaitForChild("SeasonRewardAction")
 
 local UIModules = script.Parent
 local SFXManager = require(UIModules:WaitForChild("SFXManager"))
@@ -21,7 +22,7 @@ local ShopModule = require(script.Parent:WaitForChild("GangShopTab"))
 local GangUpdate = Network:WaitForChild("GangUpdate")
 
 local mainContainer, noGangContainer, hasGangContainer, pagesContainer, tabContainer
-local infoPage, upgPage, ordPage, settingsPage, shopPage, bossPage, terrWarPage
+local infoPage, upgPage, ordPage, settingsPage, shopPage, bossPage, terrWarPage, hallFamePage
 local titleLabel, mottoLabel, emblemImage, repLabel, infoTreasuryLabel, upgTreasuryLabel, levelLabel, joinModeBtn
 local membersList, browserList, requestsList, buildingList, ordersList
 local membersCard, requestsCard, settingsCard
@@ -29,6 +30,8 @@ local leaveBtn, boostsBtn, donateInput, donateBtn, ordersTimerLbl
 local reqInput, reqBtn
 local seasonList
 local weeklyList
+
+local leaderboardsFrame, personalFrame, seasonResultFrame
 
 local engageBossBtn
 local combatUI
@@ -137,6 +140,8 @@ local function SelectTab(tabName)
 	if shopPage then shopPage.Visible = (tabName == "GangShop") end
 	if bossPage then bossPage.Visible = (tabName == "Boss") end
 	if terrWarPage then terrWarPage.Visible = (tabName == "TerrWar") end
+	if hallFamePage then hallFamePage.Visible = (tabName == "HallFame") end
+
 	if tabContainer then
 		for _, btn in ipairs(tabContainer:GetChildren()) do
 			if btn:IsA("TextButton") then
@@ -153,6 +158,15 @@ local function SelectTab(tabName)
 	end
 end
 
+local function GetRewardString(rank)
+	if type(rank) ~= "number" then return "No Reward" end
+	if rank == 1 then return "2x Mythical, 3x Legendary, ¥5M" end
+	if rank == 2 then return "1x Mythical, 2x Legendary, ¥2.5M" end
+	if rank == 3 then return "3x Legendary, 2x Unique, ¥1M" end
+	if rank >= 4 and rank <= 10 then return "1x Legendary, 2x Unique, ¥500k" end
+	if rank >= 11 and rank <= 50 then return "1x Unique, ¥100k" end
+	return "No Reward"
+end
 
 function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	mainContainer = parentFrame
@@ -197,7 +211,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local btnShop = tabContainer:WaitForChild("BtnShop")
 	local btnBoss = tabContainer:WaitForChild("BtnBoss")
 	local btnTerrWar = tabContainer:WaitForChild("BtnTerrWar")
-
+	local btnHallFame = tabContainer:WaitForChild("BtnHallFame")
 
 	btnInfo.MouseButton1Click:Connect(function() SelectTab("Info") end)
 	btnBoss.MouseButton1Click:Connect(function() SelectTab("Boss") end)
@@ -211,7 +225,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	end)
 
 	pagesContainer = hasGangContainer:WaitForChild("PagesContainer")
-	
+
 	infoPage = pagesContainer:WaitForChild("InfoPage")
 	local headerCard = infoPage:WaitForChild("HeaderCard")
 	bossPage = pagesContainer:WaitForChild("BossPage")
@@ -226,26 +240,186 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	infoTreasuryLabel = infoBox:WaitForChild("TreasuryLabel")
 	leaveBtn = infoBox:WaitForChild("LeaveBtn")
 	engageBossBtn = bossHeaderCard:WaitForChild("EngageGangBoss")
-	
+
+	hallFamePage = pagesContainer:WaitForChild("HallFamePage")
+	local hallFameMain = hallFamePage:WaitForChild("MainPanel")
+	local hallFameHolder = hallFameMain:WaitForChild("HolderFrame")
+
+	leaderboardsFrame = hallFameHolder:WaitForChild("LeaderboardsFrame")
+	personalFrame = hallFameHolder:WaitForChild("PersonalFrame")
+	seasonResultFrame = hallFameHolder:WaitForChild("SeasonResultFrame")
+
+	local btnClaimReward = personalFrame:WaitForChild("BtnClaimReward")
+	local btnBackToSeasons = seasonResultFrame:WaitForChild("Frame"):WaitForChild("BtnBackToSeasons")
+
+	local seasonsScrolling = leaderboardsFrame:WaitForChild("LeaderScrollingFrame")
+	local seasonTemplate = seasonsScrolling:WaitForChild("LeaderBoardTemplate")
+	seasonTemplate.Visible = false
+
+	local leaderScrolling = seasonResultFrame:WaitForChild("LeaderScrollingFrame")
+	local firstTemplate = leaderScrolling:WaitForChild("FirstPlaceTemplate")
+	local secondTemplate = leaderScrolling:WaitForChild("SecondPlaceTemplate")
+	local thirdTemplate = leaderScrolling:WaitForChild("ThirdPlaceTemplate")
+	local placeTemplate = leaderScrolling:WaitForChild("PlaceTemplate")
+
+	firstTemplate.Visible = false
+	secondTemplate.Visible = false
+	thirdTemplate.Visible = false
+	placeTemplate.Visible = false
+
+	local currentViewedSeason = 1
+
+	local function ShowLeaderboardsList()
+		leaderboardsFrame.Visible = true
+		personalFrame.Visible = false
+		seasonResultFrame.Visible = false
+
+		for _, child in ipairs(seasonsScrolling:GetChildren()) do
+			if child:IsA("Frame") and child ~= seasonTemplate then
+				child:Destroy()
+			end
+		end
+
+		SeasonRewardAction:FireServer("GetSeasonsOverview")
+	end
+
+	btnHallFame.MouseButton1Click:Connect(function() 
+		SelectTab("HallFame") 
+		ShowLeaderboardsList()
+	end)
+
+	btnBackToSeasons.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		ShowLeaderboardsList()
+	end)
+
+	btnClaimReward.MouseButton1Click:Connect(function()
+		SFXManager.Play("Click")
+		SeasonRewardAction:FireServer("ClaimReward", currentViewedSeason)
+	end)
+
+	SeasonRewardAction.OnClientEvent:Connect(function(action, payload)
+		if action == "SeasonsOverviewData" then
+			local cache = payload
+			local currentSeason = ReplicatedStorage:GetAttribute("CurrentSeason") or 1
+
+			if currentSeason > 1 then
+				for s = currentSeason - 1, 1, -1 do
+					local row = seasonTemplate:Clone()
+					row.Name = "Season_" .. s
+					row.Visible = true
+
+					local sNameTxt = row:FindFirstChild("SeasonText") or row:FindFirstChildWhichIsA("TextLabel")
+					if sNameTxt then sNameTxt.Text = "Season " .. s end
+
+					local gangsPlaced = row:FindFirstChild("GangsPlaced")
+					if gangsPlaced then
+						local top3 = cache[tostring(s)] or {}
+						for i = 1, 3 do
+							local lbl = gangsPlaced:FindFirstChild(tostring(i))
+							if lbl then
+								lbl.Text = i .. ". " .. (top3[i] or "---")
+							end
+						end
+					end
+
+					local btnView = row:WaitForChild("BtnViewSeason")
+					btnView.MouseButton1Click:Connect(function()
+						SFXManager.Play("Click")
+						currentViewedSeason = s
+						leaderboardsFrame.Visible = false
+						personalFrame.Visible = true
+						seasonResultFrame.Visible = true
+
+						SeasonRewardAction:FireServer("GetSeasonData", s)
+					end)
+
+					row.Parent = seasonsScrolling
+				end
+			end
+
+		elseif action == "SeasonData" then
+			local targetSeason = payload.Season
+			local data = payload.Data
+
+			for _, child in ipairs(leaderScrolling:GetChildren()) do
+				if child:IsA("Frame") and not string.match(child.Name, "Template") then
+					child:Destroy()
+				end
+			end
+
+			local myGangName = player:GetAttribute("Gang") or "None"
+			local myRank = "N/A"
+
+			local sTextTop = seasonResultFrame:FindFirstChild("Frame"):FindFirstChild("SeasonText")
+			if sTextTop then sTextTop.Text = "Season " .. targetSeason end
+
+			local sTextPersonal = personalFrame:FindFirstChild("SeasonText")
+			if sTextPersonal then sTextPersonal.Text = "Season " .. targetSeason end
+
+			for _, entry in ipairs(data) do
+				local tpl = placeTemplate
+				if entry.Rank == 1 then tpl = firstTemplate
+				elseif entry.Rank == 2 then tpl = secondTemplate
+				elseif entry.Rank == 3 then tpl = thirdTemplate end
+
+				local row = tpl:Clone()
+				row.Name = "Rank_" .. entry.Rank
+				row.Visible = true
+
+				local gNameText = row:FindFirstChild("GangNameText")
+				local placeText = row:FindFirstChild("PlaceText")
+				local scoreText = row:FindFirstChild("ScoreText")
+
+				if gNameText then gNameText.Text = entry.GangKey end
+				if placeText then placeText.Text = "#" .. entry.Rank end
+				if scoreText then scoreText.Text = FormatNumber(entry.Tokens) end
+
+				if entry.GangKey == myGangName then
+					myRank = entry.Rank
+				end
+
+				row.Parent = leaderScrolling
+			end
+
+			local pGangName = personalFrame:FindFirstChild("GangNameText")
+			if pGangName then pGangName.Text = myGangName end
+
+			local myRankString = myRank == "N/A" and "Unranked" or ("#" .. myRank)
+			local placeFrame = personalFrame:FindFirstChild("PlaceFrame")
+			if placeFrame then
+				local numTxt = placeFrame:FindFirstChild("NumberText")
+				if numTxt then numTxt.Text = myRankString end
+			end
+
+			local rewardFrame = personalFrame:FindFirstChild("RewardFrame")
+			if rewardFrame then
+				local prizeTxt = rewardFrame:FindFirstChild("PrizeText")
+				if prizeTxt then
+					prizeTxt.Text = GetRewardString(myRank == "N/A" and 999 or myRank)
+				end
+			end
+		end
+	end)
+
 	local dualBossContainer = bossPage:WaitForChild("DualContainer")
 
 	local seasonCard = dualBossContainer:WaitForChild("SeasonCard")
 	local weeklyCard = dualBossContainer:WaitForChild("WeeklyCard")
-	
+
 	terrWarPage = pagesContainer:WaitForChild("TerrWarPage")
 	local warZoneFrame = terrWarPage:WaitForChild("MainPanel"):WaitForChild("WarZoneFrame")
 	local rowTemplate = warZoneFrame:WaitForChild("RowTemplate")
 	local cellTemplate = rowTemplate:WaitForChild("CellTemplate")
-	local btnTerrWar = tabContainer:WaitForChild("BtnTerrWar") 
-	
+
 	rowTemplate.Visible = false
 	cellTemplate.Visible = false
-	
+
 	local generatedTiles = {}
-	
+
 	seasonList = seasonCard:WaitForChild("MembersList")
 	weeklyList = weeklyCard:WaitForChild("MembersList")
-	
+
 	combatUI = CombatTemplate.Create(parentFrame, cachedTooltipMgr)
 	combatUI.MainFrame.Visible = false
 	combatUI.MainFrame.ZIndex = 40
@@ -254,8 +428,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	local jjbMenu = playerGui:WaitForChild("JJBIMenu")
 	local mainFrame = jjbMenu:WaitForChild("MainFrame")
 	local navBar = mainFrame:WaitForChild("NavBar")
-	
-	local templates = ReplicatedStorage:WaitForChild("JJBITemplates")
+
 	local wbControls = templates:WaitForChild("WorldBossControlsTemplate")
 
 	turnLabel = wbControls:WaitForChild("TurnLabel"):Clone()
@@ -264,12 +437,12 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	resourceLabel = wbControls:WaitForChild("ResourceLabel"):Clone()
 	resourceLabel.Parent = combatUI.ContentContainer
 	resourceLabel.Visible = false
-	
+
 	engageBossBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		Network:WaitForChild("GangBossAction"):FireServer("Engage")
 	end)
-	
+
 	leaveBtn.MouseButton1Click:Connect(function()
 		SFXManager.Play("Click")
 		local isBoss = (player:GetAttribute("GangRole") == "Boss" or player:GetAttribute("GangRole") == "Owner")
@@ -313,8 +486,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 	settingsPage = pagesContainer:WaitForChild("SettingsPage")
 	shopPage = pagesContainer:WaitForChild("ShopPage")
 	settingsCard = settingsPage:WaitForChild("SetScroll")
-	
-	
+
 	ShopModule.Init(shopPage)
 
 	bossPage = pagesContainer:WaitForChild("BossPage")
@@ -383,7 +555,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 			Network.GangAction:FireServer("Disband")
 		end
 	end)
-	
+
 	local gangBossUpdate = Network:FindFirstChild("GangBossUpdate")
 	if not gangBossUpdate then
 		gangBossUpdate = Instance.new("RemoteEvent")
@@ -395,7 +567,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		currentBattleRemote = "GangBossAction"
 		GangsTab.UpdateGangBoss(action, data)
 	end)
-	
+
 	SelectTab("Info")
 
 	GangUpdate.OnClientEvent:Connect(function(action, data)
@@ -445,7 +617,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 			GangsTab.HandleUpdate(action, data)
 		end
 	end)
-	
+
 	LeaderBoardAction.OnClientEvent:Connect(function(category, data)
 
 		local targetList
@@ -462,13 +634,11 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 			return
 		end
 
-
 		for _, child in ipairs(targetList:GetChildren()) do
 			if child:IsA("Frame") then
 				child:Destroy()
 			end
 		end
-
 
 		for _, entry in ipairs(data) do
 			local row = LeaderBoardTemplate:Clone()
@@ -482,7 +652,6 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 			nameLbl.Text = "#" .. tostring(entry.Rank) .. "  " .. tostring(entry.GangKey)
 			valueLbl.Text = tostring(entry.Tokens)
 		end
-
 
 		task.defer(function()
 			local layout = targetList:FindFirstChildWhichIsA("UIListLayout")
@@ -557,7 +726,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	LeaderBoardAction:FireServer("Weekly")
 	LeaderBoardAction:FireServer("Season")
-	
+
 	local currentRow = nil
 	for i = 1, 99 do
 		if i % 9 == 1 then
@@ -572,15 +741,15 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		cell.Visible = true
 		cell.Parent = currentRow
 		generatedTiles[i] = cell
-		
+
 		local textLabel = cell:FindFirstChild("TextLabel")
 		local capturedText = cell:FindFirstChild("CapturedText")
 		local btn = cell:FindFirstChildWhichIsA("ImageButton")
-		
+
 		if textLabel then
 			textLabel.Text = i .. "\nSector"
 		end
-		
+
 		if btn then
 			btn.MouseButton1Click:Connect(function()
 				SFXManager.Play("Click")
@@ -592,8 +761,6 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 			warn("No button found for terr war tile ")
 		end
 	end
-	
-	local TILE_MAX_HP = 5e6
 
 	local territoryUpdate = Network:FindFirstChild("TerritoryUpdate")
 	if not territoryUpdate then
@@ -606,6 +773,7 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 		if action == "MapData" then
 			for i = 1, 99 do
 				local isCaptured = (data[tostring(i)] == 1)
+				local isBossTile = (i % 9 == 0)
 
 				local cell = generatedTiles[i]
 				if cell then
@@ -618,16 +786,17 @@ function GangsTab.Init(parentFrame, tooltipMgr, focusFunc)
 							btn.Image = "rbxassetid://92826339442700" 
 							btn.ImageColor3 = Color3.fromRGB(150, 150, 150)
 						end
-						if capturedText then capturedText.Text = "[CAPTURED]" 
+						if capturedText then 
+							capturedText.Text = "[CAPTURED]" 
 							capturedText.TextColor3 = Color3.fromRGB(255, 215, 50) 
 						end
 					else
 						if btn then
-							btn.Image = "rbxassetid://134848417948106"
+							btn.Image = isBossTile and "rbxassetid://98336075128602" or "rbxassetid://134848417948106" --rbxassetid://108717660564823
 							btn.ImageColor3 = Color3.fromRGB(255, 255, 255) 
 						end
 						if capturedText then 
-							capturedText.Text = "[FIGHT]" 
+							capturedText.Text = isBossTile and "[BOSS FIGHT]" or "[FIGHT]" 
 							capturedText.TextColor3 = Color3.fromRGB(255, 0, 4) 
 						end
 					end
@@ -1117,7 +1286,7 @@ function GangsTab.UpdateGangBoss(status, data)
 	local jjbMenu = playerGui:WaitForChild("JJBIMenu")
 	local mainFrame = jjbMenu:WaitForChild("MainFrame")
 	local navBar = mainFrame:WaitForChild("NavBar")
-	
+
 	if status == "Start" then
 		inBattle = true
 		combatUI.ChatText.Text = ""
