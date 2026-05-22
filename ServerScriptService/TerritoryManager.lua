@@ -46,10 +46,12 @@ task.spawn(function()
 
 		for gangName, mapData in pairs(MapCache) do
 			local capturedCount = 0
+			local capturedTiles = {}
 
 			for tileId, status in pairs(mapData) do
 				if status == 1 then
 					capturedCount += 1
+					table.insert(capturedTiles, tileId) 
 				end
 			end
 
@@ -61,21 +63,23 @@ task.spawn(function()
 
 				for _, plr in ipairs(game.Players:GetPlayers()) do
 					if plr:GetAttribute("Gang") == gangName then
-						local prestige = 0
-						if plr:FindFirstChild("leaderstats") and plr.leaderstats:FindFirstChild("Prestige") then
-							prestige = plr.leaderstats.Prestige.Value
+						NotificationEvent:FireClient(plr, "<font color='#55FF55'>[Territories] Your gang collected ¥" .. totalTreasury .. " for controlling " .. capturedCount .. " sectors!</font>")
+					end
+				end
+
+				if math.random(1, 5) == 1 then
+					local lostTile = capturedTiles[math.random(1, #capturedTiles)]
+
+					MapCache[gangName][lostTile] = 0
+
+					DirtyDamage[gangName] = DirtyDamage[gangName] or {}
+					DirtyDamage[gangName][lostTile] = -1
+
+					for _, plr in ipairs(game.Players:GetPlayers()) do
+						if plr:GetAttribute("Gang") == gangName then
+							NotificationEvent:FireClient(plr, "<font color='#FF5555'>[CRITICAL] Rival gangs have reclaimed Sector " .. lostTile .. "! Recapture it to restore income!</font>")
+							TerritoryUpdate:FireClient(plr, "MapData", MapCache[gangName])
 						end
-
-						local prestigeMult = 1 + (prestige * 0.1)
-						local pYen = math.floor(capturedCount * BASE_YEN_PER_TILE * prestigeMult)
-						local pXP = math.floor(capturedCount * BASE_XP_PER_TILE * prestigeMult)
-
-						pcall(function()
-							if plr.leaderstats:FindFirstChild("Yen") then plr.leaderstats.Yen.Value += pYen end
-							if plr.leaderstats:FindFirstChild("XP") then plr.leaderstats.XP.Value += pXP end
-						end)
-
-						NotificationEvent:FireClient(plr, "<font color='#55FF55'>[Territories] Your gang recieved ¥" .. totalTreasury .. " for controlling " .. capturedCount .. " sectors! You personally received ¥" .. pYen .. " and " .. pXP .. " XP!</font>")
 					end
 				end
 			end
@@ -84,38 +88,51 @@ task.spawn(function()
 end)
 
 local function SyncTerritoryMaps()
-	for gangName, damageData in pairs(DirtyDamage) do
+	local activeGangsOnServer = {}
+	for _, plr in ipairs(game.Players:GetPlayers()) do
+		local g = plr:GetAttribute("Gang")
+		if g and g ~= "None" then activeGangsOnServer[g] = true end
+	end
+
+	for gangName, _ in pairs(activeGangsOnServer) do
+		local damageData = DirtyDamage[gangName] or {}
 		local hasDamage = false
 		for _, dmg in pairs(damageData) do
-			if dmg > 0 then hasDamage = true; break end
+			if dmg ~= 0 then hasDamage = true; break end
 		end
+
+		local success, updatedMap
 
 		if hasDamage then
 			local damageToPush = table.clone(damageData)
 			DirtyDamage[gangName] = {}
 
-			local success, updatedMap = pcall(function()
+			success, updatedMap = pcall(function()
 				return TerritoryStore:UpdateAsync("Map_" .. gangName, function(oldData)
 					oldData = oldData or {}
-					for tileId, status in pairs(damageToPush) do
-						if status == 1 then
-							oldData[tostring(tileId)] = 1
-						end
+					for tileId, dmg in pairs(damageToPush) do
+						oldData[tostring(tileId)] = math.max(0, (oldData[tostring(tileId)] or 0) + dmg)
 					end
 					return oldData
 				end)
 			end)
 
-			if success then
-				MapCache[gangName] = updatedMap
-				for _, plr in ipairs(game.Players:GetPlayers()) do
-					if plr:GetAttribute("Gang") == gangName then
-						TerritoryUpdate:FireClient(plr, "MapData", updatedMap)
-					end
-				end
-			else
+			if not success then
 				for tileId, dmg in pairs(damageToPush) do
 					DirtyDamage[gangName][tileId] = (DirtyDamage[gangName][tileId] or 0) + dmg
+				end
+			end
+		else
+			success, updatedMap = pcall(function()
+				return TerritoryStore:GetAsync("Map_" .. gangName)
+			end)
+		end
+
+		if success and updatedMap then
+			MapCache[gangName] = updatedMap
+			for _, plr in ipairs(game.Players:GetPlayers()) do
+				if plr:GetAttribute("Gang") == gangName then
+					TerritoryUpdate:FireClient(plr, "MapData", updatedMap)
 				end
 			end
 		end
@@ -157,11 +174,22 @@ local function StartTerritoryBattle(player, tileId)
 
 	local bHp = 5000 + (prestige * 6000) + (tileId * 3500)
 	local bStat = 500 + (prestige * 30)
+	
+	local eName = "Sector " .. tileId .. " Guard"
+	local eDef = bStat
+	local isBossNode = false
+	
+	if tileId % 9 == 0 then
+		eName = "Sector " .. tileId .. " Boss"
+		eDef = bStat * 3
+		isBossNode = true
+	end
 
 	local enemyEntity = {
-		IsPlayer = false, IsAlly = false, Name = "Sector " .. tileId .. " Guard", Icon = "rbxassetid://595029582", Trait = "None", IsBoss = true,
+		IsPlayer = false, IsAlly = false, Name = eName, Icon = "rbxassetid://116620164369513", Trait = "Tough", 
+		IsBoss = isBossNode,
 		HP = bHp, MaxHP = bHp,
-		TotalStrength = bStat, TotalDefense = math.floor(bStat * 0.3), TotalSpeed = bStat, TotalWillpower = math.floor(bStat * 0.3),
+		TotalStrength = bStat, TotalDefense = eDef, TotalSpeed = bStat, TotalWillpower = bStat,
 		Stamina = 9999, MaxStamina = 9999, StandEnergy = 9999, MaxStandEnergy = 9999,
 		TotalRange = 500, TotalPrecision = 500,
 		BlockTurns = 0, StunImmunity = 0, ConfusionImmunity = 0, WillpowerSurvivals = 0,
