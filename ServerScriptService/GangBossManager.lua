@@ -68,7 +68,7 @@ local function StartGangBossBattle(player)
 
 	player:SetAttribute("IsEngagingGangBoss", true)
 
-	local bossName = "Jotaro"
+	local bossName = "The World Over Heaven"
 	local bossTemplate = EnemyData.GangBosses[bossName]
 	if not bossTemplate then 
 		player:SetAttribute("IsEngagingGangBoss", false)
