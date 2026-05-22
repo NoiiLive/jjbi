@@ -171,6 +171,9 @@ local DefaultData = {
 	ShopStock = "", ShopRefreshTime = 0, RedeemedCodes = "",
 	GangShopStock = "", GangShopRefreshTime = 0, 
 	EasterShopStock = "", EasterShopRefreshTime = 0, EasterEggCount = 0,
+	
+	SeasonParticipation = "{}",
+	SeasonRewardsClaimed = "{}",
 
 	StoredStand1 = "None", StoredStand1_Trait = "None",
 	StoredStand2 = "None", StoredStand2_Trait = "None",
@@ -224,6 +227,28 @@ local function SetupLeaderstats(player, savedData)
 		if gangTokens.Value ~= newVal then
 			gangTokens.Value = newVal
 		end
+
+		local currentSeason = tostring(game:GetService("ReplicatedStorage"):GetAttribute("CurrentSeason") or 1)
+		local currentGang = player:GetAttribute("Gang")
+		if currentGang and currentGang ~= "None" then
+			local partsJson = player:GetAttribute("SeasonParticipation") or "{}"
+			local success, partsTable = pcall(function() return HttpService:JSONDecode(partsJson) end)
+			if not success or type(partsTable) ~= "table" then partsTable = {} end
+
+			local pastGangs = partsTable[currentSeason] or ""
+			local found = false
+			for g in string.gmatch(pastGangs, "([^,]+)") do
+				if g == currentGang then
+					found = true
+					break
+				end
+			end
+
+			if not found then
+				partsTable[currentSeason] = pastGangs == "" and currentGang or (pastGangs .. "," .. currentGang)
+				player:SetAttribute("SeasonParticipation", HttpService:JSONEncode(partsTable))
+			end
+		end
 	end)
 	
 	gangTokens.Changed:Connect(function(newVal)
@@ -238,7 +263,9 @@ local function SetupLeaderstats(player, savedData)
 	player:SetAttribute("EasterShopRefreshTime", savedData.EasterShopRefreshTime or DefaultData.EasterShopRefreshTime)
 	player:SetAttribute("RedeemedCodes", savedData.RedeemedCodes or DefaultData.RedeemedCodes)
 	player:SetAttribute("LastOnline", savedData.LastOnline or math.floor(workspace:GetServerTimeNow()))
-
+	player:SetAttribute("SeasonParticipation", savedData.SeasonParticipation or DefaultData.SeasonParticipation)
+	player:SetAttribute("SeasonRewardsClaimed", savedData.SeasonRewardsClaimed or DefaultData.SeasonRewardsClaimed)
+	
 	for key, val in pairs(savedData) do
 		if type(val) ~= "table" and key ~= "Prestige" and key ~= "Yen" and key ~= "Elo" and key ~= "ShopStock" and key ~= "ShopRefreshTime" and key ~= "EasterShopStock" and key ~= "EasterShopRefreshTime" and key ~= "RedeemedCodes" and key ~= "LastOnline" then
 			player:SetAttribute(key, val)
@@ -356,6 +383,9 @@ local function SavePlayerData(player)
 		ShopStock = player:GetAttribute("ShopStock"), ShopRefreshTime = player:GetAttribute("ShopRefreshTime"),
 		EasterShopStock = player:GetAttribute("EasterShopStock") or "", EasterShopRefreshTime = player:GetAttribute("EasterShopRefreshTime") or 0, EasterEggCount = player:GetAttribute("EasterEggCount") or 0,
 		GangShopStock = player:GetAttribute("GangShopStock") or "", GangShopRefreshTime = player:GetAttribute("GangShopRefreshTime") or 0,
+		
+		SeasonParticipation = player:GetAttribute("SeasonParticipation") or "{}",
+		SeasonRewardsClaimed = player:GetAttribute("SeasonRewardsClaimed") or "{}",
 		
 		RedeemedCodes = player:GetAttribute("RedeemedCodes") or "",
 		
