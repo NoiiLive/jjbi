@@ -2,6 +2,24 @@
 local UpdatesTab = {}
 
 local UpdatesData = {
+		[[<b><font color='#FFD700'>v3.2 - Stand Expansion Update (May 30th)</font></b>
+
+<font color='#55FF55'>[+]</font> <b>New Stands:</b> Added Achtung Baby, Dark Blue Moon, and the powerful Made in Heaven Ultimate Requiem!
+<font color='#55FF55'>[+]</font> <b>Weekly Gang Boss:</b> The Gang Boss has been updated! Face off against the new weekly threat to earn massive rewards for your gang.
+<font color='#55FFFF'>[*]</font> <b>Optimization:</b> Reworked various backend mechanics to improve overall game performance.
+
+Use code <b><font color='#FF55FF'>WEEKLYBOSS</font></b> for free rewards!]],
+		
+	[[<b><font color='#FFD700'>v3.1 - Seasons & Hall of Fame (May 22nd)</font></b>
+
+<font color='#D745FF'>[+]</font> <b>Hall of Fame & Seasons:</b> Seasonal leaderboards have officially arrived! Climb the ranks and solidify your legacy. Top players will be permanently immortalized in the new Hall of Fame UI!
+<font color='#EFFF3E'>[+]</font> <b>Seasonal Rewards:</b> Earning a top spot on the leaderboards now grants exclusive end-of-season payouts. This season, high-ranking players will be rewarded with rare Giftboxes! (Exclusive cosmetic accessories will be introduced as rewards next season).
+<font color='#55FF55'>[+]</font> <b>New Boss:</b> A brand new formidable gang boss has appeared!
+<font color='#D745FF'>[+]</font> <b>Territory Bosses:</b> The Gang War escalates! Defending key sectors just became much more challenging with the introduction of powerful Sector Bosses.
+<font color='#55FF55'>[+]</font> <b>Dynamic Territories:</b> Captured sectors will now periodically be reclaimed by hostile forces, ensuring endless replayability and continuous turf wars for your gang!
+
+Use code <b><font color='#FF55FF'>SEASON1</font></b> for free rewards!]],
+
 	[[<b><font color='#FFD700'>v3.0 - Gang Wars Update (May 15th)</font></b>
 
 <font color='#D745FF'>[+]</font> <b>Gang Territories:</b> The Gang War has begun! 99 Sectors are now available to conquer on the new interactive map in the Gangs tab.
@@ -11,7 +29,7 @@ local UpdatesData = {
 <font color='#EFFF3E'>[+]</font> <b>Gang Leaderboards:</b> Compete on the new Seasonal and Weekly Gang Leaderboards! Climb the ranks by collecting Gang Tokens from conquered sectors and Gang Boss raids.
 
 Use code <b><font color='#FF55FF'>GANGWAR</font></b> for free rewards!]],
-	
+
 	[[<b><font color='#FFD700'>v2.8 - AOT: Incremental Crossover Event (April 28th)</font></b>
 
 <font color='#55FF55'>[+]</font> <b>New World Boss:</b> Added Eren Jaeger World Boss
@@ -72,9 +90,9 @@ Use codes <b><font color='#FF55FF'>12KFAVS</font></b> and <b><font color='#FF55F
 <font color='#D745FF'>[+]</font> <b>Scaling Loot:</b> Endless Floor rewards now scale every 100 floors (e.g., 100+ grants +2 Rokakaka/Arrows) and include Corpse Parts.
 <font color='#D745FF'>[+]</font> <b>Massive Gains:</b> Dungeon XP and Yen gain has been massively boosted across the board!
 <font color='#D745FF'>[+]</font> <b>Daily Milestones:</b> Claim powerful rewards once every 24 hours (Resets Midnight UTC):
-    • Floor 50: Legendary Giftbox
-    • Floor 100: Mythical Giftbox
-    • Floor 1000: Unique Giftbox
+    • Floor 50: Legendary Giftbox
+    • Floor 100: Mythical Giftbox
+    • Floor 1000: Unique Giftbox
 <font color='#EFFF3E'>[+]</font> <b>New Rarity [Special]:</b> Gamepasses, Giftboxes, and Easter Eggs now fall under this rarity and cannot be sold.
 <font color='#55FF55'>[*]</font> <b>Security & QoL:</b> Locked items hide use buttons to prevent accidents, and items no longer need to be unlocked to trade.
 <font color='#55FFFF'>[*]</font> <b>Technical:</b> More robust Gang data storage, synchronized global timers, and fixed offline boss cooldown resets.
