@@ -278,7 +278,7 @@ ShopAction.OnServerEvent:Connect(function(player, action, data)
 			if gangEvent then gangEvent:Fire(player:GetAttribute("Gang"), "Yen", cost) end
 
 			player:SetAttribute("GangShopRefreshTime", 0) 
-			NotificationEvent:FireClient(player, "<font color='#55FF55'>Restocked Shop for 100k Gang Tokens!</font>")
+			NotificationEvent:FireClient(player, "<font color='#55FF55'>Restocked Shop for 5k Gang Tokens!</font>")
 		else
 			NotificationEvent:FireClient(player, "<font color='#FF5555'>Not enough Gang Tokens to restock!</font>")
 		end
