@@ -194,6 +194,11 @@ StandData.Stands = {
 
 	["Steel Platinum"] = { Rarity = "Unique", Part = "", Type = "Power", Stats = {Power="A", Speed="C", Range="D", Durability="A", Precision="A", Potential="A"} },
 	["Fused Stand"] = { Rarity = "Unique", Part = "", Type = "Power", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
+	
+	--new
+	["Achtung Baby"] = { Rarity = "Common", Part = "Part 4", Icon = "", Type = "Automatic", Stats = {Power="E", Speed="E", Range="E", Durability="A", Precision="E", Potential="A"} },
+	["Dark Blue Moon"] = { Rarity = "Rare", Part = "Part 3", Icon = "", Type = "Power", Stats = {Power="C", Speed="C", Range="C", Durability="B", Precision="C", Potential="D"} },
+	["Made in Heaven Ultimate Requiem"] = { Rarity = "Evolution", Part = "Part 6", Icon = "", Type = "Power", Stats = {Power="A", Speed="A", Range="A", Durability="A", Precision="A", Potential="A"} },
 }
 
 function StandData.RollStand(luckBoost, pityCount, targetPool)
