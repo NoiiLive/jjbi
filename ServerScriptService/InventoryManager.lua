@@ -987,11 +987,12 @@ UseItemRemote.OnServerEvent:Connect(function(player, itemName, targetStand, targ
 				if myStand == "Gold Experience" then EvolveStand("Gold Experience Requiem"); message = "Your stand evolved into Gold Experience Requiem!"
 				elseif myStand == "Silver Chariot" then EvolveStand("Chariot Requiem"); message = "Your stand evolved into Chariot Requiem!"
 				elseif myStand == "King Crimson" then EvolveStand("King Crimson Requiem"); message = "Your stand evolved into King Crimson Requiem!"
+				elseif myStand == "Made in Heaven" then EvolveStand("Made in Heaven Ultimate Requiem"); message = "Your Made in Heaven has achieved the Ultimate Requiem!"
 				elseif (myStand ~= "Chariot Requiem" and myStand ~= "Gold Experience Requiem" and myStand ~= "King Crimson Requiem" and myStand ~= "None") then
 					player:SetAttribute("StandTrait", "Requiem"); message = "The arrow accepts you, greedily worming it's way into your stand's body..."
 				else	
 					message = "The arrow falls through your graps, rejecting you."; itemConsumed = false
-				end
+			end
 			else
 				message = "You must be at least Prestige 5 to use this!"; itemConsumed = false
 			end
