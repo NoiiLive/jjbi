@@ -72,6 +72,24 @@ SkillData.Skills = {
 	["Nape Cut"] = { Requirement = "ODM Gear", Type = "Style", Mult = 3.0, StaminaCost = 20, EnergyCost = 0, Effect = "Bleed", Duration = 3, Cooldown = 6, Order = 9, VFX = "Slash", Description = "A precise, devastating slash aimed perfectly at the enemy's nape." },
 
 	-- Stand Abilities
+	
+	--new
+	-- === Achtung Baby ===
+	["Invisibility"] = { Requirement = "Achtung Baby", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 6, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 11, Description = "Turns the user invisible, granting a massive boost to Speed and evasion." },
+	["Transparent Strike"] = { Requirement = "Achtung Baby", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 4, Cooldown = 3, Order = 12, VFX = "Punch", Description = "An invisible, unpredictable physical strike." },
+	["Panic Cry"] = { Requirement = "Achtung Baby", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 8, Effect = "Confusion", Duration = 2, Cooldown = 7, Order = 13, Description = "A piercing, stress-inducing cry that heavily Confuses the target." },
+
+	-- === Dark Blue Moon ===
+	["Webbed Strike"] = { Requirement = "Dark Blue Moon", Type = "Stand", Mult = 1.2, StaminaCost = 0, EnergyCost = 5, Cooldown = 3, Order = 11, VFX = "Slash", Description = "A sharp, powerful strike with webbed hands." },
+	["Whirlpool"] = { Requirement = "Dark Blue Moon", Type = "Stand", Mult = 0.4, Hits = 3, StaminaCost = 0, EnergyCost = 8, Cooldown = 5, Order = 12, Description = "Creates a vicious vortex of water that strikes the enemy multiple times." },
+	["Razor Scales"] = { Requirement = "Dark Blue Moon", Type = "Stand", Mult = 1.5, StaminaCost = 0, EnergyCost = 10, Effect = "Bleed", Duration = 3, Cooldown = 6, Order = 13, VFX = "Slash", Description = "Shoots sharp, barnacle-like scales that burrow into the target, causing Bleed." },
+
+	-- === Made in Heaven Ultimate Requiem ===
+	["Speed Slice (Ultimate)"] = { Requirement = "Made in Heaven Ultimate Requiem", Type = "Stand", Mult = 2.5, StaminaCost = 0, EnergyCost = 10, Cooldown = 3, Order = 11, VFX = "Slash", Description = "A devastating slice moving at impossible speeds." },
+	["Infinite Acceleration"] = { Requirement = "Made in Heaven Ultimate Requiem", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 15, Effect = "Buff_Speed", Duration = 5, Cooldown = 7, Order = 12, Description = "Accelerates time to an infinite degree, granting unparalleled Speed." },
+	["Accelerated Barrage"] = { Requirement = "Made in Heaven Ultimate Requiem", Type = "Stand", Mult = 0.8, Hits = 5, StaminaCost = 0, EnergyCost = 20, Cooldown = 6, Order = 13, VFX = "Punch", Description = "A flurry of impossibly fast strikes that overwhelm the target." },
+	["Universe Reset (Ultimate)"] = { Requirement = "Made in Heaven Ultimate Requiem", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 35, Effect = "TimeReset", Cooldown = 7, Order = 14, Description = "Completely resets the universe, drastically altering the flow of the battle." },
+	
 	["Stand Barrage"] = { Requirement = "AnyStand", Type = "Stand", Mult = 0.33, Hits = 3, StaminaCost = 0, EnergyCost = 10, Cooldown = 3, Order = 10, VFX = "Punch", Description = "A rapid flurry of 3 Stand punches." },
 
 	["Spirit Photo"] = { Requirement = "Hermit Purple", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 3, Order = 11, Description = "Uses the environment to strike with spirit vines." },
