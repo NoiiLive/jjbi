@@ -14,22 +14,30 @@ if not SeasonRewardAction then
 	SeasonRewardAction.Parent = Network
 end
 
-local CURRENT_SEASON = 2 
+local CURRENT_SEASON = 1 
 ReplicatedStorage:SetAttribute("CurrentSeason", CURRENT_SEASON)
 
-local WeeklyGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Weekly_W2")
-local SeasonalGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Season_V" .. CURRENT_SEASON)
-local WeeklyMetaStore = DataStoreService:GetDataStore("GangTokens_Weekly_Meta_W2")
-
+local BASE_WEEK_TIMESTAMP = 1779353457 
+local STARTING_WEEK_NUMBER = 2
 local WEEK_DURATION = 7 * 24 * 60 * 60
+
+local function GetCurrentWeek()
+	local elapsed = math.max(0, os.time() - BASE_WEEK_TIMESTAMP)
+	return STARTING_WEEK_NUMBER + math.floor(elapsed / WEEK_DURATION)
+end
+
+local CURRENT_WEEK = GetCurrentWeek()
+local WeeklyGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Weekly_W" .. CURRENT_WEEK)
+local SeasonalGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Season_V" .. CURRENT_SEASON)
+
 local SAVE_INTERVAL = 300
 
 local REWARD_TIERS = {
-	[1] = { Items = { ["Mythical Giftbox"] = 2, ["Legendary Giftbox"] = 3 }, Yen = 5000000 },--1
-	[2] = { Items = { ["Mythical Giftbox"] = 1, ["Legendary Giftbox"] = 2 }, Yen = 2500000 },--2
-	[3] = { Items = { ["Legendary Giftbox"] = 3, ["Unique Giftbox"] = 2 }, Yen = 1000000 },--3
-	[4] = { Items = { ["Legendary Giftbox"] = 1, ["Unique Giftbox"] = 2 }, Yen = 500000 },--4-10
-	[5] = { Items = { ["Unique Giftbox"] = 1 }, Yen = 100000 }--11-50
+	[1] = { Items = { ["Mythical Giftbox"] = 2, ["Legendary Giftbox"] = 3 }, Yen = 5000000 },
+	[2] = { Items = { ["Mythical Giftbox"] = 1, ["Legendary Giftbox"] = 2 }, Yen = 2500000 },
+	[3] = { Items = { ["Legendary Giftbox"] = 3, ["Unique Giftbox"] = 2 }, Yen = 1000000 },
+	[4] = { Items = { ["Legendary Giftbox"] = 1, ["Unique Giftbox"] = 2 }, Yen = 500000 },
+	[5] = { Items = { ["Unique Giftbox"] = 1 }, Yen = 100000 }
 }
 
 local function GetRewardTier(rank)
@@ -43,7 +51,7 @@ end
 
 local Cache = { Weekly = {}, Season = {} }
 local PreviousSeasonCache = {}
-local PastSeasonsTop3Cache = {} 
+local PastSeasonsTop3Cache = {}
 local DirtyWeekly = {}
 local DirtySeason = {}
 
@@ -77,38 +85,18 @@ local function FetchAllPastTop3()
 end
 task.spawn(FetchAllPastTop3)
 
-local function GetWeekStart()
-	local success, value = pcall(function() return WeeklyMetaStore:GetAsync("WeekStart") end)
-	if success and value then return value end
-	local now = os.time()
-	pcall(function() WeeklyMetaStore:SetAsync("WeekStart", now) end)
-	return now
-end
-
-local function SetWeekStart(timestamp)
-	pcall(function() WeeklyMetaStore:SetAsync("WeekStart", timestamp) end)
-end
-
-local function ClearWeeklyLeaderboard()
-	for k in pairs(DirtyWeekly) do DirtyWeekly[k] = nil end
-	local success, pages = pcall(function() return WeeklyGangTokensStore:GetSortedAsync(false, 100) end)
-	if success and pages then
-		while true do
-			local data = pages:GetCurrentPage()
-			for _, entry in ipairs(data) do
-				pcall(function() WeeklyGangTokensStore:RemoveAsync(entry.key) end)
-				task.wait(0.05)
-			end
-			if pages.IsFinished then break end
-			local advSuccess = pcall(function() pages:AdvanceToNextPageAsync() end)
-			if not advSuccess then break end
-		end
-	end
-	SetWeekStart(os.time())
-end
-
 local function CheckWeeklyReset()
-	if os.time() - GetWeekStart() >= WEEK_DURATION then ClearWeeklyLeaderboard() end
+	local calculatedWeek = GetCurrentWeek()
+
+	if CURRENT_WEEK ~= calculatedWeek then
+		CURRENT_WEEK = calculatedWeek
+		WeeklyGangTokensStore = DataStoreService:GetOrderedDataStore("GangTokens_Weekly_W" .. CURRENT_WEEK)
+
+		for k in pairs(DirtyWeekly) do DirtyWeekly[k] = nil end
+		Cache.Weekly = {}
+
+		print("[GangsLB] Weekly Leaderboard mathematically switched to W" .. CURRENT_WEEK)
+	end
 end
 
 local function SaveDirty()
@@ -263,6 +251,11 @@ SeasonRewardAction.OnServerEvent:Connect(function(player, action, dataPayload)
 
 			local saveEvent = ReplicatedStorage:FindFirstChild("ForcePlayerSave")
 			if saveEvent then saveEvent:Fire(player) end
+
+			local invAction = Network:FindFirstChild("InventoryAction")
+			if invAction then
+				invAction:FireClient(player, "Refresh")
+			end
 
 			if NotificationEvent then NotificationEvent:FireClient(player, "<font color='#55FF55'>Successfully claimed Season " .. targetSeasonStr .. " reward (Rank " .. bestRank .. ")!</font>") end
 		end
