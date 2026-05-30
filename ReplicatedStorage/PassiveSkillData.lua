@@ -1,4 +1,5 @@
 -- @ScriptType: ModuleScript
+-- @ScriptType: ModuleScript
 local PassiveSkillData = {}
 
 PassiveSkillData.Trees = {}
@@ -233,6 +234,26 @@ AddPassives("Founding Titan", {
 	{Key="AbsoluteCommand", Name="Absolute Command", Desc="Increases confusion duration by 1.", Cost=5, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Confusion"}}}}, 
 	{Key="ScorchedEarth", Name="Scorched Earth", Desc="Upgrades Burn to Scorch.", Cost=5, Effects = {{Type = "StatusUpgrade", From = "Burn", To = "Scorch"}}}, 
 	{Key="FoundingPower", Name="Founding Power", Desc="Reduces incoming negative status durations by 2.", Cost=5, Effects = {{Type = "IncomingStatusDuration", Value = -2, Elements = {"All"}}}} 
+})
+
+AddPassives("Achtung Baby", {
+	{Key="InvisibleBaby", Name="Invisible Baby", Desc="Reduces incoming damage by 10%.", Cost=2, Effects = {{Type = "DamageReduction", Value = 10, Elements = {"All"}}}},
+	{Key="SurprisePrank", Name="Surprise Prank", Desc="Increases confusion duration by 1.", Cost=2, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Confusion"}}}}
+})
+
+AddPassives("Dark Blue Moon", {
+	{Key="BarnacleDrain", Name="Barnacle Drain", Desc="Upgrades Sick to Poison.", Cost=4, Effects = {{Type = "StatusUpgrade", From = "Sick", To = "Poison"}}},
+	{Key="ScaleArmor", Name="Scale Armor", Desc="Reduces incoming damage by 15%.", Cost=4, Effects = {{Type = "DamageReduction", Value = 15, Elements = {"All"}}}},
+	{Key="Whirlpool", Name="Whirlpool", Desc="Increases debuff durations by 1.", Cost=4, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"Debuffs"}}}},
+	{Key="SharpScales", Name="Sharp Scales", Desc="Bypasses 20% of enemy armor.", Cost=4, Effects = {{Type = "ArmorBypass", Value = 20}}}
+})
+
+AddPassives("Made in Heaven Ultimate Requiem", {
+	{Key="UltimateAcceleration", Name="Ultimate Acceleration", Desc="Reduces incoming damage by 30%.", Cost=5, Effects = {{Type = "DamageReduction", Value = 30, Elements = {"All"}}}},
+	{Key="RealitySlice", Name="Reality Slice", Desc="Upgrades Bleed to Hemorrhage.", Cost=5, Effects = {{Type = "StatusUpgrade", From = "Bleed", To = "Hemorrhage"}}},
+	{Key="InfiniteSpeed", Name="Infinite Speed", Desc="Bypasses 35% of enemy armor.", Cost=5, Effects = {{Type = "ArmorBypass", Value = 35}}},
+	{Key="EternalTime", Name="Eternal Time", Desc="Increases status durations by 1.", Cost=5, Effects = {{Type = "OutgoingStatusDuration", Value = 1, Elements = {"All"}}}},
+	{Key="UltimateUniverseReset", Name="Ultimate Universe Reset", Desc="Reduces incoming negative status durations by 2.", Cost=5, Effects = {{Type = "IncomingStatusDuration", Value = -2, Elements = {"All"}}}}
 })
 
 return PassiveSkillData
