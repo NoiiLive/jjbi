@@ -212,6 +212,16 @@ EnemyData.GangBosses = {
 			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
 		}
 	},
+	
+	["Undead Bruno Bucciarati"] = {
+		Name = "Undead Bruno Bucciarati", IsBoss = true, Icon = "rbxassetid://115219753108477", 
+		Health = 1e10, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="E", Durability="D", Precision="C", Potential="D"}, 
+		Stand = "Sticky Fingers", Style = "None", 
+	Drops = { 
+		XP = 25000, Yen = 10000, 
+		ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
+	}
+},
 }
 EnemyData.Parts = {
 	[1] = {
