@@ -217,11 +217,28 @@ EnemyData.GangBosses = {
 		Name = "Undead Bruno Bucciarati", IsBoss = true, Icon = "rbxassetid://115219753108477", 
 		Health = 1e10, Strength = 500, Defense = 100, Speed = 400, Willpower = 500, StandStats = {Power="A", Speed="A", Range="E", Durability="D", Precision="C", Potential="D"}, 
 		Stand = "Sticky Fingers", Style = "None", 
-	Drops = { 
-		XP = 25000, Yen = 10000, 
-		ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
-	}
-},
+		Drops = {
+			XP = 25000, Yen = 10000, 
+			ItemChance = { ["Stand Arrow"] = 100, ["Rokakaka"] = 5, ["The World Disc"] = 1, ["Advanced Style Training Manual"] = 5, ["Advanced Stand Training Manual"] = 5, ["Master Training Manual"] = 1 } 
+		};
+	},
+	["Novel Kars"] = {
+		Name = "Novel Kars", IsBoss = true, Icon = "rbxassetid://0",
+		Health = 1e7, Strength = 5000, Defense = 5000, Speed = 5000, Willpower = 5000, 
+		StandStats = {Power="S", Speed="S", Range="S", Durability="S", Precision="S", Potential="S"},
+		Stand = "Made in Heaven Ultimate Requiem", Style = "Ultimate Lifeform",
+		Drops = { 
+			XP = 1000000, Yen = 500000, 
+			ItemChance = { 
+				["Requiem Arrow"] = 5, 
+				["Red Stone of Aja"] = 15, 
+				["Saint's Corpse Part"] = 10,
+				["Stand Arrow"] = 100, 
+				["Rokakaka"] = 100, 
+				["Master Training Manual"] = 10 
+			} 
+		}
+	},
 }
 EnemyData.Parts = {
 	[1] = {
