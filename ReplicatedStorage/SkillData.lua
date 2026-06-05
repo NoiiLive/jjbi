@@ -74,6 +74,8 @@ SkillData.Skills = {
 	-- Stand Abilities
 	
 	--new
+	
+	
 	-- === Achtung Baby ===
 	["Invisibility"] = { Requirement = "Achtung Baby", Type = "Stand", Mult = 0, StaminaCost = 0, EnergyCost = 6, Effect = "Buff_Speed", Duration = 3, Cooldown = 5, Order = 11, Description = "Turns the user invisible, granting a massive boost to Speed and evasion." },
 	["Transparent Strike"] = { Requirement = "Achtung Baby", Type = "Stand", Mult = 1.0, StaminaCost = 0, EnergyCost = 4, Cooldown = 3, Order = 12, VFX = "Punch", Description = "An invisible, unpredictable physical strike." },
