@@ -464,7 +464,7 @@ WorldBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			player.leaderstats.Yen.Value += fYen
 		end)
 
-		local dropMultiplier = player:GetAttribute("Has2xDropChance") and 2 or 1
+		local dropMultiplier = (player:GetAttribute("Has2xDropChance") and 2 or 1) * (game:GetService("ReplicatedStorage"):GetAttribute("GlobalEvent_DropRate") or 1)
 		local currentInv = 0
 		local maxInv = 50
 		pcall(function() currentInv = GameData.GetInventoryCount(player) end)
