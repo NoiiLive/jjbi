@@ -468,7 +468,7 @@ local function StartTrade(p1, p2)
 	UpdateAllBrowsers()
 end
 
-TradeAction.OnServerEvent:Connect(function(player, action, data)
+TradeAction.OnServerEvent:Connect(function(player, action, data, extraArg)
 	local session = ActiveTrades[player]
 
 	if not session then
@@ -839,6 +839,9 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			if myOffer.Locked or myOffer.Confirmed then return end
 			local itemName = tostring(data)
 
+			local addAmt = type(extraArg) == "number" and math.floor(extraArg) or 1
+			addAmt = math.max(1, addAmt)
+
 			local itemData = ItemData.Equipment[itemName] or ItemData.Consumables[itemName]
 			if not itemData then return end
 
@@ -861,20 +864,27 @@ TradeAction.OnServerEvent:Connect(function(player, action, data)
 			end
 
 			local availableToTrade = isEquipped and (countInInv - 1) or countInInv
+			local maxCanAdd = availableToTrade - countInOffer
 
-			if availableToTrade > countInOffer then
-				myOffer.Items[itemName] = countInOffer + 1
+			addAmt = math.min(addAmt, maxCanAdd)
+
+			if addAmt > 0 then
+				myOffer.Items[itemName] = countInOffer + addAmt
 				UnlockTrade()
 				SyncTrade(session)
 			else
-				NotificationEvent:FireClient(player, "<font color='#FF5555'>You cannot trade equipped items. Unequip it first!</font>")
+				NotificationEvent:FireClient(player, "<font color='#FF5555'>You don't have enough of this item available!</font>")
 			end
 
 		elseif action == "RemoveItem" then
 			if myOffer.Locked or myOffer.Confirmed then return end
 			local itemName = tostring(data)
+
+			local remAmt = type(extraArg) == "number" and math.floor(extraArg) or 1
+			remAmt = math.max(1, remAmt)
+
 			if myOffer.Items[itemName] then
-				myOffer.Items[itemName] -= 1
+				myOffer.Items[itemName] -= remAmt
 				if myOffer.Items[itemName] <= 0 then myOffer.Items[itemName] = nil end
 				UnlockTrade()
 				SyncTrade(session)
