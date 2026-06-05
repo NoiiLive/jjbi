@@ -22,7 +22,7 @@ local forceTabFocus
 
 local myOfferGrid, oppOfferGrid, myInvList, myStandList, myStyleList
 local myYenLbl, oppYenLbl, tradeStatusLbl
-local addYenInput, lockBtn, confirmBtn
+local addYenInput, lockBtn, confirmBtn, addItemInput
 local claimModal, claimContainer, claimTitle
 local btnActive, btnSlot1, btnSlot2, btnSlot3, btnSlot4, btnSlot5, btnSlotVIP
 
@@ -216,7 +216,13 @@ local function DrawTradeItems(container, itemsTable, standData, styleData, isMyO
 			btn.MouseButton1Click:Connect(function()
 				SFXManager.Play("Click")
 				if cachedTooltipMgr then cachedTooltipMgr.Hide() end
-				Network.TradeAction:FireServer("RemoveItem", itemName)
+
+				local amt = 1
+				if addItemInput and addItemInput.Text ~= "" and tonumber(addItemInput.Text) then
+					amt = math.max(1, math.floor(tonumber(addItemInput.Text) or 1))
+				end
+
+				Network.TradeAction:FireServer("RemoveItem", itemName, amt)
 			end)
 		end
 		order += 1
@@ -388,6 +394,7 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 
 	local ctrlFrame = bottomArea:WaitForChild("CtrlFrame")
 	addYenInput = ctrlFrame:WaitForChild("AddYenInput")
+	addItemInput = bottomArea:FindFirstChild("AddItemInput")
 	local setYenBtn = ctrlFrame:WaitForChild("SetYenBtn")
 	lockBtn = ctrlFrame:WaitForChild("LockBtn")
 
@@ -532,7 +539,13 @@ function TradingTab.Init(parentFrame, tooltipMgr, focusFunc)
 				btn.MouseButton1Click:Connect(function()
 					SFXManager.Play("Click")
 					if cachedTooltipMgr then cachedTooltipMgr.Hide() end
-					Network.TradeAction:FireServer("AddItem", itemName)
+
+					local amt = 1
+					if addItemInput and addItemInput.Text ~= "" and tonumber(addItemInput.Text) then
+						amt = math.max(1, math.floor(tonumber(addItemInput.Text) or 1))
+					end
+
+					Network.TradeAction:FireServer("AddItem", itemName, amt)
 				end)
 				order += 1
 			end
