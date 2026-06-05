@@ -348,7 +348,7 @@ local function ProcessTurn(match)
 				pData.Player:SetAttribute("XP", (pData.Player:GetAttribute("XP") or 0) + fXP)
 				pData.Player.leaderstats.Yen.Value += fYen
 
-				local dropMultiplier = pData.Player:GetAttribute("Has2xDropChance") and 2 or 1
+				local dropMultiplier = (player:GetAttribute("Has2xDropChance") and 2 or 1) * (game:GetService("ReplicatedStorage"):GetAttribute("GlobalEvent_DropRate") or 1)
 				local currentInv = GameData.GetInventoryCount(pData.Player)
 				local maxInv = GameData.GetMaxInventory(pData.Player)
 
