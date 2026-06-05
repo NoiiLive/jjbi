@@ -322,7 +322,7 @@ CombatAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		player:SetAttribute("XP", (player:GetAttribute("XP") or 0) + fXP)
 		player.leaderstats.Yen.Value += fYen
 
-		local dropMultiplier = player:GetAttribute("Has2xDropChance") and 2 or 1
+		local dropMultiplier = (player:GetAttribute("Has2xDropChance") and 2 or 1) * (game:GetService("ReplicatedStorage"):GetAttribute("GlobalEvent_DropRate") or 1)
 		local currentInv = GameData.GetInventoryCount(player)
 		local maxInv = GameData.GetMaxInventory(player)
 		local droppedItems = {}
