@@ -68,9 +68,10 @@ local function StartGangBossBattle(player)
 
 	player:SetAttribute("IsEngagingGangBoss", true)
 
-	local bossName = "Undead Bruno Bucciarati"
+	local bossName = "Novel Kars"
 	local bossTemplate = EnemyData.GangBosses[bossName]
-	if not bossTemplate then 
+	print(bossTemplate)
+	if not bossTemplate then  
 		player:SetAttribute("IsEngagingGangBoss", false)
 		return 
 	end
@@ -187,6 +188,16 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 		end
 
 		if combatant.IsPlayer then
+			if skill.Effect == "Flee" then
+				GangBossUpdate:FireClient(player, "TurnStrike", {Battle = battle, LogMsg = "<font color='#AAAAAA'>You fled from the battle!</font>", DidHit = false, ShakeType = "None"})
+				task.wait(waitMultiplier)
+				GangBossUpdate:FireClient(player, "Fled", {Battle = battle})
+				ActiveBattles[player.UserId] = nil
+				player:SetAttribute("InCombat", false)
+				return
+			end
+			
+			
 			DispatchStrike(battle.Player, battle.Enemy, skillName)
 		else
 			local eSkill = CombatCore.ChooseAISkill(combatant)
@@ -200,10 +211,10 @@ GangBossAction.OnServerEvent:Connect(function(player, actionType, actionData)
 	if battle.Player.HP < 1 or battle.Enemy.HP < 1 or battle.TurnCounter > MAX_TURNS then
 		local damageDealt = math.max(0, battle.Enemy.MaxHP - battle.Enemy.HP)
 
-		local pYen = math.floor((damageDealt * 0.1) * battle.Boosts.Yen)
-		local gangTreasuryGain = math.floor(damageDealt * 0.01)
-		local gangRepGain = math.floor(damageDealt / 50000)
-		local gangTokens = math.floor(damageDealt / 5000)
+		local pYen = math.floor((damageDealt * 1) * battle.Boosts.Yen)
+		local gangTreasuryGain = math.floor(damageDealt * 0.1)
+		local gangRepGain = math.floor(damageDealt / 5000)
+		local gangTokens = math.floor(damageDealt / 500)
 		local gangName = player:GetAttribute("Gang")
 		if gangName and gangName ~= "None" then
 			AddGangTreasury:Fire(gangName, gangTreasuryGain, gangRepGain)
