@@ -464,7 +464,7 @@ DungeonAction.OnServerEvent:Connect(function(player, actionType, actionData)
 			player.leaderstats.Yen.Value += fYen
 
 			local droppedItems = {}
-			local baseDropMult = player:GetAttribute("Has2xDropChance") and 2 or 1
+			local baseDropMult = (player:GetAttribute("Has2xDropChance") and 2 or 1) * (game:GetService("ReplicatedStorage"):GetAttribute("GlobalEvent_DropRate") or 1)
 			local depthDropMult = 1 + (math.floor(dungeon.CurrentWave / 20) * 0.25)
 			local dropMultiplier = baseDropMult * depthDropMult
 
