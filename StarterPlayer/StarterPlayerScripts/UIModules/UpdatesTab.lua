@@ -9,7 +9,7 @@ local UpdatesData = {
 <font color='#55FFFF'>[*]</font> <b>Optimization:</b> Reworked various backend mechanics to improve overall game performance.
 
 Use code <b><font color='#FF55FF'>WEEKLYBOSS</font></b> for free rewards!]],
-		
+
 	[[<b><font color='#FFD700'>v3.1 - Seasons & Hall of Fame (May 22nd)</font></b>
 
 <font color='#D745FF'>[+]</font> <b>Hall of Fame & Seasons:</b> Seasonal leaderboards have officially arrived! Climb the ranks and solidify your legacy. Top players will be permanently immortalized in the new Hall of Fame UI!
